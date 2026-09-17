@@ -40,8 +40,8 @@ namespace
     IDXGIFactory1* pFactory1 = nullptr;
     IDXGIFactory6* pFactory6 = nullptr;
     IDXGIAdapter1* pAdapter = nullptr;
-    EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory1));
-    EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory6));
+    W_SCOPE_EXIT(W_GAL_DX11_RELEASE(pFactory1));
+    W_SCOPE_EXIT(W_GAL_DX11_RELEASE(pFactory6));
 
     if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&pFactory1))))
       return nullptr;
@@ -56,41 +56,41 @@ namespace
   }
 } // namespace
 
-ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description)
+WInternal::NewInstance<WGALDevice> CreateDX11Device(WAllocator* pAllocator, const WGALDeviceCreationDescription& description)
 {
-  return EZ_NEW(pAllocator, ezGALDeviceDX11, description);
+  return W_NEW(pAllocator, WGALDeviceDX11, description);
 }
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererDX11, DeviceFactory)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererDX11, DeviceFactory)
 
 ON_CORESYSTEMS_STARTUP
 {
-  ezGALDeviceFactory::RegisterCreatorFunc("DX11", &CreateDX11Device, "DX11_SM50", "ezShaderCompilerHLSL");
+  WGALDeviceFactory::RegisterCreatorFunc("DX11", &CreateDX11Device, "DX11_SM50", "WShaderCompilerHLSL");
 }
 
 ON_CORESYSTEMS_SHUTDOWN
 {
-  ezGALDeviceFactory::UnregisterCreatorFunc("DX11");
+  WGALDeviceFactory::UnregisterCreatorFunc("DX11");
 }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
-  : ezGALDevice(Description)
+WGALDeviceDX11::WGALDeviceDX11(const WGALDeviceCreationDescription& Description)
+  : WGALDevice(Description)
   // NOLINTNEXTLINE
   , m_uiFeatureLevel(D3D_FEATURE_LEVEL_9_1)
 {
 }
 
-ezGALDeviceDX11::~ezGALDeviceDX11() = default;
+WGALDeviceDX11::~WGALDeviceDX11() = default;
 
 // Init & shutdown functions
 
-ezResult ezGALDeviceDX11::InitPlatform(DWORD dwFlags, IDXGIAdapter* pUsedAdapter)
+WResult WGALDeviceDX11::InitPlatform(DWORD dwFlags, IDXGIAdapter* pUsedAdapter)
 {
-  EZ_LOG_BLOCK("ezGALDeviceDX11::InitPlatform");
+  W_LOG_BLOCK("WGALDeviceDX11::InitPlatform");
 
 retry:
 
@@ -115,7 +115,7 @@ retry:
   // The create device call will fail even though the 11.0 (or lower) level could've been
   // initialized successfully
   int FeatureLevelIdx = 0;
-  for (FeatureLevelIdx = 0; FeatureLevelIdx < EZ_ARRAY_SIZE(FeatureLevels); FeatureLevelIdx++)
+  for (FeatureLevelIdx = 0; FeatureLevelIdx < W_ARRAY_SIZE(FeatureLevels); FeatureLevelIdx++)
   {
     if (SUCCEEDED(D3D11CreateDevice(pUsedAdapter, driverType, nullptr, dwFlags, &FeatureLevels[FeatureLevelIdx], 1, D3D11_SDK_VERSION, &m_pDevice, (D3D_FEATURE_LEVEL*)&m_uiFeatureLevel, &pImmediateContext)))
     {
@@ -128,14 +128,14 @@ retry:
   {
     if (m_Description.m_bDebugDevice)
     {
-      ezLog::Warning("Couldn't initialize D3D11 debug device!");
+      WLog::Warning("Couldn't initialize D3D11 debug device!");
 
       m_Description.m_bDebugDevice = false;
       goto retry;
     }
 
-    ezLog::Error("Couldn't initialize D3D11 device!");
-    return EZ_FAILURE;
+    WLog::Error("Couldn't initialize D3D11 device!");
+    return W_FAILURE;
   }
   else
   {
@@ -143,7 +143,7 @@ retry:
 
     const char* FeatureLevelNames[] = {"11.1", "11.0", "10.1", "10", "9.3"};
 
-    static_assert(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
+    static_assert(W_ARRAY_SIZE(FeatureLevels) == W_ARRAY_SIZE(FeatureLevelNames));
 
     // Get the adapter from the device
     IDXGIDevice* pDXGIDevice = nullptr;
@@ -160,13 +160,13 @@ retry:
       pDXGIDevice->Release();
     }
 
-    ezLog::Success("Initialized D3D11 device '{}' with feature level {}.", desc1.Description, FeatureLevelNames[FeatureLevelIdx]);
+    WLog::Success("Initialized D3D11 device '{}' with feature level {}.", desc1.Description, FeatureLevelNames[FeatureLevelIdx]);
 
     // Validate that we got the minimum required feature level
     if (m_uiFeatureLevel < D3D_FEATURE_LEVEL_11_1)
     {
-      EZ_REPORT_FAILURE("The graphics hardware only supports Direct3D feature level {0}, but ezEngine requires feature level 11.1 or higher. ", FeatureLevelNames[FeatureLevelIdx]);
-      return EZ_FAILURE;
+      W_REPORT_FAILURE("The graphics hardware only supports Direct3D feature level {0}, but WorldEngine requires feature level 11.1 or higher. ", FeatureLevelNames[FeatureLevelIdx]);
+      return W_FAILURE;
     }
   }
 
@@ -178,7 +178,7 @@ retry:
       if (SUCCEEDED(m_pDebug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&pInfoQueue)))
       {
         // only do this when a debugger is attached, otherwise the app would crash on every DX error
-        if (ezSystemInformation::IsDebuggerAttached())
+        if (WSystemInformation::IsDebuggerAttached())
         {
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
@@ -195,8 +195,8 @@ retry:
             // Add more message IDs here as needed
           };
           D3D11_INFO_QUEUE_FILTER filter;
-          ezMemoryUtils::ZeroFill(&filter, 1);
-          filter.DenyList.NumIDs = EZ_ARRAY_SIZE(hide);
+          WMemoryUtils::ZeroFill(&filter, 1);
+          filter.DenyList.NumIDs = W_ARRAY_SIZE(hide);
           filter.DenyList.pIDList = hide;
           pInfoQueue->AddStorageFilterEntries(&filter);
         }
@@ -208,77 +208,77 @@ retry:
 
 
   // Create default pass
-  m_pCommandEncoderImpl = EZ_DEFAULT_NEW(ezGALCommandEncoderImplDX11, *this);
-  m_pCommandEncoder = EZ_DEFAULT_NEW(ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
+  m_pCommandEncoderImpl = W_DEFAULT_NEW(WGALCommandEncoderImplDX11, *this);
+  m_pCommandEncoder = W_DEFAULT_NEW(WGALCommandEncoder, *this, *m_pCommandEncoderImpl);
 
   if (FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void**)&m_pDXGIDevice)))
   {
-    ezLog::Error("Couldn't get the DXGIDevice1 interface of the D3D11 device - this may happen when running on Windows Vista without SP2 "
+    WLog::Error("Couldn't get the DXGIDevice1 interface of the D3D11 device - this may happen when running on Windows Vista without SP2 "
                  "installed!");
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (FAILED(m_pDevice->QueryInterface(__uuidof(ID3D11Device3), (void**)&m_pDevice3)))
   {
-    ezLog::Info("D3D device doesn't support ID3D11Device3, some features might be unavailable.");
+    WLog::Info("D3D device doesn't support ID3D11Device3, some features might be unavailable.");
   }
 
   if (FAILED(m_pDXGIDevice->SetMaximumFrameLatency(1)))
   {
-    ezLog::Warning("Failed to set max frames latency");
+    WLog::Warning("Failed to set max frames latency");
   }
 
   if (FAILED(m_pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&m_pDXGIAdapter)))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (FAILED(m_pDXGIAdapter->GetParent(__uuidof(IDXGIFactory1), (void**)&m_pDXGIFactory)))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezFencePoolDX11::Initialize(this);
-  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueDX11, &m_Allocator);
+  WFencePoolDX11::Initialize(this);
+  m_pFenceQueue = W_NEW(&m_Allocator, WFenceQueueDX11, &m_Allocator);
 
   // Fill lookup table
   FillFormatLookupTable();
 
-  ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
-  ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
+  WClipSpaceDepthRange::Default = WClipSpaceDepthRange::ZeroToOne;
+  WClipSpaceYMode::RenderToTextureDefault = WClipSpaceYMode::Regular;
 
-  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolDX11, this);
+  m_pQueryPool = W_NEW(&m_Allocator, WQueryPoolDX11, this);
   if (m_pQueryPool->Initialize().Failed())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
-    { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
-        { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
+  WGALWindowSwapChain::SetFactoryMethod([this](const WGALWindowSwapChainCreationDescription& desc) -> WGALSwapChainHandle
+    { return CreateSwapChain([&desc](WAllocator* pAllocator) -> WGALSwapChain*
+        { return W_NEW(pAllocator, WGALSwapChainDX11, desc); }); });
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   // RenderDoc cannot handle buffers that are mapped in a different frame than the current one
   m_bSupportsAlwaysMappedTempResources = GetModuleHandleA("renderdoc.dll") == nullptr;
 #endif
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStringView ezGALDeviceDX11::GetRendererPlatform()
+WStringView WGALDeviceDX11::GetRendererPlatform()
 {
   return "DX11";
 }
 
-ezResult ezGALDeviceDX11::InitPlatform()
+WResult WGALDeviceDX11::InitPlatform()
 {
   IDXGIAdapter1* pAdapter = CreateHighPerformanceAdapter();
-  EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pAdapter));
+  W_SCOPE_EXIT(W_GAL_DX11_RELEASE(pAdapter));
   return InitPlatform(0, pAdapter);
 }
 
-void ezGALDeviceDX11::ReportLiveGpuObjects()
+void WGALDeviceDX11::ReportLiveGpuObjects()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
   const HMODULE hDxgiDebugDLL = LoadLibraryW(L"Dxgidebug.dll");
 
@@ -309,29 +309,29 @@ void ezGALDeviceDX11::ReportLiveGpuObjects()
 #endif
 }
 
-void ezGALDeviceDX11::FlushDeadObjects()
+void WGALDeviceDX11::FlushDeadObjects()
 {
   DestroyDeadObjects();
 }
 
-ezResult ezGALDeviceDX11::ShutdownPlatform()
+WResult WGALDeviceDX11::ShutdownPlatform()
 {
-  ezGALWindowSwapChain::SetFactoryMethod({});
-  for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
+  WGALWindowSwapChain::SetFactoryMethod({});
+  for (WUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
   {
     for (auto it = m_FreeTempResources[type].GetIterator(); it.IsValid(); ++it)
     {
-      ezDynamicArray<TempResource>& tempResources = it.Value();
+      WDynamicArray<TempResource>& tempResources = it.Value();
       for (auto tempResource : tempResources)
       {
-        EZ_GAL_DX11_RELEASE(tempResource.m_pResource);
+        W_GAL_DX11_RELEASE(tempResource.m_pResource);
       }
     }
     m_FreeTempResources[type].Clear();
 
     for (auto& tempResource : m_UsedTempResources[type])
     {
-      EZ_GAL_DX11_RELEASE(tempResource.m_pResource);
+      W_GAL_DX11_RELEASE(tempResource.m_pResource);
     }
     m_UsedTempResources[type].Clear();
   }
@@ -339,57 +339,57 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   m_pQueryPool->DeInitialize();
   m_pQueryPool = nullptr;
   m_pFenceQueue = nullptr;
-  ezFencePoolDX11::DeInitialize();
+  WFencePoolDX11::DeInitialize();
 
   m_pCommandEncoder = nullptr;
   m_pCommandEncoderImpl = nullptr;
 
-  EZ_GAL_DX11_RELEASE(m_pImmediateContext);
-  EZ_GAL_DX11_RELEASE(m_pDevice3);
-  EZ_GAL_DX11_RELEASE(m_pDevice);
-  EZ_GAL_DX11_RELEASE(m_pDebug);
-  EZ_GAL_DX11_RELEASE(m_pDXGIFactory);
-  EZ_GAL_DX11_RELEASE(m_pDXGIAdapter);
-  EZ_GAL_DX11_RELEASE(m_pDXGIDevice);
+  W_GAL_DX11_RELEASE(m_pImmediateContext);
+  W_GAL_DX11_RELEASE(m_pDevice3);
+  W_GAL_DX11_RELEASE(m_pDevice);
+  W_GAL_DX11_RELEASE(m_pDebug);
+  W_GAL_DX11_RELEASE(m_pDXGIFactory);
+  W_GAL_DX11_RELEASE(m_pDXGIAdapter);
+  W_GAL_DX11_RELEASE(m_pDXGIDevice);
 
   ReportLiveGpuObjects();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // Command encoder functions
 
-ezGALCommandEncoder* ezGALDeviceDX11::BeginCommandsPlatform(const char* szName)
+WGALCommandEncoder* WGALDeviceDX11::BeginCommandsPlatform(const char* szName)
 {
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
+#if W_ENABLED(W_USE_PROFILING)
+  m_pPassTimingScope = WProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
 #else
-  EZ_IGNORE_UNUSED(szName);
+  W_IGNORE_UNUSED(szName);
 #endif
 
   return m_pCommandEncoder.Borrow();
 }
 
-void ezGALDeviceDX11::EndCommandsPlatform(ezGALCommandEncoder* pPass)
+void WGALDeviceDX11::EndCommandsPlatform(WGALCommandEncoder* pPass)
 {
-  EZ_ASSERT_DEV(m_pCommandEncoder.Borrow() == pPass, "Invalid pass");
-  EZ_IGNORE_UNUSED(pPass);
+  W_ASSERT_DEV(m_pCommandEncoder.Borrow() == pPass, "Invalid pass");
+  W_IGNORE_UNUSED(pPass);
 
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
+#if W_ENABLED(W_USE_PROFILING)
+  WProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
 #endif
 }
 
-void ezGALDeviceDX11::FlushPlatform()
+void WGALDeviceDX11::FlushPlatform()
 {
   m_pCommandEncoderImpl->FlushPlatform();
 }
 
 // State creation functions
 
-ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendStateCreationDescription& Description)
+WGALBlendState* WGALDeviceDX11::CreateBlendStatePlatform(const WGALBlendStateCreationDescription& Description)
 {
-  ezGALBlendStateDX11* pState = EZ_NEW(&m_Allocator, ezGALBlendStateDX11, Description);
+  WGALBlendStateDX11* pState = W_NEW(&m_Allocator, WGALBlendStateDX11, Description);
 
   if (pState->InitPlatform(this).Succeeded())
   {
@@ -397,21 +397,21 @@ ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendState
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pState);
+    W_DELETE(&m_Allocator, pState);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)
+void WGALDeviceDX11::DestroyBlendStatePlatform(WGALBlendState* pBlendState)
 {
-  ezGALBlendStateDX11* pState = static_cast<ezGALBlendStateDX11*>(pBlendState);
+  WGALBlendStateDX11* pState = static_cast<WGALBlendStateDX11*>(pBlendState);
   pState->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pState);
+  W_DELETE(&m_Allocator, pState);
 }
 
-ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const ezGALDepthStencilStateCreationDescription& Description)
+WGALDepthStencilState* WGALDeviceDX11::CreateDepthStencilStatePlatform(const WGALDepthStencilStateCreationDescription& Description)
 {
-  ezGALDepthStencilStateDX11* pDX11DepthStencilState = EZ_NEW(&m_Allocator, ezGALDepthStencilStateDX11, Description);
+  WGALDepthStencilStateDX11* pDX11DepthStencilState = W_NEW(&m_Allocator, WGALDepthStencilStateDX11, Description);
 
   if (pDX11DepthStencilState->InitPlatform(this).Succeeded())
   {
@@ -419,21 +419,21 @@ ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const e
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pDX11DepthStencilState);
+    W_DELETE(&m_Allocator, pDX11DepthStencilState);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroyDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
+void WGALDeviceDX11::DestroyDepthStencilStatePlatform(WGALDepthStencilState* pDepthStencilState)
 {
-  ezGALDepthStencilStateDX11* pDX11DepthStencilState = static_cast<ezGALDepthStencilStateDX11*>(pDepthStencilState);
+  WGALDepthStencilStateDX11* pDX11DepthStencilState = static_cast<WGALDepthStencilStateDX11*>(pDepthStencilState);
   pDX11DepthStencilState->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11DepthStencilState);
+  W_DELETE(&m_Allocator, pDX11DepthStencilState);
 }
 
-ezGALRasterizerState* ezGALDeviceDX11::CreateRasterizerStatePlatform(const ezGALRasterizerStateCreationDescription& Description)
+WGALRasterizerState* WGALDeviceDX11::CreateRasterizerStatePlatform(const WGALRasterizerStateCreationDescription& Description)
 {
-  ezGALRasterizerStateDX11* pDX11RasterizerState = EZ_NEW(&m_Allocator, ezGALRasterizerStateDX11, Description);
+  WGALRasterizerStateDX11* pDX11RasterizerState = W_NEW(&m_Allocator, WGALRasterizerStateDX11, Description);
 
   if (pDX11RasterizerState->InitPlatform(this).Succeeded())
   {
@@ -441,21 +441,21 @@ ezGALRasterizerState* ezGALDeviceDX11::CreateRasterizerStatePlatform(const ezGAL
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pDX11RasterizerState);
+    W_DELETE(&m_Allocator, pDX11RasterizerState);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroyRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState)
+void WGALDeviceDX11::DestroyRasterizerStatePlatform(WGALRasterizerState* pRasterizerState)
 {
-  ezGALRasterizerStateDX11* pDX11RasterizerState = static_cast<ezGALRasterizerStateDX11*>(pRasterizerState);
+  WGALRasterizerStateDX11* pDX11RasterizerState = static_cast<WGALRasterizerStateDX11*>(pRasterizerState);
   pDX11RasterizerState->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11RasterizerState);
+  W_DELETE(&m_Allocator, pDX11RasterizerState);
 }
 
-ezGALSamplerState* ezGALDeviceDX11::CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description)
+WGALSamplerState* WGALDeviceDX11::CreateSamplerStatePlatform(const WGALSamplerStateCreationDescription& Description)
 {
-  ezGALSamplerStateDX11* pDX11SamplerState = EZ_NEW(&m_Allocator, ezGALSamplerStateDX11, Description);
+  WGALSamplerStateDX11* pDX11SamplerState = W_NEW(&m_Allocator, WGALSamplerStateDX11, Description);
 
   if (pDX11SamplerState->InitPlatform(this).Succeeded())
   {
@@ -463,28 +463,28 @@ ezGALSamplerState* ezGALDeviceDX11::CreateSamplerStatePlatform(const ezGALSample
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pDX11SamplerState);
+    W_DELETE(&m_Allocator, pDX11SamplerState);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState)
+void WGALDeviceDX11::DestroySamplerStatePlatform(WGALSamplerState* pSamplerState)
 {
-  ezGALSamplerStateDX11* pDX11SamplerState = static_cast<ezGALSamplerStateDX11*>(pSamplerState);
+  WGALSamplerStateDX11* pDX11SamplerState = static_cast<WGALSamplerStateDX11*>(pSamplerState);
   pDX11SamplerState->DeInitPlatform(this).AssertSuccess();
-  EZ_DELETE(&m_Allocator, pDX11SamplerState);
+  W_DELETE(&m_Allocator, pDX11SamplerState);
 }
 
-void ezGALDeviceDX11::RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState)
+void WGALDeviceDX11::RecreateSamplerStatePlatform(WGALSamplerState* pSamplerState)
 {
-  ezGALSamplerStateDX11* pDX11SamplerState = static_cast<ezGALSamplerStateDX11*>(pSamplerState);
+  WGALSamplerStateDX11* pDX11SamplerState = static_cast<WGALSamplerStateDX11*>(pSamplerState);
   pDX11SamplerState->DeInitPlatform(this).AssertSuccess();
   pDX11SamplerState->InitPlatform(this).AssertSuccess();
 }
 
-ezGALBindGroupLayout* ezGALDeviceDX11::CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description)
+WGALBindGroupLayout* WGALDeviceDX11::CreateBindGroupLayoutPlatform(const WGALBindGroupLayoutCreationDescription& Description)
 {
-  ezGALBindGroupLayoutDX11* pDX11BindGroupLayout = EZ_NEW(&m_Allocator, ezGALBindGroupLayoutDX11, Description);
+  WGALBindGroupLayoutDX11* pDX11BindGroupLayout = W_NEW(&m_Allocator, WGALBindGroupLayoutDX11, Description);
 
   if (pDX11BindGroupLayout->InitPlatform(this).Succeeded())
   {
@@ -492,21 +492,21 @@ ezGALBindGroupLayout* ezGALDeviceDX11::CreateBindGroupLayoutPlatform(const ezGAL
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pDX11BindGroupLayout);
+    W_DELETE(&m_Allocator, pDX11BindGroupLayout);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout)
+void WGALDeviceDX11::DestroyBindGroupLayoutPlatform(WGALBindGroupLayout* pBindGroupLayout)
 {
-  ezGALBindGroupLayoutDX11* pDX11BindGroupLayout = static_cast<ezGALBindGroupLayoutDX11*>(pBindGroupLayout);
+  WGALBindGroupLayoutDX11* pDX11BindGroupLayout = static_cast<WGALBindGroupLayoutDX11*>(pBindGroupLayout);
   pDX11BindGroupLayout->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11BindGroupLayout);
+  W_DELETE(&m_Allocator, pDX11BindGroupLayout);
 }
 
-ezGALBindGroup* ezGALDeviceDX11::CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description)
+WGALBindGroup* WGALDeviceDX11::CreateBindGroupPlatform(const WGALBindGroupCreationDescription& Description)
 {
-  ezGALBindGroupDX11* pDX11BindGroup = EZ_NEW(&m_Allocator, ezGALBindGroupDX11, Description);
+  WGALBindGroupDX11* pDX11BindGroup = W_NEW(&m_Allocator, WGALBindGroupDX11, Description);
 
   if (pDX11BindGroup->InitPlatform(this).Succeeded())
   {
@@ -514,27 +514,27 @@ ezGALBindGroup* ezGALDeviceDX11::CreateBindGroupPlatform(const ezGALBindGroupCre
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pDX11BindGroup);
+    W_DELETE(&m_Allocator, pDX11BindGroup);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup)
+void WGALDeviceDX11::RecreateBindGroupPlatform(WGALBindGroup* pBindGroup)
 {
-  EZ_IGNORE_UNUSED(pBindGroup);
+  W_IGNORE_UNUSED(pBindGroup);
 }
 
-void ezGALDeviceDX11::DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup)
+void WGALDeviceDX11::DestroyBindGroupPlatform(WGALBindGroup* pBindGroup)
 {
-  ezGALBindGroupDX11* pDX11BindGroup = static_cast<ezGALBindGroupDX11*>(pBindGroup);
+  WGALBindGroupDX11* pDX11BindGroup = static_cast<WGALBindGroupDX11*>(pBindGroup);
   pDX11BindGroup->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11BindGroup);
+  W_DELETE(&m_Allocator, pDX11BindGroup);
 }
 
 
-ezGALPipelineLayout* ezGALDeviceDX11::CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description)
+WGALPipelineLayout* WGALDeviceDX11::CreatePipelineLayoutPlatform(const WGALPipelineLayoutCreationDescription& Description)
 {
-  ezGALPipelineLayoutDX11* pDX11PipelineLayout = EZ_NEW(&m_Allocator, ezGALPipelineLayoutDX11, Description);
+  WGALPipelineLayoutDX11* pDX11PipelineLayout = W_NEW(&m_Allocator, WGALPipelineLayoutDX11, Description);
 
   if (pDX11PipelineLayout->InitPlatform(this).Succeeded())
   {
@@ -542,21 +542,21 @@ ezGALPipelineLayout* ezGALDeviceDX11::CreatePipelineLayoutPlatform(const ezGALPi
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pDX11PipelineLayout);
+    W_DELETE(&m_Allocator, pDX11PipelineLayout);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout)
+void WGALDeviceDX11::DestroyPipelineLayoutPlatform(WGALPipelineLayout* pPipelineLayout)
 {
-  ezGALPipelineLayoutDX11* pDX11PipelineLayout = static_cast<ezGALPipelineLayoutDX11*>(pPipelineLayout);
+  WGALPipelineLayoutDX11* pDX11PipelineLayout = static_cast<WGALPipelineLayoutDX11*>(pPipelineLayout);
   pDX11PipelineLayout->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11PipelineLayout);
+  W_DELETE(&m_Allocator, pDX11PipelineLayout);
 }
 
-ezGALGraphicsPipeline* ezGALDeviceDX11::CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description)
+WGALGraphicsPipeline* WGALDeviceDX11::CreateGraphicsPipelinePlatform(const WGALGraphicsPipelineCreationDescription& Description)
 {
-  ezGALGraphicsPipelineDX11* pGraphicsPipeline = EZ_NEW(&m_Allocator, ezGALGraphicsPipelineDX11, Description);
+  WGALGraphicsPipelineDX11* pGraphicsPipeline = W_NEW(&m_Allocator, WGALGraphicsPipelineDX11, Description);
 
   if (pGraphicsPipeline->InitPlatform(this).Succeeded())
   {
@@ -564,21 +564,21 @@ ezGALGraphicsPipeline* ezGALDeviceDX11::CreateGraphicsPipelinePlatform(const ezG
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pGraphicsPipeline);
+    W_DELETE(&m_Allocator, pGraphicsPipeline);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline)
+void WGALDeviceDX11::DestroyGraphicsPipelinePlatform(WGALGraphicsPipeline* pGraphicsPipeline)
 {
-  ezGALGraphicsPipelineDX11* pGraphicsPipelineDX11 = static_cast<ezGALGraphicsPipelineDX11*>(pGraphicsPipeline);
+  WGALGraphicsPipelineDX11* pGraphicsPipelineDX11 = static_cast<WGALGraphicsPipelineDX11*>(pGraphicsPipeline);
   pGraphicsPipelineDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pGraphicsPipelineDX11);
+  W_DELETE(&m_Allocator, pGraphicsPipelineDX11);
 }
 
-ezGALComputePipeline* ezGALDeviceDX11::CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description)
+WGALComputePipeline* WGALDeviceDX11::CreateComputePipelinePlatform(const WGALComputePipelineCreationDescription& Description)
 {
-  ezGALComputePipelineDX11* pComputePipeline = EZ_NEW(&m_Allocator, ezGALComputePipelineDX11, Description);
+  WGALComputePipelineDX11* pComputePipeline = W_NEW(&m_Allocator, WGALComputePipelineDX11, Description);
 
   if (pComputePipeline->InitPlatform(this).Succeeded())
   {
@@ -586,69 +586,69 @@ ezGALComputePipeline* ezGALDeviceDX11::CreateComputePipelinePlatform(const ezGAL
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pComputePipeline);
+    W_DELETE(&m_Allocator, pComputePipeline);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline)
+void WGALDeviceDX11::DestroyComputePipelinePlatform(WGALComputePipeline* pComputePipeline)
 {
-  ezGALComputePipelineDX11* pComputePipelineDX11 = static_cast<ezGALComputePipelineDX11*>(pComputePipeline);
+  WGALComputePipelineDX11* pComputePipelineDX11 = static_cast<WGALComputePipelineDX11*>(pComputePipeline);
   pComputePipelineDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pComputePipelineDX11);
+  W_DELETE(&m_Allocator, pComputePipelineDX11);
 }
 
 // Resource creation functions
 
-ezGALShader* ezGALDeviceDX11::CreateShaderPlatform(const ezGALShaderCreationDescription& Description)
+WGALShader* WGALDeviceDX11::CreateShaderPlatform(const WGALShaderCreationDescription& Description)
 {
-  ezGALShaderDX11* pShader = EZ_NEW(&m_Allocator, ezGALShaderDX11, Description);
+  WGALShaderDX11* pShader = W_NEW(&m_Allocator, WGALShaderDX11, Description);
 
   if (!pShader->InitPlatform(this).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pShader);
+    W_DELETE(&m_Allocator, pShader);
     return nullptr;
   }
 
   return pShader;
 }
 
-void ezGALDeviceDX11::DestroyShaderPlatform(ezGALShader* pShader)
+void WGALDeviceDX11::DestroyShaderPlatform(WGALShader* pShader)
 {
-  ezGALShaderDX11* pDX11Shader = static_cast<ezGALShaderDX11*>(pShader);
+  WGALShaderDX11* pDX11Shader = static_cast<WGALShaderDX11*>(pShader);
   pDX11Shader->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11Shader);
+  W_DELETE(&m_Allocator, pDX11Shader);
 }
 
-ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData)
+WGALBuffer* WGALDeviceDX11::CreateBufferPlatform(const WGALBufferCreationDescription& Description, WArrayPtr<const WUInt8> pInitialData)
 {
-  if (Description.m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::DrawIndirect | ezGALBufferUsageFlags::StructuredBuffer))
+  if (Description.m_BufferFlags.AreAllSet(WGALBufferUsageFlags::DrawIndirect | WGALBufferUsageFlags::StructuredBuffer))
   {
-    ezLog::Error("DX11 does not support creating buffers with both DrawIndirect and StructuredBuffer set");
+    WLog::Error("DX11 does not support creating buffers with both DrawIndirect and StructuredBuffer set");
     return nullptr;
   }
-  if (Description.m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::DrawIndirect | ezGALBufferUsageFlags::ConstantBuffer))
+  if (Description.m_BufferFlags.AreAllSet(WGALBufferUsageFlags::DrawIndirect | WGALBufferUsageFlags::ConstantBuffer))
   {
-    ezLog::Error("DX11 does not support creating buffers with both DrawIndirect and ConstantBuffer set");
+    WLog::Error("DX11 does not support creating buffers with both DrawIndirect and ConstantBuffer set");
     return nullptr;
   }
 
-  ezGALBufferDX11* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferDX11, Description);
+  WGALBufferDX11* pBuffer = W_NEW(&m_Allocator, WGALBufferDX11, Description);
 
   if (!pBuffer->InitPlatform(this, pInitialData).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pBuffer);
+    W_DELETE(&m_Allocator, pBuffer);
     return nullptr;
   }
 
   return pBuffer;
 }
 
-void ezGALDeviceDX11::DestroyBufferPlatform(ezGALBuffer* pBuffer)
+void WGALDeviceDX11::DestroyBufferPlatform(WGALBuffer* pBuffer)
 {
-  ezGALBufferDX11* pDX11Buffer = static_cast<ezGALBufferDX11*>(pBuffer);
+  WGALBufferDX11* pDX11Buffer = static_cast<WGALBufferDX11*>(pBuffer);
 
-  for (ezUInt32 i = 0; i < m_PendingCopies.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_PendingCopies.GetCount(); ++i)
   {
     auto& copy = m_PendingCopies[i];
 
@@ -661,27 +661,27 @@ void ezGALDeviceDX11::DestroyBufferPlatform(ezGALBuffer* pBuffer)
   }
 
   pDX11Buffer->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11Buffer);
+  W_DELETE(&m_Allocator, pDX11Buffer);
 }
 
-ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+WGALTexture* WGALDeviceDX11::CreateTexturePlatform(const WGALTextureCreationDescription& Description, WArrayPtr<WGALSystemMemoryDescription> pInitialData)
 {
-  ezGALTextureDX11* pTexture = EZ_NEW(&m_Allocator, ezGALTextureDX11, Description);
+  WGALTextureDX11* pTexture = W_NEW(&m_Allocator, WGALTextureDX11, Description);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pTexture);
+    W_DELETE(&m_Allocator, pTexture);
     return nullptr;
   }
 
   return pTexture;
 }
 
-void ezGALDeviceDX11::DestroyTexturePlatform(ezGALTexture* pTexture)
+void WGALDeviceDX11::DestroyTexturePlatform(WGALTexture* pTexture)
 {
-  ezGALTextureDX11* pDX11Texture = static_cast<ezGALTextureDX11*>(pTexture);
+  WGALTextureDX11* pDX11Texture = static_cast<WGALTextureDX11*>(pTexture);
 
-  for (ezUInt32 i = 0; i < m_PendingCopies.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_PendingCopies.GetCount(); ++i)
   {
     auto& copy = m_PendingCopies[i];
 
@@ -694,96 +694,96 @@ void ezGALDeviceDX11::DestroyTexturePlatform(ezGALTexture* pTexture)
   }
 
   pDX11Texture->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11Texture);
+  W_DELETE(&m_Allocator, pDX11Texture);
 }
 
-ezGALTexture* ezGALDeviceDX11::CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle)
+WGALTexture* WGALDeviceDX11::CreateSharedTexturePlatform(const WGALTextureCreationDescription& Description, WArrayPtr<WGALSystemMemoryDescription> pInitialData, WEnum<WGALSharedTextureType> sharedType, WGALPlatformSharedHandle handle)
 {
-  ezGALSharedTextureDX11* pTexture = EZ_NEW(&m_Allocator, ezGALSharedTextureDX11, Description, sharedType, handle);
+  WGALSharedTextureDX11* pTexture = W_NEW(&m_Allocator, WGALSharedTextureDX11, Description, sharedType, handle);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pTexture);
+    W_DELETE(&m_Allocator, pTexture);
     return nullptr;
   }
 
   return pTexture;
 }
 
-void ezGALDeviceDX11::DestroySharedTexturePlatform(ezGALTexture* pTexture)
+void WGALDeviceDX11::DestroySharedTexturePlatform(WGALTexture* pTexture)
 {
-  ezGALSharedTextureDX11* pDX11Texture = static_cast<ezGALSharedTextureDX11*>(pTexture);
+  WGALSharedTextureDX11* pDX11Texture = static_cast<WGALSharedTextureDX11*>(pTexture);
   pDX11Texture->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11Texture);
+  W_DELETE(&m_Allocator, pDX11Texture);
 }
 
-ezGALReadbackBuffer* ezGALDeviceDX11::CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description)
+WGALReadbackBuffer* WGALDeviceDX11::CreateReadbackBufferPlatform(const WGALBufferCreationDescription& Description)
 {
-  ezGALReadbackBufferDX11* pReadbackBuffer = EZ_NEW(&m_Allocator, ezGALReadbackBufferDX11, Description);
+  WGALReadbackBufferDX11* pReadbackBuffer = W_NEW(&m_Allocator, WGALReadbackBufferDX11, Description);
 
   if (!pReadbackBuffer->InitPlatform(this).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pReadbackBuffer);
+    W_DELETE(&m_Allocator, pReadbackBuffer);
     return nullptr;
   }
 
   return pReadbackBuffer;
 }
 
-void ezGALDeviceDX11::DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer)
+void WGALDeviceDX11::DestroyReadbackBufferPlatform(WGALReadbackBuffer* pReadbackBuffer)
 {
-  ezGALReadbackBufferDX11* pDX11ReadbackBuffer = static_cast<ezGALReadbackBufferDX11*>(pReadbackBuffer);
+  WGALReadbackBufferDX11* pDX11ReadbackBuffer = static_cast<WGALReadbackBufferDX11*>(pReadbackBuffer);
 
   pDX11ReadbackBuffer->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11ReadbackBuffer);
+  W_DELETE(&m_Allocator, pDX11ReadbackBuffer);
 }
 
-ezGALReadbackTexture* ezGALDeviceDX11::CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description)
+WGALReadbackTexture* WGALDeviceDX11::CreateReadbackTexturePlatform(const WGALTextureCreationDescription& Description)
 {
-  ezGALReadbackTextureDX11* pReadbackTexture = EZ_NEW(&m_Allocator, ezGALReadbackTextureDX11, Description);
+  WGALReadbackTextureDX11* pReadbackTexture = W_NEW(&m_Allocator, WGALReadbackTextureDX11, Description);
 
   if (!pReadbackTexture->InitPlatform(this).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pReadbackTexture);
+    W_DELETE(&m_Allocator, pReadbackTexture);
     return nullptr;
   }
 
   return pReadbackTexture;
 }
 
-void ezGALDeviceDX11::DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture)
+void WGALDeviceDX11::DestroyReadbackTexturePlatform(WGALReadbackTexture* pReadbackTexture)
 {
-  ezGALReadbackTextureDX11* pDX11ReadbackTexture = static_cast<ezGALReadbackTextureDX11*>(pReadbackTexture);
+  WGALReadbackTextureDX11* pDX11ReadbackTexture = static_cast<WGALReadbackTextureDX11*>(pReadbackTexture);
 
   pDX11ReadbackTexture->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11ReadbackTexture);
+  W_DELETE(&m_Allocator, pDX11ReadbackTexture);
 }
 
-ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
+WGALRenderTargetView* WGALDeviceDX11::CreateRenderTargetViewPlatform(WGALTexture* pTexture, const WGALRenderTargetViewCreationDescription& Description)
 {
-  ezGALRenderTargetViewDX11* pRTView = EZ_NEW(&m_Allocator, ezGALRenderTargetViewDX11, pTexture, Description);
+  WGALRenderTargetViewDX11* pRTView = W_NEW(&m_Allocator, WGALRenderTargetViewDX11, pTexture, Description);
 
   if (!pRTView->InitPlatform(this).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pRTView);
+    W_DELETE(&m_Allocator, pRTView);
     return nullptr;
   }
 
   return pRTView;
 }
 
-void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView)
+void WGALDeviceDX11::DestroyRenderTargetViewPlatform(WGALRenderTargetView* pRenderTargetView)
 {
-  ezGALRenderTargetViewDX11* pDX11RenderTargetView = static_cast<ezGALRenderTargetViewDX11*>(pRenderTargetView);
+  WGALRenderTargetViewDX11* pDX11RenderTargetView = static_cast<WGALRenderTargetViewDX11*>(pRenderTargetView);
   pDX11RenderTargetView->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11RenderTargetView);
+  W_DELETE(&m_Allocator, pDX11RenderTargetView);
 }
 
 // Other rendering creation functions
 
-ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description)
+WGALVertexDeclaration* WGALDeviceDX11::CreateVertexDeclarationPlatform(const WGALVertexDeclarationCreationDescription& Description)
 {
-  ezGALVertexDeclarationDX11* pVertexDeclaration = EZ_NEW(&m_Allocator, ezGALVertexDeclarationDX11, Description);
+  WGALVertexDeclarationDX11* pVertexDeclaration = W_NEW(&m_Allocator, WGALVertexDeclarationDX11, Description);
 
   if (pVertexDeclaration->InitPlatform(this).Succeeded())
   {
@@ -791,39 +791,39 @@ ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const e
   }
   else
   {
-    EZ_DELETE(&m_Allocator, pVertexDeclaration);
+    W_DELETE(&m_Allocator, pVertexDeclaration);
     return nullptr;
   }
 }
 
-void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
+void WGALDeviceDX11::DestroyVertexDeclarationPlatform(WGALVertexDeclaration* pVertexDeclaration)
 {
-  ezGALVertexDeclarationDX11* pVertexDeclarationDX11 = static_cast<ezGALVertexDeclarationDX11*>(pVertexDeclaration);
+  WGALVertexDeclarationDX11* pVertexDeclarationDX11 = static_cast<WGALVertexDeclarationDX11*>(pVertexDeclaration);
   pVertexDeclarationDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pVertexDeclarationDX11);
+  W_DELETE(&m_Allocator, pVertexDeclarationDX11);
 }
 
-void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset)
+void WGALDeviceDX11::UpdateBufferForNextFramePlatform(const WGALBuffer* pBuffer, WConstByteArrayPtr sourceData, WUInt32 uiDestOffset)
 {
-  const ezGALBufferDX11* pBufferDX11 = static_cast<const ezGALBufferDX11*>(pBuffer);
+  const WGALBufferDX11* pBufferDX11 = static_cast<const WGALBufferDX11*>(pBuffer);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   for (auto& copy : m_PendingCopies)
   {
     if (copy.m_pDestResource == pBufferDX11->GetDXBuffer())
     {
-      const bool bWholeBuffer = copy.m_vSourceSize.x == ezInvalidIndex;
+      const bool bWholeBuffer = copy.m_vSourceSize.x == WInvalidIndex;
       const bool bOverlapping = uiDestOffset < copy.m_vDestPoint.x + copy.m_vSourceSize.x && copy.m_vDestPoint.x < uiDestOffset + sourceData.GetCount();
       if (bWholeBuffer || bOverlapping)
       {
-        ezLog::Error("Buffer range is already updated for next frame.");
+        WLog::Error("Buffer range is already updated for next frame.");
         return;
       }
     }
   }
 #endif
 
-  const ezUInt32 uiDestBufferSize = pBuffer->GetDescription().m_uiTotalSize;
+  const WUInt32 uiDestBufferSize = pBuffer->GetDescription().m_uiTotalSize;
 
   auto& copy = m_PendingCopies.ExpandAndGetRef();
   if (m_bSupportsAlwaysMappedTempResources)
@@ -832,26 +832,26 @@ void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffe
   }
   else
   {
-    auto sourceDataCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, sourceData.GetCount());
-    ezMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.GetPtr(), sourceData.GetCount());
+    auto sourceDataCopy = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WUInt8, sourceData.GetCount());
+    WMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.GetPtr(), sourceData.GetCount());
     copy.m_SourceData.m_pData = sourceDataCopy;
   }
   copy.m_pDestResource = pBufferDX11->GetDXBuffer();
   copy.m_vDestPoint.Set(uiDestOffset, 0, 0);
-  copy.m_vSourceSize = ezVec3U32(sourceData.GetCount(), 1, 1);
+  copy.m_vSourceSize = WVec3U32(sourceData.GetCount(), 1, 1);
   copy.m_bCopySubresource = uiDestOffset != 0 || copy.m_SourceResource.m_uiRowPitch != uiDestBufferSize;
 }
 
-void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox)
+void WGALDeviceDX11::UpdateTextureForNextFramePlatform(const WGALTexture* pTexture, const WGALSystemMemoryDescription& sourceData, const WGALTextureSubresource& destinationSubResource, const WBoundingBoxu32& destinationBox)
 {
-  const ezGALTextureDX11* pTextureDX11 = static_cast<const ezGALTextureDX11*>(pTexture);
+  const WGALTextureDX11* pTextureDX11 = static_cast<const WGALTextureDX11*>(pTexture);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   for (auto& copy : m_PendingCopies)
   {
     if (copy.m_pDestResource == pTextureDX11->GetDXTexture())
     {
-      ezLog::Error("Texture is already updated for next frame.");
+      WLog::Error("Texture is already updated for next frame.");
       return;
     }
   }
@@ -859,9 +859,9 @@ void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTex
 
   auto& desc = pTexture->GetDescription();
 
-  const ezUInt32 uiWidth = destinationBox.m_vMax.x - destinationBox.m_vMin.x;
-  const ezUInt32 uiHeight = destinationBox.m_vMax.y - destinationBox.m_vMin.y;
-  const ezUInt32 uiDepth = destinationBox.m_vMax.z - destinationBox.m_vMin.z;
+  const WUInt32 uiWidth = destinationBox.m_vMax.x - destinationBox.m_vMin.x;
+  const WUInt32 uiHeight = destinationBox.m_vMax.y - destinationBox.m_vMin.y;
+  const WUInt32 uiDepth = destinationBox.m_vMax.z - destinationBox.m_vMin.z;
 
   auto& copy = m_PendingCopies.ExpandAndGetRef();
   if (m_bSupportsAlwaysMappedTempResources)
@@ -870,10 +870,10 @@ void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTex
   }
   else
   {
-    const ezUInt32 uiSourceDataCount = static_cast<ezUInt32>(sourceData.m_pData.GetCount());
+    const WUInt32 uiSourceDataCount = static_cast<WUInt32>(sourceData.m_pData.GetCount());
 
-    auto sourceDataCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, uiSourceDataCount);
-    ezMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.m_pData.GetPtr(), uiSourceDataCount);
+    auto sourceDataCopy = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WUInt8, uiSourceDataCount);
+    WMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.m_pData.GetPtr(), uiSourceDataCount);
     copy.m_SourceData.m_pData = sourceDataCopy;
     copy.m_SourceData.m_uiRowPitch = sourceData.m_uiRowPitch;
     copy.m_SourceData.m_uiSlicePitch = sourceData.m_uiSlicePitch;
@@ -882,21 +882,21 @@ void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTex
   copy.m_pDestResource = pTextureDX11->GetDXTexture();
   copy.m_uiDestSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, desc.m_uiMipLevelCount);
   copy.m_vDestPoint = destinationBox.m_vMin;
-  copy.m_vSourceSize = ezVec3U32(uiWidth, uiHeight, uiDepth);
-  copy.m_bCopySubresource = !destinationBox.m_vMin.IsZero() || destinationBox.m_vMax != ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
+  copy.m_vSourceSize = WVec3U32(uiWidth, uiHeight, uiDepth);
+  copy.m_bCopySubresource = !destinationBox.m_vMin.IsZero() || destinationBox.m_vMax != WVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
 }
 
-ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result)
+WEnum<WGALAsyncResult> WGALDeviceDX11::GetTimestampResultPlatform(WGALTimestampHandle hTimestamp, WTime& out_result)
 {
   return m_pQueryPool->GetTimestampResult(hTimestamp, out_result);
 }
 
-ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult)
+WEnum<WGALAsyncResult> WGALDeviceDX11::GetOcclusionResultPlatform(WGALOcclusionHandle hOcclusion, WUInt64& out_uiResult)
 {
   return m_pQueryPool->GetOcclusionQueryResult(hOcclusion, out_uiResult);
 }
 
-ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout)
+WEnum<WGALAsyncResult> WGALDeviceDX11::GetFenceResultPlatform(WGALFenceHandle hFence, WTime timeout)
 {
   if (m_pFenceQueue->GetCurrentFenceHandle() == hFence && timeout.IsPositive())
   {
@@ -907,79 +907,79 @@ ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetFenceResultPlatform(ezGALFenceHandl
   return m_pFenceQueue->GetFenceResult(hFence, timeout);
 }
 
-ezResult ezGALDeviceDX11::LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const
+WResult WGALDeviceDX11::LockBufferPlatform(const WGALReadbackBuffer* pBuffer, WArrayPtr<const WUInt8>& out_Memory) const
 {
-  const ezGALReadbackBufferDX11* pDXBuffer = static_cast<const ezGALReadbackBufferDX11*>(pBuffer);
+  const WGALReadbackBufferDX11* pDXBuffer = static_cast<const WGALReadbackBufferDX11*>(pBuffer);
 
   D3D11_MAPPED_SUBRESOURCE Mapped;
   HRESULT hr = GetDXImmediateContext()->Map(pDXBuffer->GetDXBuffer(), 0, D3D11_MAP_READ, 0, &Mapped);
   if (FAILED(hr))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
-  out_Memory = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(Mapped.pData), pBuffer->GetDescription().m_uiTotalSize);
-  return EZ_SUCCESS;
+  out_Memory = WArrayPtr<const WUInt8>(reinterpret_cast<const WUInt8*>(Mapped.pData), pBuffer->GetDescription().m_uiTotalSize);
+  return W_SUCCESS;
 }
 
-void ezGALDeviceDX11::UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const
+void WGALDeviceDX11::UnlockBufferPlatform(const WGALReadbackBuffer* pBuffer) const
 {
-  const ezGALReadbackBufferDX11* pDXBuffer = static_cast<const ezGALReadbackBufferDX11*>(pBuffer);
+  const WGALReadbackBufferDX11* pDXBuffer = static_cast<const WGALReadbackBufferDX11*>(pBuffer);
   GetDXImmediateContext()->Unmap(pDXBuffer->GetDXBuffer(), 0);
 }
 
-ezResult ezGALDeviceDX11::LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const
+WResult WGALDeviceDX11::LockTexturePlatform(const WGALReadbackTexture* pTexture, const WArrayPtr<const WGALTextureSubresource>& subResources, WDynamicArray<WGALSystemMemoryDescription>& out_Memory) const
 {
   out_Memory.Clear();
-  const ezGALReadbackTextureDX11* pDXTexture = static_cast<const ezGALReadbackTextureDX11*>(pTexture);
+  const WGALReadbackTextureDX11* pDXTexture = static_cast<const WGALReadbackTextureDX11*>(pTexture);
 
-  const ezUInt32 uiSubResources = subResources.GetCount();
-  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  const WUInt32 uiSubResources = subResources.GetCount();
+  for (WUInt32 i = 0; i < uiSubResources; i++)
   {
-    const ezGALTextureSubresource& subRes = subResources[i];
-    ezGALSystemMemoryDescription& memDesc = out_Memory.ExpandAndGetRef();
-    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+    const WGALTextureSubresource& subRes = subResources[i];
+    WGALSystemMemoryDescription& memDesc = out_Memory.ExpandAndGetRef();
+    const WUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
 
     D3D11_MAPPED_SUBRESOURCE Mapped;
     if (FAILED(GetDXImmediateContext()->Map(pDXTexture->GetDXTexture(), uiSubResourceIndex, D3D11_MAP_READ, 0, &Mapped)))
     {
-      ezLog::Error("Failed to map sub resource with miplevel {} and array slice {}.", subRes.m_uiMipLevel, subRes.m_uiArraySlice);
+      WLog::Error("Failed to map sub resource with miplevel {} and array slice {}.", subRes.m_uiMipLevel, subRes.m_uiArraySlice);
     }
     else
     {
       switch (pTexture->GetDescription().m_Type)
       {
-        case ezGALTextureType::Texture2D:
-        case ezGALTextureType::Texture2DArray:
-        case ezGALTextureType::Texture2DProxy:
-        case ezGALTextureType::Texture2DShared:
-        case ezGALTextureType::TextureCube:
-        case ezGALTextureType::TextureCubeArray:
-          memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.RowPitch * pTexture->GetDescription().m_uiHeight);
+        case WGALTextureType::Texture2D:
+        case WGALTextureType::Texture2DArray:
+        case WGALTextureType::Texture2DProxy:
+        case WGALTextureType::Texture2DShared:
+        case WGALTextureType::TextureCube:
+        case WGALTextureType::TextureCubeArray:
+          memDesc.m_pData = WMakeByteBlobPtr(Mapped.pData, Mapped.RowPitch * pTexture->GetDescription().m_uiHeight);
           memDesc.m_uiRowPitch = Mapped.RowPitch;
           memDesc.m_uiSlicePitch = 0;
-        case ezGALTextureType::Texture3D:
-          memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.DepthPitch * pTexture->GetDescription().m_uiDepth);
+        case WGALTextureType::Texture3D:
+          memDesc.m_pData = WMakeByteBlobPtr(Mapped.pData, Mapped.DepthPitch * pTexture->GetDescription().m_uiDepth);
           memDesc.m_uiRowPitch = Mapped.RowPitch;
           memDesc.m_uiSlicePitch = Mapped.DepthPitch;
           break;
         default:
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          W_ASSERT_NOT_IMPLEMENTED;
           break;
       }
     }
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALDeviceDX11::UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const
+void WGALDeviceDX11::UnlockTexturePlatform(const WGALReadbackTexture* pTexture, const WArrayPtr<const WGALTextureSubresource>& subResources) const
 {
-  const ezGALReadbackTextureDX11* pDXTexture = static_cast<const ezGALReadbackTextureDX11*>(pTexture);
+  const WGALReadbackTextureDX11* pDXTexture = static_cast<const WGALReadbackTextureDX11*>(pTexture);
 
-  const ezUInt32 uiSubResources = subResources.GetCount();
-  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  const WUInt32 uiSubResources = subResources.GetCount();
+  for (WUInt32 i = 0; i < uiSubResources; i++)
   {
-    const ezGALTextureSubresource& subRes = subResources[i];
-    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+    const WGALTextureSubresource& subRes = subResources[i];
+    const WUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
 
     GetDXImmediateContext()->Unmap(pDXTexture->GetDXTexture(), uiSubResourceIndex);
   }
@@ -987,30 +987,30 @@ void ezGALDeviceDX11::UnlockTexturePlatform(const ezGALReadbackTexture* pTexture
 
 // Swap chain functions
 
-void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync)
+void WGALDeviceDX11::PresentPlatform(const WGALSwapChain* pSwapChain, bool bVSync)
 {
-  EZ_IGNORE_UNUSED(pSwapChain);
-  EZ_IGNORE_UNUSED(bVSync);
+  W_IGNORE_UNUSED(pSwapChain);
+  W_IGNORE_UNUSED(bVSync);
 }
 
 // Misc functions
 
-void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame)
+void WGALDeviceDX11::BeginFramePlatform(WArrayPtr<WGALSwapChain*> swapchains, const WUInt64 uiAppFrame)
 {
   // check if fence is reached
-  for (ezUInt64 uiFrame = m_uiSafeFrame + 1; uiFrame < m_uiFrameCounter; uiFrame++)
+  for (WUInt64 uiFrame = m_uiSafeFrame + 1; uiFrame < m_uiFrameCounter; uiFrame++)
   {
     auto& perFrameData = m_PerFrameData[uiFrame % FRAMES];
 
     // if we accumulate more frames than we can hold in the ring buffer, force waiting for fences.
     const bool bForce = uiFrame % FRAMES == m_uiFrameCounter % FRAMES;
-    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
+    if (perFrameData.m_uiFrame != ((WUInt64)-1))
     {
-      EZ_ASSERT_DEBUG(uiFrame == perFrameData.m_uiFrame, "Frame data was likely overwritten and no longer matches the expected previous frame index. This should have been prevented by bForce above.");
-      bool bFenceReached = m_pFenceQueue->GetFenceResult(perFrameData.m_hFence) == ezGALAsyncResult::Ready;
+      W_ASSERT_DEBUG(uiFrame == perFrameData.m_uiFrame, "Frame data was likely overwritten and no longer matches the expected previous frame index. This should have been prevented by bForce above.");
+      bool bFenceReached = m_pFenceQueue->GetFenceResult(perFrameData.m_hFence) == WGALAsyncResult::Ready;
       if (!bFenceReached && bForce)
       {
-        m_pFenceQueue->GetFenceResult(perFrameData.m_hFence, ezTime::MakeFromHours(1));
+        m_pFenceQueue->GetFenceResult(perFrameData.m_hFence, WTime::MakeFromHours(1));
         bFenceReached = true;
       }
       if (bFenceReached)
@@ -1024,36 +1024,36 @@ void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains,
     }
   }
 
-  EZ_ASSERT_DEBUG((m_uiFrameCounter % FRAMES) == m_uiCurrentPerFrameData, "");
+  W_ASSERT_DEBUG((m_uiFrameCounter % FRAMES) == m_uiCurrentPerFrameData, "");
   m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
 
   m_pQueryPool->BeginFrame();
 
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  ezStringBuilder sb;
+#if W_ENABLED(W_USE_PROFILING)
+  WStringBuilder sb;
   sb.SetFormat("RENDER FRAME {}", uiAppFrame);
-  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
+  m_pFrameTimingScope = WProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
 #else
-  EZ_IGNORE_UNUSED(uiAppFrame);
+  W_IGNORE_UNUSED(uiAppFrame);
 #endif
 
   ProcessPendingCopies();
 
-  for (ezGALSwapChain* pSwapChain : swapchains)
+  for (WGALSwapChain* pSwapChain : swapchains)
   {
     pSwapChain->AcquireNextRenderTarget(this);
   }
 }
 
-void ezGALDeviceDX11::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
+void WGALDeviceDX11::EndFramePlatform(WArrayPtr<WGALSwapChain*> swapchains)
 {
-  for (ezGALSwapChain* pSwapChain : swapchains)
+  for (WGALSwapChain* pSwapChain : swapchains)
   {
     pSwapChain->PresentRenderTarget(this);
   }
 
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pFrameTimingScope);
+#if W_ENABLED(W_USE_PROFILING)
+  WProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pFrameTimingScope);
 #endif
 
   m_pCommandEncoderImpl->EndFrame();
@@ -1066,26 +1066,26 @@ void ezGALDeviceDX11::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
   m_uiCurrentPerFrameData = (m_uiFrameCounter) % FRAMES;
 }
 
-ezUInt64 ezGALDeviceDX11::GetCurrentFramePlatform() const
+WUInt64 WGALDeviceDX11::GetCurrentFramePlatform() const
 {
   return m_uiFrameCounter;
 }
 
-ezUInt64 ezGALDeviceDX11::GetSafeFramePlatform() const
+WUInt64 WGALDeviceDX11::GetSafeFramePlatform() const
 {
   return m_uiSafeFrame;
 }
 
-void ezGALDeviceDX11::FillCapabilitiesPlatform()
+void WGALDeviceDX11::FillCapabilitiesPlatform()
 {
   {
     DXGI_ADAPTER_DESC1 adapterDesc;
     m_pDXGIAdapter->GetDesc1(&adapterDesc);
 
-    m_Capabilities.m_sAdapterName = ezStringUtf8(adapterDesc.Description).GetData();
-    m_Capabilities.m_uiDedicatedVRAM = static_cast<ezUInt64>(adapterDesc.DedicatedVideoMemory);
-    m_Capabilities.m_uiDedicatedSystemRAM = static_cast<ezUInt64>(adapterDesc.DedicatedSystemMemory);
-    m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(adapterDesc.SharedSystemMemory);
+    m_Capabilities.m_sAdapterName = WStringUtf8(adapterDesc.Description).GetData();
+    m_Capabilities.m_uiDedicatedVRAM = static_cast<WUInt64>(adapterDesc.DedicatedVideoMemory);
+    m_Capabilities.m_uiDedicatedSystemRAM = static_cast<WUInt64>(adapterDesc.DedicatedSystemMemory);
+    m_Capabilities.m_uiSharedSystemRAM = static_cast<WUInt64>(adapterDesc.SharedSystemMemory);
     m_Capabilities.m_bHardwareAccelerated = (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0;
     m_Capabilities.m_bSupportsTexelBuffer = true;
     m_Capabilities.m_bSupportsMultipleSRVTypes = false;
@@ -1097,12 +1097,12 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
   switch (m_uiFeatureLevel)
   {
     case D3D_FEATURE_LEVEL_11_1:
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true;
+      m_Capabilities.m_bShaderStageSupported[WGALShaderStage::VertexShader] = true;
+      m_Capabilities.m_bShaderStageSupported[WGALShaderStage::HullShader] = true;
+      m_Capabilities.m_bShaderStageSupported[WGALShaderStage::DomainShader] = true;
+      m_Capabilities.m_bShaderStageSupported[WGALShaderStage::GeometryShader] = true;
+      m_Capabilities.m_bShaderStageSupported[WGALShaderStage::PixelShader] = true;
+      m_Capabilities.m_bShaderStageSupported[WGALShaderStage::ComputeShader] = true;
       m_Capabilities.m_bSupportsIndirectDraw = true;
       m_Capabilities.m_bSupportsSharedTextures = true;
       m_Capabilities.m_bSupportsDepthBiasClamp = true;
@@ -1116,7 +1116,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       // case D3D_FEATURE_LEVEL_9_3:
 
     default:
-      EZ_ASSERT_ALWAYS(false, "Unsupported Direct3D feature level. This should have been caught during device initialization.");
+      W_ASSERT_ALWAYS(false, "Unsupported Direct3D feature level. This should have been caught during device initialization.");
       break;
   }
 
@@ -1135,46 +1135,46 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     }
   }
 
-  m_Capabilities.m_FormatSupport.SetCount(ezGALResourceFormat::ENUM_COUNT);
-  for (ezUInt32 i = 0; i < ezGALResourceFormat::ENUM_COUNT; i++)
+  m_Capabilities.m_FormatSupport.SetCount(WGALResourceFormat::ENUM_COUNT);
+  for (WUInt32 i = 0; i < WGALResourceFormat::ENUM_COUNT; i++)
   {
-    ezGALResourceFormat::Enum format = (ezGALResourceFormat::Enum)i;
-    const ezGALFormatLookupEntryDX11& entry = m_FormatLookupTable.GetFormatInfo(format);
-    const bool bIsDepth = ezGALResourceFormat::IsDepthFormat(format);
+    WGALResourceFormat::Enum format = (WGALResourceFormat::Enum)i;
+    const WGALFormatLookupEntryDX11& entry = m_FormatLookupTable.GetFormatInfo(format);
+    const bool bIsDepth = WGALResourceFormat::IsDepthFormat(format);
     if (bIsDepth)
     {
       UINT uiSampleSupport;
       if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eDepthOnlyType, &uiSampleSupport)))
       {
         if (uiSampleSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_SHADER_SAMPLE)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Texture);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::Texture);
 
         if (uiSampleSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_TYPED_UNORDERED_ACCESS_VIEW)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::TextureRW);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::TextureRW);
       }
 
       UINT uiRenderSupport;
       if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eDepthStencilType, &uiRenderSupport)))
       {
         if (uiRenderSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_DEPTH_STENCIL)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::RenderTarget);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::RenderTarget);
       }
 
       UINT uiMSAALevels;
       if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eDepthStencilType, 2, &uiMSAALevels)))
       {
         if (uiMSAALevels > 0)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA2x);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::MSAA2x);
       }
       if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eDepthStencilType, 4, &uiMSAALevels)))
       {
         if (uiMSAALevels > 0)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA4x);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::MSAA4x);
       }
       if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eDepthStencilType, 8, &uiMSAALevels)))
       {
         if (uiMSAALevels > 0)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA8x);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::MSAA8x);
       }
     }
     else
@@ -1182,55 +1182,55 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       UINT uiSampleSupport;
       if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eResourceViewType, &uiSampleSupport)))
       {
-        UINT uiSampleFlag = ezGALResourceFormat::IsIntegerFormat(format) ? D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_SHADER_LOAD : D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_SHADER_SAMPLE;
+        UINT uiSampleFlag = WGALResourceFormat::IsIntegerFormat(format) ? D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_SHADER_LOAD : D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_SHADER_SAMPLE;
         if (uiSampleSupport & uiSampleFlag)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Texture);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::Texture);
 
         if (uiSampleSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_TYPED_UNORDERED_ACCESS_VIEW)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::TextureRW);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::TextureRW);
       }
 
       UINT uiVertexSupport;
       if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eVertexAttributeType, &uiVertexSupport)))
       {
         if (uiVertexSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_IA_VERTEX_BUFFER)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::VertexAttribute);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::VertexAttribute);
       }
 
       UINT uiRenderSupport;
       if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eRenderTarget, &uiRenderSupport)))
       {
         if (uiRenderSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_RENDER_TARGET)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::RenderTarget);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::RenderTarget);
       }
 
       UINT uiMSAALevels;
       if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eRenderTarget, 2, &uiMSAALevels)))
       {
         if (uiMSAALevels > 0)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA2x);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::MSAA2x);
       }
       if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eRenderTarget, 4, &uiMSAALevels)))
       {
         if (uiMSAALevels > 0)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA4x);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::MSAA4x);
       }
       if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eRenderTarget, 8, &uiMSAALevels)))
       {
         if (uiMSAALevels > 0)
-          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA8x);
+          m_Capabilities.m_FormatSupport[i].Add(WGALResourceFormatSupport::MSAA8x);
       }
     }
   }
 }
 
-void ezGALDeviceDX11::WaitIdlePlatform()
+void WGALDeviceDX11::WaitIdlePlatform()
 {
   m_pImmediateContext->Flush();
   DestroyDeadObjects();
 }
 
-const ezGALSharedTexture* ezGALDeviceDX11::GetSharedTexture(ezGALTextureHandle hTexture) const
+const WGALSharedTexture* WGALDeviceDX11::GetSharedTexture(WGALTextureHandle hTexture) const
 {
   auto pTexture = GetTexture(hTexture);
   if (pTexture == nullptr)
@@ -1239,30 +1239,30 @@ const ezGALSharedTexture* ezGALDeviceDX11::GetSharedTexture(ezGALTextureHandle h
   }
 
   // Resolve proxy texture if any
-  return static_cast<const ezGALSharedTextureDX11*>(pTexture->GetParentResource());
+  return static_cast<const WGALSharedTextureDX11*>(pTexture->GetParentResource());
 }
 
-ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempBuffer(ezConstByteArrayPtr sourceData, ezUInt64 uiLastUseFrame /*= ezUInt64(-1)*/)
+WGALDeviceDX11::TempResource WGALDeviceDX11::CopyToTempBuffer(WConstByteArrayPtr sourceData, WUInt64 uiLastUseFrame /*= WUInt64(-1)*/)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
+  W_GALDEVICE_LOCK_AND_CHECK();
 
-  constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+  constexpr WUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
 
-  ezUInt32 uiSize = ezMath::Max(sourceData.GetCount(), 256U);
+  WUInt32 uiSize = WMath::Max(sourceData.GetCount(), 256U);
   if (uiSize < uiExpGrowthLimit)
   {
-    uiSize = ezMath::PowerOfTwo_Ceil(uiSize);
+    uiSize = WMath::PowerOfTwo_Ceil(uiSize);
   }
   else
   {
-    uiSize = ezMemoryUtils::AlignSize(uiSize, uiExpGrowthLimit);
+    uiSize = WMemoryUtils::AlignSize(uiSize, uiExpGrowthLimit);
   }
 
   TempResource tempResource;
   auto it = m_FreeTempResources[TempResourceType::Buffer].Find(uiSize);
   if (it.IsValid())
   {
-    ezDynamicArray<TempResource>& resources = it.Value();
+    WDynamicArray<TempResource>& resources = it.Value();
     if (!resources.IsEmpty())
     {
       tempResource = resources[0];
@@ -1286,7 +1286,7 @@ ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempBuffer(ezConstByteArray
 
     if (uiSize > sourceData.GetCount())
     {
-      ezUInt8* dataCopy = EZ_NEW_RAW_BUFFER(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, uiSize);
+      WUInt8* dataCopy = W_NEW_RAW_BUFFER(WFrameAllocator::GetCurrentAllocator(), WUInt8, uiSize);
       memcpy(dataCopy, sourceData.GetPtr(), sourceData.GetCount());
       initData.pSysMem = dataCopy;
     }
@@ -1307,31 +1307,31 @@ ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempBuffer(ezConstByteArray
       MapTempResource(tempResource);
     }
 
-    EZ_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
+    W_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
     memcpy(tempResource.m_pData, sourceData.GetPtr(), sourceData.GetCount());
   }
 
   auto& usedTempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
   usedTempResource.m_pResource = tempResource.m_pResource;
-  usedTempResource.m_uiFrame = uiLastUseFrame != ezUInt64(-1) ? uiLastUseFrame : m_uiFrameCounter;
+  usedTempResource.m_uiFrame = uiLastUseFrame != WUInt64(-1) ? uiLastUseFrame : m_uiFrameCounter;
   usedTempResource.m_uiHash = uiSize;
 
   return tempResource;
 }
 
 
-ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempTexture(const ezGALSystemMemoryDescription& sourceData, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format, ezUInt64 uiLastUseFrame /*= ezUInt64(-1)*/)
+WGALDeviceDX11::TempResource WGALDeviceDX11::CopyToTempTexture(const WGALSystemMemoryDescription& sourceData, WUInt32 uiWidth, WUInt32 uiHeight, WUInt32 uiDepth, WGALResourceFormat::Enum format, WUInt64 uiLastUseFrame /*= WUInt64(-1)*/)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
+  W_GALDEVICE_LOCK_AND_CHECK();
 
-  ezUInt32 hashData[] = {uiWidth, uiHeight, uiDepth, (ezUInt32)format};
-  ezUInt32 uiHash = ezHashingUtils::xxHash32(hashData, sizeof(hashData));
+  WUInt32 hashData[] = {uiWidth, uiHeight, uiDepth, (WUInt32)format};
+  WUInt32 uiHash = WHashingUtils::xxHash32(hashData, sizeof(hashData));
 
   TempResource tempResource;
   auto it = m_FreeTempResources[TempResourceType::Texture].Find(uiHash);
   if (it.IsValid())
   {
-    ezDynamicArray<TempResource>& resources = it.Value();
+    WDynamicArray<TempResource>& resources = it.Value();
     if (!resources.IsEmpty())
     {
       tempResource = resources[0];
@@ -1371,13 +1371,13 @@ ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempTexture(const ezGALSyst
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return {};
     }
   }
   else
   {
-    EZ_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
+    W_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
     if (tempResource.m_uiRowPitch == sourceData.m_uiRowPitch && tempResource.m_uiDepthPitch == sourceData.m_uiSlicePitch)
     {
       memcpy(tempResource.m_pData, sourceData.m_pData.GetPtr(), sourceData.m_uiSlicePitch * uiDepth);
@@ -1385,17 +1385,17 @@ ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempTexture(const ezGALSyst
     else
     {
       // Copy row by row
-      for (ezUInt32 z = 0; z < uiDepth; ++z)
+      for (WUInt32 z = 0; z < uiDepth; ++z)
       {
-        const void* pSource = ezMemoryUtils::AddByteOffset(sourceData.m_pData.GetPtr(), z * sourceData.m_uiSlicePitch);
-        void* pDest = ezMemoryUtils::AddByteOffset(tempResource.m_pData, z * tempResource.m_uiDepthPitch);
+        const void* pSource = WMemoryUtils::AddByteOffset(sourceData.m_pData.GetPtr(), z * sourceData.m_uiSlicePitch);
+        void* pDest = WMemoryUtils::AddByteOffset(tempResource.m_pData, z * tempResource.m_uiDepthPitch);
 
-        for (ezUInt32 y = 0; y < uiHeight; ++y)
+        for (WUInt32 y = 0; y < uiHeight; ++y)
         {
           memcpy(pDest, pSource, sourceData.m_uiRowPitch);
 
-          pSource = ezMemoryUtils::AddByteOffset(pSource, sourceData.m_uiRowPitch);
-          pDest = ezMemoryUtils::AddByteOffset(pDest, tempResource.m_uiRowPitch);
+          pSource = WMemoryUtils::AddByteOffset(pSource, sourceData.m_uiRowPitch);
+          pDest = WMemoryUtils::AddByteOffset(pDest, tempResource.m_uiRowPitch);
         }
       }
     }
@@ -1403,27 +1403,27 @@ ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempTexture(const ezGALSyst
 
   auto& usedTempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
   usedTempResource.m_pResource = tempResource.m_pResource;
-  usedTempResource.m_uiFrame = uiLastUseFrame != ezUInt64(-1) ? uiLastUseFrame : m_uiFrameCounter;
+  usedTempResource.m_uiFrame = uiLastUseFrame != WUInt64(-1) ? uiLastUseFrame : m_uiFrameCounter;
   usedTempResource.m_uiHash = uiHash;
 
   return tempResource;
 }
 
-void ezGALDeviceDX11::MapTempResource(TempResource& tempResource)
+void WGALDeviceDX11::MapTempResource(TempResource& tempResource)
 {
-  EZ_ASSERT_DEBUG(tempResource.m_pData == nullptr, "Must NOT be mapped at this point");
+  W_ASSERT_DEBUG(tempResource.m_pData == nullptr, "Must NOT be mapped at this point");
 
   D3D11_MAPPED_SUBRESOURCE mapped;
   HRESULT hRes = m_pImmediateContext->Map(tempResource.m_pResource, 0, D3D11_MAP_WRITE, 0, &mapped);
-  EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
-  EZ_IGNORE_UNUSED(hRes);
+  W_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+  W_IGNORE_UNUSED(hRes);
 
   tempResource.m_pData = mapped.pData;
   tempResource.m_uiRowPitch = mapped.RowPitch;
   tempResource.m_uiDepthPitch = mapped.DepthPitch;
 }
 
-void ezGALDeviceDX11::UnmapTempResource(TempResource& tempResource)
+void WGALDeviceDX11::UnmapTempResource(TempResource& tempResource)
 {
   if (tempResource.m_pData != nullptr)
   {
@@ -1434,13 +1434,13 @@ void ezGALDeviceDX11::UnmapTempResource(TempResource& tempResource)
   }
 }
 
-void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
+void WGALDeviceDX11::FreeTempResources(WUInt64 uiFrame)
 {
-  for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
+  for (WUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
   {
     auto& usedTempResources = m_UsedTempResources[type];
 
-    for (ezUInt32 i = 0; i < usedTempResources.GetCount();)
+    for (WUInt32 i = 0; i < usedTempResources.GetCount();)
     {
       UsedTempResource& usedTempResource = usedTempResources[i];
       if (usedTempResource.m_uiFrame <= uiFrame)
@@ -1448,7 +1448,7 @@ void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
         auto it = m_FreeTempResources[type].Find(usedTempResource.m_uiHash);
         if (!it.IsValid())
         {
-          it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, ezDynamicArray<TempResource>(&m_Allocator));
+          it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, WDynamicArray<TempResource>(&m_Allocator));
         }
 
         auto& tempResource = it.Value().ExpandAndGetRef();
@@ -1469,9 +1469,9 @@ void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
   }
 }
 
-void ezGALDeviceDX11::ProcessPendingCopies()
+void WGALDeviceDX11::ProcessPendingCopies()
 {
-  EZ_PROFILE_AND_MARKER(GetCommandEncoder(), "PendingCopies");
+  W_PROFILE_AND_MARKER(GetCommandEncoder(), "PendingCopies");
 
   for (auto& copy : m_PendingCopies)
   {
@@ -1481,7 +1481,7 @@ void ezGALDeviceDX11::ProcessPendingCopies()
     {
       if (copy.m_SourceData.m_uiRowPitch == 0)
       {
-        tempResource = CopyToTempBuffer(ezMakeArrayPtr(copy.m_SourceData.m_pData.GetPtr(), static_cast<ezUInt32>(copy.m_SourceData.m_pData.GetCount())), m_uiFrameCounter);
+        tempResource = CopyToTempBuffer(WMakeArrayPtr(copy.m_SourceData.m_pData.GetPtr(), static_cast<WUInt32>(copy.m_SourceData.m_pData.GetCount())), m_uiFrameCounter);
       }
       else
       {
@@ -1503,154 +1503,154 @@ void ezGALDeviceDX11::ProcessPendingCopies()
   m_PendingCopies.Clear();
 }
 
-void ezGALDeviceDX11::FillFormatLookupTable()
+void WGALDeviceDX11::FillFormatLookupTable()
 {
-  ///       The list below is in the same order as the ezGALResourceFormat enum. No format should be missing except the ones that are just
+  ///       The list below is in the same order as the WGALResourceFormat enum. No format should be missing except the ones that are just
   ///       different names for the same enum value.
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAFloat, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32A32_TYPELESS).RT(DXGI_FORMAT_R32G32B32A32_FLOAT).VA(DXGI_FORMAT_R32G32B32A32_FLOAT).RV(DXGI_FORMAT_R32G32B32A32_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAFloat, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32A32_TYPELESS).RT(DXGI_FORMAT_R32G32B32A32_FLOAT).VA(DXGI_FORMAT_R32G32B32A32_FLOAT).RV(DXGI_FORMAT_R32G32B32A32_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32A32_TYPELESS).RT(DXGI_FORMAT_R32G32B32A32_UINT).VA(DXGI_FORMAT_R32G32B32A32_UINT).RV(DXGI_FORMAT_R32G32B32A32_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAUInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32A32_TYPELESS).RT(DXGI_FORMAT_R32G32B32A32_UINT).VA(DXGI_FORMAT_R32G32B32A32_UINT).RV(DXGI_FORMAT_R32G32B32A32_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32A32_TYPELESS).RT(DXGI_FORMAT_R32G32B32A32_SINT).VA(DXGI_FORMAT_R32G32B32A32_SINT).RV(DXGI_FORMAT_R32G32B32A32_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32A32_TYPELESS).RT(DXGI_FORMAT_R32G32B32A32_SINT).VA(DXGI_FORMAT_R32G32B32A32_SINT).RV(DXGI_FORMAT_R32G32B32A32_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBFloat, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32_TYPELESS).RT(DXGI_FORMAT_R32G32B32_FLOAT).VA(DXGI_FORMAT_R32G32B32_FLOAT).RV(DXGI_FORMAT_R32G32B32_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBFloat, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32_TYPELESS).RT(DXGI_FORMAT_R32G32B32_FLOAT).VA(DXGI_FORMAT_R32G32B32_FLOAT).RV(DXGI_FORMAT_R32G32B32_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBUInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32_TYPELESS).RT(DXGI_FORMAT_R32G32B32_UINT).VA(DXGI_FORMAT_R32G32B32_UINT).RV(DXGI_FORMAT_R32G32B32_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBUInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32_TYPELESS).RT(DXGI_FORMAT_R32G32B32_UINT).VA(DXGI_FORMAT_R32G32B32_UINT).RV(DXGI_FORMAT_R32G32B32_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32_TYPELESS).RT(DXGI_FORMAT_R32G32B32_SINT).VA(DXGI_FORMAT_R32G32B32_SINT).RV(DXGI_FORMAT_R32G32B32_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32B32_TYPELESS).RT(DXGI_FORMAT_R32G32B32_SINT).VA(DXGI_FORMAT_R32G32B32_SINT).RV(DXGI_FORMAT_R32G32B32_SINT));
 
   // Supported with DX 11.1
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::B5G6R5UNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_B5G6R5_UNORM).RT(DXGI_FORMAT_B5G6R5_UNORM).VA(DXGI_FORMAT_B5G6R5_UNORM).RV(DXGI_FORMAT_B5G6R5_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::B5G6R5UNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_B5G6R5_UNORM).RT(DXGI_FORMAT_B5G6R5_UNORM).VA(DXGI_FORMAT_B5G6R5_UNORM).RV(DXGI_FORMAT_B5G6R5_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BGRAUByteNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_B8G8R8A8_TYPELESS).RT(DXGI_FORMAT_B8G8R8A8_UNORM).VA(DXGI_FORMAT_B8G8R8A8_UNORM).RV(DXGI_FORMAT_B8G8R8A8_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BGRAUByteNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_B8G8R8A8_TYPELESS).RT(DXGI_FORMAT_B8G8R8A8_UNORM).VA(DXGI_FORMAT_B8G8R8A8_UNORM).RV(DXGI_FORMAT_B8G8R8A8_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_B8G8R8A8_TYPELESS).RT(DXGI_FORMAT_B8G8R8A8_UNORM_SRGB).RV(DXGI_FORMAT_B8G8R8A8_UNORM_SRGB));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BGRAUByteNormalizedsRGB, WGALFormatLookupEntryDX11(DXGI_FORMAT_B8G8R8A8_TYPELESS).RT(DXGI_FORMAT_B8G8R8A8_UNORM_SRGB).RV(DXGI_FORMAT_B8G8R8A8_UNORM_SRGB));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAHalf, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_FLOAT).VA(DXGI_FORMAT_R16G16B16A16_FLOAT).RV(DXGI_FORMAT_R16G16B16A16_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAHalf, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_FLOAT).VA(DXGI_FORMAT_R16G16B16A16_FLOAT).RV(DXGI_FORMAT_R16G16B16A16_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUShort, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_UINT).VA(DXGI_FORMAT_R16G16B16A16_UINT).RV(DXGI_FORMAT_R16G16B16A16_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAUShort, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_UINT).VA(DXGI_FORMAT_R16G16B16A16_UINT).RV(DXGI_FORMAT_R16G16B16A16_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUShortNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_UNORM).VA(DXGI_FORMAT_R16G16B16A16_UNORM).RV(DXGI_FORMAT_R16G16B16A16_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAUShortNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_UNORM).VA(DXGI_FORMAT_R16G16B16A16_UNORM).RV(DXGI_FORMAT_R16G16B16A16_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAShort, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_SINT).VA(DXGI_FORMAT_R16G16B16A16_SINT).RV(DXGI_FORMAT_R16G16B16A16_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAShort, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_SINT).VA(DXGI_FORMAT_R16G16B16A16_SINT).RV(DXGI_FORMAT_R16G16B16A16_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAShortNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_SNORM).VA(DXGI_FORMAT_R16G16B16A16_SNORM).RV(DXGI_FORMAT_R16G16B16A16_SNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAShortNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16B16A16_TYPELESS).RT(DXGI_FORMAT_R16G16B16A16_SNORM).VA(DXGI_FORMAT_R16G16B16A16_SNORM).RV(DXGI_FORMAT_R16G16B16A16_SNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGFloat, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32_TYPELESS).RT(DXGI_FORMAT_R32G32_FLOAT).VA(DXGI_FORMAT_R32G32_FLOAT).RV(DXGI_FORMAT_R32G32_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGFloat, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32_TYPELESS).RT(DXGI_FORMAT_R32G32_FLOAT).VA(DXGI_FORMAT_R32G32_FLOAT).RV(DXGI_FORMAT_R32G32_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32_TYPELESS).RT(DXGI_FORMAT_R32G32_UINT).VA(DXGI_FORMAT_R32G32_UINT).RV(DXGI_FORMAT_R32G32_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGUInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32_TYPELESS).RT(DXGI_FORMAT_R32G32_UINT).VA(DXGI_FORMAT_R32G32_UINT).RV(DXGI_FORMAT_R32G32_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32_TYPELESS).RT(DXGI_FORMAT_R32G32_SINT).VA(DXGI_FORMAT_R32G32_SINT).RV(DXGI_FORMAT_R32G32_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32G32_TYPELESS).RT(DXGI_FORMAT_R32G32_SINT).VA(DXGI_FORMAT_R32G32_SINT).RV(DXGI_FORMAT_R32G32_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGB10A2UInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R10G10B10A2_TYPELESS).RT(DXGI_FORMAT_R10G10B10A2_UINT).VA(DXGI_FORMAT_R10G10B10A2_UINT).RV(DXGI_FORMAT_R10G10B10A2_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGB10A2UInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R10G10B10A2_TYPELESS).RT(DXGI_FORMAT_R10G10B10A2_UINT).VA(DXGI_FORMAT_R10G10B10A2_UINT).RV(DXGI_FORMAT_R10G10B10A2_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGB10A2UIntNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R10G10B10A2_TYPELESS).RT(DXGI_FORMAT_R10G10B10A2_UNORM).VA(DXGI_FORMAT_R10G10B10A2_UNORM).RV(DXGI_FORMAT_R10G10B10A2_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGB10A2UIntNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R10G10B10A2_TYPELESS).RT(DXGI_FORMAT_R10G10B10A2_UNORM).VA(DXGI_FORMAT_R10G10B10A2_UNORM).RV(DXGI_FORMAT_R10G10B10A2_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RG11B10Float, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R11G11B10_FLOAT).RT(DXGI_FORMAT_R11G11B10_FLOAT).VA(DXGI_FORMAT_R11G11B10_FLOAT).RV(DXGI_FORMAT_R11G11B10_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RG11B10Float, WGALFormatLookupEntryDX11(DXGI_FORMAT_R11G11B10_FLOAT).RT(DXGI_FORMAT_R11G11B10_FLOAT).VA(DXGI_FORMAT_R11G11B10_FLOAT).RV(DXGI_FORMAT_R11G11B10_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByteNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_UNORM).VA(DXGI_FORMAT_R8G8B8A8_UNORM).RV(DXGI_FORMAT_R8G8B8A8_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAUByteNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_UNORM).VA(DXGI_FORMAT_R8G8B8A8_UNORM).RV(DXGI_FORMAT_R8G8B8A8_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByteNormalizedsRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB).RV(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAUByteNormalizedsRGB, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB).RV(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByte, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_UINT).VA(DXGI_FORMAT_R8G8B8A8_UINT).RV(DXGI_FORMAT_R8G8B8A8_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAUByte, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_UINT).VA(DXGI_FORMAT_R8G8B8A8_UINT).RV(DXGI_FORMAT_R8G8B8A8_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAByteNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_SNORM).VA(DXGI_FORMAT_R8G8B8A8_SNORM).RV(DXGI_FORMAT_R8G8B8A8_SNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAByteNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_SNORM).VA(DXGI_FORMAT_R8G8B8A8_SNORM).RV(DXGI_FORMAT_R8G8B8A8_SNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAByte, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_SINT).VA(DXGI_FORMAT_R8G8B8A8_SINT).RV(DXGI_FORMAT_R8G8B8A8_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGBAByte, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).RT(DXGI_FORMAT_R8G8B8A8_SINT).VA(DXGI_FORMAT_R8G8B8A8_SINT).RV(DXGI_FORMAT_R8G8B8A8_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGHalf, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_FLOAT).VA(DXGI_FORMAT_R16G16_FLOAT).RV(DXGI_FORMAT_R16G16_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGHalf, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_FLOAT).VA(DXGI_FORMAT_R16G16_FLOAT).RV(DXGI_FORMAT_R16G16_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUShort, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_UINT).VA(DXGI_FORMAT_R16G16_UINT).RV(DXGI_FORMAT_R16G16_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGUShort, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_UINT).VA(DXGI_FORMAT_R16G16_UINT).RV(DXGI_FORMAT_R16G16_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUShortNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_UNORM).VA(DXGI_FORMAT_R16G16_UNORM).RV(DXGI_FORMAT_R16G16_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGUShortNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_UNORM).VA(DXGI_FORMAT_R16G16_UNORM).RV(DXGI_FORMAT_R16G16_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGShort, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_SINT).VA(DXGI_FORMAT_R16G16_SINT).RV(DXGI_FORMAT_R16G16_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGShort, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_SINT).VA(DXGI_FORMAT_R16G16_SINT).RV(DXGI_FORMAT_R16G16_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGShortNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_SNORM).VA(DXGI_FORMAT_R16G16_SNORM).RV(DXGI_FORMAT_R16G16_SNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGShortNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16G16_TYPELESS).RT(DXGI_FORMAT_R16G16_SNORM).VA(DXGI_FORMAT_R16G16_SNORM).RV(DXGI_FORMAT_R16G16_SNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUByte, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8_TYPELESS).RT(DXGI_FORMAT_R8G8_UINT).VA(DXGI_FORMAT_R8G8_UINT).RV(DXGI_FORMAT_R8G8_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGUByte, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8_TYPELESS).RT(DXGI_FORMAT_R8G8_UINT).VA(DXGI_FORMAT_R8G8_UINT).RV(DXGI_FORMAT_R8G8_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUByteNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8_TYPELESS).RT(DXGI_FORMAT_R8G8_UNORM).VA(DXGI_FORMAT_R8G8_UNORM).RV(DXGI_FORMAT_R8G8_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGUByteNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8_TYPELESS).RT(DXGI_FORMAT_R8G8_UNORM).VA(DXGI_FORMAT_R8G8_UNORM).RV(DXGI_FORMAT_R8G8_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGByte, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8_TYPELESS).RT(DXGI_FORMAT_R8G8_SINT).VA(DXGI_FORMAT_R8G8_SINT).RV(DXGI_FORMAT_R8G8_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGByte, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8_TYPELESS).RT(DXGI_FORMAT_R8G8_SINT).VA(DXGI_FORMAT_R8G8_SINT).RV(DXGI_FORMAT_R8G8_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGByteNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8_TYPELESS).RT(DXGI_FORMAT_R8G8_SNORM).VA(DXGI_FORMAT_R8G8_SNORM).RV(DXGI_FORMAT_R8G8_SNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RGByteNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8_TYPELESS).RT(DXGI_FORMAT_R8G8_SNORM).VA(DXGI_FORMAT_R8G8_SNORM).RV(DXGI_FORMAT_R8G8_SNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::DFloat, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).RV(DXGI_FORMAT_R32_FLOAT).D(DXGI_FORMAT_R32_FLOAT).DS(DXGI_FORMAT_D32_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::DFloat, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).RV(DXGI_FORMAT_R32_FLOAT).D(DXGI_FORMAT_R32_FLOAT).DS(DXGI_FORMAT_D32_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RFloat, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).RT(DXGI_FORMAT_R32_FLOAT).VA(DXGI_FORMAT_R32_FLOAT).RV(DXGI_FORMAT_R32_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RFloat, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).RT(DXGI_FORMAT_R32_FLOAT).VA(DXGI_FORMAT_R32_FLOAT).RV(DXGI_FORMAT_R32_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).RT(DXGI_FORMAT_R32_UINT).VA(DXGI_FORMAT_R32_UINT).RV(DXGI_FORMAT_R32_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RUInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).RT(DXGI_FORMAT_R32_UINT).VA(DXGI_FORMAT_R32_UINT).RV(DXGI_FORMAT_R32_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RInt, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).RT(DXGI_FORMAT_R32_SINT).VA(DXGI_FORMAT_R32_SINT).RV(DXGI_FORMAT_R32_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RInt, WGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).RT(DXGI_FORMAT_R32_SINT).VA(DXGI_FORMAT_R32_SINT).RV(DXGI_FORMAT_R32_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RHalf, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_FLOAT).VA(DXGI_FORMAT_R16_FLOAT).RV(DXGI_FORMAT_R16_FLOAT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RHalf, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_FLOAT).VA(DXGI_FORMAT_R16_FLOAT).RV(DXGI_FORMAT_R16_FLOAT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUShort, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_UINT).VA(DXGI_FORMAT_R16_UINT).RV(DXGI_FORMAT_R16_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RUShort, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_UINT).VA(DXGI_FORMAT_R16_UINT).RV(DXGI_FORMAT_R16_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUShortNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_UNORM).VA(DXGI_FORMAT_R16_UNORM).RV(DXGI_FORMAT_R16_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RUShortNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_UNORM).VA(DXGI_FORMAT_R16_UNORM).RV(DXGI_FORMAT_R16_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RShort, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_SINT).VA(DXGI_FORMAT_R16_SINT).RV(DXGI_FORMAT_R16_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RShort, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_SINT).VA(DXGI_FORMAT_R16_SINT).RV(DXGI_FORMAT_R16_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RShortNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_SNORM).VA(DXGI_FORMAT_R16_SNORM).RV(DXGI_FORMAT_R16_SNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RShortNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RT(DXGI_FORMAT_R16_SNORM).VA(DXGI_FORMAT_R16_SNORM).RV(DXGI_FORMAT_R16_SNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUByte, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_UINT).VA(DXGI_FORMAT_R8_UINT).RV(DXGI_FORMAT_R8_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RUByte, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_UINT).VA(DXGI_FORMAT_R8_UINT).RV(DXGI_FORMAT_R8_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUByteNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_UNORM).VA(DXGI_FORMAT_R8_UNORM).RV(DXGI_FORMAT_R8_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RUByteNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_UNORM).VA(DXGI_FORMAT_R8_UNORM).RV(DXGI_FORMAT_R8_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RByte, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_SINT).VA(DXGI_FORMAT_R8_SINT).RV(DXGI_FORMAT_R8_SINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RByte, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_SINT).VA(DXGI_FORMAT_R8_SINT).RV(DXGI_FORMAT_R8_SINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RByteNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_SNORM).VA(DXGI_FORMAT_R8_SNORM).RV(DXGI_FORMAT_R8_SNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::RByteNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_SNORM).VA(DXGI_FORMAT_R8_SNORM).RV(DXGI_FORMAT_R8_SNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::AUByteNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_A8_UNORM).RT(DXGI_FORMAT_A8_UNORM).VA(DXGI_FORMAT_A8_UNORM).RV(DXGI_FORMAT_A8_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::AUByteNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_A8_UNORM).RT(DXGI_FORMAT_A8_UNORM).VA(DXGI_FORMAT_A8_UNORM).RV(DXGI_FORMAT_A8_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D16, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RV(DXGI_FORMAT_R16_UNORM).DS(DXGI_FORMAT_D16_UNORM).D(DXGI_FORMAT_R16_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::D16, WGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RV(DXGI_FORMAT_R16_UNORM).DS(DXGI_FORMAT_D16_UNORM).D(DXGI_FORMAT_R16_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D24S8, ezGALFormatLookupEntryDX11(DXGI_FORMAT_R24G8_TYPELESS).DS(DXGI_FORMAT_D24_UNORM_S8_UINT).D(DXGI_FORMAT_R24_UNORM_X8_TYPELESS).S(DXGI_FORMAT_X24_TYPELESS_G8_UINT));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::D24S8, WGALFormatLookupEntryDX11(DXGI_FORMAT_R24G8_TYPELESS).DS(DXGI_FORMAT_D24_UNORM_S8_UINT).D(DXGI_FORMAT_R24_UNORM_X8_TYPELESS).S(DXGI_FORMAT_X24_TYPELESS_G8_UINT));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC1, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC1_TYPELESS).RV(DXGI_FORMAT_BC1_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC1, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC1_TYPELESS).RV(DXGI_FORMAT_BC1_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC1sRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC1_TYPELESS).RV(DXGI_FORMAT_BC1_UNORM_SRGB));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC1sRGB, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC1_TYPELESS).RV(DXGI_FORMAT_BC1_UNORM_SRGB));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC2, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC2_TYPELESS).RV(DXGI_FORMAT_BC2_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC2, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC2_TYPELESS).RV(DXGI_FORMAT_BC2_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC2sRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC2_TYPELESS).RV(DXGI_FORMAT_BC2_UNORM_SRGB));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC2sRGB, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC2_TYPELESS).RV(DXGI_FORMAT_BC2_UNORM_SRGB));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC3, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC3_TYPELESS).RV(DXGI_FORMAT_BC3_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC3, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC3_TYPELESS).RV(DXGI_FORMAT_BC3_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC3sRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC3_TYPELESS).RV(DXGI_FORMAT_BC3_UNORM_SRGB));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC3sRGB, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC3_TYPELESS).RV(DXGI_FORMAT_BC3_UNORM_SRGB));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC4UNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC4_TYPELESS).RV(DXGI_FORMAT_BC4_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC4UNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC4_TYPELESS).RV(DXGI_FORMAT_BC4_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC4Normalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC4_TYPELESS).RV(DXGI_FORMAT_BC4_SNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC4Normalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC4_TYPELESS).RV(DXGI_FORMAT_BC4_SNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC5UNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC5_TYPELESS).RV(DXGI_FORMAT_BC5_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC5UNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC5_TYPELESS).RV(DXGI_FORMAT_BC5_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC5Normalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC5_TYPELESS).RV(DXGI_FORMAT_BC5_SNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC5Normalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC5_TYPELESS).RV(DXGI_FORMAT_BC5_SNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC6UFloat, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC6H_TYPELESS).RV(DXGI_FORMAT_BC6H_UF16));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC6UFloat, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC6H_TYPELESS).RV(DXGI_FORMAT_BC6H_UF16));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC6Float, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC6H_TYPELESS).RV(DXGI_FORMAT_BC6H_SF16));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC6Float, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC6H_TYPELESS).RV(DXGI_FORMAT_BC6H_SF16));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC7UNormalized, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).RV(DXGI_FORMAT_BC7_UNORM));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC7UNormalized, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).RV(DXGI_FORMAT_BC7_UNORM));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC7UNormalizedsRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).RV(DXGI_FORMAT_BC7_UNORM_SRGB));
+  m_FormatLookupTable.SetFormatInfo(WGALResourceFormat::BC7UNormalizedsRGB, WGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).RV(DXGI_FORMAT_BC7_UNORM_SRGB));
 }
 
-ezGALCommandEncoder* ezGALDeviceDX11::GetCommandEncoder() const
+WGALCommandEncoder* WGALDeviceDX11::GetCommandEncoder() const
 {
   return m_pCommandEncoder.Borrow();
 }
 
-ezFenceQueueDX11& ezGALDeviceDX11::GetFenceQueue() const
+WFenceQueueDX11& WGALDeviceDX11::GetFenceQueue() const
 {
   return *m_pFenceQueue.Borrow();
 }
 
-ezQueryPoolDX11& ezGALDeviceDX11::GetQueryPool() const
+WQueryPoolDX11& WGALDeviceDX11::GetQueryPool() const
 {
   return *m_pQueryPool.Borrow();
 }
 
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_DeviceDX11);
+W_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_DeviceDX11);

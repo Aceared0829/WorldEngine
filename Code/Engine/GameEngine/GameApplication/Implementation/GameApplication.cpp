@@ -38,48 +38,48 @@
 #  define USE_IMGUI_CONSOLE 1
 #endif
 
-ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
-ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
+WGameApplication* WGameApplication::s_pGameApplicationInstance = nullptr;
+WDelegate<WGALDevice*(const WGALDeviceCreationDescription&)> WGameApplication::s_DefaultDeviceCreator;
 
-ezCVarBool ezGameApplication::cvar_AppVSync("App.VSync", true, ezCVarFlags::Save, "Enables V-Sync");
-ezCVarBool ezGameApplication::cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
-ezCVarBool ezGameApplication::cvar_WorldShowObjectOrigins("World.ShowObjectOrigins", false, ezCVarFlags::Default, "Render debug geometry at every game object position");
+WCVarBool WGameApplication::cvar_AppVSync("App.VSync", true, WCVarFlags::Save, "Enables V-Sync");
+WCVarBool WGameApplication::cvar_AppShowFPS("App.ShowFPS", false, WCVarFlags::Save, "Show frames per second counter");
+WCVarBool WGameApplication::cvar_WorldShowObjectOrigins("World.ShowObjectOrigins", false, WCVarFlags::Default, "Render debug geometry at every game object position");
 
-ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
-  : ezGameApplicationBase(szAppName)
+WGameApplication::WGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
+  : WGameApplicationBase(szAppName)
   , m_sAppProjectPath(szProjectPath)
 {
-  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "UpdateWorldsAndExtractViews", ezTaskNesting::Never, ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this));
-  m_pUpdateTask->ConfigureTask("GameApplication.Update", ezTaskNesting::Maybe);
+  m_pUpdateTask = W_DEFAULT_NEW(WDelegateTask<void>, "UpdateWorldsAndExtractViews", WTaskNesting::Never, WMakeDelegate(&WGameApplication::UpdateWorldsAndExtractViews, this));
+  m_pUpdateTask->ConfigureTask("GameApplication.Update", WTaskNesting::Maybe);
 
   s_pGameApplicationInstance = this;
 
 #if USE_IMGUI_CONSOLE
-  m_pConsole = EZ_DEFAULT_NEW(ezImGuiConsole);
+  m_pConsole = W_DEFAULT_NEW(WImGuiConsole);
 #else
-  m_pConsole = EZ_DEFAULT_NEW(ezQuakeConsole);
+  m_pConsole = W_DEFAULT_NEW(WQuakeConsole);
 #endif
 
   if (m_pConsole)
   {
-    ezConsole::SetMainConsole(m_pConsole.Borrow());
+    WConsole::SetMainConsole(m_pConsole.Borrow());
   }
 }
 
-ezGameApplication::~ezGameApplication()
+WGameApplication::~WGameApplication()
 {
   s_pGameApplicationInstance = nullptr;
 }
 
 // static
-void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator)
+void WGameApplication::SetOverrideDefaultDeviceCreator(WDelegate<WGALDevice*(const WGALDeviceCreationDescription&)> creator)
 {
   s_DefaultDeviceCreator = creator;
 }
 
-ezResult ezGameApplication::BeforeCoreSystemsStartup()
+WResult WGameApplication::BeforeCoreSystemsStartup()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // before anything else may log, so that '-logfile' contains the entire startup
   Unattended_Setup();
 #endif
@@ -87,11 +87,11 @@ ezResult ezGameApplication::BeforeCoreSystemsStartup()
   return SUPER::BeforeCoreSystemsStartup();
 }
 
-void ezGameApplication::AfterCoreSystemsStartup()
+void WGameApplication::AfterCoreSystemsStartup()
 {
   SUPER::AfterCoreSystemsStartup();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // the base class returns early when initialization went wrong, in which case there is no game state
   // and no world to set up
   if (!ShouldApplicationQuit())
@@ -102,33 +102,33 @@ void ezGameApplication::AfterCoreSystemsStartup()
 #endif
 }
 
-void ezGameApplication::BeforeCoreSystemsShutdown()
+void WGameApplication::BeforeCoreSystemsShutdown()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // while the log writers are still attached, so that the summary ends up in '-logfile'
   Unattended_Finish();
 #endif
 
   SUPER::BeforeCoreSystemsShutdown();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // after the base class, which shuts the logging down
   Unattended_DetachLog();
 #endif
 }
 
-void ezGameApplication::Run()
+void WGameApplication::Run()
 {
   SUPER::Run();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   Unattended_CheckTimeout();
 #endif
 }
 
-void ezGameApplication::StoreScreenshot(ezImage&& image, ezStringView sContext /*= {}*/)
+void WGameApplication::StoreScreenshot(WImage&& image, WStringView sContext /*= {}*/)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // '-screenshot' names one specific file, so it takes precedence over the path the base class generates
   if (Unattended_StoreScreenshot(image))
     return;
@@ -139,17 +139,17 @@ void ezGameApplication::StoreScreenshot(ezImage&& image, ezStringView sContext /
 
 //////////////////////////////////////////////////////////////////////////
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 
 // These options exist to run an application unattended, e.g. as a smoke test from a script.
-// They are implemented here, rather than in ezPlayer, so that every application built with the engine
+// They are implemented here, rather than in WPlayer, so that every application built with the engine
 // has them - an exported game as much as the player.
-ezCommandLineOptionInt opt_RunFrames("_App", "-runframes", "Quit automatically after this many rendered frames.\nUse this to check that a project starts up and renders at all.", -1, -1);
-ezCommandLineOptionFloat opt_Timeout("_App", "-timeout", "Quit automatically after this many seconds, no matter what.\nSafety net in case startup hangs. Sets the return code to 2 when it triggers.", 0.0f, 0.0f);
-ezCommandLineOptionPath opt_Screenshot("_App", "-screenshot", "Absolute path to a PNG file to write a screenshot to, right before quitting.\nOnly useful together with -runframes or -timeout.", "");
-ezCommandLineOptionPath opt_LogFile("_App", "-logfile", "Absolute path to a text file to write the full log to.", "");
-ezCommandLineOptionBool opt_FailOnError("_App", "-failonerror", "Set the return code to 1 if any error was logged during the run.", false);
-ezCommandLineOptionFloat opt_FixedTimeStep("_App", "-fixedtimestep",
+WCommandLineOptionInt opt_RunFrames("_App", "-runframes", "Quit automatically after this many rendered frames.\nUse this to check that a project starts up and renders at all.", -1, -1);
+WCommandLineOptionFloat opt_Timeout("_App", "-timeout", "Quit automatically after this many seconds, no matter what.\nSafety net in case startup hangs. Sets the return code to 2 when it triggers.", 0.0f, 0.0f);
+WCommandLineOptionPath opt_Screenshot("_App", "-screenshot", "Absolute path to a PNG file to write a screenshot to, right before quitting.\nOnly useful together with -runframes or -timeout.", "");
+WCommandLineOptionPath opt_LogFile("_App", "-logfile", "Absolute path to a text file to write the full log to.", "");
+WCommandLineOptionBool opt_FailOnError("_App", "-failonerror", "Set the return code to 1 if any error was logged during the run.", false);
+WCommandLineOptionFloat opt_FixedTimeStep("_App", "-fixedtimestep",
   "Advance the clock by a fixed 1/N seconds per frame, instead of by the time that really elapsed.\n\
 \n\
 Together with -seed this makes consecutive runs produce identical frames, which is what a screenshot\n\
@@ -158,72 +158,72 @@ has to be for comparing it against a reference image. The application then no lo
 Example:\n\
   -fixedtimestep 30\n",
   0.0f, 0.0f);
-ezCommandLineOptionInt opt_Seed("_App", "-seed",
+WCommandLineOptionInt opt_Seed("_App", "-seed",
   "Seed for the random number generator of every world, so that random behavior repeats between runs.\n\
 Only useful together with -fixedtimestep.",
   -1, -1);
 
-void ezGameApplication::Unattended_Setup()
+void WGameApplication::Unattended_Setup()
 {
-  const ezStringBuilder sLogFile = opt_LogFile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  const WStringBuilder sLogFile = opt_LogFile.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
 
   if (!sLogFile.IsEmpty())
   {
-    // uses ezOSFile, so this works before the ezFileSystem is configured
+    // uses WOSFile, so this works before the WFileSystem is configured
     if (m_UnattendedLogFile.BeginLog(sLogFile).Succeeded())
     {
-      m_UnattendedLogFile.SetTimestampMode(ezLog::TimestampMode::TimeOnly);
-      m_UnattendedLogToFileID = ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezLogWriter::TextFile::LogMessageHandler, &m_UnattendedLogFile));
+      m_UnattendedLogFile.SetTimestampMode(WLog::TimestampMode::TimeOnly);
+      m_UnattendedLogToFileID = WGlobalLog::AddLogWriter(WMakeDelegate(&WLogWriter::TextFile::LogMessageHandler, &m_UnattendedLogFile));
     }
     else
     {
-      ezLog::Error("Could not open log file '{}' for writing.", sLogFile);
+      WLog::Error("Could not open log file '{}' for writing.", sLogFile);
     }
   }
 
-  m_bFailOnError = opt_FailOnError.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  m_bFailOnError = opt_FailOnError.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
 
   if (m_bFailOnError)
   {
-    m_UnattendedLogErrorCounterID = ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezGameApplication::Unattended_OnLogEvent, this));
+    m_UnattendedLogErrorCounterID = WGlobalLog::AddLogWriter(WMakeDelegate(&WGameApplication::Unattended_OnLogEvent, this));
   }
 
-  m_iRunFrames = opt_RunFrames.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
-  m_UnattendedTimeout = ezTime::MakeFromSeconds(opt_Timeout.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
-  m_sScreenshotPath = opt_Screenshot.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
-  m_iRandomSeed = opt_Seed.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  m_iRunFrames = opt_RunFrames.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
+  m_UnattendedTimeout = WTime::MakeFromSeconds(opt_Timeout.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified));
+  m_sScreenshotPath = opt_Screenshot.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
+  m_iRandomSeed = opt_Seed.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
 
-  const float fFixedTimeStepHz = opt_FixedTimeStep.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  const float fFixedTimeStepHz = opt_FixedTimeStep.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
 
   if (fFixedTimeStepHz > 0.0f)
   {
-    m_FixedTimeStep = ezTime::MakeFromSeconds(1.0 / fFixedTimeStepHz);
+    m_FixedTimeStep = WTime::MakeFromSeconds(1.0 / fFixedTimeStepHz);
   }
 
   m_bUnattended = m_iRunFrames >= 0 || m_UnattendedTimeout.IsPositive() || !m_sScreenshotPath.IsEmpty() ||
                   m_bFailOnError || !sLogFile.IsEmpty() || m_FixedTimeStep.IsPositive() || m_iRandomSeed >= 0;
 }
 
-void ezGameApplication::Unattended_Start()
+void WGameApplication::Unattended_Start()
 {
-  // ezTime is only usable once the core systems are up, so the timeout can't start any earlier than this
-  m_UnattendedStartTime = ezTime::Now();
+  // WTime is only usable once the core systems are up, so the timeout can't start any earlier than this
+  m_UnattendedStartTime = WTime::Now();
 
   if (m_FixedTimeStep.IsPositive())
   {
-    ezClock::GetGlobalClock()->SetFixedTimeStep(m_FixedTimeStep);
+    WClock::GetGlobalClock()->SetFixedTimeStep(m_FixedTimeStep);
   }
 
   if (m_iRandomSeed >= 0)
   {
     // the worlds that exist at this point are the ones the game state created; a world created later
     // is not covered, seeding it is then up to that code
-    for (ezUInt32 i = 0; i < ezWorld::GetWorldCount(); ++i)
+    for (WUInt32 i = 0; i < WWorld::GetWorldCount(); ++i)
     {
-      if (ezWorld* pWorld = ezWorld::GetWorld(static_cast<ezUInt8>(i)))
+      if (WWorld* pWorld = WWorld::GetWorld(static_cast<WUInt8>(i)))
       {
-        EZ_LOCK(pWorld->GetWriteMarker());
-        pWorld->GetRandomNumberGenerator().Initialize(static_cast<ezUInt64>(m_iRandomSeed));
+        W_LOCK(pWorld->GetWriteMarker());
+        pWorld->GetRandomNumberGenerator().Initialize(static_cast<WUInt64>(m_iRandomSeed));
         pWorld->GetClock().SetFixedTimeStep(m_FixedTimeStep);
       }
     }
@@ -231,11 +231,11 @@ void ezGameApplication::Unattended_Start()
 
   if (m_iRunFrames >= 0 || !m_sScreenshotPath.IsEmpty())
   {
-    m_UnattendedExecutionEventsID = m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezGameApplication::Unattended_OnExecutionEvent, this));
+    m_UnattendedExecutionEventsID = m_ExecutionEvents.AddEventHandler(WMakeDelegate(&WGameApplication::Unattended_OnExecutionEvent, this));
   }
 }
 
-void ezGameApplication::Unattended_Finish()
+void WGameApplication::Unattended_Finish()
 {
   if (m_UnattendedExecutionEventsID != 0)
   {
@@ -245,7 +245,7 @@ void ezGameApplication::Unattended_Finish()
 
   if (m_bFailOnError && m_iLoggedErrors > 0)
   {
-    ezLog::Info("{} errors were logged.", (ezInt32)m_iLoggedErrors);
+    WLog::Info("{} errors were logged.", (WInt32)m_iLoggedErrors);
 
     // a more specific failure that was already reported wins
     if (GetReturnCode() == 0)
@@ -255,45 +255,45 @@ void ezGameApplication::Unattended_Finish()
   }
 }
 
-void ezGameApplication::Unattended_DetachLog()
+void WGameApplication::Unattended_DetachLog()
 {
   if (m_UnattendedLogErrorCounterID != 0)
   {
-    ezGlobalLog::RemoveLogWriter(m_UnattendedLogErrorCounterID);
+    WGlobalLog::RemoveLogWriter(m_UnattendedLogErrorCounterID);
     m_UnattendedLogErrorCounterID = 0;
   }
 
   if (m_UnattendedLogToFileID != 0)
   {
-    ezGlobalLog::RemoveLogWriter(m_UnattendedLogToFileID);
+    WGlobalLog::RemoveLogWriter(m_UnattendedLogToFileID);
     m_UnattendedLogToFileID = 0;
     m_UnattendedLogFile.EndLog();
   }
 }
 
-void ezGameApplication::Unattended_CheckTimeout()
+void WGameApplication::Unattended_CheckTimeout()
 {
-  if (m_UnattendedTimeout.IsPositive() && ezTime::Now() - m_UnattendedStartTime > m_UnattendedTimeout)
+  if (m_UnattendedTimeout.IsPositive() && WTime::Now() - m_UnattendedStartTime > m_UnattendedTimeout)
   {
-    ezLog::Error("Timeout of {} seconds reached, quitting.", m_UnattendedTimeout.GetSeconds());
+    WLog::Error("Timeout of {} seconds reached, quitting.", m_UnattendedTimeout.GetSeconds());
     SetReturnCode(2);
     QuitApplication();
   }
 }
 
-void ezGameApplication::Unattended_OnLogEvent(const ezLoggingEventData& e)
+void WGameApplication::Unattended_OnLogEvent(const WLoggingEventData& e)
 {
-  if (e.m_EventType == ezLogMsgType::ErrorMsg || e.m_EventType == ezLogMsgType::SeriousWarningMsg)
+  if (e.m_EventType == WLogMsgType::ErrorMsg || e.m_EventType == WLogMsgType::SeriousWarningMsg)
   {
     m_iLoggedErrors.Increment();
   }
 }
 
-void ezGameApplication::Unattended_OnExecutionEvent(const ezGameApplicationExecutionEvent& e)
+void WGameApplication::Unattended_OnExecutionEvent(const WGameApplicationExecutionEvent& e)
 {
   // BeforePresent, not AfterPresent: Run_FinishFrame() resets the 'take screenshot' flag at the end of each
   // frame, so the request has to be made before the frame is presented
-  if (e.m_Type != ezGameApplicationExecutionEvent::Type::BeforePresent)
+  if (e.m_Type != WGameApplicationExecutionEvent::Type::BeforePresent)
     return;
 
   ++m_uiRenderedFrames;
@@ -310,12 +310,12 @@ void ezGameApplication::Unattended_OnExecutionEvent(const ezGameApplicationExecu
     return;
   }
 
-  if (m_iRunFrames < 0 || m_uiRenderedFrames < (ezUInt32)m_iRunFrames)
+  if (m_iRunFrames < 0 || m_uiRenderedFrames < (WUInt32)m_iRunFrames)
     return;
 
   if (m_sScreenshotPath.IsEmpty())
   {
-    ezLog::Info("Rendered {} frames, quitting.", m_uiRenderedFrames);
+    WLog::Info("Rendered {} frames, quitting.", m_uiRenderedFrames);
     QuitApplication();
     return;
   }
@@ -324,67 +324,67 @@ void ezGameApplication::Unattended_OnExecutionEvent(const ezGameApplicationExecu
   TakeScreenshot();
 }
 
-bool ezGameApplication::Unattended_StoreScreenshot(ezImage& ref_image)
+bool WGameApplication::Unattended_StoreScreenshot(WImage& ref_image)
 {
   if (m_sScreenshotPath.IsEmpty())
     return false;
 
   m_bScreenshotDone = true;
 
-  if (ref_image.Convert(ezImageFormat::R8G8B8_UNORM_SRGB).Failed())
+  if (ref_image.Convert(WImageFormat::R8G8B8_UNORM_SRGB).Failed())
   {
-    ezLog::Error("Could not convert the screenshot to RGB8.");
+    WLog::Error("Could not convert the screenshot to RGB8.");
     return true;
   }
 
-  const ezStringView sExtension = ezPathUtils::GetFileExtension(m_sScreenshotPath);
-  const ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(sExtension);
+  const WStringView sExtension = WPathUtils::GetFileExtension(m_sScreenshotPath);
+  const WImageFileFormat* pFormat = WImageFileFormat::GetWriterFormat(sExtension);
 
   if (pFormat == nullptr)
   {
-    ezLog::Error("No image file format is available to write '{}'.", m_sScreenshotPath);
+    WLog::Error("No image file format is available to write '{}'.", m_sScreenshotPath);
     return true;
   }
 
-  ezDefaultMemoryStreamStorage storage;
-  ezMemoryStreamWriter memoryWriter(&storage);
+  WDefaultMemoryStreamStorage storage;
+  WMemoryStreamWriter memoryWriter(&storage);
 
   if (pFormat->WriteImage(memoryWriter, ref_image, sExtension).Failed())
   {
-    ezLog::Error("Could not encode the screenshot as '{}'.", sExtension);
+    WLog::Error("Could not encode the screenshot as '{}'.", sExtension);
     return true;
   }
 
-  ezStringBuilder sFolder = m_sScreenshotPath;
+  WStringBuilder sFolder = m_sScreenshotPath;
   sFolder.PathParentDirectory();
 
-  if (!sFolder.IsEmpty() && ezOSFile::CreateDirectoryStructure(sFolder).Failed())
+  if (!sFolder.IsEmpty() && WOSFile::CreateDirectoryStructure(sFolder).Failed())
   {
-    ezLog::Error("Could not create the folder for screenshot '{}'.", m_sScreenshotPath);
+    WLog::Error("Could not create the folder for screenshot '{}'.", m_sScreenshotPath);
     return true;
   }
 
-  ezOSFile file;
-  if (file.Open(m_sScreenshotPath, ezFileOpenMode::Write).Failed())
+  WOSFile file;
+  if (file.Open(m_sScreenshotPath, WFileOpenMode::Write).Failed())
   {
-    ezLog::Error("Could not open screenshot file '{}' for writing.", m_sScreenshotPath);
+    WLog::Error("Could not open screenshot file '{}' for writing.", m_sScreenshotPath);
     return true;
   }
 
-  ezMemoryStreamReader memoryReader(&storage);
-  ezHybridArray<ezUInt8, 4096> chunk;
+  WMemoryStreamReader memoryReader(&storage);
+  WHybridArray<WUInt8, 4096> chunk;
   chunk.SetCountUninitialized(4096);
 
-  while (const ezUInt64 uiRead = memoryReader.ReadBytes(chunk.GetData(), chunk.GetCount()))
+  while (const WUInt64 uiRead = memoryReader.ReadBytes(chunk.GetData(), chunk.GetCount()))
   {
     if (file.Write(chunk.GetData(), uiRead).Failed())
     {
-      ezLog::Error("Could not write screenshot file '{}'.", m_sScreenshotPath);
+      WLog::Error("Could not write screenshot file '{}'.", m_sScreenshotPath);
       return true;
     }
   }
 
-  ezLog::Success("Screenshot: '{}'", m_sScreenshotPath);
+  WLog::Success("Screenshot: '{}'", m_sScreenshotPath);
   return true;
 }
 
@@ -406,21 +406,21 @@ namespace
 } // namespace
 
 
-void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApplicationInputFlags> flags)
+void WGameApplication::RegisterGameApplicationInputActions(WBitflags<WGameApplicationInputFlags> flags)
 {
-  ezInputActionConfig config;
+  WInputActionConfig config;
 
-  if (flags.IsSet(ezGameApplicationInputFlags::Dev_EscapeToClose))
+  if (flags.IsSet(WGameApplicationInputFlags::Dev_EscapeToClose))
   {
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
-    ezInputManager::SetInputActionConfig(s_szInputSet, s_szCloseAppAction, config, true);
+    config.m_sInputSlotTrigger[0] = WInputSlot_KeyEscape;
+    WInputManager::SetInputActionConfig(s_szInputSet, s_szCloseAppAction, config, true);
   }
 
-  if (flags.IsSet(ezGameApplicationInputFlags::Dev_Console))
+  if (flags.IsSet(WGameApplicationInputFlags::Dev_Console))
   {
     // the tilde has problematic behavior on keyboards where it is a hat (^)
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF1;
-    ezInputManager::SetInputActionConfig("Console", s_szShowConsole, config, true);
+    config.m_sInputSlotTrigger[0] = WInputSlot_KeyF1;
+    WInputManager::SetInputActionConfig("Console", s_szShowConsole, config, true);
 
     if (m_pConsole)
     {
@@ -428,169 +428,169 @@ void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApp
     }
   }
 
-  if (flags.IsSet(ezGameApplicationInputFlags::Dev_ReloadResources))
+  if (flags.IsSet(WGameApplicationInputFlags::Dev_ReloadResources))
   {
     // in the editor we cannot use F5, because that is already 'run application'
     // so we use F4 there, and it should be consistent here
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF4;
-    ezInputManager::SetInputActionConfig(s_szInputSet, s_szReloadResourcesAction, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szReloadResourcesAction, "Engine", []()
-      { ezResourceManager::ReloadAllResources(false); });
+    config.m_sInputSlotTrigger[0] = WInputSlot_KeyF4;
+    WInputManager::SetInputActionConfig(s_szInputSet, s_szReloadResourcesAction, config, true);
+    WConsoleActions::AddAction(s_szInputSet, s_szReloadResourcesAction, "Engine", []()
+      { WResourceManager::ReloadAllResources(false); });
   }
 
-  if (flags.IsSet(ezGameApplicationInputFlags::Dev_ShowStats))
+  if (flags.IsSet(WGameApplicationInputFlags::Dev_ShowStats))
   {
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF5;
-    ezInputManager::SetInputActionConfig(s_szInputSet, s_szShowFpsAction, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szShowFpsAction, "Engine", []()
+    config.m_sInputSlotTrigger[0] = WInputSlot_KeyF5;
+    WInputManager::SetInputActionConfig(s_szInputSet, s_szShowFpsAction, config, true);
+    WConsoleActions::AddAction(s_szInputSet, s_szShowFpsAction, "Engine", []()
       { cvar_AppShowFPS = !cvar_AppShowFPS; });
   }
 
-  if (flags.IsSet(ezGameApplicationInputFlags::Dev_CaptureProfilingInfo))
+  if (flags.IsSet(WGameApplicationInputFlags::Dev_CaptureProfilingInfo))
   {
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
-    ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureProfilingAction, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szCaptureProfilingAction, "Engine", [this]()
+    config.m_sInputSlotTrigger[0] = WInputSlot_KeyF8;
+    WInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureProfilingAction, config, true);
+    WConsoleActions::AddAction(s_szInputSet, s_szCaptureProfilingAction, "Engine", [this]()
       { TakeProfilingCapture(); });
   }
 
-  if (flags.IsSet(ezGameApplicationInputFlags::Dev_CaptureFrame))
+  if (flags.IsSet(WGameApplicationInputFlags::Dev_CaptureFrame))
   {
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF11;
-    ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureFrame, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szCaptureFrame, "Engine", [this]()
+    config.m_sInputSlotTrigger[0] = WInputSlot_KeyF11;
+    WInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureFrame, config, true);
+    WConsoleActions::AddAction(s_szInputSet, s_szCaptureFrame, "Engine", [this]()
       { CaptureFrame(); });
   }
 
-  if (flags.IsSet(ezGameApplicationInputFlags::Dev_Screenshot))
+  if (flags.IsSet(WGameApplicationInputFlags::Dev_Screenshot))
   {
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
-    ezInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szTakeScreenshot, "Engine", [this]()
+    config.m_sInputSlotTrigger[0] = WInputSlot_KeyF12;
+    WInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
+    WConsoleActions::AddAction(s_szInputSet, s_szTakeScreenshot, "Engine", [this]()
       { TakeScreenshot(); });
   }
 
-  if (flags.IsSet(ezGameApplicationInputFlags::Dev_OpenInspector))
+  if (flags.IsSet(WGameApplicationInputFlags::Dev_OpenInspector))
   {
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF10;
-    ezInputManager::SetInputActionConfig(s_szInputSet, s_szOpenInspector, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szOpenInspector, "Engine", [this]()
+    config.m_sInputSlotTrigger[0] = WInputSlot_KeyF10;
+    WInputManager::SetInputActionConfig(s_szInputSet, s_szOpenInspector, config, true);
+    WConsoleActions::AddAction(s_szInputSet, s_szOpenInspector, "Engine", [this]()
       { OpenInspector(); });
   }
 
-  if (flags.IsSet(ezGameApplicationInputFlags::LoadInputConfig))
+  if (flags.IsSet(WGameApplicationInputFlags::LoadInputConfig))
   {
-    ezStringView sConfigFile = ezGameAppInputConfig::s_sConfigFile;
+    WStringView sConfigFile = WGameAppInputConfig::s_sConfigFile;
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(sConfigFile).Succeeded())
     {
-      ezTempHybridArray<ezGameAppInputConfig, 32> InputActions;
+      WTempHybridArray<WGameAppInputConfig, 32> InputActions;
 
-      ezGameAppInputConfig::ReadFromDDL(file, InputActions);
-      ezGameAppInputConfig::ApplyAll(InputActions);
+      WGameAppInputConfig::ReadFromDDL(file, InputActions);
+      WGameAppInputConfig::ApplyAll(InputActions);
     }
   }
 }
 
-ezString ezGameApplication::FindProjectDirectory() const
+WString WGameApplication::FindProjectDirectory() const
 {
-  EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built-in project directory passed to the ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
+  W_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built-in project directory passed to the WGameApplication constructor, or m_sAppProjectPath must be set manually before doing project setup, or WGameApplication::FindProjectDirectory() must be overridden.");
 
-  if (ezPathUtils::IsAbsolutePath(m_sAppProjectPath))
+  if (WPathUtils::IsAbsolutePath(m_sAppProjectPath))
     return m_sAppProjectPath;
 
   // first check if the path is relative to the SDK special directory
   {
-    ezStringBuilder relToSdk(m_sAppProjectPath);
+    WStringBuilder relToSdk(m_sAppProjectPath);
 
     if (!relToSdk.StartsWith_NoCase(">sdk/"))
     {
       relToSdk.Prepend(">sdk/");
     }
 
-    ezStringBuilder absToSdk;
-    if (ezFileSystem::ResolveSpecialDirectory(relToSdk, absToSdk).Succeeded())
+    WStringBuilder absToSdk;
+    if (WFileSystem::ResolveSpecialDirectory(relToSdk, absToSdk).Succeeded())
     {
-      if (ezOSFile::ExistsDirectory(absToSdk))
+      if (WOSFile::ExistsDirectory(absToSdk))
         return absToSdk;
     }
   }
 
-  ezStringBuilder result;
-  if (ezFileSystem::FindFolderWithSubPath(result, ezOSFile::GetApplicationDirectory(), m_sAppProjectPath).Failed())
+  WStringBuilder result;
+  if (WFileSystem::FindFolderWithSubPath(result, WOSFile::GetApplicationDirectory(), m_sAppProjectPath).Failed())
   {
-    ezLog::Error("Could not find the project directory.");
+    WLog::Error("Could not find the project directory.");
   }
 
   return result;
 }
 
-void ezGameApplication::OpenInspector()
+void WGameApplication::OpenInspector()
 {
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-  ezProcessOptions opt;
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
+  WProcessOptions opt;
 
-  ezStringBuilder sInspectorPath = ezOSFile::GetApplicationDirectory();
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  sInspectorPath.AppendPath("ezInspector.exe");
+  WStringBuilder sInspectorPath = WOSFile::GetApplicationDirectory();
+#  if W_ENABLED(W_PLATFORM_WINDOWS)
+  sInspectorPath.AppendPath("WInspector.exe");
 #  else
-  sInspectorPath.AppendPath("ezInspector");
+  sInspectorPath.AppendPath("WInspector");
 #  endif
 
   opt.m_sProcess = sInspectorPath;
 
-  ezProcess process;
-  if (process.Launch(opt, ezProcessLaunchFlags::Detached).Failed())
+  WProcess process;
+  if (process.Launch(opt, WProcessLaunchFlags::Detached).Failed())
   {
-    ezLog::Warning("Failed to launch ezInspector.");
+    WLog::Warning("Failed to launch WInspector.");
   }
 #endif
 }
 
-ezGameUpdateMode ezGameApplication::GetGameUpdateMode() const
+WGameUpdateMode WGameApplication::GetGameUpdateMode() const
 {
-  const bool bViewsScheduled = !ezRenderWorld::GetMainViews().IsEmpty();
-  const bool bRenderingScheduled = ezRenderWorld::IsRenderingScheduled();
+  const bool bViewsScheduled = !WRenderWorld::GetMainViews().IsEmpty();
+  const bool bRenderingScheduled = WRenderWorld::IsRenderingScheduled();
   if (bViewsScheduled)
   {
-    return ezGameUpdateMode::UpdateInputAndRender;
+    return WGameUpdateMode::UpdateInputAndRender;
   }
-  return bRenderingScheduled ? ezGameUpdateMode::Render : ezGameUpdateMode::Skip;
+  return bRenderingScheduled ? WGameUpdateMode::Render : WGameUpdateMode::Skip;
 }
 
-void ezGameApplication::Run_WorldUpdateAndRender()
+void WGameApplication::Run_WorldUpdateAndRender()
 {
-  EZ_PROFILE_SCOPE("Run_WorldUpdateAndRender");
+  W_PROFILE_SCOPE("Run_WorldUpdateAndRender");
   // If multi-threaded rendering is disabled, the same content is updated/extracted and rendered in the same frame.
-  // As ezRenderWorld::BeginFrame applies the render pipeline properties that were set during the update phase, it needs to be done after update/extraction but before rendering.
-  if (!ezRenderWorld::GetUseMultithreadedRendering())
+  // As WRenderWorld::BeginFrame applies the render pipeline properties that were set during the update phase, it needs to be done after update/extraction but before rendering.
+  if (!WRenderWorld::GetUseMultithreadedRendering())
   {
     UpdateWorldsAndExtractViews();
   }
 
-  ezRenderWorld::BeginFrame();
+  WRenderWorld::BeginFrame();
 
-  ezTaskGroupID updateTaskID;
-  if (ezRenderWorld::GetUseMultithreadedRendering())
+  WTaskGroupID updateTaskID;
+  if (WRenderWorld::GetUseMultithreadedRendering())
   {
-    updateTaskID = ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::EarlyThisFrame);
+    updateTaskID = WTaskSystem::StartSingleTask(m_pUpdateTask, WTaskPriority::EarlyThisFrame);
   }
 
-  ezRenderWorld::Render(ezRenderContext::GetDefaultInstance());
+  WRenderWorld::Render(WRenderContext::GetDefaultInstance());
 
-  if (ezRenderWorld::GetUseMultithreadedRendering())
+  if (WRenderWorld::GetUseMultithreadedRendering())
   {
-    EZ_PROFILE_SCOPE("Wait for UpdateWorldsAndExtractViews");
-    ezTaskSystem::WaitForGroup(updateTaskID);
+    W_PROFILE_SCOPE("Wait for UpdateWorldsAndExtractViews");
+    WTaskSystem::WaitForGroup(updateTaskID);
   }
 }
 
-void ezGameApplication::Run_AcquireImage()
+void WGameApplication::Run_AcquireImage()
 {
-  auto pWinMan = ezWindowManager::GetSingleton();
+  auto pWinMan = WWindowManager::GetSingleton();
 
-  ezTempHybridArray<ezRegisteredWndHandle, 8> windows;
+  WTempHybridArray<WRegisteredWndHandle, 8> windows;
   pWinMan->GetRegistered(windows);
 
   for (auto id : windows)
@@ -598,17 +598,17 @@ void ezGameApplication::Run_AcquireImage()
     if (auto pOutput = pWinMan->GetOutputTarget(id))
     {
       // We could call `ExecuteTakeScreenshot` here, which would improve the screenshot latency by one frame. However, all unit test image comparisons would fail.
-      EZ_PROFILE_SCOPE("AcquireImage");
+      W_PROFILE_SCOPE("AcquireImage");
       pOutput->AcquireImage();
     }
   }
 }
 
-void ezGameApplication::Run_PresentImage()
+void WGameApplication::Run_PresentImage()
 {
-  auto pWinMan = ezWindowManager::GetSingleton();
+  auto pWinMan = WWindowManager::GetSingleton();
 
-  ezTempHybridArray<ezRegisteredWndHandle, 8> windows;
+  WTempHybridArray<WRegisteredWndHandle, 8> windows;
   pWinMan->GetRegistered(windows);
 
   bool bExecutedFrameCapture = false;
@@ -617,7 +617,7 @@ void ezGameApplication::Run_PresentImage()
     if (auto pOutput = pWinMan->GetOutputTarget(id))
     {
       // if we have multiple actors, append the actor name to each screenshot
-      ezStringBuilder ctxt;
+      WStringBuilder ctxt;
       if (windows.GetCount() > 1)
       {
         ctxt.Append(" - ", pWinMan->GetName(id));
@@ -632,36 +632,36 @@ void ezGameApplication::Run_PresentImage()
         bExecutedFrameCapture = true;
       }
 
-      EZ_PROFILE_SCOPE("PresentImage");
+      W_PROFILE_SCOPE("PresentImage");
       pOutput->PresentImage(cvar_AppVSync);
     }
   }
 }
 
-void ezGameApplication::Run_FinishFrame()
+void WGameApplication::Run_FinishFrame()
 {
-  ezRenderWorld::EndFrame();
+  WRenderWorld::EndFrame();
 
   SUPER::Run_FinishFrame();
 }
 
-void ezGameApplication::UpdateWorldsAndExtractViews()
+void WGameApplication::UpdateWorldsAndExtractViews()
 {
-  ezStringBuilder sb;
-  sb.SetFormat("UPDATE FRAME {}", ezRenderWorld::GetFrameCounter());
-  EZ_PROFILE_SCOPE(sb.GetData());
+  WStringBuilder sb;
+  sb.SetFormat("UPDATE FRAME {}", WRenderWorld::GetFrameCounter());
+  W_PROFILE_SCOPE(sb.GetData());
 
   Run_BeforeWorldUpdate();
 
-  ezTempHybridArray<ezWorld*, 16> worldsToUpdate;
+  WTempHybridArray<WWorld*, 16> worldsToUpdate;
 
-  auto mainViews = ezRenderWorld::GetMainViews();
+  auto mainViews = WRenderWorld::GetMainViews();
   for (auto hView : mainViews)
   {
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(hView, pView))
+    WView* pView = nullptr;
+    if (WRenderWorld::TryGetView(hView, pView))
     {
-      ezWorld* pWorld = pView->GetWorld();
+      WWorld* pWorld = pView->GetWorld();
 
       if (pWorld != nullptr && !worldsToUpdate.Contains(pWorld))
       {
@@ -670,31 +670,31 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     }
   }
 
-  if (ezRenderWorld::GetUseMultithreadedRendering())
+  if (WRenderWorld::GetUseMultithreadedRendering())
   {
-    ezTaskGroupID updateWorldsTaskID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
-    for (ezUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
+    WTaskGroupID updateWorldsTaskID = WTaskSystem::CreateTaskGroup(WTaskPriority::EarlyThisFrame);
+    for (WUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
     {
-      ezTaskSystem::AddTaskToGroup(updateWorldsTaskID, worldsToUpdate[i]->GetUpdateTask());
+      WTaskSystem::AddTaskToGroup(updateWorldsTaskID, worldsToUpdate[i]->GetUpdateTask());
     }
-    ezTaskSystem::StartTaskGroup(updateWorldsTaskID);
-    ezTaskSystem::WaitForGroup(updateWorldsTaskID);
+    WTaskSystem::StartTaskGroup(updateWorldsTaskID);
+    WTaskSystem::WaitForGroup(updateWorldsTaskID);
   }
   else
   {
-    for (ezUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
+    for (WUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
     {
-      ezWorld* pWorld = worldsToUpdate[i];
-      EZ_LOCK(pWorld->GetWriteMarker());
+      WWorld* pWorld = worldsToUpdate[i];
+      W_LOCK(pWorld->GetWriteMarker());
 
       pWorld->Update();
     }
   }
 
-  for (ezUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
+  for (WUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
   {
-    ezWorld* pWorld = worldsToUpdate[i];
-    EZ_LOCK(pWorld->GetReadMarker());
+    WWorld* pWorld = worldsToUpdate[i];
+    W_LOCK(pWorld->GetReadMarker());
     RenderWorldDebugInfos(*pWorld);
   }
 
@@ -706,59 +706,59 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   // do this now, in parallel to the view extraction
   Run_UpdatePlugins();
 
-  ezRenderWorld::ExtractMainViews();
+  WRenderWorld::ExtractMainViews();
 }
 
-void ezGameApplication::RenderWorldDebugInfos(const ezWorld& world)
+void WGameApplication::RenderWorldDebugInfos(const WWorld& world)
 {
   if (cvar_WorldShowObjectOrigins)
   {
-    ezUInt32 uiInactive = 0;
-    ezUInt32 uiStatic = 0;
-    ezUInt32 uiDynamic = 0;
+    WUInt32 uiInactive = 0;
+    WUInt32 uiStatic = 0;
+    WUInt32 uiDynamic = 0;
 
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
-      ezTransform tObj = it->GetGlobalTransform();
+      WTransform tObj = it->GetGlobalTransform();
       tObj.m_vScale.Set(1.0f);
 
       if (!it->IsActive())
       {
         ++uiInactive;
-        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.25f, ezColor::DarkGrey, tObj);
+        WDebugRenderer::DrawCross(&world, WVec3::MakeZero(), 0.25f, WColor::DarkGrey, tObj);
       }
       else if (it->IsDynamic())
       {
         ++uiDynamic;
-        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.25f, ezColor::DeepPink, tObj);
+        WDebugRenderer::DrawCross(&world, WVec3::MakeZero(), 0.25f, WColor::DeepPink, tObj);
       }
       else
       {
         ++uiStatic;
-        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.4f, ezColor::DeepSkyBlue, tObj);
+        WDebugRenderer::DrawCross(&world, WVec3::MakeZero(), 0.4f, WColor::DeepSkyBlue, tObj);
       }
     }
 
-    ezDebugRenderer::DrawInfoText(&world, ezDebugTextPlacement::BottomLeft, "WorldStats", ezFmt("Num Objects: {} - {} static / {} dynamic / {} inactive", uiStatic + uiDynamic + uiInactive, uiStatic, uiDynamic, uiInactive));
+    WDebugRenderer::DrawInfoText(&world, WDebugTextPlacement::BottomLeft, "WorldStats", WFmt("Num Objects: {} - {} static / {} dynamic / {} inactive", uiStatic + uiDynamic + uiInactive, uiStatic, uiDynamic, uiInactive));
   }
 }
 
-void ezGameApplication::RenderFps()
+void WGameApplication::RenderFps()
 {
-  EZ_PROFILE_SCOPE("RenderFps");
-  // Do not use ezClock for this, it smooths and clamps the timestep
+  W_PROFILE_SCOPE("RenderFps");
+  // Do not use WClock for this, it smooths and clamps the timestep
 
-  static ezTime tAccumTime;
-  static ezTime tDisplayedFrameTime = m_FrameTime;
-  static ezUInt32 uiFrames = 0;
-  static ezUInt32 uiFPS = 0;
+  static WTime tAccumTime;
+  static WTime tDisplayedFrameTime = m_FrameTime;
+  static WUInt32 uiFrames = 0;
+  static WUInt32 uiFPS = 0;
 
   ++uiFrames;
   tAccumTime += m_FrameTime;
 
-  if (tAccumTime >= ezTime::MakeFromSeconds(0.5))
+  if (tAccumTime >= WTime::MakeFromSeconds(0.5))
   {
-    tAccumTime -= ezTime::MakeFromSeconds(0.5);
+    tAccumTime -= WTime::MakeFromSeconds(0.5);
     tDisplayedFrameTime = m_FrameTime;
 
     uiFPS = uiFrames * 2;
@@ -767,37 +767,37 @@ void ezGameApplication::RenderFps()
 
   if (cvar_AppShowFPS)
   {
-    if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
+    if (const WView* pView = WRenderWorld::GetViewByUsageHint(WCameraUsageHint::MainView, WCameraUsageHint::EditorView))
     {
-      ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugTextPlacement::BottomLeft, "FPS", ezFmt("{0} fps, {1} ms", uiFPS, ezArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4)));
+      WDebugRenderer::DrawInfoText(pView->GetHandle(), WDebugTextPlacement::BottomLeft, "FPS", WFmt("{0} fps, {1} ms", uiFPS, WArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4)));
     }
   }
 }
 
-void ezGameApplication::RenderConsole()
+void WGameApplication::RenderConsole()
 {
   if (!m_pConsole)
     return;
 
-  EZ_PROFILE_SCOPE("RenderConsole");
+  W_PROFILE_SCOPE("RenderConsole");
 
   m_pConsole->RenderConsole(m_bShowConsole);
 }
 
-bool ezGameApplication::Run_ProcessApplicationInput()
+bool WGameApplication::Run_ProcessApplicationInput()
 {
   // the show console command must be in the "Console" input set, because we are using that for exclusive input when the console is open
-  if (ezInputManager::GetInputActionState("Console", s_szShowConsole) == ezKeyState::Pressed)
+  if (WInputManager::GetInputActionState("Console", s_szShowConsole) == WKeyState::Pressed)
   {
     m_bShowConsole = !m_bShowConsole;
 
     if (m_bShowConsole)
     {
-      ezInputManager::SetExclusiveInputSet("Console");
+      WInputManager::SetExclusiveInputSet("Console");
     }
     else
     {
-      ezInputManager::SetExclusiveInputSet("");
+      WInputManager::SetExclusiveInputSet("");
 
       if (m_pConsole)
       {
@@ -806,7 +806,7 @@ bool ezGameApplication::Run_ProcessApplicationInput()
     }
   }
 
-  ezConsoleActions::HandleInput();
+  WConsoleActions::HandleInput();
 
   if (m_pConsole)
   {
@@ -816,7 +816,7 @@ bool ezGameApplication::Run_ProcessApplicationInput()
       return false;
   }
 
-  if (ezInputManager::GetInputActionState(s_szInputSet, s_szCloseAppAction) == ezKeyState::Pressed)
+  if (WInputManager::GetInputActionState(s_szInputSet, s_szCloseAppAction) == WKeyState::Pressed)
   {
     if (m_pGameState)
     {
@@ -829,4 +829,4 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);
+W_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);

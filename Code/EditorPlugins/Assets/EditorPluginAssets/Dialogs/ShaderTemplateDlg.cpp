@@ -6,17 +6,17 @@
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtShaderTemplateDlg::ezQtShaderTemplateDlg(QWidget* pParent, const ezDocument* pSceneDoc)
-  : ezQtDialog(pParent)
+WQtShaderTemplateDlg::WQtShaderTemplateDlg(QWidget* pParent, const WDocument* pSceneDoc)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
-  ezStringBuilder tmp;
-  ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-  sSearchDir.AppendPath("ShaderTemplates/*.ezShaderTemplate");
+  WStringBuilder tmp;
+  WStringBuilder sSearchDir = WApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  sSearchDir.AppendPath("ShaderTemplates/*.WShaderTemplate");
 
-  ezFileSystemIterator it;
-  for (it.StartSearch(sSearchDir, ezFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
+  WFileSystemIterator it;
+  for (it.StartSearch(sSearchDir, WFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
   {
     auto& t = m_Templates.ExpandAndGetRef();
 
@@ -27,17 +27,17 @@ ezQtShaderTemplateDlg::ezQtShaderTemplateDlg(QWidget* pParent, const ezDocument*
     tmp.RemoveFileExtension();
     t.m_sName = tmp;
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(t.m_sPath).Succeeded())
     {
-      ezStringBuilder content;
+      WStringBuilder content;
       content.ReadAll(file);
 
-      ezShaderHelper::ezTextSectionizer sec;
-      ezShaderHelper::GetShaderSections(content, sec);
+      WShaderHelper::WTextSectionizer sec;
+      WShaderHelper::GetShaderSections(content, sec);
 
-      ezUInt32 uiFirstLine = 0;
-      ezStringBuilder vars = sec.GetSectionContent(ezShaderHelper::ezShaderSections::TEMPLATE_VARS, uiFirstLine);
+      WUInt32 uiFirstLine = 0;
+      WStringBuilder vars = sec.GetSectionContent(WShaderHelper::WShaderSections::TEMPLATE_VARS, uiFirstLine);
 
       content.ReplaceAll(vars, "");
       content.ReplaceAll("[TEMPLATE_VARS]", "");
@@ -46,11 +46,11 @@ ezQtShaderTemplateDlg::ezQtShaderTemplateDlg(QWidget* pParent, const ezDocument*
 
       vars.Split(false, t.m_Vars, "\n", "\r");
 
-      for (ezUInt32 ip1 = t.m_Vars.GetCount(); ip1 > 0; --ip1)
+      for (WUInt32 ip1 = t.m_Vars.GetCount(); ip1 > 0; --ip1)
       {
-        const ezUInt32 i = ip1 - 1;
+        const WUInt32 i = ip1 - 1;
 
-        ezStringBuilder s = t.m_Vars[i];
+        WStringBuilder s = t.m_Vars[i];
         s.Trim(" \t");
         t.m_Vars[i] = s;
 
@@ -67,40 +67,40 @@ ezQtShaderTemplateDlg::ezQtShaderTemplateDlg(QWidget* pParent, const ezDocument*
   ShaderTemplate->setCurrentIndex(0);
 }
 
-void ezQtShaderTemplateDlg::on_Buttons_accepted()
+void WQtShaderTemplateDlg::on_Buttons_accepted()
 {
   int idx = ShaderTemplate->currentIndex();
   if (idx < 0 || idx >= (int)m_Templates.GetCount())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("No shader template selected.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("No shader template selected.");
     return;
   }
 
-  ezStringBuilder relPath = DestinationFile->text().toUtf8().data();
-  ezStringBuilder absPath = relPath;
+  WStringBuilder relPath = DestinationFile->text().toUtf8().data();
+  WStringBuilder absPath = relPath;
 
-  if (!ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(absPath, false))
+  if (!WQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(absPath, false))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("The selected shader file path is invalid.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("The selected shader file path is invalid.");
     return;
   }
 
   relPath = absPath;
 
-  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(relPath))
+  if (!WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(relPath))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("The target shader file is not located inside a data directory of this project.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("The target shader file is not located inside a data directory of this project.");
     return;
   }
 
-  ezFileWriter fileOut;
+  WFileWriter fileOut;
   if (fileOut.Open(absPath).Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("Could not create target shader file.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("Could not create target shader file.");
     return;
   }
 
-  ezStringBuilder code = m_Templates[idx].m_sContent;
+  WStringBuilder code = m_Templates[idx].m_sContent;
 
   // escape to $
   {
@@ -122,24 +122,24 @@ void ezQtShaderTemplateDlg::on_Buttons_accepted()
     code.ReplaceAll("%include", "#include");
   }
 
-  ezPreprocessor pp;
+  WPreprocessor pp;
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
   pp.SetFileOpenFunction(
-    [code](ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification)
+    [code](WStringView sAbsoluteFile, WDynamicArray<WUInt8>& ref_fileContent, WTimestamp& out_fileModification)
     {
       ref_fileContent.SetCountUninitialized(code.GetElementCount());
-      ezMemoryUtils::RawByteCopy(ref_fileContent.GetData(), code.GetData(), code.GetElementCount());
-      return EZ_SUCCESS;
+      WMemoryUtils::RawByteCopy(ref_fileContent.GetData(), code.GetData(), code.GetElementCount());
+      return W_SUCCESS;
     });
 
   QTableWidget* pTable = TemplateVars;
 
-  for (ezUInt32 row = 0; row < m_Templates[idx].m_Vars.GetCount(); ++row)
+  for (WUInt32 row = 0; row < m_Templates[idx].m_Vars.GetCount(); ++row)
   {
-    ezVariant defVal;
-    ezShaderParser::EnumDefinition enumDef;
-    ezShaderParser::ParsePermutationVarConfig(m_Templates[idx].m_Vars[row], defVal, enumDef);
+    WVariant defVal;
+    WShaderParser::EnumDefinition enumDef;
+    WShaderParser::ParsePermutationVarConfig(m_Templates[idx].m_Vars[row], defVal, enumDef);
 
     if (defVal.IsA<bool>())
     {
@@ -153,7 +153,7 @@ void ezQtShaderTemplateDlg::on_Buttons_accepted()
     }
     else
     {
-      ezStringBuilder tmp;
+      WStringBuilder tmp;
       for (const auto& ed : enumDef.m_Values)
       {
         tmp.SetFormat("{} {}", ed.m_sValueName, ed.m_iValueValue);
@@ -170,7 +170,7 @@ void ezQtShaderTemplateDlg::on_Buttons_accepted()
 
   if (pp.Process("<main>", code).Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("Preparing the shader failed.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("Preparing the shader failed.");
     return;
   }
 
@@ -191,29 +191,29 @@ void ezQtShaderTemplateDlg::on_Buttons_accepted()
   accept();
 }
 
-void ezQtShaderTemplateDlg::on_Buttons_rejected()
+void WQtShaderTemplateDlg::on_Buttons_rejected()
 {
   m_sResult.Clear();
   reject();
 }
 
-void ezQtShaderTemplateDlg::on_Browse_clicked()
+void WQtShaderTemplateDlg::on_Browse_clicked()
 {
   static QString sLastDir;
   if (sLastDir.isEmpty())
   {
-    sLastDir = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
+    sLastDir = WToolsProject::GetSingleton()->GetProjectDirectory().GetData();
   }
 
-  QString sResult = QFileDialog::getSaveFileName(this, "Create Shader", sLastDir, "ezShader (*.ezShader)", nullptr);
+  QString sResult = QFileDialog::getSaveFileName(this, "Create Shader", sLastDir, "WShader (*.WShader)", nullptr);
 
   if (sResult.isEmpty())
     return;
 
-  ezStringBuilder tmp = sResult.toUtf8().data();
-  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(tmp))
+  WStringBuilder tmp = sResult.toUtf8().data();
+  if (!WQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(tmp))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("The selected file is not located inside a data directory of this project.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("The selected file is not located inside a data directory of this project.");
     return;
   }
 
@@ -221,7 +221,7 @@ void ezQtShaderTemplateDlg::on_Browse_clicked()
   DestinationFile->setText(tmp.GetData());
 }
 
-void ezQtShaderTemplateDlg::on_ShaderTemplate_currentIndexChanged(int idx)
+void WQtShaderTemplateDlg::on_ShaderTemplate_currentIndexChanged(int idx)
 {
   QTableWidget* pTable = TemplateVars;
 
@@ -229,13 +229,13 @@ void ezQtShaderTemplateDlg::on_ShaderTemplate_currentIndexChanged(int idx)
   pTable->setColumnCount(2);
   pTable->setRowCount(m_Templates[idx].m_Vars.GetCount());
 
-  for (ezUInt32 row = 0; row < m_Templates[idx].m_Vars.GetCount(); ++row)
+  for (WUInt32 row = 0; row < m_Templates[idx].m_Vars.GetCount(); ++row)
   {
-    ezVariant defVal;
-    ezShaderParser::EnumDefinition enumDef;
-    ezShaderParser::ParsePermutationVarConfig(m_Templates[idx].m_Vars[row], defVal, enumDef);
+    WVariant defVal;
+    WShaderParser::EnumDefinition enumDef;
+    WShaderParser::ParsePermutationVarConfig(m_Templates[idx].m_Vars[row], defVal, enumDef);
 
-    ezStringBuilder varName = enumDef.m_sName;
+    WStringBuilder varName = enumDef.m_sName;
     varName.TrimWordStart("TEMPLATE_");
     varName.Append("   ");
 
@@ -251,9 +251,9 @@ void ezQtShaderTemplateDlg::on_ShaderTemplate_currentIndexChanged(int idx)
     {
       QComboBox* pWidget = new QComboBox();
 
-      ezInt32 iDefItem = -1;
+      WInt32 iDefItem = -1;
 
-      for (ezUInt32 idx2 = 0; idx2 < enumDef.m_Values.GetCount(); ++idx2)
+      for (WUInt32 idx2 = 0; idx2 < enumDef.m_Values.GetCount(); ++idx2)
       {
         const auto& e = enumDef.m_Values[idx2];
 

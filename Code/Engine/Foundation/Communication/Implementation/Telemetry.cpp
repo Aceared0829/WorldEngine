@@ -7,20 +7,20 @@
 #  include <enet/enet.h>
 #endif
 
-class ezTelemetryThread;
+class WTelemetryThread;
 
-ezTelemetry::ezEventTelemetry ezTelemetry::s_TelemetryEvents;
-ezUInt32 ezTelemetry::s_uiApplicationID = 0;
-ezUInt32 ezTelemetry::s_uiServerID = 0;
-ezUInt16 ezTelemetry::s_uiPort = 1040;
-bool ezTelemetry::s_bConnectedToServer = false;
-bool ezTelemetry::s_bConnectedToClient = false;
-bool ezTelemetry::s_bAllowNetworkUpdate = true;
-ezTime ezTelemetry::s_PingToServer;
-ezString ezTelemetry::s_sServerName;
-ezString ezTelemetry::s_sServerIP;
-ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
-ezMap<ezUInt64, ezTelemetry::MessageQueue> ezTelemetry::s_SystemMessages;
+WTelemetry::WEventTelemetry WTelemetry::s_TelemetryEvents;
+WUInt32 WTelemetry::s_uiApplicationID = 0;
+WUInt32 WTelemetry::s_uiServerID = 0;
+WUInt16 WTelemetry::s_uiPort = 1040;
+bool WTelemetry::s_bConnectedToServer = false;
+bool WTelemetry::s_bConnectedToClient = false;
+bool WTelemetry::s_bAllowNetworkUpdate = true;
+WTime WTelemetry::s_PingToServer;
+WString WTelemetry::s_sServerName;
+WString WTelemetry::s_sServerIP;
+WTelemetry::ConnectionMode WTelemetry::s_ConnectionMode = WTelemetry::None;
+WMap<WUInt64, WTelemetry::MessageQueue> WTelemetry::s_SystemMessages;
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 static bool g_bInitialized = false;
@@ -29,15 +29,15 @@ static ENetHost* g_pHost = nullptr;
 static ENetPeer* g_pConnectionToServer = nullptr;
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
-void ezTelemetry::UpdateServerPing()
+void WTelemetry::UpdateServerPing()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   enet_peer_ping(g_pConnectionToServer);
-  ezTelemetry::s_PingToServer = ezTime::MakeFromMilliseconds(g_pConnectionToServer->lastRoundTripTime);
+  WTelemetry::s_PingToServer = WTime::MakeFromMilliseconds(g_pConnectionToServer->lastRoundTripTime);
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::UpdateNetwork()
+void WTelemetry::UpdateNetwork()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   if (!g_pHost)
@@ -52,9 +52,9 @@ void ezTelemetry::UpdateNetwork()
 
   while (true)
   {
-    EZ_LOCK(GetTelemetryMutex());
+    W_LOCK(GetTelemetryMutex());
 
-    const ezInt32 iStatus = enet_host_service(g_pHost, &NetworkEvent, 0);
+    const WInt32 iStatus = enet_host_service(g_pHost, &NetworkEvent, 0);
 
     if (iStatus <= 0)
     {
@@ -66,7 +66,7 @@ void ezTelemetry::UpdateNetwork()
     {
       case ENET_EVENT_TYPE_CONNECT:
       {
-        if ((ezTelemetry::s_ConnectionMode == ezTelemetry::Server) && (NetworkEvent.peer->eventData != 'EZBC'))
+        if ((WTelemetry::s_ConnectionMode == WTelemetry::Server) && (NetworkEvent.peer->eventData != 'EZBC'))
         {
           enet_peer_disconnect(NetworkEvent.peer, 0);
           break;
@@ -82,8 +82,8 @@ void ezTelemetry::UpdateNetwork()
           // Querying host IP and name can take a lot of time which can lead to timeouts
           // enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
 
-          ezTelemetry::s_sServerIP = szHostIP;
-          // ezTelemetry::s_ServerName = szHostName;
+          WTelemetry::s_sServerIP = szHostIP;
+          // WTelemetry::s_ServerName = szHostName;
 
           // now we are waiting for the server to send its ID
         }
@@ -91,7 +91,7 @@ void ezTelemetry::UpdateNetwork()
         {
           // got a new client, send the server ID to it
           s_bConnectedToClient = true; // we need this fake state, otherwise Broadcast will queue the message instead of sending it
-          Broadcast(ezTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(ezUInt32));
+          Broadcast(WTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(WUInt32));
           s_bConnectedToClient = false;
 
           // then wait for its acknowledgment message
@@ -106,7 +106,7 @@ void ezTelemetry::UpdateNetwork()
           s_bConnectedToServer = false;
 
           // First wait a bit to ensure that the Server could shut down, if this was a legitimate disconnect
-          ezThreadUtils::Sleep(ezTime::MakeFromSeconds(1));
+          WThreadUtils::Sleep(WTime::MakeFromSeconds(1));
 
           // Now try to reconnect. If the Server still exists, fine, connect to that.
           // If it does not exist anymore, this will connect to the next best Server that can be found.
@@ -132,9 +132,9 @@ void ezTelemetry::UpdateNetwork()
 
       case ENET_EVENT_TYPE_RECEIVE:
       {
-        const ezUInt32 uiSystemID = *((ezUInt32*)&NetworkEvent.packet->data[0]);
-        const ezUInt32 uiMsgID = *((ezUInt32*)&NetworkEvent.packet->data[4]);
-        const ezUInt8* pData = &NetworkEvent.packet->data[8];
+        const WUInt32 uiSystemID = *((WUInt32*)&NetworkEvent.packet->data[0]);
+        const WUInt32 uiMsgID = *((WUInt32*)&NetworkEvent.packet->data[4]);
+        const WUInt8* pData = &NetworkEvent.packet->data[8];
 
         if (uiSystemID == 'EZBC')
         {
@@ -142,7 +142,7 @@ void ezTelemetry::UpdateNetwork()
           {
             case 'EZID':
             {
-              s_uiServerID = *((ezUInt32*)pData);
+              s_uiServerID = *((WUInt32*)pData);
 
               // connection to server is finalized
               s_bConnectedToServer = true;
@@ -191,11 +191,11 @@ void ezTelemetry::UpdateNetwork()
           if (Queue.m_bAcceptMessages)
           {
             Queue.m_IncomingQueue.PushBack();
-            ezTelemetryMessage& Msg = Queue.m_IncomingQueue.PeekBack();
+            WTelemetryMessage& Msg = Queue.m_IncomingQueue.PeekBack();
 
             Msg.SetMessageID(uiSystemID, uiMsgID);
 
-            EZ_ASSERT_DEV((ezUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32)NetworkEvent.packet->dataLength);
+            W_ASSERT_DEV((WUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (WUInt32)NetworkEvent.packet->dataLength);
 
             Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 8).IgnoreResult();
           }
@@ -214,7 +214,7 @@ void ezTelemetry::UpdateNetwork()
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::SetServerName(ezStringView sName)
+void WTelemetry::SetServerName(WStringView sName)
 {
   if (s_ConnectionMode == ConnectionMode::Client)
     return;
@@ -227,35 +227,35 @@ void ezTelemetry::SetServerName(ezStringView sName)
   SendServerName();
 }
 
-void ezTelemetry::SendServerName()
+void WTelemetry::SendServerName()
 {
   if (!IsConnectedToOther())
     return;
 
   char data[48];
-  ezStringUtils::Copy(data, EZ_ARRAY_SIZE(data), s_sServerName.GetData());
+  WStringUtils::Copy(data, W_ARRAY_SIZE(data), s_sServerName.GetData());
 
-  Broadcast(ezTelemetry::Reliable, 'EZBC', 'NAME', data, EZ_ARRAY_SIZE(data));
+  Broadcast(WTelemetry::Reliable, 'EZBC', 'NAME', data, W_ARRAY_SIZE(data));
 }
 
-ezResult ezTelemetry::RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_message)
+WResult WTelemetry::RetrieveMessage(WUInt32 uiSystemID, WTelemetryMessage& out_message)
 {
   if (s_SystemMessages[uiSystemID].m_IncomingQueue.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  EZ_LOCK(GetTelemetryMutex());
+  W_LOCK(GetTelemetryMutex());
 
   // check again while inside the lock
   if (s_SystemMessages[uiSystemID].m_IncomingQueue.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   out_message = s_SystemMessages[uiSystemID].m_IncomingQueue.PeekFront();
   s_SystemMessages[uiSystemID].m_IncomingQueue.PopFront();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezTelemetry::InitializeAsServer()
+void WTelemetry::InitializeAsServer()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   g_pServerAddress.host = ENET_HOST_ANY;
@@ -263,42 +263,42 @@ void ezTelemetry::InitializeAsServer()
 
   g_pHost = enet_host_create(&g_pServerAddress, 32, 2, 0, 0);
 #else
-  ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::InitializeAsServer() will be ignored.");
+  WLog::SeriousWarning("Enet is not compiled into this build, WTelemetry::InitializeAsServer() will be ignored.");
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-ezResult ezTelemetry::InitializeAsClient(ezStringView sConnectTo0)
+WResult WTelemetry::InitializeAsClient(WStringView sConnectTo0)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   g_pHost = enet_host_create(nullptr, 1, 2, 0, 0);
 
-  ezStringBuilder sConnectTo = sConnectTo0;
+  WStringBuilder sConnectTo = sConnectTo0;
 
   const char* szColon = sConnectTo.FindLastSubString(":");
   if (szColon != nullptr)
   {
-    sConnectTo.Shrink(0, ezStringUtils::GetStringElementCount(szColon));
+    sConnectTo.Shrink(0, WStringUtils::GetStringElementCount(szColon));
 
-    ezStringBuilder sPort = szColon + 1;
-    s_uiPort = static_cast<ezUInt16>(atoi(sPort.GetData()));
+    WStringBuilder sPort = szColon + 1;
+    s_uiPort = static_cast<WUInt16>(atoi(sPort.GetData()));
   }
 
   if (sConnectTo.IsEmpty() || sConnectTo.IsEqual_NoCase("localhost"))
     enet_address_set_host(&g_pServerAddress, "localhost");
   else if (sConnectTo.FindSubString(".") != nullptr)
   {
-    ezTempHybridArray<ezString, 8> IP;
+    WTempHybridArray<WString, 8> IP;
     sConnectTo.Split(false, IP, ".");
 
     if (IP.GetCount() != 4)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezUInt32 ip1 = atoi(IP[0].GetData()) & 0xFF;
-    const ezUInt32 ip2 = atoi(IP[1].GetData()) & 0xFF;
-    const ezUInt32 ip3 = atoi(IP[2].GetData()) & 0xFF;
-    const ezUInt32 ip4 = atoi(IP[3].GetData()) & 0xFF;
+    const WUInt32 ip1 = atoi(IP[0].GetData()) & 0xFF;
+    const WUInt32 ip2 = atoi(IP[1].GetData()) & 0xFF;
+    const WUInt32 ip3 = atoi(IP[2].GetData()) & 0xFF;
+    const WUInt32 ip4 = atoi(IP[3].GetData()) & 0xFF;
 
-    const ezUInt32 uiIP = (ip1 | ip2 << 8 | ip3 << 16 | ip4 << 24);
+    const WUInt32 uiIP = (ip1 | ip2 << 8 | ip3 << 16 | ip4 << 24);
 
     g_pServerAddress.host = uiIP;
   }
@@ -311,16 +311,16 @@ ezResult ezTelemetry::InitializeAsClient(ezStringView sConnectTo0)
   g_pConnectionToServer = enet_host_connect(g_pHost, &g_pServerAddress, 2, 'EZBC');
 
   if (g_pConnectionToServer)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 #else
-  EZ_IGNORE_UNUSED(sConnectTo0);
-  ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::InitializeAsClient() will be ignored.");
+  W_IGNORE_UNUSED(sConnectTo0);
+  WLog::SeriousWarning("Enet is not compiled into this build, WTelemetry::InitializeAsClient() will be ignored.");
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, ezStringView sConnectTo)
+WResult WTelemetry::OpenConnection(ConnectionMode Mode, WStringView sConnectTo)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   CloseConnection();
@@ -329,25 +329,25 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, ezStringView sConnectT
   {
     if (enet_initialize() != 0)
     {
-      ezLog::Error("Enet could not be initialized.");
-      return EZ_FAILURE;
+      WLog::Error("Enet could not be initialized.");
+      return W_FAILURE;
     }
 
     g_bInitialized = true;
   }
 
-  s_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
+  s_uiApplicationID = (WUInt32)WTime::Now().GetSeconds();
 
   switch (Mode)
   {
-    case ezTelemetry::Server:
+    case WTelemetry::Server:
       InitializeAsServer();
       break;
-    case ezTelemetry::Client:
-      if (InitializeAsClient(sConnectTo) == EZ_FAILURE)
+    case WTelemetry::Client:
+      if (InitializeAsClient(sConnectTo) == W_FAILURE)
       {
         CloseConnection();
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
       break;
     default:
@@ -356,40 +356,40 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, ezStringView sConnectT
 
   s_ConnectionMode = Mode;
 
-  ezTelemetry::UpdateNetwork();
+  WTelemetry::UpdateNetwork();
 
   StartTelemetryThread();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 #else
-  EZ_IGNORE_UNUSED(Mode);
-  EZ_IGNORE_UNUSED(sConnectTo);
-  ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::OpenConnection() will be ignored.");
-  return EZ_FAILURE;
+  W_IGNORE_UNUSED(Mode);
+  W_IGNORE_UNUSED(sConnectTo);
+  WLog::SeriousWarning("Enet is not compiled into this build, WTelemetry::OpenConnection() will be ignored.");
+  return W_FAILURE;
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBytes)
+void WTelemetry::Transmit(TransmitMode tm, const void* pData, WUInt32 uiDataBytes)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   if (!g_pHost)
     return;
 
-  EZ_LOCK(GetTelemetryMutex());
+  W_LOCK(GetTelemetryMutex());
 
   ENetPacket* pPacket = enet_packet_create(pData, uiDataBytes, (tm == Reliable) ? ENET_PACKET_FLAG_RELIABLE : 0);
   enet_host_broadcast(g_pHost, 0, pPacket);
 
   // make sure the message is processed immediately
-  ezTelemetry::UpdateNetwork();
+  WTelemetry::UpdateNetwork();
 #else
-  EZ_IGNORE_UNUSED(tm);
-  EZ_IGNORE_UNUSED(pData);
-  EZ_IGNORE_UNUSED(uiDataBytes);
+  W_IGNORE_UNUSED(tm);
+  W_IGNORE_UNUSED(pData);
+  W_IGNORE_UNUSED(uiDataBytes);
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
+void WTelemetry::Send(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData, WUInt32 uiDataBytes)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   if (!g_pHost)
@@ -402,47 +402,47 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, c
   {
     // when we do have a connection, just send the message out
 
-    ezTempHybridArray<ezUInt8, 64> TempData;
+    WTempHybridArray<WUInt8, 64> TempData;
     TempData.SetCountUninitialized(8 + uiDataBytes);
-    *((ezUInt32*)&TempData[0]) = uiSystemID;
-    *((ezUInt32*)&TempData[4]) = uiMsgID;
+    *((WUInt32*)&TempData[0]) = uiSystemID;
+    *((WUInt32*)&TempData[4]) = uiMsgID;
 
     if (pData && uiDataBytes > 0)
-      ezMemoryUtils::Copy((ezUInt8*)&TempData[8], (ezUInt8*)pData, uiDataBytes);
+      WMemoryUtils::Copy((WUInt8*)&TempData[8], (WUInt8*)pData, uiDataBytes);
 
     Transmit(tm, &TempData[0], TempData.GetCount());
   }
 #else
-  EZ_IGNORE_UNUSED(tm);
-  EZ_IGNORE_UNUSED(uiSystemID);
-  EZ_IGNORE_UNUSED(uiMsgID);
-  EZ_IGNORE_UNUSED(pData);
-  EZ_IGNORE_UNUSED(uiDataBytes);
+  W_IGNORE_UNUSED(tm);
+  W_IGNORE_UNUSED(uiSystemID);
+  W_IGNORE_UNUSED(uiMsgID);
+  W_IGNORE_UNUSED(pData);
+  W_IGNORE_UNUSED(uiDataBytes);
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes)
+void WTelemetry::Send(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, WStreamReader& Stream, WInt32 iDataBytes)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   if (!g_pHost)
     return;
 
-  const ezUInt32 uiStackSize = 1024;
+  const WUInt32 uiStackSize = 1024;
 
-  ezTempHybridArray<ezUInt8, uiStackSize + 8> TempData;
+  WTempHybridArray<WUInt8, uiStackSize + 8> TempData;
   TempData.SetCountUninitialized(8);
-  *((ezUInt32*)&TempData[0]) = uiSystemID;
-  *((ezUInt32*)&TempData[4]) = uiMsgID;
+  *((WUInt32*)&TempData[0]) = uiSystemID;
+  *((WUInt32*)&TempData[4]) = uiMsgID;
 
   // if we don't know how much to take out of the stream, read the data piece by piece from the input stream
   if (iDataBytes < 0)
   {
     while (true)
     {
-      const ezUInt32 uiOffset = TempData.GetCount();
+      const WUInt32 uiOffset = TempData.GetCount();
       TempData.SetCountUninitialized(uiOffset + uiStackSize); // no allocation the first time
 
-      const ezUInt32 uiRead = static_cast<ezUInt32>(Stream.ReadBytes(&TempData[uiOffset], uiStackSize));
+      const WUInt32 uiRead = static_cast<WUInt32>(Stream.ReadBytes(&TempData[uiOffset], uiStackSize));
 
       if (uiRead < uiStackSize)
       {
@@ -474,15 +474,15 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
     Transmit(tm, &TempData[0], TempData.GetCount());
   }
 #else
-  EZ_IGNORE_UNUSED(tm);
-  EZ_IGNORE_UNUSED(uiSystemID);
-  EZ_IGNORE_UNUSED(uiMsgID);
-  EZ_IGNORE_UNUSED(Stream);
-  EZ_IGNORE_UNUSED(iDataBytes);
+  W_IGNORE_UNUSED(tm);
+  W_IGNORE_UNUSED(uiSystemID);
+  W_IGNORE_UNUSED(uiMsgID);
+  W_IGNORE_UNUSED(Stream);
+  W_IGNORE_UNUSED(iDataBytes);
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::CloseConnection()
+void WTelemetry::CloseConnection()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   s_ConnectionMode = None;
@@ -492,20 +492,20 @@ void ezTelemetry::CloseConnection()
   StopTelemetryThread();
 
   // prevent other threads from interfering
-  EZ_LOCK(GetTelemetryMutex());
+  W_LOCK(GetTelemetryMutex());
 
   UpdateNetwork();
-  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+  WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
 
   if (g_pHost)
   {
     // send all peers that we are disconnecting
-    for (ezUInt32 i = (ezUInt32)g_pHost->connectedPeers; i > 0; --i)
+    for (WUInt32 i = (WUInt32)g_pHost->connectedPeers; i > 0; --i)
       enet_peer_disconnect(&g_pHost->peers[i - 1], 0);
 
     // process the network messages (e.g. send the disconnect messages)
     UpdateNetwork();
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
   }
 
   {

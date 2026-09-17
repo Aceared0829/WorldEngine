@@ -4,9 +4,9 @@
 #include <Foundation/Containers/IdTable.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
-class ezPhantomRTTI;
+class WPhantomRTTI;
 
-struct ezPhantomRttiManagerEvent
+struct WPhantomRttiManagerEvent
 {
   enum class Type
   {
@@ -15,19 +15,19 @@ struct ezPhantomRttiManagerEvent
     TypeChanged,
   };
 
-  ezPhantomRttiManagerEvent()
+  WPhantomRttiManagerEvent()
 
     = default;
 
   Type m_Type = Type::TypeAdded;
-  const ezRTTI* m_pChangedType = nullptr;
+  const WRTTI* m_pChangedType = nullptr;
 };
 
-/// Manages all ezPhantomRTTI types that have been added to him.
+/// Manages all WPhantomRTTI types that have been added to him.
 ///
-/// A ezPhantomRTTI cannot be created directly but must be created via this managers
-/// RegisterType function with a given ezReflectedTypeDescriptor.
-class EZ_TOOLSFOUNDATION_DLL ezPhantomRttiManager
+/// A WPhantomRTTI cannot be created directly but must be created via this managers
+/// RegisterType function with a given WReflectedTypeDescriptor.
+class W_TOOLSFOUNDATION_DLL WPhantomRttiManager
 {
 public:
   /// Adds a reflected type to the list of accessible types.
@@ -37,27 +37,27 @@ public:
   /// any class deriving from it can be added.
   /// Call the function again if a type has changed during the run of the
   /// program. If the type actually differs the last known class layout the
-  /// m_TypeChangedEvent event will be called with the old and new ezRTTI.
+  /// m_TypeChangedEvent event will be called with the old and new WRTTI.
   ///
-  /// \sa ezReflectionUtils::GetReflectedTypeDescriptorFromRtti
-  static const ezRTTI* RegisterType(ezReflectedTypeDescriptor& ref_desc);
+  /// \sa WReflectionUtils::GetReflectedTypeDescriptorFromRtti
+  static const WRTTI* RegisterType(WReflectedTypeDescriptor& ref_desc);
 
   /// Removes a type from the list of accessible types.
   ///
   /// No instance of the given type or storage must still exist when this function is called.
-  static bool UnregisterType(const ezRTTI* pRtti);
+  static bool UnregisterType(const WRTTI* pRtti);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, ReflectedTypeManager);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, ReflectedTypeManager);
 
   static void Startup();
   static void Shutdown();
-  static void PluginEventHandler(const ezPluginEvent& e);
+  static void PluginEventHandler(const WPluginEvent& e);
 
 public:
-  static ezCopyOnBroadcastEvent<const ezPhantomRttiManagerEvent&> s_Events;
+  static WCopyOnBroadcastEvent<const WPhantomRttiManagerEvent&> s_Events;
 
 private:
-  static ezSet<const ezRTTI*> s_RegisteredConcreteTypes;
-  static ezHashTable<ezStringView, ezPhantomRTTI*> s_NameToPhantom;
+  static WSet<const WRTTI*> s_RegisteredConcreteTypes;
+  static WHashTable<WStringView, WPhantomRTTI*> s_NameToPhantom;
 };

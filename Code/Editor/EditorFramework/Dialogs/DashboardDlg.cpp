@@ -6,8 +6,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtDashboardDlg::ezQtDashboardDlg(QWidget* pParent, DashboardTab activeTab)
-  : ezQtDialog(pParent)
+WQtDashboardDlg::WQtDashboardDlg(QWidget* pParent, DashboardTab activeTab)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -17,7 +17,7 @@ ezQtDashboardDlg::ezQtDashboardDlg(QWidget* pParent, DashboardTab activeTab)
   SamplesTab->setFlat(true);
   DocumentationTab->setFlat(true);
 
-  if (ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>())
+  if (WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>())
   {
     LoadLastProject->setChecked(pPreferences->m_bLoadLastProjectAtStartup);
   }
@@ -50,7 +50,7 @@ ezQtDashboardDlg::ezQtDashboardDlg(QWidget* pParent, DashboardTab activeTab)
   SetActiveTab(activeTab);
 }
 
-void ezQtDashboardDlg::SetActiveTab(DashboardTab activeTab)
+void WQtDashboardDlg::SetActiveTab(DashboardTab activeTab)
 {
   TabArea->setCurrentIndex((int)activeTab);
 
@@ -59,17 +59,17 @@ void ezQtDashboardDlg::SetActiveTab(DashboardTab activeTab)
   DocumentationTab->setChecked(activeTab == DashboardTab::Documentation);
 }
 
-void ezQtDashboardDlg::FillRecentProjectsList()
+void WQtDashboardDlg::FillRecentProjectsList()
 {
-  const auto& list = ezQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList();
+  const auto& list = WQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList();
 
   ProjectsList->clear();
   ProjectsList->setColumnCount(2);
   ProjectsList->setRowCount(list.GetCount());
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
-  for (ezUInt32 r = 0; r < list.GetCount(); ++r)
+  for (WUInt32 r = 0; r < list.GetCount(); ++r)
   {
     const auto& path = list[r];
 
@@ -80,7 +80,7 @@ void ezQtDashboardDlg::FillRecentProjectsList()
 
     tmp = path.m_File;
     tmp.MakeCleanPath();
-    tmp.PathParentDirectory(1); // remove '/ezProject'
+    tmp.PathParentDirectory(1); // remove '/WProject'
     tmp.Trim("/");
 
     pItemProjectPath->setText(tmp.GetData());
@@ -93,37 +93,37 @@ void ezQtDashboardDlg::FillRecentProjectsList()
   ProjectsList->resizeColumnToContents(0);
 }
 
-void ezQtDashboardDlg::FillSampleProjectsList()
+void WQtDashboardDlg::FillSampleProjectsList()
 {
-  ezTempHybridArray<ezString, 32> samples;
+  WTempHybridArray<WString, 32> samples;
   FindSampleProjects(samples);
 
   SamplesList->clear();
 
-  ezStringBuilder tmp, iconPath;
+  WStringBuilder tmp, iconPath;
 
-  ezStringBuilder samplesIcon = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder();
+  WStringBuilder samplesIcon = WApplicationServices::GetSingleton()->GetSampleProjectsFolder();
   samplesIcon.AppendPath("Thumbnail.jpg");
 
   QIcon fallbackIcon;
 
-  if (ezOSFile::ExistsFile(samplesIcon))
+  if (WOSFile::ExistsFile(samplesIcon))
   {
     fallbackIcon.addFile(samplesIcon.GetData());
   }
 
-  for (const ezString& path : samples)
+  for (const WString& path : samples)
   {
     tmp = path;
-    const bool bIsLocal = tmp.TrimWordEnd("/ezProject");
-    const bool bIsRemote = tmp.TrimWordEnd("/ezRemoteProject");
+    const bool bIsLocal = tmp.TrimWordEnd("/WProject");
+    const bool bIsRemote = tmp.TrimWordEnd("/WRemoteProject");
 
     QIcon projectIcon;
 
     iconPath = tmp;
     iconPath.AppendPath("Thumbnail.jpg");
 
-    if (ezOSFile::ExistsFile(iconPath))
+    if (WOSFile::ExistsFile(iconPath))
     {
       projectIcon.addFile(iconPath.GetData());
     }
@@ -142,23 +142,23 @@ void ezQtDashboardDlg::FillSampleProjectsList()
   }
 }
 
-void ezQtDashboardDlg::FindSampleProjects(ezDynamicArray<ezString>& out_Projects)
+void WQtDashboardDlg::FindSampleProjects(WDynamicArray<WString>& out_Projects)
 {
   out_Projects.Clear();
 
-  const ezString& sSampleProjects = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder();
+  const WString& sSampleProjects = WApplicationServices::GetSingleton()->GetSampleProjectsFolder();
 
-  ezFileSystemIterator fsIt;
-  fsIt.StartSearch(sSampleProjects, ezFileSystemIteratorFlags::ReportFoldersRecursive);
+  WFileSystemIterator fsIt;
+  fsIt.StartSearch(sSampleProjects, WFileSystemIteratorFlags::ReportFoldersRecursive);
 
-  ezStringBuilder path;
+  WStringBuilder path;
 
   while (fsIt.IsValid())
   {
     fsIt.GetStats().GetFullPath(path);
-    path.AppendPath("ezProject");
+    path.AppendPath("WProject");
 
-    if (ezOSFile::ExistsFile(path))
+    if (WOSFile::ExistsFile(path))
     {
       out_Projects.PushBack(path);
 
@@ -168,9 +168,9 @@ void ezQtDashboardDlg::FindSampleProjects(ezDynamicArray<ezString>& out_Projects
     else
     {
       fsIt.GetStats().GetFullPath(path);
-      path.AppendPath("ezRemoteProject");
+      path.AppendPath("WRemoteProject");
 
-      if (ezOSFile::ExistsFile(path))
+      if (WOSFile::ExistsFile(path))
       {
         out_Projects.PushBack(path);
 
@@ -185,38 +185,38 @@ void ezQtDashboardDlg::FindSampleProjects(ezDynamicArray<ezString>& out_Projects
   }
 }
 
-void ezQtDashboardDlg::on_ProjectsTab_clicked()
+void WQtDashboardDlg::on_ProjectsTab_clicked()
 {
   SetActiveTab(DashboardTab::Projects);
 }
 
-void ezQtDashboardDlg::on_SamplesTab_clicked()
+void WQtDashboardDlg::on_SamplesTab_clicked()
 {
   SetActiveTab(DashboardTab::Samples);
 }
 
-void ezQtDashboardDlg::on_DocumentationTab_clicked()
+void WQtDashboardDlg::on_DocumentationTab_clicked()
 {
   SetActiveTab(DashboardTab::Documentation);
 }
 
-void ezQtDashboardDlg::on_NewProject_clicked()
+void WQtDashboardDlg::on_NewProject_clicked()
 {
-  if (ezQtEditorApp::GetSingleton()->GuiCreateProject(true))
+  if (WQtEditorApp::GetSingleton()->GuiCreateProject(true))
   {
     accept();
   }
 }
 
-void ezQtDashboardDlg::on_BrowseProject_clicked()
+void WQtDashboardDlg::on_BrowseProject_clicked()
 {
-  if (ezQtEditorApp::GetSingleton()->GuiOpenProject(true))
+  if (WQtEditorApp::GetSingleton()->GuiOpenProject(true))
   {
     accept();
   }
 }
 
-void ezQtDashboardDlg::on_ProjectsList_cellDoubleClicked(int row, int column)
+void WQtDashboardDlg::on_ProjectsList_cellDoubleClicked(int row, int column)
 {
   if (row < 0 || row >= ProjectsList->rowCount())
     return;
@@ -225,79 +225,79 @@ void ezQtDashboardDlg::on_ProjectsList_cellDoubleClicked(int row, int column)
 
   QString sPath = pItem->data(Qt::UserRole).toString();
 
-  if (ezQtEditorApp::GetSingleton()->OpenProject(sPath.toUtf8().data(), true).Succeeded())
+  if (WQtEditorApp::GetSingleton()->OpenProject(sPath.toUtf8().data(), true).Succeeded())
   {
     accept();
   }
 }
 
-void ezQtDashboardDlg::on_OpenProject_clicked()
+void WQtDashboardDlg::on_OpenProject_clicked()
 {
   on_ProjectsList_cellDoubleClicked(ProjectsList->currentRow(), 0);
 }
 
-void ezQtDashboardDlg::on_OpenSample_clicked()
+void WQtDashboardDlg::on_OpenSample_clicked()
 {
   on_SamplesList_itemDoubleClicked(SamplesList->currentItem());
 }
 
-void ezQtDashboardDlg::on_LoadLastProject_stateChanged(int)
+void WQtDashboardDlg::on_LoadLastProject_stateChanged(int)
 {
-  if (ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>())
+  if (WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>())
   {
     pPreferences->m_bLoadLastProjectAtStartup = LoadLastProject->isChecked();
   }
 }
 
-void ezQtDashboardDlg::on_SamplesList_itemDoubleClicked(QListWidgetItem* pItem)
+void WQtDashboardDlg::on_SamplesList_itemDoubleClicked(QListWidgetItem* pItem)
 {
   if (pItem == nullptr)
     return;
 
   QString sPath = pItem->data(Qt::UserRole).toString().toUtf8().data();
 
-  if (ezQtEditorApp::GetSingleton()->OpenProject(sPath.toUtf8().data(), true).Succeeded())
+  if (WQtEditorApp::GetSingleton()->OpenProject(sPath.toUtf8().data(), true).Succeeded())
   {
     accept();
   }
 }
 
-void ezQtDashboardDlg::on_OpenDocs_clicked()
+void WQtDashboardDlg::on_OpenDocs_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://ezengine.net"));
 }
 
-void ezQtDashboardDlg::on_OpenApiDocs_clicked()
+void WQtDashboardDlg::on_OpenApiDocs_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://ezengine.github.io/api-docs/"));
 }
 
-void ezQtDashboardDlg::on_GitHubDiscussions_clicked()
+void WQtDashboardDlg::on_GitHubDiscussions_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/discussions"));
 }
 
-void ezQtDashboardDlg::on_ReportProblem_clicked()
+void WQtDashboardDlg::on_ReportProblem_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/issues"));
 }
 
-void ezQtDashboardDlg::on_OpenDiscord_clicked()
+void WQtDashboardDlg::on_OpenDiscord_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://discord.gg/rfJewc5khZ"));
 }
 
-void ezQtDashboardDlg::on_OpenTwitter_clicked()
+void WQtDashboardDlg::on_OpenTwitter_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://twitter.com/ezEngineProject"));
 }
 
-void ezQtDashboardDlg::on_OpenBsky_clicked()
+void WQtDashboardDlg::on_OpenBsky_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://bsky.app/profile/ezengine.bsky.social"));
 }
 
-bool ezQtDashboardDlg::eventFilter(QObject* obj, QEvent* e)
+bool WQtDashboardDlg::eventFilter(QObject* obj, QEvent* e)
 {
   if (e->type() == QEvent::Type::KeyPress)
   {

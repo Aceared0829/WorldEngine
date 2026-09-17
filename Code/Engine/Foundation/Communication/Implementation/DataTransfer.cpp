@@ -2,10 +2,10 @@
 
 #include <Foundation/Communication/DataTransfer.h>
 
-bool ezDataTransfer::s_bInitialized = false;
-ezSet<ezDataTransfer*> ezDataTransfer::s_AllTransfers;
+bool WDataTransfer::s_bInitialized = false;
+WSet<WDataTransfer*> WDataTransfer::s_AllTransfers;
 
-ezDataTransferObject::ezDataTransferObject(ezDataTransfer& ref_belongsTo, ezStringView sObjectName, ezStringView sMimeType, ezStringView sFileExtension)
+WDataTransferObject::WDataTransferObject(WDataTransfer& ref_belongsTo, WStringView sObjectName, WStringView sMimeType, WStringView sFileExtension)
   : m_BelongsTo(ref_belongsTo)
 {
   m_bHasBeenTransferred = false;
@@ -17,14 +17,14 @@ ezDataTransferObject::ezDataTransferObject(ezDataTransfer& ref_belongsTo, ezStri
   m_Msg.GetWriter() << sFileExtension;
 }
 
-ezDataTransferObject::~ezDataTransferObject()
+WDataTransferObject::~WDataTransferObject()
 {
-  EZ_ASSERT_DEV(m_bHasBeenTransferred, "The data transfer object has never been transmitted.");
+  W_ASSERT_DEV(m_bHasBeenTransferred, "The data transfer object has never been transmitted.");
 }
 
-void ezDataTransferObject::Transmit()
+void WDataTransferObject::Transmit()
 {
-  EZ_ASSERT_DEV(!m_bHasBeenTransferred, "The data transfer object has been transmitted already.");
+  W_ASSERT_DEV(!m_bHasBeenTransferred, "The data transfer object has been transmitted already.");
 
   if (m_bHasBeenTransferred)
     return;
@@ -34,23 +34,23 @@ void ezDataTransferObject::Transmit()
   m_BelongsTo.Transfer(*this);
 }
 
-ezDataTransfer::ezDataTransfer()
+WDataTransfer::WDataTransfer()
 {
   m_bTransferRequested = false;
   m_bEnabled = false;
 }
 
-ezDataTransfer::~ezDataTransfer()
+WDataTransfer::~WDataTransfer()
 {
   DisableDataTransfer();
 }
 
-void ezDataTransfer::SendStatus()
+void WDataTransfer::SendStatus()
 {
-  if (!ezTelemetry::IsConnectedToClient())
+  if (!WTelemetry::IsConnectedToClient())
     return;
 
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
   msg.GetWriter() << m_sDataName;
 
   if (m_bEnabled)
@@ -62,15 +62,15 @@ void ezDataTransfer::SendStatus()
     msg.SetMessageID('TRAN', 'DSBL');
   }
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+  WTelemetry::Broadcast(WTelemetry::Reliable, msg);
 }
 
-void ezDataTransfer::DisableDataTransfer()
+void WDataTransfer::DisableDataTransfer()
 {
   if (!m_bEnabled)
     return;
 
-  ezDataTransfer::s_AllTransfers.Remove(this);
+  WDataTransfer::s_AllTransfers.Remove(this);
 
   m_bEnabled = false;
   SendStatus();
@@ -79,7 +79,7 @@ void ezDataTransfer::DisableDataTransfer()
   m_sDataName.Clear();
 }
 
-void ezDataTransfer::EnableDataTransfer(ezStringView sDataName)
+void WDataTransfer::EnableDataTransfer(WStringView sDataName)
 {
   if (m_bEnabled && m_sDataName == sDataName)
     return;
@@ -88,17 +88,17 @@ void ezDataTransfer::EnableDataTransfer(ezStringView sDataName)
 
   Initialize();
 
-  ezDataTransfer::s_AllTransfers.Insert(this);
+  WDataTransfer::s_AllTransfers.Insert(this);
 
   m_sDataName = sDataName;
 
-  EZ_ASSERT_DEV(!m_sDataName.IsEmpty(), "The name for the data transfer must not be empty.");
+  W_ASSERT_DEV(!m_sDataName.IsEmpty(), "The name for the data transfer must not be empty.");
 
   m_bEnabled = true;
   SendStatus();
 }
 
-void ezDataTransfer::RequestDataTransfer()
+void WDataTransfer::RequestDataTransfer()
 {
   if (!m_bEnabled)
   {
@@ -106,14 +106,14 @@ void ezDataTransfer::RequestDataTransfer()
     return;
   }
 
-  ezLog::Dev("Data Transfer Request: {0}", m_sDataName);
+  WLog::Dev("Data Transfer Request: {0}", m_sDataName);
 
   m_bTransferRequested = true;
 
   OnTransferRequest();
 }
 
-bool ezDataTransfer::IsTransferRequested(bool bReset)
+bool WDataTransfer::IsTransferRequested(bool bReset)
 {
   const bool bRes = m_bTransferRequested;
 
@@ -123,39 +123,39 @@ bool ezDataTransfer::IsTransferRequested(bool bReset)
   return bRes;
 }
 
-void ezDataTransfer::Transfer(ezDataTransferObject& Object)
+void WDataTransfer::Transfer(WDataTransferObject& Object)
 {
   if (!m_bEnabled)
     return;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Object.m_Msg);
+  WTelemetry::Broadcast(WTelemetry::Reliable, Object.m_Msg);
 }
 
-void ezDataTransfer::Initialize()
+void WDataTransfer::Initialize()
 {
   if (s_bInitialized)
     return;
 
   s_bInitialized = true;
 
-  ezTelemetry::AddEventHandler(TelemetryEventsHandler);
-  ezTelemetry::AcceptMessagesForSystem('DTRA', true, TelemetryMessage, nullptr);
+  WTelemetry::AddEventHandler(TelemetryEventsHandler);
+  WTelemetry::AcceptMessagesForSystem('DTRA', true, TelemetryMessage, nullptr);
 }
 
-void ezDataTransfer::TelemetryMessage(void* pPassThrough)
+void WDataTransfer::TelemetryMessage(void* pPassThrough)
 {
-  EZ_IGNORE_UNUSED(pPassThrough);
+  W_IGNORE_UNUSED(pPassThrough);
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage('DTRA', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('DTRA', Msg) == W_SUCCESS)
   {
     if (Msg.GetMessageID() == ' REQ')
     {
-      ezStringBuilder sName;
+      WStringBuilder sName;
       Msg.GetReader() >> sName;
 
-      ezLog::Dev("Requested data transfer '{0}'", sName);
+      WLog::Dev("Requested data transfer '{0}'", sName);
 
       for (auto it = s_AllTransfers.GetIterator(); it.IsValid(); ++it)
       {
@@ -169,14 +169,14 @@ void ezDataTransfer::TelemetryMessage(void* pPassThrough)
   }
 }
 
-void ezDataTransfer::TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+void WDataTransfer::TelemetryEventsHandler(const WTelemetry::TelemetryEventData& e)
 {
-  if (!ezTelemetry::IsConnectedToClient())
+  if (!WTelemetry::IsConnectedToClient())
     return;
 
   switch (e.m_EventType)
   {
-    case ezTelemetry::TelemetryEventData::ConnectedToClient:
+    case WTelemetry::TelemetryEventData::ConnectedToClient:
       SendAllDataTransfers();
       break;
 
@@ -185,11 +185,11 @@ void ezDataTransfer::TelemetryEventsHandler(const ezTelemetry::TelemetryEventDat
   }
 }
 
-void ezDataTransfer::SendAllDataTransfers()
+void WDataTransfer::SendAllDataTransfers()
 {
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
   msg.SetMessageID('TRAN', ' CLR');
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+  WTelemetry::Broadcast(WTelemetry::Reliable, msg);
 
   for (auto it = s_AllTransfers.GetIterator(); it.IsValid(); ++it)
   {

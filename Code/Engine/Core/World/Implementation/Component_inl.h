@@ -1,8 +1,8 @@
 #include <Foundation/Logging/Log.h>
 
-EZ_ALWAYS_INLINE ezComponent::ezComponent() = default;
+W_ALWAYS_INLINE WComponent::WComponent() = default;
 
-EZ_ALWAYS_INLINE ezComponent::~ezComponent()
+W_ALWAYS_INLINE WComponent::~WComponent()
 {
   m_pMessageDispatchType = nullptr;
   m_pManager = nullptr;
@@ -10,78 +10,78 @@ EZ_ALWAYS_INLINE ezComponent::~ezComponent()
   m_InternalId.Invalidate();
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::IsDynamic() const
+W_ALWAYS_INLINE bool WComponent::IsDynamic() const
 {
-  return m_ComponentFlags.IsSet(ezObjectFlags::Dynamic);
+  return m_ComponentFlags.IsSet(WObjectFlags::Dynamic);
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::GetActiveFlag() const
+W_ALWAYS_INLINE bool WComponent::GetActiveFlag() const
 {
-  return m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag);
+  return m_ComponentFlags.IsSet(WObjectFlags::ActiveFlag);
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::IsActive() const
+W_ALWAYS_INLINE bool WComponent::IsActive() const
 {
-  return m_ComponentFlags.IsSet(ezObjectFlags::ActiveState);
+  return m_ComponentFlags.IsSet(WObjectFlags::ActiveState);
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::IsActiveAndInitialized() const
+W_ALWAYS_INLINE bool WComponent::IsActiveAndInitialized() const
 {
-  return m_ComponentFlags.AreAllSet(ezObjectFlags::ActiveState | ezObjectFlags::Initialized);
+  return m_ComponentFlags.AreAllSet(WObjectFlags::ActiveState | WObjectFlags::Initialized);
 }
 
-EZ_ALWAYS_INLINE ezComponentManagerBase* ezComponent::GetOwningManager()
-{
-  return m_pManager;
-}
-
-EZ_ALWAYS_INLINE const ezComponentManagerBase* ezComponent::GetOwningManager() const
+W_ALWAYS_INLINE WComponentManagerBase* WComponent::GetOwningManager()
 {
   return m_pManager;
 }
 
-EZ_ALWAYS_INLINE ezGameObject* ezComponent::GetOwner()
+W_ALWAYS_INLINE const WComponentManagerBase* WComponent::GetOwningManager() const
+{
+  return m_pManager;
+}
+
+W_ALWAYS_INLINE WGameObject* WComponent::GetOwner()
 {
   return m_pOwner;
 }
 
-EZ_ALWAYS_INLINE const ezGameObject* ezComponent::GetOwner() const
+W_ALWAYS_INLINE const WGameObject* WComponent::GetOwner() const
 {
   return m_pOwner;
 }
 
-EZ_ALWAYS_INLINE ezComponentHandle ezComponent::GetHandle() const
+W_ALWAYS_INLINE WComponentHandle WComponent::GetHandle() const
 {
-  return ezComponentHandle(m_InternalId);
+  return WComponentHandle(m_InternalId);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezComponent::GetUniqueID() const
+W_ALWAYS_INLINE WUInt32 WComponent::GetUniqueID() const
 {
   return m_uiUniqueID;
 }
 
-EZ_ALWAYS_INLINE void ezComponent::SetUniqueID(ezUInt32 uiUniqueID)
+W_ALWAYS_INLINE void WComponent::SetUniqueID(WUInt32 uiUniqueID)
 {
   m_uiUniqueID = uiUniqueID;
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::IsInitialized() const
+W_ALWAYS_INLINE bool WComponent::IsInitialized() const
 {
-  return m_ComponentFlags.IsSet(ezObjectFlags::Initialized);
+  return m_ComponentFlags.IsSet(WObjectFlags::Initialized);
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::IsInitializing() const
+W_ALWAYS_INLINE bool WComponent::IsInitializing() const
 {
-  return m_ComponentFlags.IsSet(ezObjectFlags::Initializing);
+  return m_ComponentFlags.IsSet(WObjectFlags::Initializing);
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::IsSimulationStarted() const
+W_ALWAYS_INLINE bool WComponent::IsSimulationStarted() const
 {
-  return m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarted);
+  return m_ComponentFlags.IsSet(WObjectFlags::SimulationStarted);
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::IsActiveAndSimulating() const
+W_ALWAYS_INLINE bool WComponent::IsActiveAndSimulating() const
 {
-  return m_ComponentFlags.AreAllSet(ezObjectFlags::Initialized | ezObjectFlags::ActiveState) &&
-         m_ComponentFlags.IsAnySet(ezObjectFlags::SimulationStarting | ezObjectFlags::SimulationStarted);
+  return m_ComponentFlags.AreAllSet(WObjectFlags::Initialized | WObjectFlags::ActiveState) &&
+         m_ComponentFlags.IsAnySet(WObjectFlags::SimulationStarting | WObjectFlags::SimulationStarted);
 }

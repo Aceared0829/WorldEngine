@@ -5,28 +5,28 @@
 #include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-class ezGALBindGroupVulkan : public ezGALBindGroup
+class WGALBindGroupVulkan : public WGALBindGroup
 {
 public:
   inline vk::DescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
-  inline ezArrayPtr<const ezUInt32> GetOffsets() const { return m_Offsets.GetArrayPtr(); }
+  inline WArrayPtr<const WUInt32> GetOffsets() const { return m_Offsets.GetArrayPtr(); }
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
-  virtual void Invalidate(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
+  virtual void Invalidate(WGALDevice* pDevice) override;
   virtual bool IsInvalidated() const override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
-  ezGALBindGroupVulkan(const ezGALBindGroupCreationDescription& Description);
+  WGALBindGroupVulkan(const WGALBindGroupCreationDescription& Description);
 
-  virtual ~ezGALBindGroupVulkan();
+  virtual ~WGALBindGroupVulkan();
 
 private:
   vk::DescriptorSet m_DescriptorSet;
-  ezHybridArray<ezUInt32, 1> m_Offsets;
-  ezDescriptorSetPoolVulkan::Allocation m_Allocation;
+  WHybridArray<WUInt32, 1> m_Offsets;
+  WDescriptorSetPoolVulkan::Allocation m_Allocation;
 };

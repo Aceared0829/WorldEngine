@@ -9,40 +9,40 @@
 #include <Foundation/Types/RefCounted.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezWorld;
-class ezParticleSystemDescriptor;
-class ezParticleEventReactionFactory;
-class ezParticleEventReaction;
-class ezParticleEmitter;
-class ezParticleInitializer;
-class ezParticleBehavior;
-class ezParticleType;
-class ezProcessingStreamGroup;
-class ezProcessingStream;
-class ezRandom;
-struct ezParticleEvent;
-class ezParticleEffectDescriptor;
-class ezParticleWorldModule;
-class ezParticleEffectInstance;
-class ezParticleSystemInstance;
-class ezRenderViewContext;
-class ezRenderPipelinePass;
-class ezParticleFinalizer;
-class ezParticleFinalizerFactory;
+class WWorld;
+class WParticleSystemDescriptor;
+class WParticleEventReactionFactory;
+class WParticleEventReaction;
+class WParticleEmitter;
+class WParticleInitializer;
+class WParticleBehavior;
+class WParticleType;
+class WProcessingStreamGroup;
+class WProcessingStream;
+class WRandom;
+struct WParticleEvent;
+class WParticleEffectDescriptor;
+class WParticleWorldModule;
+class WParticleEffectInstance;
+class WParticleSystemInstance;
+class WRenderViewContext;
+class WRenderPipelinePass;
+class WParticleFinalizer;
+class WParticleFinalizerFactory;
 
-using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
+using WParticleEffectResourceHandle = WTypedResourceHandle<class WParticleEffectResource>;
 
-using ezParticleEffectId = ezGenericId<22, 10>;
+using WParticleEffectId = WGenericId<22, 10>;
 
 /// Handle to a particle effect instance
-class EZ_PARTICLEPLUGIN_DLL ezParticleEffectHandle
+class W_PARTICLEPLUGIN_DLL WParticleEffectHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezParticleEffectHandle, ezParticleEffectId);
+  W_DECLARE_HANDLE_TYPE(WParticleEffectHandle, WParticleEffectId);
 };
 
 
 /// Current state of a particle system
-struct EZ_PARTICLEPLUGIN_DLL ezParticleSystemState
+struct W_PARTICLEPLUGIN_DLL WParticleSystemState
 {
   enum Enum
   {
@@ -53,30 +53,30 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleSystemState
   };
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamBinding
+class W_PARTICLEPLUGIN_DLL WParticleStreamBinding
 {
 public:
-  void UpdateBindings(const ezProcessingStreamGroup* pGroup) const;
+  void UpdateBindings(const WProcessingStreamGroup* pGroup) const;
   void Clear() { m_Bindings.Clear(); }
 
 private:
-  friend class ezParticleSystemInstance;
+  friend class WParticleSystemInstance;
 
   struct Binding
   {
-    ezHashedString m_sName;
-    ezProcessingStream** m_ppStream;
+    WHashedString m_sName;
+    WProcessingStream** m_ppStream;
   };
 
-  ezSmallArray<Binding, 4> m_Bindings;
+  WSmallArray<Binding, 4> m_Bindings;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Blending mode for particle rendering
-struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
+struct W_PARTICLEPLUGIN_DLL WParticleTypeRenderMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -91,14 +91,14 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTypeRenderMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WParticleTypeRenderMode);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Lighting mode for particles
-struct EZ_PARTICLEPLUGIN_DLL ezParticleLightingMode
+struct W_PARTICLEPLUGIN_DLL WParticleLightingMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -108,14 +108,14 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleLightingMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleLightingMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WParticleLightingMode);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Update rate for effects that are not visible
-struct EZ_PARTICLEPLUGIN_DLL ezEffectInvisibleUpdateRate
+struct W_PARTICLEPLUGIN_DLL WEffectInvisibleUpdateRate
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -130,14 +130,14 @@ struct EZ_PARTICLEPLUGIN_DLL ezEffectInvisibleUpdateRate
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezEffectInvisibleUpdateRate);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WEffectInvisibleUpdateRate);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// How to use texture atlas for particle sprites
-struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasType
+struct W_PARTICLEPLUGIN_DLL WParticleTextureAtlasType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -152,14 +152,14 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasType
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTextureAtlasType);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WParticleTextureAtlasType);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Which edge of the source texture is treated as "forward" (i.e. unrotated)
-struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasOrientation
+struct W_PARTICLEPLUGIN_DLL WParticleTextureAtlasOrientation
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -172,14 +172,14 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasOrientation
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTextureAtlasOrientation);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WParticleTextureAtlasOrientation);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// How to sample color gradients for particles
-struct EZ_PARTICLEPLUGIN_DLL ezParticleColorGradientMode
+struct W_PARTICLEPLUGIN_DLL WParticleColorGradientMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -190,14 +190,14 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleColorGradientMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleColorGradientMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WParticleColorGradientMode);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Source of curve data
-struct EZ_PARTICLEPLUGIN_DLL ezCurveSource
+struct W_PARTICLEPLUGIN_DLL WCurveSource
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -208,14 +208,14 @@ struct EZ_PARTICLEPLUGIN_DLL ezCurveSource
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezCurveSource);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WCurveSource);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Source of gradient data
-struct EZ_PARTICLEPLUGIN_DLL ezGradientSource
+struct W_PARTICLEPLUGIN_DLL WGradientSource
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -226,14 +226,14 @@ struct EZ_PARTICLEPLUGIN_DLL ezGradientSource
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezGradientSource);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WGradientSource);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Action when particles leave bounds
-struct EZ_PARTICLEPLUGIN_DLL ezParticleOutOfBoundsMode
+struct W_PARTICLEPLUGIN_DLL WParticleOutOfBoundsMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -244,27 +244,27 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleOutOfBoundsMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleOutOfBoundsMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WParticleOutOfBoundsMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezParticleEffectFloatParam
+struct WParticleEffectFloatParam
 {
-  EZ_DECLARE_POD_TYPE();
-  ezHashedString m_sName;
+  W_DECLARE_POD_TYPE();
+  WHashedString m_sName;
   float m_Value;
 };
 
-struct ezParticleEffectColorParam
+struct WParticleEffectColorParam
 {
-  EZ_DECLARE_POD_TYPE();
-  ezHashedString m_sName;
-  ezColor m_Value;
+  W_DECLARE_POD_TYPE();
+  WHashedString m_sName;
+  WColor m_Value;
 };
 
-class ezParticleEffectParameters final : public ezRefCounted
+class WParticleEffectParameters final : public WRefCounted
 {
 public:
-  ezHybridArray<ezParticleEffectFloatParam, 2> m_FloatParams;
-  ezHybridArray<ezParticleEffectColorParam, 2> m_ColorParams;
+  WHybridArray<WParticleEffectFloatParam, 2> m_FloatParams;
+  WHybridArray<WParticleEffectColorParam, 2> m_ColorParams;
 };

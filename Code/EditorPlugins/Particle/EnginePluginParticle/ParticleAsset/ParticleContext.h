@@ -5,34 +5,34 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-class ezParticleComponent;
+class WParticleComponent;
 
-using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
+using WParticleEffectResourceHandle = WTypedResourceHandle<class WParticleEffectResource>;
 
-class EZ_ENGINEPLUGINPARTICLE_DLL ezParticleContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINPARTICLE_DLL WParticleContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WParticleContext, WEngineProcessDocumentContext);
 
 public:
-  ezParticleContext();
-  ~ezParticleContext();
+  WParticleContext();
+  ~WParticleContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
   virtual void OnThumbnailViewContextRequested() override;
-  virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual bool UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext) override;
 
   void RestartEffect();
   void SetAutoRestartEffect(bool loop);
 
 private:
-  ezBoundingBoxSphere m_ThumbnailBoundingVolume;
-  ezParticleEffectResourceHandle m_hParticle;
-  ezMeshResourceHandle m_hPreviewMeshResource;
-  ezParticleComponent* m_pComponent = nullptr;
+  WBoundingBoxSphere m_ThumbnailBoundingVolume;
+  WParticleEffectResourceHandle m_hParticle;
+  WMeshResourceHandle m_hPreviewMeshResource;
+  WParticleComponent* m_pComponent = nullptr;
 };

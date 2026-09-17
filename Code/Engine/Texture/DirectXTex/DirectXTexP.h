@@ -135,7 +135,7 @@
 #define XM_ALIGNED_DATA(x) __declspec(align(x))
 #endif
 
-#if EZ_DISABLED(EZ_PLATFORM_LINUX)
+#if W_DISABLED(W_PLATFORM_LINUX)
 #include "DirectXTex.h"
 #endif
 

@@ -5,59 +5,59 @@
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <Texture/Image/Image.h>
 
-class ezGameEngineTestGameState : public ezGameState
+class WGameEngineTestGameState : public WGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameEngineTestGameState, ezGameState);
+  W_ADD_DYNAMIC_REFLECTION(WGameEngineTestGameState, WGameState);
 
 public:
   virtual void ProcessInput() override;
   virtual void ConfigureInputActions() override;
 };
 
-class ezGameEngineTestApplication : public ezGameApplication
+class WGameEngineTestApplication : public WGameApplication
 {
 public:
-  using SUPER = ezGameApplication;
+  using SUPER = WGameApplication;
 
-  ezGameEngineTestApplication(const char* szProjectDirName);
+  WGameEngineTestApplication(const char* szProjectDirName);
 
-  virtual ezString FindProjectDirectory() const final override;
-  virtual ezString GetProjectDataDirectoryPath() const final override;
-  const ezImage& GetLastScreenshot() { return m_LastScreenshot; }
+  virtual WString FindProjectDirectory() const final override;
+  virtual WString GetProjectDataDirectoryPath() const final override;
+  const WImage& GetLastScreenshot() { return m_LastScreenshot; }
   /// Camera must have a global key named "Camera4" if `uiCameraNumber` was 4.
-  void SwitchToCamera(ezUInt32 uiCameraNumber);
+  void SwitchToCamera(WUInt32 uiCameraNumber);
 
-  ezResult LoadScene(const char* szSceneFile);
-  ezWorld* GetWorld() const { return m_pWorld.Borrow(); }
+  WResult LoadScene(const char* szSceneFile);
+  WWorld* GetWorld() const { return m_pWorld.Borrow(); }
 
 protected:
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeHighLevelSystemsShutdown() override;
-  virtual void StoreScreenshot(ezImage&& image, ezStringView sContext) override;
+  virtual void StoreScreenshot(WImage&& image, WStringView sContext) override;
   virtual void Init_FileSystem_ConfigureDataDirs() override;
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState() override;
+  virtual WUniquePtr<WGameStateBase> CreateGameState() override;
 
-  ezString m_sProjectDirName;
-  ezUniquePtr<ezWorld> m_pWorld;
-  ezImage m_LastScreenshot;
+  WString m_sProjectDirName;
+  WUniquePtr<WWorld> m_pWorld;
+  WImage m_LastScreenshot;
 };
 
-class ezGameEngineTest : public ezTestBaseClass
+class WGameEngineTest : public WTestBaseClass
 {
-  using SUPER = ezTestBaseClass;
+  using SUPER = WTestBaseClass;
 
 public:
-  ezGameEngineTest();
-  ~ezGameEngineTest();
+  WGameEngineTest();
+  ~WGameEngineTest();
 
-  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
-  virtual ezGameEngineTestApplication* CreateApplication() = 0;
+  virtual WResult GetImage(WImage& ref_img, const WSubTestEntry& subTest, WUInt32 uiImageNumber) override;
+  virtual WGameEngineTestApplication* CreateApplication() = 0;
 
 protected:
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
 
-  ezGameEngineTestApplication* m_pApplication = nullptr;
+  WGameEngineTestApplication* m_pApplication = nullptr;
 };

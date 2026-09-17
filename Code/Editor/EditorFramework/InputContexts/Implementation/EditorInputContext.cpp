@@ -4,12 +4,12 @@
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
 
-ezEditorInputContext* ezEditorInputContext::s_pActiveInputContext = nullptr;
+WEditorInputContext* WEditorInputContext::s_pActiveInputContext = nullptr;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorInputContext, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorInputContext, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezEditorInputContext::ezEditorInputContext()
+WEditorInputContext::WEditorInputContext()
 {
   m_pOwnerWindow = nullptr;
   m_pOwnerView = nullptr;
@@ -17,14 +17,14 @@ ezEditorInputContext::ezEditorInputContext()
   m_bJustWrappedMouse = false;
 }
 
-ezEditorInputContext::~ezEditorInputContext()
+WEditorInputContext::~WEditorInputContext()
 {
   if (s_pActiveInputContext == this)
     SetActiveInputContext(nullptr);
 }
 
 
-void ezEditorInputContext::FocusLost(bool bCancel)
+void WEditorInputContext::FocusLost(bool bCancel)
 {
   DoFocusLost(bCancel);
 
@@ -34,38 +34,38 @@ void ezEditorInputContext::FocusLost(bool bCancel)
   UpdateStatusBarText(GetOwnerWindow());
 }
 
-ezEditorInput ezEditorInputContext::DoKeyPressEvent(QKeyEvent* e)
+WEditorInput WEditorInputContext::DoKeyPressEvent(QKeyEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (e->key() == Qt::Key_Escape)
   {
     FocusLost(true);
     SetActiveInputContext(nullptr);
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }
 
 
-ezEditorInput ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
+WEditorInput WEditorInputContext::MouseMoveEvent(QMouseEvent* e)
 {
   if (m_MouseMode != MouseMode::Normal)
   {
     if (m_bJustWrappedMouse)
     {
       const QPoint mousePosition = e->globalPosition().toPoint();
-      const ezVec2I32 curPos(mousePosition.x(), mousePosition.y());
-      const ezVec2I32 diffToOld = curPos - m_vMousePosBeforeWrap;
-      const ezVec2I32 diffToNew = curPos - m_vExpectedMousePosition;
+      const WVec2I32 curPos(mousePosition.x(), mousePosition.y());
+      const WVec2I32 diffToOld = curPos - m_vMousePosBeforeWrap;
+      const WVec2I32 diffToNew = curPos - m_vExpectedMousePosition;
 
       if (diffToOld.GetLengthSquared() < diffToNew.GetLengthSquared())
       {
         // this is an invalid message, it was still in the message queue with old coordinates and should be discarded
 
-        return ezEditorInput::WasExclusivelyHandled;
+        return WEditorInput::WasExclusivelyHandled;
       }
 
       m_bJustWrappedMouse = false;
@@ -76,7 +76,7 @@ ezEditorInput ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
 }
 
 
-void ezEditorInputContext::SetActiveInputContext(ezEditorInputContext* pContext)
+void WEditorInputContext::SetActiveInputContext(WEditorInputContext* pContext)
 {
   if (s_pActiveInputContext)
     s_pActiveInputContext->OnDeactivated();
@@ -87,7 +87,7 @@ void ezEditorInputContext::SetActiveInputContext(ezEditorInputContext* pContext)
     s_pActiveInputContext->OnActivated();
 }
 
-void ezEditorInputContext::MakeActiveInputContext(bool bActive /*= true*/)
+void WEditorInputContext::MakeActiveInputContext(bool bActive /*= true*/)
 {
   if (bActive)
     SetActiveInputContext(this);
@@ -95,18 +95,18 @@ void ezEditorInputContext::MakeActiveInputContext(bool bActive /*= true*/)
     SetActiveInputContext(nullptr);
 }
 
-void ezEditorInputContext::UpdateActiveInputContext()
+void WEditorInputContext::UpdateActiveInputContext()
 {
   if (s_pActiveInputContext != nullptr)
     s_pActiveInputContext->UpdateContext();
 }
 
-bool ezEditorInputContext::IsActiveInputContext() const
+bool WEditorInputContext::IsActiveInputContext() const
 {
   return s_pActiveInputContext == this;
 }
 
-void ezEditorInputContext::SetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
+void WEditorInputContext::SetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView)
 {
   m_pOwnerWindow = pOwnerWindow;
   m_pOwnerView = pOwnerView;
@@ -114,37 +114,37 @@ void ezEditorInputContext::SetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQt
   OnSetOwner(m_pOwnerWindow, m_pOwnerView);
 }
 
-ezQtEngineDocumentWindow* ezEditorInputContext::GetOwnerWindow() const
+WQtEngineDocumentWindow* WEditorInputContext::GetOwnerWindow() const
 {
-  EZ_ASSERT_DEBUG(m_pOwnerWindow != nullptr, "Owner window pointer has not been set");
+  W_ASSERT_DEBUG(m_pOwnerWindow != nullptr, "Owner window pointer has not been set");
   return m_pOwnerWindow;
 }
 
-ezQtEngineViewWidget* ezEditorInputContext::GetOwnerView() const
+WQtEngineViewWidget* WEditorInputContext::GetOwnerView() const
 {
-  ezQtEngineViewWidget* pView = m_pOwnerView;
+  WQtEngineViewWidget* pView = m_pOwnerView;
 
   if (pView == nullptr)
   {
-    pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+    pView = WQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
   }
 
-  EZ_ASSERT_DEBUG(pView != nullptr, "Owner view pointer has not been set");
+  W_ASSERT_DEBUG(pView != nullptr, "Owner view pointer has not been set");
   return pView;
 }
 
-ezVec2I32 ezEditorInputContext::SetMouseMode(MouseMode newMode)
+WVec2I32 WEditorInputContext::SetMouseMode(MouseMode newMode)
 {
   const QPoint curPos = QCursor::pos();
 
   if (m_MouseMode == newMode)
-    return ezVec2I32(curPos.x(), curPos.y());
+    return WVec2I32(curPos.x(), curPos.y());
 
   m_bJustWrappedMouse = false;
 
   if (newMode != MouseMode::Normal)
   {
-    const QRect dsize = ezWidgetUtils::GetClosestScreen(curPos).availableGeometry();
+    const QRect dsize = WWidgetUtils::GetClosestScreen(curPos).availableGeometry();
 
     m_MouseWrapRect.x = dsize.x() + 10;
     m_MouseWrapRect.y = dsize.y() + 10;
@@ -166,29 +166,29 @@ ezVec2I32 ezEditorInputContext::SetMouseMode(MouseMode newMode)
 
   m_MouseMode = newMode;
 
-  return ezVec2I32(curPos.x(), curPos.y());
+  return WVec2I32(curPos.x(), curPos.y());
 }
 
-ezVec2I32 ezEditorInputContext::UpdateMouseMode(QMouseEvent* e)
+WVec2I32 WEditorInputContext::UpdateMouseMode(QMouseEvent* e)
 {
   const QPoint mousePosition = e->globalPosition().toPoint();
-  const ezVec2I32 curPos(mousePosition.x(), mousePosition.y());
+  const WVec2I32 curPos(mousePosition.x(), mousePosition.y());
 
   if (m_MouseMode == MouseMode::Normal)
     return curPos;
 
-  ezVec2I32 newPos = curPos;
+  WVec2I32 newPos = curPos;
 
-  if (curPos.x > (ezInt32)m_MouseWrapRect.Right())
+  if (curPos.x > (WInt32)m_MouseWrapRect.Right())
     newPos.x = m_MouseWrapRect.Left() + (curPos.x - m_MouseWrapRect.Right());
 
-  if (curPos.x < (ezInt32)m_MouseWrapRect.Left())
+  if (curPos.x < (WInt32)m_MouseWrapRect.Left())
     newPos.x = m_MouseWrapRect.Right() - (m_MouseWrapRect.Left() - curPos.x);
 
-  if (curPos.y > (ezInt32)m_MouseWrapRect.Bottom())
+  if (curPos.y > (WInt32)m_MouseWrapRect.Bottom())
     newPos.y = m_MouseWrapRect.Top() + (curPos.y - m_MouseWrapRect.Bottom());
 
-  if (curPos.y < (ezInt32)m_MouseWrapRect.Top())
+  if (curPos.y < (WInt32)m_MouseWrapRect.Top())
     newPos.y = m_MouseWrapRect.Bottom() - (m_MouseWrapRect.Top() - curPos.y);
 
   if (curPos != newPos)

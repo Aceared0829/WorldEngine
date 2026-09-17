@@ -6,29 +6,29 @@
 #include <JoltPlugin/JoltPluginDLL.h>
 #include <JoltPlugin/Resources/JoltHeightfieldResource.h>
 
-using ezJoltHeightfieldColliderComponentManager = ezComponentManager<class ezJoltHeightfieldColliderComponent, ezBlockStorageType::FreeList>;
+using WJoltHeightfieldColliderComponentManager = WComponentManager<class WJoltHeightfieldColliderComponent, WBlockStorageType::FreeList>;
 
 /// Manages a Jolt static body with a heightfield shape.
-class EZ_JOLTPLUGIN_DLL ezJoltHeightfieldColliderComponent : public ezComponent
+class W_JOLTPLUGIN_DLL WJoltHeightfieldColliderComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltHeightfieldColliderComponent, ezComponent, ezJoltHeightfieldColliderComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltHeightfieldColliderComponent, WComponent, WJoltHeightfieldColliderComponentManager);
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
 public:
-  ezJoltHeightfieldColliderComponent();
-  ~ezJoltHeightfieldColliderComponent();
+  WJoltHeightfieldColliderComponent();
+  ~WJoltHeightfieldColliderComponent();
 
-  ezJoltHeightfieldResourceHandle m_hHeightfield; //< [ property ]
+  WJoltHeightfieldResourceHandle m_hHeightfield; //< [ property ]
 
 private:
-  ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
-  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
+  WUInt32 m_uiJoltBodyID = WInvalidIndex;
+  WUInt32 m_uiUserDataIndex = WInvalidIndex;
+  WUInt32 m_uiObjectFilterID = WInvalidIndex;
 };

@@ -7,29 +7,29 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtOrbitCamViewWidget;
+class WQtOrbitCamViewWidget;
 
-class ezQtJoltCollisionMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtJoltCollisionMeshAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtJoltCollisionMeshAssetDocumentWindow(ezAssetDocument* pDocument);
+  WQtJoltCollisionMeshAssetDocumentWindow(WAssetDocument* pDocument);
 
   virtual int GetCameraMode() const override { return m_iCameraMode; }
   virtual void SetCameraMode(int iMode) override;
 
 protected:
   virtual void InternalRedraw() override;
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg) override;
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox(ezInt32 iPurpose = 0);
+  void QueryObjectBBox(WInt32 iPurpose = 0);
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget;
-  ezUniquePtr<ezCameraMoveContext> m_pCameraFlyContext;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget;
+  WUniquePtr<WCameraMoveContext> m_pCameraFlyContext;
   int m_iCameraMode = 0;
-  ezAssetDocument* m_pAssetDoc;
+  WAssetDocument* m_pAssetDoc;
 };

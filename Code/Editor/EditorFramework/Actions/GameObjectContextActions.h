@@ -4,24 +4,24 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectContextActions
+class W_EDITORFRAMEWORK_DLL WGameObjectContextActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapToolbarActions(ezStringView sMapping);
-  static void MapContextMenuActions(ezStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
+  static void MapContextMenuActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hPickContextScene;
-  static ezActionDescriptorHandle s_hPickContextObject;
-  static ezActionDescriptorHandle s_hClearContextObject;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hPickContextScene;
+  static WActionDescriptorHandle s_hPickContextObject;
+  static WActionDescriptorHandle s_hClearContextObject;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectContextAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WGameObjectContextAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectContextAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectContextAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -31,13 +31,13 @@ public:
     ClearContextObject,
   };
 
-  ezGameObjectContextAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezGameObjectContextAction();
+  WGameObjectContextAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WGameObjectContextAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
   void Update();
 
   ActionType m_Type;

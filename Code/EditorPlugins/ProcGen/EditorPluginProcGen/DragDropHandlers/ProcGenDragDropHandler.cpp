@@ -3,23 +3,23 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginProcGen/DragDropHandlers/ProcGenDragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcPlacementComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezProcPlacementComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcPlacementComponentDragDropHandler, 1, WRTTIDefaultAllocator<WProcPlacementComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-float ezProcPlacementComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WProcPlacementComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "ProcGen Graph") ? 1.0f : 0.0f;
 }
 
-void ezProcPlacementComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WProcPlacementComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezProcPlacementComponent";
+  constexpr const char* szComponentType = "WProcPlacementComponent";
   constexpr const char* szPropertyName = "Resource";
 
   if (pInfo->m_sTargetContext == "viewport")

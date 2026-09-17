@@ -4,7 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-bool ezLuaWrapper::IsVariableAvailable(const char* szName) const
+bool WLuaWrapper::IsVariableAvailable(const char* szName) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -20,7 +20,7 @@ bool ezLuaWrapper::IsVariableAvailable(const char* szName) const
   return (bRet);
 }
 
-bool ezLuaWrapper::IsFunctionAvailable(const char* szFunction) const
+bool WLuaWrapper::IsFunctionAvailable(const char* szFunction) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szFunction);
@@ -39,7 +39,7 @@ bool ezLuaWrapper::IsFunctionAvailable(const char* szFunction) const
 
 
 
-ezInt32 ezLuaWrapper::GetIntVariable(const char* szName, ezInt32 iDefault) const
+WInt32 WLuaWrapper::GetIntVariable(const char* szName, WInt32 iDefault) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -59,7 +59,7 @@ ezInt32 ezLuaWrapper::GetIntVariable(const char* szName, ezInt32 iDefault) const
   return ret;
 }
 
-bool ezLuaWrapper::GetBoolVariable(const char* szName, bool bDefault) const
+bool WLuaWrapper::GetBoolVariable(const char* szName, bool bDefault) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -79,7 +79,7 @@ bool ezLuaWrapper::GetBoolVariable(const char* szName, bool bDefault) const
   return ret;
 }
 
-float ezLuaWrapper::GetFloatVariable(const char* szName, float fDefault) const
+float WLuaWrapper::GetFloatVariable(const char* szName, float fDefault) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -99,7 +99,7 @@ float ezLuaWrapper::GetFloatVariable(const char* szName, float fDefault) const
   return ret;
 }
 
-const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* szDefault) const
+const char* WLuaWrapper::GetStringVariable(const char* szName, const char* szDefault) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);

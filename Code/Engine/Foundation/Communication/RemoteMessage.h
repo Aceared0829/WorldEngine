@@ -4,30 +4,30 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Reflection/Reflection.h>
 
-/// \todo Add move semantics for ezRemoteMessage
+/// \todo Add move semantics for WRemoteMessage
 
-/// Encapsulates all the data that is transmitted when sending or receiving a message with ezRemoteInterface
-class EZ_FOUNDATION_DLL ezRemoteMessage
+/// Encapsulates all the data that is transmitted when sending or receiving a message with WRemoteInterface
+class W_FOUNDATION_DLL WRemoteMessage
 {
 public:
-  ezRemoteMessage();
-  ezRemoteMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID);
-  ezRemoteMessage(const ezRemoteMessage& rhs);
-  ~ezRemoteMessage();
-  void operator=(const ezRemoteMessage& rhs);
+  WRemoteMessage();
+  WRemoteMessage(WUInt32 uiSystemID, WUInt32 uiMessageID);
+  WRemoteMessage(const WRemoteMessage& rhs);
+  ~WRemoteMessage();
+  void operator=(const WRemoteMessage& rhs);
 
   /// \name Sending
   ///@{
 
   /// For setting the message IDs before sending it
-  EZ_ALWAYS_INLINE void SetMessageID(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
+  W_ALWAYS_INLINE void SetMessageID(WUInt32 uiSystemID, WUInt32 uiMessageID)
   {
     m_uiSystemID = uiSystemID;
     m_uiMsgID = uiMessageID;
   }
 
   /// Returns a stream writer to append data to the message
-  EZ_ALWAYS_INLINE ezStreamWriter& GetWriter() { return m_Writer; }
+  W_ALWAYS_INLINE WStreamWriter& GetWriter() { return m_Writer; }
 
 
   ///@}
@@ -36,11 +36,11 @@ public:
   ///@{
 
   /// Returns a stream reader for reading the message data
-  EZ_ALWAYS_INLINE ezStreamReader& GetReader() { return m_Reader; }
-  EZ_ALWAYS_INLINE ezUInt32 GetApplicationID() const { return m_uiApplicationID; }
-  EZ_ALWAYS_INLINE ezUInt32 GetSystemID() const { return m_uiSystemID; }
-  EZ_ALWAYS_INLINE ezUInt32 GetMessageID() const { return m_uiMsgID; }
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezUInt8> GetMessageData() const
+  W_ALWAYS_INLINE WStreamReader& GetReader() { return m_Reader; }
+  W_ALWAYS_INLINE WUInt32 GetApplicationID() const { return m_uiApplicationID; }
+  W_ALWAYS_INLINE WUInt32 GetSystemID() const { return m_uiSystemID; }
+  W_ALWAYS_INLINE WUInt32 GetMessageID() const { return m_uiMsgID; }
+  W_ALWAYS_INLINE WArrayPtr<const WUInt8> GetMessageData() const
   {
     return {m_Storage.GetData(), m_Storage.GetStorageSize32()};
   }
@@ -48,23 +48,23 @@ public:
   ///@}
 
 private:
-  friend class ezRemoteInterface;
+  friend class WRemoteInterface;
 
-  ezUInt32 m_uiApplicationID = 0;
-  ezUInt32 m_uiSystemID = 0;
-  ezUInt32 m_uiMsgID = 0;
+  WUInt32 m_uiApplicationID = 0;
+  WUInt32 m_uiSystemID = 0;
+  WUInt32 m_uiMsgID = 0;
 
-  ezContiguousMemoryStreamStorage m_Storage;
-  ezMemoryStreamReader m_Reader;
-  ezMemoryStreamWriter m_Writer;
+  WContiguousMemoryStreamStorage m_Storage;
+  WMemoryStreamReader m_Reader;
+  WMemoryStreamWriter m_Writer;
 };
 
-/// Base class for IPC messages transmitted by ezIpcChannel.
-class EZ_FOUNDATION_DLL ezProcessMessage : public ezReflectedClass
+/// Base class for IPC messages transmitted by WIpcChannel.
+class W_FOUNDATION_DLL WProcessMessage : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessMessage, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WProcessMessage, WReflectedClass);
 
 public:
-  ezProcessMessage() = default;
-  ezUInt64 m_uiMessageId = 0;
+  WProcessMessage() = default;
+  WUInt64 m_uiMessageId = 0;
 };

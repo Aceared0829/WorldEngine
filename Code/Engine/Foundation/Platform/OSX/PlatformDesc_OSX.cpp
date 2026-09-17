@@ -1,9 +1,9 @@
 #include <Foundation/Platform/PlatformDesc.h>
 
-ezPlatformDesc g_PlatformDescOSX("OSX", "Desktop");
+WPlatformDesc g_PlatformDescOSX("OSX", "Desktop");
 
-#if EZ_ENABLED(EZ_PLATFORM_OSX)
+#if W_ENABLED(W_PLATFORM_OSX)
 
-const ezPlatformDesc* ezPlatformDesc::s_pThisPlatform = &g_PlatformDescOSX;
+const WPlatformDesc* WPlatformDesc::s_pThisPlatform = &g_PlatformDescOSX;
 
 #endif

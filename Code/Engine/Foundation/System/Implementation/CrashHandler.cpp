@@ -9,11 +9,11 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-ezCrashHandler* ezCrashHandler::s_pActiveHandler = nullptr;
+WCrashHandler* WCrashHandler::s_pActiveHandler = nullptr;
 
-ezCrashHandler::ezCrashHandler() = default;
+WCrashHandler::WCrashHandler() = default;
 
-ezCrashHandler::~ezCrashHandler()
+WCrashHandler::~WCrashHandler()
 {
   if (s_pActiveHandler == this)
   {
@@ -21,25 +21,25 @@ ezCrashHandler::~ezCrashHandler()
   }
 }
 
-ezCrashHandler* ezCrashHandler::GetCrashHandler()
+WCrashHandler* WCrashHandler::GetCrashHandler()
 {
   return s_pActiveHandler;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezCrashHandler_WriteMiniDump ezCrashHandler_WriteMiniDump::g_Instance;
+WCrashHandler_WriteMiniDump WCrashHandler_WriteMiniDump::g_Instance;
 
-ezCrashHandler_WriteMiniDump::ezCrashHandler_WriteMiniDump() = default;
+WCrashHandler_WriteMiniDump::WCrashHandler_WriteMiniDump() = default;
 
-void ezCrashHandler_WriteMiniDump::SetFullDumpFilePath(ezStringView sFullAbsDumpFilePath)
+void WCrashHandler_WriteMiniDump::SetFullDumpFilePath(WStringView sFullAbsDumpFilePath)
 {
   m_sDumpFilePath = sFullAbsDumpFilePath;
 }
 
-void ezCrashHandler_WriteMiniDump::SetDumpFilePath(ezStringView sAbsDirectoryPath, ezStringView sAppName, ezBitflags<PathFlags> flags)
+void WCrashHandler_WriteMiniDump::SetDumpFilePath(WStringView sAbsDirectoryPath, WStringView sAppName, WBitflags<PathFlags> flags)
 {
-  ezStringBuilder sOutputPath = sAbsDirectoryPath;
+  WStringBuilder sOutputPath = sAbsDirectoryPath;
 
   if (flags.IsSet(PathFlags::AppendSubFolder))
   {
@@ -50,14 +50,14 @@ void ezCrashHandler_WriteMiniDump::SetDumpFilePath(ezStringView sAbsDirectoryPat
 
   if (flags.IsSet(PathFlags::AppendDate))
   {
-    const ezDateTime date = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
+    const WDateTime date = WDateTime::MakeFromTimestamp(WTimestamp::CurrentTimestamp());
     sOutputPath.AppendFormat("_{}", date);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
   if (flags.IsSet(PathFlags::AppendPID))
   {
-    const ezUInt32 pid = ezProcess::GetCurrentProcessID();
+    const WUInt32 pid = WProcess::GetCurrentProcessID();
     sOutputPath.AppendFormat("_{}", pid);
   }
 #endif
@@ -67,20 +67,20 @@ void ezCrashHandler_WriteMiniDump::SetDumpFilePath(ezStringView sAbsDirectoryPat
   SetFullDumpFilePath(sOutputPath);
 }
 
-void ezCrashHandler_WriteMiniDump::SetDumpFilePath(ezStringView sAppName, ezBitflags<PathFlags> flags)
+void WCrashHandler_WriteMiniDump::SetDumpFilePath(WStringView sAppName, WBitflags<PathFlags> flags)
 {
-  SetDumpFilePath(ezOSFile::GetApplicationDirectory(), sAppName, flags);
+  SetDumpFilePath(WOSFile::GetApplicationDirectory(), sAppName, flags);
 }
 
-void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
+void WCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
 {
   bool crashDumpWritten = false;
   if (!m_sDumpFilePath.IsEmpty())
   {
-#if EZ_ENABLED(EZ_SUPPORTS_CRASH_DUMPS)
-    if (ezMiniDumpUtils::LaunchMiniDumpTool(m_sDumpFilePath).Failed())
+#if W_ENABLED(W_SUPPORTS_CRASH_DUMPS)
+    if (WMiniDumpUtils::LaunchMiniDumpTool(m_sDumpFilePath).Failed())
     {
-      ezLog::Print("Could not launch MiniDumpTool, trying to write crash-dump from crashed process directly.\n");
+      WLog::Print("Could not launch MiniDumpTool, trying to write crash-dump from crashed process directly.\n");
 
       crashDumpWritten = WriteOwnProcessMiniDump(pOsSpecificData);
     }
@@ -94,13 +94,13 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
   }
   else
   {
-    ezLog::Print("ezCrashHandler_WriteMiniDump: No dump-file location specified.\n");
+    WLog::Print("WCrashHandler_WriteMiniDump: No dump-file location specified.\n");
   }
 
   PrintStackTrace(pOsSpecificData);
 
   if (crashDumpWritten)
   {
-    ezLog::Printf("Application crashed. Crash-dump written to '%s'\n.", m_sDumpFilePath.GetData());
+    WLog::Printf("Application crashed. Crash-dump written to '%s'\n.", m_sDumpFilePath.GetData());
   }
 }

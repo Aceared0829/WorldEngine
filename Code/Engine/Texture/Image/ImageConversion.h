@@ -6,15 +6,15 @@
 
 #include <Texture/Image/Image.h>
 
-EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, InPlace);
+W_DECLARE_FLAGS(WUInt8, WImageConversionFlags, InPlace);
 
 /// Describes a single conversion step between two image formats.
 ///
 /// Used by conversion step implementations to advertise which format pairs they can handle.
 /// The conversion system uses this information to build optimal conversion paths.
-struct ezImageConversionEntry
+struct WImageConversionEntry
 {
-  ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags, float fAdditionalPenalty = 0)
+  WImageConversionEntry(WImageFormat::Enum source, WImageFormat::Enum target, WImageConversionFlags::Enum flags, float fAdditionalPenalty = 0)
     : m_sourceFormat(source)
     , m_targetFormat(target)
     , m_flags(flags)
@@ -22,9 +22,9 @@ struct ezImageConversionEntry
   {
   }
 
-  const ezImageFormat::Enum m_sourceFormat;
-  const ezImageFormat::Enum m_targetFormat;
-  const ezBitflags<ezImageConversionFlags> m_flags;
+  const WImageFormat::Enum m_sourceFormat;
+  const WImageFormat::Enum m_targetFormat;
+  const WBitflags<WImageConversionFlags> m_flags;
 
   /// Additional cost penalty for this conversion step.
   ///
@@ -35,67 +35,67 @@ struct ezImageConversionEntry
 
 /// Interface for a single image conversion step.
 ///
-/// The actual functionality is implemented as either ezImageConversionStepLinear or ezImageConversionStepDecompressBlocks.
+/// The actual functionality is implemented as either WImageConversionStepLinear or WImageConversionStepDecompressBlocks.
 /// Depending on the types on conversion advertised by GetSupportedConversions(), users of this class need to cast it to a derived type
 /// first to access the desired functionality.
-class EZ_TEXTURE_DLL ezImageConversionStep : public ezEnumerable<ezImageConversionStep>
+class W_TEXTURE_DLL WImageConversionStep : public WEnumerable<WImageConversionStep>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezImageConversionStep);
+  W_DECLARE_ENUMERABLE_CLASS(WImageConversionStep);
 
 protected:
-  ezImageConversionStep();
-  virtual ~ezImageConversionStep();
+  WImageConversionStep();
+  virtual ~WImageConversionStep();
 
 public:
   /// Returns an array pointer of supported conversions.
   ///
   /// \note The returned array must have the same entries each time this method is called.
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const = 0;
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const = 0;
 };
 
 /// Interface for a single image conversion step where both the source and target format are uncompressed.
-class EZ_TEXTURE_DLL ezImageConversionStepLinear : public ezImageConversionStep
+class W_TEXTURE_DLL WImageConversionStepLinear : public WImageConversionStep
 {
 public:
   /// Converts a batch of pixels.
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const = 0;
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const = 0;
 };
 
 /// Interface for a single image conversion step where the source format is compressed and the target format is uncompressed.
-class EZ_TEXTURE_DLL ezImageConversionStepDecompressBlocks : public ezImageConversionStep
+class W_TEXTURE_DLL WImageConversionStepDecompressBlocks : public WImageConversionStep
 {
 public:
   /// Decompresses the given number of blocks.
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const = 0;
+  virtual WResult DecompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocks, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const = 0;
 };
 
 /// Interface for a single image conversion step where the source format is uncompressed and the target format is compressed.
-class EZ_TEXTURE_DLL ezImageConversionStepCompressBlocks : public ezImageConversionStep
+class W_TEXTURE_DLL WImageConversionStepCompressBlocks : public WImageConversionStep
 {
 public:
   /// Compresses the given number of blocks.
-  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocksX, ezUInt32 uiNumBlocksY,
-    ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
+  virtual WResult CompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocksX, WUInt32 uiNumBlocksY,
+    WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const = 0;
 };
 
 /// Interface for a single image conversion step from a linear to a planar format.
-class EZ_TEXTURE_DLL ezImageConversionStepPlanarize : public ezImageConversionStep
+class W_TEXTURE_DLL WImageConversionStepPlanarize : public WImageConversionStep
 {
 public:
   /// Converts a batch of pixels into the given target planes.
-  virtual ezResult ConvertPixels(const ezImageView& source, ezArrayPtr<ezImage> target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const = 0;
+  virtual WResult ConvertPixels(const WImageView& source, WArrayPtr<WImage> target, WUInt32 uiNumPixelsX, WUInt32 uiNumPixelsY, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const = 0;
 };
 
 /// Interface for a single image conversion step from a planar to a linear format.
-class EZ_TEXTURE_DLL ezImageConversionStepDeplanarize : public ezImageConversionStep
+class W_TEXTURE_DLL WImageConversionStepDeplanarize : public WImageConversionStep
 {
 public:
   /// Converts a batch of pixels from the given source planes.
-  virtual ezResult ConvertPixels(ezArrayPtr<ezImageView> source, ezImage target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const = 0;
+  virtual WResult ConvertPixels(WArrayPtr<WImageView> source, WImage target, WUInt32 uiNumPixelsX, WUInt32 uiNumPixelsY, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const = 0;
 };
 
 
@@ -108,23 +108,23 @@ public:
 /// **Basic Usage:**
 /// ```cpp
 /// // Simple format conversion
-/// ezImage sourceImage;
+/// WImage sourceImage;
 /// sourceImage.LoadFrom("texture.png");
-/// ezImage targetImage;
-/// ezImageConversion::Convert(sourceImage, targetImage, ezImageFormat::BC1_UNORM);
+/// WImage targetImage;
+/// WImageConversion::Convert(sourceImage, targetImage, WImageFormat::BC1_UNORM);
 /// ```
 ///
 /// **Advanced Usage with Path Caching:**
 /// ```cpp
 /// // Build reusable conversion path
-/// ezHybridArray<ezImageConversion::ConversionPathNode, 16> path;
-/// ezUInt32 numScratchBuffers;
-/// ezImageConversion::BuildPath(sourceFormat, targetFormat, false, path, numScratchBuffers);
+/// WHybridArray<WImageConversion::ConversionPathNode, 16> path;
+/// WUInt32 numScratchBuffers;
+/// WImageConversion::BuildPath(sourceFormat, targetFormat, false, path, numScratchBuffers);
 ///
 /// // Use cached path for multiple conversions
 /// for (auto& image : images)
 /// {
-///   ezImageConversion::Convert(image, convertedImage, path, numScratchBuffers);
+///   WImageConversion::Convert(image, convertedImage, path, numScratchBuffers);
 /// }
 /// ```
 ///
@@ -133,31 +133,31 @@ public:
 /// - Memory layout differences (linear, block-compressed, planar)
 /// - Optimal path selection based on quality and performance
 /// - In-place conversions when possible
-class EZ_TEXTURE_DLL ezImageConversion
+class W_TEXTURE_DLL WImageConversion
 {
 public:
   /// Checks if a conversion path exists between two formats.
   ///
   /// This is a fast query that doesn't build the actual conversion path.
   /// Use this to validate format compatibility before attempting conversion.
-  static bool IsConvertible(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat);
+  static bool IsConvertible(WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat);
 
   /// Finds the format requiring the least conversion cost from a list of candidates.
   ///
   /// Useful when you have multiple acceptable target formats and want to choose
   /// the one that preserves the most quality or requires the least processing.
-  static ezImageFormat::Enum FindClosestCompatibleFormat(ezImageFormat::Enum format, ezArrayPtr<const ezImageFormat::Enum> compatibleFormats);
+  static WImageFormat::Enum FindClosestCompatibleFormat(WImageFormat::Enum format, WArrayPtr<const WImageFormat::Enum> compatibleFormats);
 
   /// A single node along a computed conversion path.
   struct ConversionPathNode
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    const ezImageConversionStep* m_step;
-    ezImageFormat::Enum m_sourceFormat;
-    ezImageFormat::Enum m_targetFormat;
-    ezUInt32 m_sourceBufferIndex;
-    ezUInt32 m_targetBufferIndex;
+    const WImageConversionStep* m_step;
+    WImageFormat::Enum m_sourceFormat;
+    WImageFormat::Enum m_targetFormat;
+    WUInt32 m_sourceBufferIndex;
+    WUInt32 m_targetBufferIndex;
     bool m_inPlace;
   };
 
@@ -175,40 +175,40 @@ public:
   ///                               correctly when source and target are the same.
   /// \param out_path               The generated path.
   /// \param out_numScratchBuffers The number of scratch buffers required for the conversion path.
-  /// \returns                      ez_SUCCESS if a path was found, ez_FAILURE otherwise.
-  static ezResult BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget, ezDynamicArray<ConversionPathNode>& out_path, ezUInt32& out_uiNumScratchBuffers);
+  /// \returns                      W_SUCCESS if a path was found, W_FAILURE otherwise.
+  static WResult BuildPath(WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat, bool bSourceEqualsTarget, WDynamicArray<ConversionPathNode>& out_path, WUInt32& out_uiNumScratchBuffers);
 
   ///  Converts the source image into a target image with the given format. Source and target may be the same.
-  static ezResult Convert(const ezImageView& source, ezImage& ref_target, ezImageFormat::Enum targetFormat);
+  static WResult Convert(const WImageView& source, WImage& ref_target, WImageFormat::Enum targetFormat);
 
   /// Converts the source image into a target image using a precomputed conversion path.
-  static ezResult Convert(const ezImageView& source, ezImage& ref_target, ezArrayPtr<ConversionPathNode> path, ezUInt32 uiNumScratchBuffers);
+  static WResult Convert(const WImageView& source, WImage& ref_target, WArrayPtr<ConversionPathNode> path, WUInt32 uiNumScratchBuffers);
 
   /// Converts the raw source data into a target data buffer with the given format. Source and target may be the same.
-  static ezResult ConvertRaw(
-    ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat);
+  static WResult ConvertRaw(
+    WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat);
 
   /// Converts the raw source data into a target data buffer using a precomputed conversion path.
-  static ezResult ConvertRaw(
-    ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumElements, ezArrayPtr<ConversionPathNode> path, ezUInt32 uiNumScratchBuffers);
+  static WResult ConvertRaw(
+    WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumElements, WArrayPtr<ConversionPathNode> path, WUInt32 uiNumScratchBuffers);
 
 private:
-  ezImageConversion();
-  ezImageConversion(const ezImageConversion&);
+  WImageConversion();
+  WImageConversion(const WImageConversion&);
 
-  static ezResult ConvertSingleStep(const ezImageConversionStep* pStep, const ezImageView& source, ezImage& target, ezImageFormat::Enum targetFormat);
+  static WResult ConvertSingleStep(const WImageConversionStep* pStep, const WImageView& source, WImage& target, WImageFormat::Enum targetFormat);
 
-  static ezResult ConvertSingleStepDecompress(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
+  static WResult ConvertSingleStepDecompress(const WImageView& source, WImage& target, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat, const WImageConversionStep* pStep);
 
-  static ezResult ConvertSingleStepCompress(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
+  static WResult ConvertSingleStepCompress(const WImageView& source, WImage& target, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat, const WImageConversionStep* pStep);
 
-  static ezResult ConvertSingleStepDeplanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
+  static WResult ConvertSingleStepDeplanarize(const WImageView& source, WImage& target, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat, const WImageConversionStep* pStep);
 
-  static ezResult ConvertSingleStepPlanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
+  static WResult ConvertSingleStepPlanarize(const WImageView& source, WImage& target, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat, const WImageConversionStep* pStep);
 
   static void RebuildConversionTable();
 };

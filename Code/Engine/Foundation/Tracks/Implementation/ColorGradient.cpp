@@ -6,60 +6,60 @@
 #include <Foundation/Tracks/ColorGradient.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColorGradientColorCP, ezNoBase, 1, ezRTTIDefaultAllocator<ezColorGradientColorCP>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WColorGradientColorCP, WNoBase, 1, WRTTIDefaultAllocator<WColorGradientColorCP>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Tick", m_iTick),
-    EZ_MEMBER_PROPERTY("Red", m_GammaRed)->AddAttributes(new ezDefaultValueAttribute(255)),
-    EZ_MEMBER_PROPERTY("Green", m_GammaGreen)->AddAttributes(new ezDefaultValueAttribute(255)),
-    EZ_MEMBER_PROPERTY("Blue", m_GammaBlue)->AddAttributes(new ezDefaultValueAttribute(255)),
+    W_MEMBER_PROPERTY("Tick", m_iTick),
+    W_MEMBER_PROPERTY("Red", m_GammaRed)->AddAttributes(new WDefaultValueAttribute(255)),
+    W_MEMBER_PROPERTY("Green", m_GammaGreen)->AddAttributes(new WDefaultValueAttribute(255)),
+    W_MEMBER_PROPERTY("Blue", m_GammaBlue)->AddAttributes(new WDefaultValueAttribute(255)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColorGradientAlphaCP, ezNoBase, 1, ezRTTIDefaultAllocator<ezColorGradientAlphaCP>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WColorGradientAlphaCP, WNoBase, 1, WRTTIDefaultAllocator<WColorGradientAlphaCP>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Tick", m_iTick),
-    EZ_MEMBER_PROPERTY("Alpha", m_Alpha)->AddAttributes(new ezDefaultValueAttribute(255)),
+    W_MEMBER_PROPERTY("Tick", m_iTick),
+    W_MEMBER_PROPERTY("Alpha", m_Alpha)->AddAttributes(new WDefaultValueAttribute(255)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColorGradientIntensityCP, ezNoBase, 1, ezRTTIDefaultAllocator<ezColorGradientIntensityCP>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WColorGradientIntensityCP, WNoBase, 1, WRTTIDefaultAllocator<WColorGradientIntensityCP>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Tick", m_iTick),
-    EZ_MEMBER_PROPERTY("Intensity", m_Intensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("Tick", m_iTick),
+    W_MEMBER_PROPERTY("Intensity", m_Intensity)->AddAttributes(new WDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColorGradient, ezNoBase, 1, ezRTTIDefaultAllocator<ezColorGradient>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WColorGradient, WNoBase, 1, WRTTIDefaultAllocator<WColorGradient>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("ColorCPs", m_ColorCPs),
-    EZ_ARRAY_MEMBER_PROPERTY("AlphaCPs", m_AlphaCPs),
-    EZ_ARRAY_MEMBER_PROPERTY("IntensityCPs", m_IntensityCPs),
+    W_ARRAY_MEMBER_PROPERTY("ColorCPs", m_ColorCPs),
+    W_ARRAY_MEMBER_PROPERTY("AlphaCPs", m_AlphaCPs),
+    W_ARRAY_MEMBER_PROPERTY("IntensityCPs", m_IntensityCPs),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezColorGradient::ezColorGradient()
+WColorGradient::WColorGradient()
 {
   Clear();
 }
 
-ezColorGradient::ezColorGradient(const ezColorGradient& rhs)
+WColorGradient::WColorGradient(const WColorGradient& rhs)
 {
   m_ColorCPs = rhs.m_ColorCPs;
   m_AlphaCPs = rhs.m_AlphaCPs;
@@ -68,7 +68,7 @@ ezColorGradient::ezColorGradient(const ezColorGradient& rhs)
   // These will be rebuilt on first evaluation in the new instance
 }
 
-ezColorGradient::ezColorGradient(ezColorGradient&& rhs) noexcept
+WColorGradient::WColorGradient(WColorGradient&& rhs) noexcept
 {
   m_ColorCPs = std::move(rhs.m_ColorCPs);
   m_AlphaCPs = std::move(rhs.m_AlphaCPs);
@@ -77,7 +77,7 @@ ezColorGradient::ezColorGradient(ezColorGradient&& rhs) noexcept
   // These will be rebuilt on first evaluation in the new instance
 }
 
-void ezColorGradient::operator=(const ezColorGradient& rhs)
+void WColorGradient::operator=(const WColorGradient& rhs)
 {
   if (this == &rhs)
     return;
@@ -91,7 +91,7 @@ void ezColorGradient::operator=(const ezColorGradient& rhs)
   // m_InitializationMutex is not copied
 }
 
-void ezColorGradient::operator=(ezColorGradient&& rhs) noexcept
+void WColorGradient::operator=(WColorGradient&& rhs) noexcept
 {
   if (this == &rhs)
     return;
@@ -105,7 +105,7 @@ void ezColorGradient::operator=(ezColorGradient&& rhs) noexcept
   // m_InitializationMutex is not moved
 }
 
-void ezColorGradient::Clear()
+void WColorGradient::Clear()
 {
   m_ColorCPs.Clear();
   m_AlphaCPs.Clear();
@@ -113,12 +113,12 @@ void ezColorGradient::Clear()
 }
 
 
-bool ezColorGradient::IsEmpty() const
+bool WColorGradient::IsEmpty() const
 {
   return m_ColorCPs.IsEmpty() && m_AlphaCPs.IsEmpty() && m_IntensityCPs.IsEmpty();
 }
 
-void ezColorGradient::AddColorControlPoint(double x, const ezColorGammaUB& rgb)
+void WColorGradient::AddColorControlPoint(double x, const WColorGammaUB& rgb)
 {
   auto& cp = m_ColorCPs.ExpandAndGetRef();
   cp.m_iTick = TimeToTick(x);
@@ -127,41 +127,41 @@ void ezColorGradient::AddColorControlPoint(double x, const ezColorGammaUB& rgb)
   cp.m_GammaBlue = rgb.b;
 }
 
-void ezColorGradient::AddAlphaControlPoint(double x, ezUInt8 uiAlpha)
+void WColorGradient::AddAlphaControlPoint(double x, WUInt8 uiAlpha)
 {
   auto& cp = m_AlphaCPs.ExpandAndGetRef();
   cp.m_iTick = TimeToTick(x);
   cp.m_Alpha = uiAlpha;
 }
 
-void ezColorGradient::AddIntensityControlPoint(double x, float fIntensity)
+void WColorGradient::AddIntensityControlPoint(double x, float fIntensity)
 {
   auto& cp = m_IntensityCPs.ExpandAndGetRef();
   cp.m_iTick = TimeToTick(x);
   cp.m_Intensity = fIntensity;
 }
 
-bool ezColorGradient::GetExtents(double& ref_fMinx, double& ref_fMaxx) const
+bool WColorGradient::GetExtents(double& ref_fMinx, double& ref_fMaxx) const
 {
-  ezInt64 minTick = ezMath::MaxValue<ezInt64>();
-  ezInt64 maxTick = ezMath::MinValue<ezInt64>();
+  WInt64 minTick = WMath::MaxValue<WInt64>();
+  WInt64 maxTick = WMath::MinValue<WInt64>();
 
   for (const auto& cp : m_ColorCPs)
   {
-    minTick = ezMath::Min(minTick, cp.m_iTick);
-    maxTick = ezMath::Max(maxTick, cp.m_iTick);
+    minTick = WMath::Min(minTick, cp.m_iTick);
+    maxTick = WMath::Max(maxTick, cp.m_iTick);
   }
 
   for (const auto& cp : m_AlphaCPs)
   {
-    minTick = ezMath::Min(minTick, cp.m_iTick);
-    maxTick = ezMath::Max(maxTick, cp.m_iTick);
+    minTick = WMath::Min(minTick, cp.m_iTick);
+    maxTick = WMath::Max(maxTick, cp.m_iTick);
   }
 
   for (const auto& cp : m_IntensityCPs)
   {
-    minTick = ezMath::Min(minTick, cp.m_iTick);
-    maxTick = ezMath::Max(maxTick, cp.m_iTick);
+    minTick = WMath::Min(minTick, cp.m_iTick);
+    maxTick = WMath::Max(maxTick, cp.m_iTick);
   }
 
   if (minTick <= maxTick)
@@ -174,7 +174,7 @@ bool ezColorGradient::GetExtents(double& ref_fMinx, double& ref_fMaxx) const
   return false;
 }
 
-void ezColorGradient::GetNumControlPoints(ezUInt32& ref_uiRgb, ezUInt32& ref_uiAlpha, ezUInt32& ref_uiIntensity) const
+void WColorGradient::GetNumControlPoints(WUInt32& ref_uiRgb, WUInt32& ref_uiAlpha, WUInt32& ref_uiIntensity) const
 {
   ref_uiRgb = m_ColorCPs.GetCount();
   ref_uiAlpha = m_AlphaCPs.GetCount();
@@ -182,49 +182,49 @@ void ezColorGradient::GetNumControlPoints(ezUInt32& ref_uiRgb, ezUInt32& ref_uiA
 }
 
 
-void ezColorGradient::UpdatePointOrder() const
+void WColorGradient::UpdatePointOrder() const
 {
   // Create remapping arrays instead of sorting the actual arrays.
   // This preserves indices so editing operations in the UI don't break when control points are moved.
 
-  m_ColorOrder.SetCount((ezUInt16)m_ColorCPs.GetCount());
-  for (ezUInt8 i = 0; i < m_ColorCPs.GetCount(); ++i)
+  m_ColorOrder.SetCount((WUInt16)m_ColorCPs.GetCount());
+  for (WUInt8 i = 0; i < m_ColorCPs.GetCount(); ++i)
   {
-    m_ColorOrder[i] = static_cast<ezUInt8>(i);
+    m_ColorOrder[i] = static_cast<WUInt8>(i);
   }
-  m_ColorOrder.Sort([this](ezUInt32 a, ezUInt32 b)
+  m_ColorOrder.Sort([this](WUInt32 a, WUInt32 b)
     { return m_ColorCPs[a] < m_ColorCPs[b]; });
 
   // Alpha CPs
-  m_AlphaOrder.SetCount((ezUInt16)m_AlphaCPs.GetCount());
-  for (ezUInt8 i = 0; i < m_AlphaCPs.GetCount(); ++i)
+  m_AlphaOrder.SetCount((WUInt16)m_AlphaCPs.GetCount());
+  for (WUInt8 i = 0; i < m_AlphaCPs.GetCount(); ++i)
   {
-    m_AlphaOrder[i] = static_cast<ezUInt8>(i);
+    m_AlphaOrder[i] = static_cast<WUInt8>(i);
   }
-  m_AlphaOrder.Sort([this](ezUInt32 a, ezUInt32 b)
+  m_AlphaOrder.Sort([this](WUInt32 a, WUInt32 b)
     { return m_AlphaCPs[a] < m_AlphaCPs[b]; });
 
   // Intensity CPs
-  m_IntensityOrder.SetCount((ezUInt16)m_IntensityCPs.GetCount());
-  for (ezUInt8 i = 0; i < m_IntensityCPs.GetCount(); ++i)
+  m_IntensityOrder.SetCount((WUInt16)m_IntensityCPs.GetCount());
+  for (WUInt8 i = 0; i < m_IntensityCPs.GetCount(); ++i)
   {
-    m_IntensityOrder[i] = static_cast<ezUInt8>(i);
+    m_IntensityOrder[i] = static_cast<WUInt8>(i);
   }
-  m_IntensityOrder.Sort([this](ezUInt32 a, ezUInt32 b)
+  m_IntensityOrder.Sort([this](WUInt32 a, WUInt32 b)
     { return m_IntensityCPs[a] < m_IntensityCPs[b]; });
 
   PrecomputeLerpNormalizer();
 }
 
-void ezColorGradient::PrecomputeLerpNormalizer() const
+void WColorGradient::PrecomputeLerpNormalizer() const
 {
-  for (ezUInt32 i = 1; i < m_ColorOrder.GetCount(); ++i)
+  for (WUInt32 i = 1; i < m_ColorOrder.GetCount(); ++i)
   {
-    const ezUInt32 idx0 = m_ColorOrder[i - 1];
-    const ezUInt32 idx1 = m_ColorOrder[i];
+    const WUInt32 idx0 = m_ColorOrder[i - 1];
+    const WUInt32 idx1 = m_ColorOrder[i];
 
-    const ezInt64 tick0 = m_ColorCPs[idx0].m_iTick;
-    const ezInt64 tick1 = m_ColorCPs[idx1].m_iTick;
+    const WInt64 tick0 = m_ColorCPs[idx0].m_iTick;
+    const WInt64 tick1 = m_ColorCPs[idx1].m_iTick;
 
     const double dist = TickToTime(tick1 - tick0);
     const double invDist = 1.0 / dist;
@@ -232,13 +232,13 @@ void ezColorGradient::PrecomputeLerpNormalizer() const
     m_ColorCPs[idx0].m_fInvDistToNextCp = (float)invDist;
   }
 
-  for (ezUInt32 i = 1; i < m_AlphaOrder.GetCount(); ++i)
+  for (WUInt32 i = 1; i < m_AlphaOrder.GetCount(); ++i)
   {
-    const ezUInt32 idx0 = m_AlphaOrder[i - 1];
-    const ezUInt32 idx1 = m_AlphaOrder[i];
+    const WUInt32 idx0 = m_AlphaOrder[i - 1];
+    const WUInt32 idx1 = m_AlphaOrder[i];
 
-    const ezInt64 tick0 = m_AlphaCPs[idx0].m_iTick;
-    const ezInt64 tick1 = m_AlphaCPs[idx1].m_iTick;
+    const WInt64 tick0 = m_AlphaCPs[idx0].m_iTick;
+    const WInt64 tick1 = m_AlphaCPs[idx1].m_iTick;
 
     const double dist = TickToTime(tick1 - tick0);
     const double invDist = 1.0 / dist;
@@ -246,13 +246,13 @@ void ezColorGradient::PrecomputeLerpNormalizer() const
     m_AlphaCPs[idx0].m_fInvDistToNextCp = (float)invDist;
   }
 
-  for (ezUInt32 i = 1; i < m_IntensityOrder.GetCount(); ++i)
+  for (WUInt32 i = 1; i < m_IntensityOrder.GetCount(); ++i)
   {
-    const ezUInt32 idx0 = m_IntensityOrder[i - 1];
-    const ezUInt32 idx1 = m_IntensityOrder[i];
+    const WUInt32 idx0 = m_IntensityOrder[i - 1];
+    const WUInt32 idx1 = m_IntensityOrder[i];
 
-    const ezInt64 tick0 = m_IntensityCPs[idx0].m_iTick;
-    const ezInt64 tick1 = m_IntensityCPs[idx1].m_iTick;
+    const WInt64 tick0 = m_IntensityCPs[idx0].m_iTick;
+    const WInt64 tick1 = m_IntensityCPs[idx1].m_iTick;
 
     const double dist = TickToTime(tick1 - tick0);
     const double invDist = 1.0 / dist;
@@ -261,7 +261,7 @@ void ezColorGradient::PrecomputeLerpNormalizer() const
   }
 }
 
-void ezColorGradient::Evaluate(double x, ezColorGammaUB& ref_rgba, float& ref_fIntensity) const
+void WColorGradient::Evaluate(double x, WColorGammaUB& ref_rgba, float& ref_fIntensity) const
 {
   ref_rgba.r = 255;
   ref_rgba.g = 255;
@@ -275,33 +275,33 @@ void ezColorGradient::Evaluate(double x, ezColorGammaUB& ref_rgba, float& ref_fI
 }
 
 
-void ezColorGradient::Evaluate(double x, ezColor& ref_hdr) const
+void WColorGradient::Evaluate(double x, WColor& ref_hdr) const
 {
   float intensity = 1.0f;
-  ezUInt8 alpha = 255;
+  WUInt8 alpha = 255;
 
   EvaluateColor(x, ref_hdr);
   EvaluateAlpha(x, alpha);
   EvaluateIntensity(x, intensity);
 
   ref_hdr.ScaleRGB(intensity);
-  ref_hdr.a = ezMath::ColorByteToFloat(alpha);
+  ref_hdr.a = WMath::ColorByteToFloat(alpha);
 }
 
-void ezColorGradient::EvaluateColor(double x, ezColorGammaUB& ref_rgb) const
+void WColorGradient::EvaluateColor(double x, WColorGammaUB& ref_rgb) const
 {
-  ezColor hdr;
+  WColor hdr;
   EvaluateColor(x, hdr);
 
   ref_rgb = hdr;
   ref_rgb.a = 255;
 }
 
-void ezColorGradient::EvaluateColor(double x, ezColor& ref_rgb) const
+void WColorGradient::EvaluateColor(double x, WColor& ref_rgb) const
 {
   if (m_ColorCPs.GetCount() != m_ColorOrder.GetCount())
   {
-    EZ_LOCK(m_InitializationMutex);
+    W_LOCK(m_InitializationMutex);
     // Double-check after acquiring lock
     if (m_ColorCPs.GetCount() != m_ColorOrder.GetCount())
     {
@@ -314,26 +314,26 @@ void ezColorGradient::EvaluateColor(double x, ezColor& ref_rgb) const
   ref_rgb.b = 1.0f;
   ref_rgb.a = 1.0f;
 
-  const ezUInt32 numCPs = m_ColorCPs.GetCount();
+  const WUInt32 numCPs = m_ColorCPs.GetCount();
 
   if (numCPs >= 2)
   {
-    const ezInt64 xTick = TimeToTick(x);
+    const WInt64 xTick = TimeToTick(x);
 
     // clamp to left value - use remapping to access first CP in sorted order
-    const ezUInt32 firstIdx = m_ColorOrder[0];
+    const WUInt32 firstIdx = m_ColorOrder[0];
     if (m_ColorCPs[firstIdx].m_iTick >= xTick)
     {
       const ColorCP& cp = m_ColorCPs[firstIdx];
-      ref_rgb = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
+      ref_rgb = WColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
       return;
     }
 
-    ezUInt32 uiControlPoint;
+    WUInt32 uiControlPoint;
 
-    for (ezUInt32 i = 1; i < numCPs; ++i)
+    for (WUInt32 i = 1; i < numCPs; ++i)
     {
-      const ezUInt32 idx = m_ColorOrder[i];
+      const WUInt32 idx = m_ColorOrder[i];
       if (m_ColorCPs[idx].m_iTick >= xTick)
       {
         uiControlPoint = i - 1;
@@ -343,43 +343,43 @@ void ezColorGradient::EvaluateColor(double x, ezColor& ref_rgb) const
 
     // no point found -> clamp to right value
     {
-      const ezUInt32 lastIdx = m_ColorOrder[numCPs - 1];
+      const WUInt32 lastIdx = m_ColorOrder[numCPs - 1];
       const ColorCP& cp = m_ColorCPs[lastIdx];
-      ref_rgb = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
+      ref_rgb = WColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
       return;
     }
 
   found:
   {
-    const ezUInt32 idxL = m_ColorOrder[uiControlPoint];
-    const ezUInt32 idxR = m_ColorOrder[uiControlPoint + 1];
+    const WUInt32 idxL = m_ColorOrder[uiControlPoint];
+    const WUInt32 idxR = m_ColorOrder[uiControlPoint + 1];
 
     const ColorCP& cpl = m_ColorCPs[idxL];
     const ColorCP& cpr = m_ColorCPs[idxR];
 
-    const ezColor lhs(ezColorGammaUB(cpl.m_GammaRed, cpl.m_GammaGreen, cpl.m_GammaBlue, 255));
-    const ezColor rhs(ezColorGammaUB(cpr.m_GammaRed, cpr.m_GammaGreen, cpr.m_GammaBlue, 255));
+    const WColor lhs(WColorGammaUB(cpl.m_GammaRed, cpl.m_GammaGreen, cpl.m_GammaBlue, 255));
+    const WColor rhs(WColorGammaUB(cpr.m_GammaRed, cpr.m_GammaGreen, cpr.m_GammaBlue, 255));
 
     /// \todo Use a midpoint interpolation
 
     // interpolate (linear for now)
     const double lhsTime = TickToTime(cpl.m_iTick);
-    const float lerpX = ezMath::Saturate((float)(x - lhsTime) * cpl.m_fInvDistToNextCp);
+    const float lerpX = WMath::Saturate((float)(x - lhsTime) * cpl.m_fInvDistToNextCp);
 
-    ref_rgb = ezMath::Lerp(lhs, rhs, lerpX);
+    ref_rgb = WMath::Lerp(lhs, rhs, lerpX);
   }
   }
   else if (m_ColorCPs.GetCount() == 1)
   {
-    ref_rgb = ezColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
+    ref_rgb = WColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
   }
 }
 
-void ezColorGradient::EvaluateAlpha(double x, ezUInt8& ref_uiAlpha) const
+void WColorGradient::EvaluateAlpha(double x, WUInt8& ref_uiAlpha) const
 {
   if (m_AlphaCPs.GetCount() != m_AlphaOrder.GetCount())
   {
-    EZ_LOCK(m_InitializationMutex);
+    W_LOCK(m_InitializationMutex);
     // Double-check after acquiring lock
     if (m_AlphaCPs.GetCount() != m_AlphaOrder.GetCount())
     {
@@ -389,24 +389,24 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& ref_uiAlpha) const
 
   ref_uiAlpha = 255;
 
-  const ezUInt32 numCPs = m_AlphaCPs.GetCount();
+  const WUInt32 numCPs = m_AlphaCPs.GetCount();
   if (numCPs >= 2)
   {
-    const ezInt64 xTick = TimeToTick(x);
+    const WInt64 xTick = TimeToTick(x);
 
     // clamp to left value - use remapping
-    const ezUInt32 firstIdx = m_AlphaOrder[0];
+    const WUInt32 firstIdx = m_AlphaOrder[0];
     if (m_AlphaCPs[firstIdx].m_iTick >= xTick)
     {
       ref_uiAlpha = m_AlphaCPs[firstIdx].m_Alpha;
       return;
     }
 
-    ezUInt32 uiControlPoint;
+    WUInt32 uiControlPoint;
 
-    for (ezUInt32 i = 1; i < numCPs; ++i)
+    for (WUInt32 i = 1; i < numCPs; ++i)
     {
-      const ezUInt32 idx = m_AlphaOrder[i];
+      const WUInt32 idx = m_AlphaOrder[i];
       if (m_AlphaCPs[idx].m_iTick >= xTick)
       {
         uiControlPoint = i - 1;
@@ -416,7 +416,7 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& ref_uiAlpha) const
 
     // no point found -> clamp to right value
     {
-      const ezUInt32 lastIdx = m_AlphaOrder[numCPs - 1];
+      const WUInt32 lastIdx = m_AlphaOrder[numCPs - 1];
       ref_uiAlpha = m_AlphaCPs[lastIdx].m_Alpha;
       return;
     }
@@ -425,17 +425,17 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& ref_uiAlpha) const
   {
     /// \todo Use a midpoint interpolation
 
-    const ezUInt32 idxL = m_AlphaOrder[uiControlPoint];
-    const ezUInt32 idxR = m_AlphaOrder[uiControlPoint + 1];
+    const WUInt32 idxL = m_AlphaOrder[uiControlPoint];
+    const WUInt32 idxR = m_AlphaOrder[uiControlPoint + 1];
 
     const AlphaCP& cpl = m_AlphaCPs[idxL];
     const AlphaCP& cpr = m_AlphaCPs[idxR];
 
     // interpolate (linear for now)
     const double lhsTime = TickToTime(cpl.m_iTick);
-    const float lerpX = ezMath::Saturate((float)(x - lhsTime) * cpl.m_fInvDistToNextCp);
+    const float lerpX = WMath::Saturate((float)(x - lhsTime) * cpl.m_fInvDistToNextCp);
 
-    ref_uiAlpha = ezMath::Lerp(cpl.m_Alpha, cpr.m_Alpha, lerpX);
+    ref_uiAlpha = WMath::Lerp(cpl.m_Alpha, cpr.m_Alpha, lerpX);
   }
   }
   else if (m_AlphaCPs.GetCount() == 1)
@@ -444,11 +444,11 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& ref_uiAlpha) const
   }
 }
 
-void ezColorGradient::EvaluateIntensity(double x, float& ref_fIntensity) const
+void WColorGradient::EvaluateIntensity(double x, float& ref_fIntensity) const
 {
   if (m_IntensityCPs.GetCount() != m_IntensityOrder.GetCount())
   {
-    EZ_LOCK(m_InitializationMutex);
+    W_LOCK(m_InitializationMutex);
     // Double-check after acquiring lock
     if (m_IntensityCPs.GetCount() != m_IntensityOrder.GetCount())
     {
@@ -458,24 +458,24 @@ void ezColorGradient::EvaluateIntensity(double x, float& ref_fIntensity) const
 
   ref_fIntensity = 1.0f;
 
-  const ezUInt32 numCPs = m_IntensityCPs.GetCount();
+  const WUInt32 numCPs = m_IntensityCPs.GetCount();
   if (m_IntensityCPs.GetCount() >= 2)
   {
-    const ezInt64 xTick = TimeToTick(x);
+    const WInt64 xTick = TimeToTick(x);
 
     // clamp to left value - use remapping
-    const ezUInt32 firstIdx = m_IntensityOrder[0];
+    const WUInt32 firstIdx = m_IntensityOrder[0];
     if (m_IntensityCPs[firstIdx].m_iTick >= xTick)
     {
       ref_fIntensity = m_IntensityCPs[firstIdx].m_Intensity;
       return;
     }
 
-    ezUInt32 uiControlPoint = 0;
+    WUInt32 uiControlPoint = 0;
 
-    for (ezUInt32 i = 1; i < numCPs; ++i)
+    for (WUInt32 i = 1; i < numCPs; ++i)
     {
-      const ezUInt32 idx = m_IntensityOrder[i];
+      const WUInt32 idx = m_IntensityOrder[i];
       if (m_IntensityCPs[idx].m_iTick >= xTick)
       {
         uiControlPoint = i - 1;
@@ -485,15 +485,15 @@ void ezColorGradient::EvaluateIntensity(double x, float& ref_fIntensity) const
 
     // no point found -> clamp to right value
     {
-      const ezUInt32 lastIdx = m_IntensityOrder[numCPs - 1];
+      const WUInt32 lastIdx = m_IntensityOrder[numCPs - 1];
       ref_fIntensity = m_IntensityCPs[lastIdx].m_Intensity;
       return;
     }
 
   found:
   {
-    const ezUInt32 idxL = m_IntensityOrder[uiControlPoint];
-    const ezUInt32 idxR = m_IntensityOrder[uiControlPoint + 1];
+    const WUInt32 idxL = m_IntensityOrder[uiControlPoint];
+    const WUInt32 idxR = m_IntensityOrder[uiControlPoint + 1];
 
     const IntensityCP& cpl = m_IntensityCPs[idxL];
     const IntensityCP& cpr = m_IntensityCPs[idxR];
@@ -502,9 +502,9 @@ void ezColorGradient::EvaluateIntensity(double x, float& ref_fIntensity) const
 
     // interpolate (linear for now)
     const double lhsTime = TickToTime(cpl.m_iTick);
-    const float lerpX = ezMath::Saturate((float)(x - lhsTime) * cpl.m_fInvDistToNextCp);
+    const float lerpX = WMath::Saturate((float)(x - lhsTime) * cpl.m_fInvDistToNextCp);
 
-    ref_fIntensity = ezMath::Lerp(cpl.m_Intensity, cpr.m_Intensity, lerpX);
+    ref_fIntensity = WMath::Lerp(cpl.m_Intensity, cpr.m_Intensity, lerpX);
   }
   }
   else if (m_IntensityCPs.GetCount() == 1)
@@ -513,20 +513,20 @@ void ezColorGradient::EvaluateIntensity(double x, float& ref_fIntensity) const
   }
 }
 
-ezUInt64 ezColorGradient::GetHeapMemoryUsage() const
+WUInt64 WColorGradient::GetHeapMemoryUsage() const
 {
   return m_ColorCPs.GetHeapMemoryUsage() + m_AlphaCPs.GetHeapMemoryUsage() + m_IntensityCPs.GetHeapMemoryUsage();
 }
 
-void ezColorGradient::Save(ezStreamWriter& inout_stream) const
+void WColorGradient::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 3;
+  const WUInt8 uiVersion = 3;
 
   inout_stream << uiVersion;
 
-  const ezUInt32 numColor = m_ColorCPs.GetCount();
-  const ezUInt32 numAlpha = m_AlphaCPs.GetCount();
-  const ezUInt32 numIntensity = m_IntensityCPs.GetCount();
+  const WUInt32 numColor = m_ColorCPs.GetCount();
+  const WUInt32 numAlpha = m_AlphaCPs.GetCount();
+  const WUInt32 numIntensity = m_IntensityCPs.GetCount();
 
   inout_stream << numColor;
   inout_stream << numAlpha;
@@ -553,24 +553,24 @@ void ezColorGradient::Save(ezStreamWriter& inout_stream) const
   }
 }
 
-void ezColorGradient::Load(ezStreamReader& inout_stream)
+void WColorGradient::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
   inout_stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 3, "Incorrect version '{0}' for ezColorGradient", uiVersion);
+  W_ASSERT_DEV(uiVersion <= 3, "Incorrect version '{0}' for WColorGradient", uiVersion);
 
-  ezUInt32 numColor = 0;
-  ezUInt32 numAlpha = 0;
-  ezUInt32 numIntensity = 0;
+  WUInt32 numColor = 0;
+  WUInt32 numAlpha = 0;
+  WUInt32 numIntensity = 0;
 
   inout_stream >> numColor;
   inout_stream >> numAlpha;
   inout_stream >> numIntensity;
 
-  m_ColorCPs.SetCountUninitialized((ezUInt16)numColor);
-  m_AlphaCPs.SetCountUninitialized((ezUInt16)numAlpha);
-  m_IntensityCPs.SetCountUninitialized((ezUInt16)numIntensity);
+  m_ColorCPs.SetCountUninitialized((WUInt16)numColor);
+  m_AlphaCPs.SetCountUninitialized((WUInt16)numAlpha);
+  m_IntensityCPs.SetCountUninitialized((WUInt16)numIntensity);
 
   if (uiVersion == 1)
   {
@@ -652,21 +652,21 @@ void ezColorGradient::Load(ezStreamReader& inout_stream)
 }
 
 
-ezInt64 ezColorGradient::SnapTimeToTick(double fTimeInSeconds, ezUInt32 uiFramesPerSecond)
+WInt64 WColorGradient::SnapTimeToTick(double fTimeInSeconds, WUInt32 uiFramesPerSecond)
 {
   return SnapTickTo(TimeToTick(fTimeInSeconds), uiFramesPerSecond);
 }
 
-ezInt64 ezColorGradient::SnapTickTo(ezInt64 iTick, ezUInt32 uiFramesPerSecond)
+WInt64 WColorGradient::SnapTickTo(WInt64 iTick, WUInt32 uiFramesPerSecond)
 {
-  const ezUInt32 uiTicksPerStep = 4800 / uiFramesPerSecond;
-  return static_cast<ezInt64>(ezMath::RoundToMultiple(static_cast<double>(iTick), static_cast<double>(uiTicksPerStep)));
+  const WUInt32 uiTicksPerStep = 4800 / uiFramesPerSecond;
+  return static_cast<WInt64>(WMath::RoundToMultiple(static_cast<double>(iTick), static_cast<double>(uiTicksPerStep)));
 }
 
-double ezColorGradient::SnapTimeTo(double fTimeInSeconds, ezUInt32 uiFramesPerSecond)
+double WColorGradient::SnapTimeTo(double fTimeInSeconds, WUInt32 uiFramesPerSecond)
 {
   return TickToTime(SnapTimeToTick(fTimeInSeconds, uiFramesPerSecond));
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_ColorGradient);
+W_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_ColorGradient);

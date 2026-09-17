@@ -9,28 +9,28 @@
 /// critical sections. Only move semantics are supported to prevent accidental lock duplication.
 ///
 /// Template parameters:
-/// - T: Lock type (e.g., ezMutex, ezSharedMutex)
+/// - T: Lock type (e.g., WMutex, WSharedMutex)
 /// - O: Object type being protected
 ///
 /// Typical usage involves creating this as a temporary object to access shared data safely.
 template <typename T, typename O>
-class ezLockedObject
+class WLockedObject
 {
 public:
-  EZ_ALWAYS_INLINE explicit ezLockedObject(T& ref_lock, O* pObject)
+  W_ALWAYS_INLINE explicit WLockedObject(T& ref_lock, O* pObject)
     : m_pLock(&ref_lock)
     , m_pObject(pObject)
   {
     m_pLock->Lock();
   }
 
-  ezLockedObject() = default;
+  WLockedObject() = default;
 
-  EZ_ALWAYS_INLINE ezLockedObject(ezLockedObject<T, O>&& rhs) { *this = std::move(rhs); }
+  W_ALWAYS_INLINE WLockedObject(WLockedObject<T, O>&& rhs) { *this = std::move(rhs); }
 
-  ezLockedObject(const ezLockedObject<T, O>& rhs) = delete;
+  WLockedObject(const WLockedObject<T, O>& rhs) = delete;
 
-  void operator=(const ezLockedObject<T, O>&& rhs)
+  void operator=(const WLockedObject<T, O>&& rhs)
   {
     if (m_pLock)
     {
@@ -43,9 +43,9 @@ public:
     rhs.m_pObject = nullptr;
   }
 
-  void operator=(const ezLockedObject<T, O>& rhs) = delete;
+  void operator=(const WLockedObject<T, O>& rhs) = delete;
 
-  EZ_ALWAYS_INLINE ~ezLockedObject()
+  W_ALWAYS_INLINE ~WLockedObject()
   {
     if (m_pLock)
     {
@@ -54,7 +54,7 @@ public:
   }
 
   /// Whether the encapsulated object exists at all or is nullptr
-  EZ_ALWAYS_INLINE bool isValid() const { return m_pObject != nullptr; }
+  W_ALWAYS_INLINE bool isValid() const { return m_pObject != nullptr; }
 
   O* Borrow() { return m_pObject; }
 

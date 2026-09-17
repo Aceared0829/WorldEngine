@@ -4,23 +4,23 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundBankResource, 1, ezRTTIDefaultAllocator<ezFmodSoundBankResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFmodSoundBankResource, 1, WRTTIDefaultAllocator<WFmodSoundBankResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezFmodSoundBankResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WFmodSoundBankResource);
 
-ezFmodSoundBankResource::ezFmodSoundBankResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WFmodSoundBankResource::WFmodSoundBankResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(WFmodSoundBankResource);
 }
 
-ezFmodSoundBankResource::~ezFmodSoundBankResource()
+WFmodSoundBankResource::~WFmodSoundBankResource()
 {
-  EZ_ASSERT_DEV(m_pSoundBank == nullptr, "Soundbank has not been freed correctly");
+  W_ASSERT_DEV(m_pSoundBank == nullptr, "Soundbank has not been freed correctly");
 }
 
-ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WFmodSoundBankResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pSoundBank)
   {
@@ -30,73 +30,73 @@ ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
 
   if (m_pSoundBankData != nullptr)
   {
-    ezFmod::GetSingleton()->QueueSoundBankDataForDeletion(m_pSoundBankData);
+    WFmod::GetSingleton()->QueueSoundBankDataForDeletion(m_pSoundBankData);
     m_pSoundBankData = nullptr;
   }
 
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(WFmodSoundBankResource);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezFmodSoundBankResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WFmodSoundBankResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezFmodSoundBankResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WFmodSoundBankResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   Stream->ReadBytes(&m_pSoundBank, sizeof(FMOD::Studio::Bank*));
-  Stream->ReadBytes(&m_pSoundBankData, sizeof(ezDataBuffer*));
+  Stream->ReadBytes(&m_pSoundBankData, sizeof(WDataBuffer*));
 
-  EZ_ASSERT_DEV(m_pSoundBank != nullptr, "Invalid Sound Bank pointer in stream");
-  EZ_ASSERT_DEV(m_pSoundBankData != nullptr, "Invalid Sound Bank Data pointer in stream");
+  W_ASSERT_DEV(m_pSoundBank != nullptr, "Invalid Sound Bank pointer in stream");
+  W_ASSERT_DEV(m_pSoundBankData != nullptr, "Invalid Sound Bank Data pointer in stream");
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   // the newly loaded sound bank might contain VCAs that had not been loaded yet
-  ezFmod::GetSingleton()->UpdateSoundGroupVolumes();
+  WFmod::GetSingleton()->UpdateSoundGroupVolumes();
 
   return res;
 }
 
-void ezFmodSoundBankResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WFmodSoundBankResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WFmodSoundBankResource);
 
   if (m_pSoundBankData)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU += (ezUInt32)m_pSoundBankData->GetHeapMemoryUsage() + sizeof(*m_pSoundBankData);
+    out_NewMemoryUsage.m_uiMemoryCPU += (WUInt32)m_pSoundBankData->GetHeapMemoryUsage() + sizeof(*m_pSoundBankData);
   }
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezFmodSoundBankResource, ezFmodSoundBankResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WFmodSoundBankResource, WFmodSoundBankResourceDescriptor)
 {
   // have to create one 'missing' resource
-  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // W_REPORT_FAILURE("This resource type does not support creating data.");
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
 
 
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundBankResource);
+W_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundBankResource);

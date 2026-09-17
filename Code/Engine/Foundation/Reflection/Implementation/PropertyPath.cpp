@@ -5,35 +5,35 @@
 #include <Foundation/Types/UniquePtr.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPropertyPathStep, ezNoBase, 1, ezRTTIDefaultAllocator<ezPropertyPathStep>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WPropertyPathStep, WNoBase, 1, WRTTIDefaultAllocator<WPropertyPathStep>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Property", m_sProperty),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
+    W_MEMBER_PROPERTY("Property", m_sProperty),
+    W_MEMBER_PROPERTY("Index", m_Index),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPropertyPath::ezPropertyPath() = default;
-ezPropertyPath::~ezPropertyPath() = default;
+WPropertyPath::WPropertyPath() = default;
+WPropertyPath::~WPropertyPath() = default;
 
-bool ezPropertyPath::IsValid() const
+bool WPropertyPath::IsValid() const
 {
   return m_bIsValid;
 }
 
-ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const char* szPath)
+WResult WPropertyPath::InitializeFromPath(const WRTTI& rootObjectRtti, const char* szPath)
 {
   m_bIsValid = false;
 
-  const ezStringBuilder sPathParts = szPath;
-  ezStringBuilder sIndex;
-  ezStringBuilder sFieldName;
+  const WStringBuilder sPathParts = szPath;
+  WStringBuilder sIndex;
+  WStringBuilder sFieldName;
 
-  ezTempHybridArray<ezStringView, 4> parts;
+  WTempHybridArray<WStringView, 4> parts;
   sPathParts.Split(false, parts, "/");
 
   // an empty path is valid as well
@@ -41,9 +41,9 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
   m_PathSteps.Clear();
   m_PathSteps.Reserve(parts.GetCount());
 
-  const ezRTTI* pCurRtti = &rootObjectRtti;
+  const WRTTI* pCurRtti = &rootObjectRtti;
 
-  for (const ezStringView& part : parts)
+  for (const WStringView& part : parts)
   {
     if (part.EndsWith("]"))
     {
@@ -59,63 +59,63 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
       sIndex.Clear();
     }
 
-    const ezAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(sFieldName);
+    const WAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(sFieldName);
 
     if (pAbsProp == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     auto& step = m_PathSteps.ExpandAndGetRef();
     step.m_pProperty = pAbsProp;
 
-    if (pAbsProp->GetCategory() == ezPropertyCategory::Array)
+    if (pAbsProp->GetCategory() == WPropertyCategory::Array)
     {
       if (sIndex.IsEmpty())
       {
-        step.m_Index = ezVariant();
+        step.m_Index = WVariant();
       }
       else
       {
-        ezInt32 iIndex;
-        EZ_SUCCEED_OR_RETURN(ezConversionUtils::StringToInt(sIndex, iIndex));
+        WInt32 iIndex;
+        W_SUCCEED_OR_RETURN(WConversionUtils::StringToInt(sIndex, iIndex));
         step.m_Index = iIndex;
       }
     }
-    else if (pAbsProp->GetCategory() == ezPropertyCategory::Set)
+    else if (pAbsProp->GetCategory() == WPropertyCategory::Set)
     {
       if (sIndex.IsEmpty())
       {
-        step.m_Index = ezVariant();
+        step.m_Index = WVariant();
       }
       else
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
-    else if (pAbsProp->GetCategory() == ezPropertyCategory::Map)
+    else if (pAbsProp->GetCategory() == WPropertyCategory::Map)
     {
-      step.m_Index = sIndex.IsEmpty() ? ezVariant() : ezVariant(sIndex.GetData());
+      step.m_Index = sIndex.IsEmpty() ? WVariant() : WVariant(sIndex.GetData());
     }
 
     pCurRtti = pAbsProp->GetSpecificType();
   }
 
   m_bIsValid = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPropertyPath::InitializeFromPath(const ezRTTI* pRootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path)
+WResult WPropertyPath::InitializeFromPath(const WRTTI* pRootObjectRtti, const WArrayPtr<const WPropertyPathStep> path)
 {
   m_bIsValid = false;
 
   m_PathSteps.Clear();
   m_PathSteps.Reserve(path.GetCount());
 
-  const ezRTTI* pCurRtti = pRootObjectRtti;
-  for (const ezPropertyPathStep& pathStep : path)
+  const WRTTI* pCurRtti = pRootObjectRtti;
+  for (const WPropertyPathStep& pathStep : path)
   {
-    const ezAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(pathStep.m_sProperty);
+    const WAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(pathStep.m_sProperty);
     if (pAbsProp == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     auto& step = m_PathSteps.ExpandAndGetRef();
     step.m_pProperty = pAbsProp;
@@ -125,124 +125,124 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI* pRootObjectRtti, const
   }
 
   m_bIsValid = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPropertyPath::WriteToLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
+WResult WPropertyPath::WriteToLeafObject(void* pRootObject, const WRTTI* pType, WDelegate<void(void* pLeaf, const WRTTI& pType)> func) const
 {
-  EZ_ASSERT_DEBUG(
-    m_PathSteps.IsEmpty() || m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class),
+  W_ASSERT_DEBUG(
+    m_PathSteps.IsEmpty() || m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetTypeFlags().IsSet(WTypeFlags::Class),
     "To resolve the leaf object the path needs to be empty or end in a class.");
   return ResolvePath(pRootObject, pType, m_PathSteps.GetArrayPtr(), true, func);
 }
 
-ezResult ezPropertyPath::ReadFromLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
+WResult WPropertyPath::ReadFromLeafObject(void* pRootObject, const WRTTI* pType, WDelegate<void(void* pLeaf, const WRTTI& pType)> func) const
 {
-  EZ_ASSERT_DEBUG(
-    m_PathSteps.IsEmpty() || m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class),
+  W_ASSERT_DEBUG(
+    m_PathSteps.IsEmpty() || m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetTypeFlags().IsSet(WTypeFlags::Class),
     "To resolve the leaf object the path needs to be empty or end in a class.");
   return ResolvePath(pRootObject, pType, m_PathSteps.GetArrayPtr(), false, func);
 }
 
-ezResult ezPropertyPath::WriteProperty(
-  void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const
+WResult WPropertyPath::WriteProperty(
+  void* pRootObject, const WRTTI& type, WDelegate<void(void* pLeafObject, const WRTTI& pLeafType, const WAbstractProperty* pProp, const WVariant& index)> func) const
 {
-  EZ_ASSERT_DEBUG(!m_PathSteps.IsEmpty(), "Call InitializeFromPath before WriteToObject");
+  W_ASSERT_DEBUG(!m_PathSteps.IsEmpty(), "Call InitializeFromPath before WriteToObject");
   return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr().GetSubArray(0, m_PathSteps.GetCount() - 1), true,
-    [this, &func](void* pLeafObject, const ezRTTI& leafType)
+    [this, &func](void* pLeafObject, const WRTTI& leafType)
     {
       auto& lastStep = m_PathSteps[m_PathSteps.GetCount() - 1];
       func(pLeafObject, leafType, lastStep.m_pProperty, lastStep.m_Index);
     });
 }
 
-ezResult ezPropertyPath::ReadProperty(
-  void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const
+WResult WPropertyPath::ReadProperty(
+  void* pRootObject, const WRTTI& type, WDelegate<void(void* pLeafObject, const WRTTI& pLeafType, const WAbstractProperty* pProp, const WVariant& index)> func) const
 {
-  EZ_ASSERT_DEBUG(m_bIsValid, "Call InitializeFromPath before WriteToObject");
+  W_ASSERT_DEBUG(m_bIsValid, "Call InitializeFromPath before WriteToObject");
   return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr().GetSubArray(0, m_PathSteps.GetCount() - 1), false,
-    [this, &func](void* pLeafObject, const ezRTTI& leafType)
+    [this, &func](void* pLeafObject, const WRTTI& leafType)
     {
       auto& lastStep = m_PathSteps[m_PathSteps.GetCount() - 1];
       func(pLeafObject, leafType, lastStep.m_pProperty, lastStep.m_Index);
     });
 }
 
-void ezPropertyPath::SetValue(void* pRootObject, const ezRTTI& type, const ezVariant& value) const
+void WPropertyPath::SetValue(void* pRootObject, const WRTTI& type, const WVariant& value) const
 {
-  // EZ_ASSERT_DEBUG(!m_PathSteps.IsEmpty() &&
+  // W_ASSERT_DEBUG(!m_PathSteps.IsEmpty() &&
   //                    value.CanConvertTo(m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetVariantType()),
   //                "The given value does not match the type at the given path.");
 
-  WriteProperty(pRootObject, type, [&value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index)
+  WriteProperty(pRootObject, type, [&value](void* pLeaf, const WRTTI& type, const WAbstractProperty* pProp, const WVariant& index)
     {
-      EZ_IGNORE_UNUSED(type);
+      W_IGNORE_UNUSED(type);
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Member:
-        ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pLeaf, value);
+      case WPropertyCategory::Member:
+        WReflectionUtils::SetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pProp), pLeaf, value);
         break;
-      case ezPropertyCategory::Array:
-        ezReflectionUtils::SetArrayPropertyValue(static_cast<const ezAbstractArrayProperty*>(pProp), pLeaf, index.Get<ezInt32>(), value);
+      case WPropertyCategory::Array:
+        WReflectionUtils::SetArrayPropertyValue(static_cast<const WAbstractArrayProperty*>(pProp), pLeaf, index.Get<WInt32>(), value);
         break;
-      case ezPropertyCategory::Map:
-        ezReflectionUtils::SetMapPropertyValue(static_cast<const ezAbstractMapProperty*>(pProp), pLeaf, index.Get<ezString>(), value);
+      case WPropertyCategory::Map:
+        WReflectionUtils::SetMapPropertyValue(static_cast<const WAbstractMapProperty*>(pProp), pLeaf, index.Get<WString>(), value);
         break;
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     } })
     .IgnoreResult();
 }
 
-void ezPropertyPath::GetValue(void* pRootObject, const ezRTTI& type, ezVariant& out_value) const
+void WPropertyPath::GetValue(void* pRootObject, const WRTTI& type, WVariant& out_value) const
 {
-  // EZ_ASSERT_DEBUG(!m_PathSteps.IsEmpty() &&
-  //                    m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetVariantType() != ezVariantType::Invalid,
-  //                "The property path of value {} cannot be stored in an ezVariant.", m_PathSteps[m_PathSteps.GetCount() -
+  // W_ASSERT_DEBUG(!m_PathSteps.IsEmpty() &&
+  //                    m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetVariantType() != WVariantType::Invalid,
+  //                "The property path of value {} cannot be stored in an WVariant.", m_PathSteps[m_PathSteps.GetCount() -
   //                1].m_pProperty->GetSpecificType()->GetTypeName());
 
-  ReadProperty(pRootObject, type, [&out_value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index)
+  ReadProperty(pRootObject, type, [&out_value](void* pLeaf, const WRTTI& type, const WAbstractProperty* pProp, const WVariant& index)
     {
-      EZ_IGNORE_UNUSED(type);
+      W_IGNORE_UNUSED(type);
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Member:
-        out_value = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pLeaf);
+      case WPropertyCategory::Member:
+        out_value = WReflectionUtils::GetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pProp), pLeaf);
         break;
-      case ezPropertyCategory::Array:
-        out_value = ezReflectionUtils::GetArrayPropertyValue(static_cast<const ezAbstractArrayProperty*>(pProp), pLeaf, index.Get<ezInt32>());
+      case WPropertyCategory::Array:
+        out_value = WReflectionUtils::GetArrayPropertyValue(static_cast<const WAbstractArrayProperty*>(pProp), pLeaf, index.Get<WInt32>());
         break;
-      case ezPropertyCategory::Map:
-        out_value = ezReflectionUtils::GetMapPropertyValue(static_cast<const ezAbstractMapProperty*>(pProp), pLeaf, index.Get<ezString>());
+      case WPropertyCategory::Map:
+        out_value = WReflectionUtils::GetMapPropertyValue(static_cast<const WAbstractMapProperty*>(pProp), pLeaf, index.Get<WString>());
         break;
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     } })
     .IgnoreResult();
 }
 
-ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, const ezArrayPtr<const ResolvedStep> path, bool bWriteToObject,
-  const ezDelegate<void(void* pLeaf, const ezRTTI& pType)>& func)
+WResult WPropertyPath::ResolvePath(void* pCurrentObject, const WRTTI* pType, const WArrayPtr<const ResolvedStep> path, bool bWriteToObject,
+  const WDelegate<void(void* pLeaf, const WRTTI& pType)>& func)
 {
   if (path.IsEmpty())
   {
     func(pCurrentObject, *pType);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else // Recurse
   {
-    const ezAbstractProperty* pProp = path[0].m_pProperty;
-    const ezRTTI* pPropType = pProp->GetSpecificType();
+    const WAbstractProperty* pProp = path[0].m_pProperty;
+    const WRTTI* pPropType = pProp->GetSpecificType();
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
       {
-        auto pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
+        auto pSpecific = static_cast<const WAbstractMemberProperty*>(pProp);
         if (pPropType->GetProperties().GetCount() > 0)
         {
           void* pSubObject = pSpecific->GetPropertyPointer(pCurrentObject);
@@ -257,7 +257,7 @@ ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, 
             void* pRetrievedSubObject = pPropType->GetAllocator()->Allocate<void>();
             pSpecific->GetValuePtr(pCurrentObject, pRetrievedSubObject);
 
-            ezResult res = ResolvePath(pRetrievedSubObject, pProp->GetSpecificType(), path.GetSubArray(1), bWriteToObject, func);
+            WResult res = ResolvePath(pRetrievedSubObject, pProp->GetSpecificType(), path.GetSubArray(1), bWriteToObject, func);
 
             if (bWriteToObject)
               pSpecific->SetValuePtr(pCurrentObject, pRetrievedSubObject);
@@ -267,25 +267,25 @@ ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, 
           }
           else
           {
-            EZ_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
+            W_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
           }
         }
       }
       break;
-      case ezPropertyCategory::Array:
+      case WPropertyCategory::Array:
       {
-        auto pSpecific = static_cast<const ezAbstractArrayProperty*>(pProp);
+        auto pSpecific = static_cast<const WAbstractArrayProperty*>(pProp);
 
         if (pPropType->GetAllocator()->CanAllocate())
         {
-          const ezUInt32 uiIndex = path[0].m_Index.ConvertTo<ezUInt32>();
+          const WUInt32 uiIndex = path[0].m_Index.ConvertTo<WUInt32>();
           if (uiIndex >= pSpecific->GetCount(pCurrentObject))
-            return EZ_FAILURE;
+            return W_FAILURE;
 
           void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
           pSpecific->GetValue(pCurrentObject, uiIndex, pSubObject);
 
-          ezResult res = ResolvePath(pSubObject, pProp->GetSpecificType(), path.GetSubArray(1), bWriteToObject, func);
+          WResult res = ResolvePath(pSubObject, pProp->GetSpecificType(), path.GetSubArray(1), bWriteToObject, func);
 
           if (bWriteToObject)
             pSpecific->SetValue(pCurrentObject, uiIndex, pSubObject);
@@ -295,16 +295,16 @@ ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, 
         }
         else
         {
-          EZ_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
+          W_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
         }
       }
       break;
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
-        auto pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
-        const ezString& sKey = path[0].m_Index.Get<ezString>();
+        auto pSpecific = static_cast<const WAbstractMapProperty*>(pProp);
+        const WString& sKey = path[0].m_Index.Get<WString>();
         if (!pSpecific->Contains(pCurrentObject, sKey))
-          return EZ_FAILURE;
+          return W_FAILURE;
 
         if (pPropType->GetAllocator()->CanAllocate())
         {
@@ -312,7 +312,7 @@ ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, 
 
           pSpecific->GetValue(pCurrentObject, sKey, pSubObject);
 
-          ezResult res = ResolvePath(pSubObject, pProp->GetSpecificType(), path.GetSubArray(1), bWriteToObject, func);
+          WResult res = ResolvePath(pSubObject, pProp->GetSpecificType(), path.GetSubArray(1), bWriteToObject, func);
 
           if (bWriteToObject)
             pSpecific->Insert(pCurrentObject, sKey, pSubObject);
@@ -322,21 +322,21 @@ ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, 
         }
         else
         {
-          EZ_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
+          W_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
         }
       }
       break;
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Set:
       default:
       {
-        EZ_REPORT_FAILURE("Property of type Set should not be part of an object chain!");
+        W_REPORT_FAILURE("Property of type Set should not be part of an object chain!");
       }
       break;
     }
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 }
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyPath);
+W_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyPath);

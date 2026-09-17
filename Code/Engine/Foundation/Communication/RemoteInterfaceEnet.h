@@ -4,24 +4,24 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
-/// An implementation for ezRemoteInterface built on top of Enet
-class EZ_FOUNDATION_DLL ezRemoteInterfaceEnet : public ezRemoteInterface
+/// An implementation for WRemoteInterface built on top of Enet
+class W_FOUNDATION_DLL WRemoteInterfaceEnet : public WRemoteInterface
 {
 public:
-  ~ezRemoteInterfaceEnet();
+  ~WRemoteInterfaceEnet();
 
   /// Allocates a new instance with the given allocator
-  static ezInternal::NewInstance<ezRemoteInterfaceEnet> Make(ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  static WInternal::NewInstance<WRemoteInterfaceEnet> Make(WAllocator* pAllocator = WFoundation::GetDefaultAllocator());
 
   /// The port through which the connection was started
-  ezUInt16 GetPort() const { return m_uiPort; }
+  WUInt16 GetPort() const { return m_uiPort; }
 
 private:
-  ezRemoteInterfaceEnet();
-  friend class ezRemoteInterfaceEnetImpl;
+  WRemoteInterfaceEnet();
+  friend class WRemoteInterfaceEnetImpl;
 
 protected:
-  ezUInt16 m_uiPort = 0;
+  WUInt16 m_uiPort = 0;
 };
 
 #endif

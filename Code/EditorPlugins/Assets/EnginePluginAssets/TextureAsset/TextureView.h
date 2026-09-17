@@ -2,17 +2,17 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezTextureContext;
+class WTextureContext;
 
-class ezTextureViewContext : public ezEngineProcessViewContext
+class WTextureViewContext : public WEngineProcessViewContext
 {
 public:
-  ezTextureViewContext(ezTextureContext* pMaterialContext);
-  ~ezTextureViewContext();
+  WTextureViewContext(WTextureContext* pMaterialContext);
+  ~WTextureViewContext();
 
 protected:
-  virtual ezViewHandle CreateView() override;
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual WViewHandle CreateView() override;
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg) override;
 
-  ezTextureContext* m_pTextureContext;
+  WTextureContext* m_pTextureContext;
 };

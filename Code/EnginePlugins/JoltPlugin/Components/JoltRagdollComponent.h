@@ -6,14 +6,14 @@
 #include <JoltPlugin/JoltPluginDLL.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 
-class ezJoltUserData;
-class ezSkeletonJoint;
-class ezJoltWorldModule;
-class ezJoltMaterial;
-struct ezMsgRetrieveBoneState;
-struct ezMsgAnimationPoseUpdated;
-struct ezMsgPhysicsAddImpulse;
-struct ezSkeletonResourceGeometry;
+class WJoltUserData;
+class WSkeletonJoint;
+class WJoltWorldModule;
+class WJoltMaterial;
+struct WMsgRetrieveBoneState;
+struct WMsgAnimationPoseUpdated;
+struct WMsgPhysicsAddImpulse;
+struct WSkeletonResourceGeometry;
 
 namespace JPH
 {
@@ -24,33 +24,33 @@ namespace JPH
   class PhysicsSystem;
 } // namespace JPH
 
-using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
-using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+using WSkeletonResourceHandle = WTypedResourceHandle<class WSkeletonResource>;
+using WSurfaceResourceHandle = WTypedResourceHandle<class WSurfaceResource>;
 
-class EZ_JOLTPLUGIN_DLL ezJoltRagdollComponentManager : public ezComponentManager<class ezJoltRagdollComponent, ezBlockStorageType::FreeList>
+class W_JOLTPLUGIN_DLL WJoltRagdollComponentManager : public WComponentManager<class WJoltRagdollComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezJoltRagdollComponentManager(ezWorld* pWorld);
-  ~ezJoltRagdollComponentManager();
+  WJoltRagdollComponentManager(WWorld* pWorld);
+  ~WJoltRagdollComponentManager();
 
   virtual void Initialize() override;
 
-  void DriveAnimatedRagdolls(ezTime deltaTime);
+  void DriveAnimatedRagdolls(WTime deltaTime);
 
 private:
-  friend class ezJoltWorldModule;
-  friend class ezJoltRagdollComponent;
+  friend class WJoltWorldModule;
+  friend class WJoltRagdollComponent;
 
-  ezMutex m_SkeletonsMutex;
-  ezDynamicArray<ezUniquePtr<JPH::SkeletonPose>> m_FreeSkeletonPoses;
+  WMutex m_SkeletonsMutex;
+  WDynamicArray<WUniquePtr<JPH::SkeletonPose>> m_FreeSkeletonPoses;
 
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 };
 
 /// With which pose a ragdoll should start.
-struct ezJoltRagdollStartMode
+struct WJoltRagdollStartMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -61,11 +61,11 @@ struct ezJoltRagdollStartMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltRagdollStartMode);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltRagdollStartMode);
 
-struct ezJoltRagdollAnimMode
+struct WJoltRagdollAnimMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -78,47 +78,47 @@ struct ezJoltRagdollAnimMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltRagdollAnimMode);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltRagdollAnimMode);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Creates a physics ragdoll for an animated mesh and creates animation poses from the physics simulation.
 ///
 /// By activating this component on an animated mesh, the component creates the necessary physics shapes to simulate a falling body.
-/// The component queries the bone transforms from the physics engine and sends ezMsgAnimationPoseUpdated with new poses.
+/// The component queries the bone transforms from the physics engine and sends WMsgAnimationPoseUpdated with new poses.
 ///
 /// Once this component is active on an animated mesh, no other pose generating component should be active anymore, otherwise
 /// multiple components generate conflicting animation poses.
 /// The typical way to use this, is to have the component created and configured, but in an inactive state. Once an NPC dies, the component is activated and all other components that generate animation poses should be deactivated.
 ///
-/// The ragdoll shapes are configured through the ezSkeletonResource.
+/// The ragdoll shapes are configured through the WSkeletonResource.
 ///
 /// Ragdolls are also used to create fake "breakable" objects. This is achieved by building a skinned object out of several pieces
 /// and giving every piece a bone that has no constraint (joint), so that the object just breaks apart.
-class EZ_JOLTPLUGIN_DLL ezJoltRagdollComponent : public ezComponent
+class W_JOLTPLUGIN_DLL WJoltRagdollComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltRagdollComponent, ezComponent, ezJoltRagdollComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltRagdollComponent, WComponent, WJoltRagdollComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltRagdollComponent
+  // WJoltRagdollComponent
 
 public:
-  ezJoltRagdollComponent();
-  ~ezJoltRagdollComponent();
+  WJoltRagdollComponent();
+  ~WJoltRagdollComponent();
 
   /// Returns the object ID used for all bodies in the ragdoll. This can be used to ignore the entire ragdoll during raycasts and such.
-  ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
+  WUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
 
   /// Adjusts how strongly gravity affects the ragdoll.
   ///
@@ -135,19 +135,19 @@ public:
   /// How easily the joints move. Note that scaling the ragdoll up or down affects the forces and thus stiffness needs to be adjusted as well.
   float m_fStiffnessFactor = 1.0f; // [ property ]
 
-  ezUInt8 m_uiWeightCategory = 0;  // [ property ]
-  ezFloat16 m_fWeightScale = 1.0f; // [ property ]
-  ezFloat16 m_fWeightMass = 50.0f; // [ property ]
+  WUInt8 m_uiWeightCategory = 0;  // [ property ]
+  WFloat16 m_fWeightScale = 1.0f; // [ property ]
+  WFloat16 m_fWeightMass = 50.0f; // [ property ]
 
   /// Sets with which pose the ragdoll should start simulating.
-  void SetStartMode(ezEnum<ezJoltRagdollStartMode> mode);                     // [ property ]
-  ezEnum<ezJoltRagdollStartMode> GetStartMode() const { return m_StartMode; } // [ property ]
+  void SetStartMode(WEnum<WJoltRagdollStartMode> mode);                     // [ property ]
+  WEnum<WJoltRagdollStartMode> GetStartMode() const { return m_StartMode; } // [ property ]
 
-  void SetAnimMode(ezEnum<ezJoltRagdollAnimMode> mode);                       // [ property ]
-  ezEnum<ezJoltRagdollAnimMode> GetAnimMode() const { return m_AnimMode; }    // [ property ]
+  void SetAnimMode(WEnum<WJoltRagdollAnimMode> mode);                       // [ property ]
+  WEnum<WJoltRagdollAnimMode> GetAnimMode() const { return m_AnimMode; }    // [ property ]
 
   /// Applies a force to a specific part of the ragdoll.
-  void OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg); // [ msg handler ]
+  void OnMsgPhysicsAddImpulse(WMsgPhysicsAddImpulse& ref_msg); // [ msg handler ]
 
   /// Call this function BEFORE activating the ragdoll component to specify an impulse that shall be applied to the closest body part when it activates.
   ///
@@ -159,10 +159,10 @@ public:
   /// Only a single initial impulse is applied after the ragdoll is created.
   /// If multiple impulses are added through OnMsgPhysicsAddImpulse(), their average start position is used to determine the closest body part to apply the impulse on.
   /// Their impulses are accumulated, so the applied impulse can become quite large.
-  void SetInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength); // [ scriptable ]
+  void SetInitialImpulse(const WVec3& vPosition, const WVec3& vDirectionAndStrength); // [ scriptable ]
 
   /// Adds to the existing initial impulse. See SetInitialImpulse().
-  void AddInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength); // [ scriptable ]
+  void AddInitialImpulse(const WVec3& vPosition, const WVec3& vDirectionAndStrength); // [ scriptable ]
 
   /// How much of the owner object's velocity to transfer to the new ragdoll bodies.
   float m_fOwnerVelocityScale = 1.0f; // [ property ]
@@ -177,7 +177,7 @@ public:
   float m_fCenterAngularVelocity = 0.0f; // [ property ]
 
   /// If center velocity is used, this adds an offset to the object's position to define where the center position should be.
-  ezVec3 m_vCenterPosition = ezVec3::MakeZero(); // [ property ]
+  WVec3 m_vCenterPosition = WVec3::MakeZero(); // [ property ]
 
   /// Allows to override the type of joint to be used for a bone.
   ///
@@ -190,52 +190,52 @@ public:
   ///
   /// Similarly, on a animated mesh that is specifically authored to have separable pieces (like an arm on a robot),
   /// one can separate limbs by setting their joint to 'none'.
-  void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> overrideType);
+  void SetJointTypeOverride(WStringView sJointName, WEnum<WSkeletonJointType> overrideType);
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);          // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;          // [ msg handler ]
-  void OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_msg);              // [ msg handler ]
+  void OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& ref_msg);          // [ msg handler ]
+  void OnRetrieveBoneState(WMsgRetrieveBoneState& ref_msg) const;          // [ msg handler ]
+  void OnInjectPoseCommands(WMsgInjectPoseCommands& ref_msg);              // [ msg handler ]
 
   void SetJointMotorStrength(float fStrength);                              // [ scriptable ]
   float GetJointMotorStrength() const;                                      // [ scriptable ]
-  void FadeJointMotorStrength(float fTargetStrength, ezTime duration);      // [ scriptable ]
+  void FadeJointMotorStrength(float fTargetStrength, WTime duration);      // [ scriptable ]
 
 protected:
-  ezEnum<ezJoltRagdollStartMode> m_StartMode;                               // [ property ]
-  ezEnum<ezJoltRagdollAnimMode> m_AnimMode;                                 // [ property ]
+  WEnum<WJoltRagdollStartMode> m_StartMode;                               // [ property ]
+  WEnum<WJoltRagdollAnimMode> m_AnimMode;                                 // [ property ]
   float m_fGravityFactor = 1.0f;                                            // [ property ]
 
   struct Limb
   {
-    ezUInt16 m_uiPartIndex = ezInvalidJointIndex;
+    WUInt16 m_uiPartIndex = WInvalidJointIndex;
   };
 
   struct LimbConstructionInfo
   {
-    ezTransform m_GlobalTransform;
-    ezUInt16 m_uiJoltPartIndex = ezInvalidJointIndex;
+    WTransform m_GlobalTransform;
+    WUInt16 m_uiJoltPartIndex = WInvalidJointIndex;
   };
 
   void Update(bool bForce);
-  void DriveAnimated(ezTime deltaTime);
-  ezResult EnsureSkeletonIsKnown();
+  void DriveAnimated(WTime deltaTime);
+  WResult EnsureSkeletonIsKnown();
   void CreateLimbsFromBindPose();
   void CreateLimbsFromCurrentMeshPose();
   void DestroyAllLimbs();
-  void CreateLimbsFromPose(const ezMsgAnimationPoseUpdated& pose);
+  void CreateLimbsFromPose(const WMsgAnimationPoseUpdated& pose);
   bool HasCreatedLimbs() const;
-  ezVec3 RetrieveRagdollPose();
+  WVec3 RetrieveRagdollPose();
   void SendAnimationPoseMsg();
-  void ConfigureRagdollPart(void* pRagdollSettingsPart, const ezTransform& globalTransform, ezUInt8 uiCollisionLayer, ezJoltWorldModule& worldModule);
-  void CreateAllLimbs(const ezSkeletonResource& skeletonResource, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
-  void ComputeLimbModelSpaceTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiPoseJointIndex);
-  void ComputeLimbGlobalTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiPoseJointIndex);
-  void CreateLimb(const ezSkeletonResource& skeletonResource, ezMap<ezUInt16, LimbConstructionInfo>& limbConstructionInfos, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
-  JPH::Shape* CreateLimbGeoShape(const LimbConstructionInfo& limbConstructionInfo, const ezSkeletonResourceGeometry& geo, const ezJoltMaterial* pJoltMaterial, const ezQuat& qBoneDirAdjustment, const ezTransform& skeletonRootTransform, ezTransform& out_shapeTransform, float fObjectScale);
-  void CreateAllLimbGeoShapes(const LimbConstructionInfo& limbConstructionInfo, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezSkeletonJoint& thisLimbJoint, const ezSkeletonResource& skeletonResource, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
+  void ConfigureRagdollPart(void* pRagdollSettingsPart, const WTransform& globalTransform, WUInt8 uiCollisionLayer, WJoltWorldModule& worldModule);
+  void CreateAllLimbs(const WSkeletonResource& skeletonResource, const WMsgAnimationPoseUpdated& pose, WJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
+  void ComputeLimbModelSpaceTransform(WTransform& transform, const WMsgAnimationPoseUpdated& pose, WUInt32 uiPoseJointIndex);
+  void ComputeLimbGlobalTransform(WTransform& transform, const WMsgAnimationPoseUpdated& pose, WUInt32 uiPoseJointIndex);
+  void CreateLimb(const WSkeletonResource& skeletonResource, WMap<WUInt16, LimbConstructionInfo>& limbConstructionInfos, WArrayPtr<const WSkeletonResourceGeometry*> geometries, const WMsgAnimationPoseUpdated& pose, WJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
+  JPH::Shape* CreateLimbGeoShape(const LimbConstructionInfo& limbConstructionInfo, const WSkeletonResourceGeometry& geo, const WJoltMaterial* pJoltMaterial, const WQuat& qBoneDirAdjustment, const WTransform& skeletonRootTransform, WTransform& out_shapeTransform, float fObjectScale);
+  void CreateAllLimbGeoShapes(const LimbConstructionInfo& limbConstructionInfo, WArrayPtr<const WSkeletonResourceGeometry*> geometries, const WSkeletonJoint& thisLimbJoint, const WSkeletonResource& skeletonResource, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
   virtual void ApplyPartInitialVelocity(JPH::RagdollSettings* pRagdollSettings);
   void ApplyBodyMass(JPH::RagdollSettings* pRagdollSettings, float fMass);
-  void ApplyInitialImpulse(ezJoltWorldModule& worldModule, float fMaxImpulse);
+  void ApplyInitialImpulse(WJoltWorldModule& worldModule, float fMaxImpulse);
 
   float GetWeight_Scale() const { return m_fWeightScale; }
   float GetWeight_Mass() const { return m_fWeightMass; }
@@ -245,40 +245,40 @@ protected:
   void ResetJointMotors();
   void ApplyJointMotorStrength(float fStrength);
 
-  ezSkeletonResourceHandle m_hSkeleton;
-  ezDynamicArray<ezMat4> m_CurrentLimbTransforms;
-  ezMat4 m_mInvSkeletonRootTransform;
+  WSkeletonResourceHandle m_hSkeleton;
+  WDynamicArray<WMat4> m_CurrentLimbTransforms;
+  WMat4 m_mInvSkeletonRootTransform;
 
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
-  ezUInt32 m_uiJoltUserDataIndex = ezInvalidIndex;
-  ezJoltUserData* m_pJoltUserData = nullptr;
+  WUInt32 m_uiObjectFilterID = WInvalidIndex;
+  WUInt32 m_uiJoltUserDataIndex = WInvalidIndex;
+  WJoltUserData* m_pJoltUserData = nullptr;
 
-  ezJoltWorldModule* m_pJoltWorldModule = nullptr;
+  WJoltWorldModule* m_pJoltWorldModule = nullptr;
   JPH::Ragdoll* m_pRagdoll = nullptr;
-  ezDynamicArray<Limb> m_Limbs;
-  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+  WDynamicArray<Limb> m_Limbs;
+  WTime m_ElapsedTimeSinceUpdate = WTime::MakeZero();
 
-  ezVec3 m_vInitialImpulsePosition = ezVec3::MakeZero();
-  ezVec3 m_vInitialImpulseDirection = ezVec3::MakeZero();
-  ezUInt8 m_uiNumInitialImpulses = 0;
+  WVec3 m_vInitialImpulsePosition = WVec3::MakeZero();
+  WVec3 m_vInitialImpulseDirection = WVec3::MakeZero();
+  WUInt8 m_uiNumInitialImpulses = 0;
   bool m_bIsPowered = false;
 
   struct JointOverride
   {
-    ezTempHashedString m_sJointName;
-    ezEnum<ezSkeletonJointType> m_JointType;
+    WTempHashedString m_sJointName;
+    WEnum<WSkeletonJointType> m_JointType;
   };
 
-  ezDynamicArray<JointOverride> m_JointOverrides;
+  WDynamicArray<JointOverride> m_JointOverrides;
 
-  ezUniquePtr<JPH::SkeletonPose> m_pSkeletonPose;
+  WUniquePtr<JPH::SkeletonPose> m_pSkeletonPose;
 
-  ezTime m_MotorLerpDuration = ezTime::MakeZero();
+  WTime m_MotorLerpDuration = WTime::MakeZero();
   float m_fMotorStrength = 100.0f;
   float m_fMotorTargetStrength = 100.0f;
 
   //////////////////////////////////////////////////////////////////////////
 
-  void SetupLimbJoints(const ezSkeletonResource* pSkeleton, JPH::RagdollSettings* pRagdollSettings);
-  void CreateLimbJoint(const ezSkeletonJoint& thisJoint, void* pParentBodyDesc, void* pThisBodyDesc);
+  void SetupLimbJoints(const WSkeletonResource* pSkeleton, JPH::RagdollSettings* pRagdollSettings);
+  void CreateLimbJoint(const WSkeletonJoint& thisJoint, void* pParentBodyDesc, void* pThisBodyDesc);
 };

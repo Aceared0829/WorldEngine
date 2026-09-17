@@ -9,81 +9,81 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WRenderTargetActivatorComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("RenderTarget", GetRenderTarget, SetRenderTarget)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Target", ezDependencyFlags::Package), new ezRequiredAttribute()),
+    W_RESOURCE_ACCESSOR_PROPERTY("RenderTarget", GetRenderTarget, SetRenderTarget)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Texture_Target", WDependencyFlags::Package), new WRequiredAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new WCategoryAttribute("Rendering"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezRenderTargetActivatorComponent::ezRenderTargetActivatorComponent() = default;
-ezRenderTargetActivatorComponent::~ezRenderTargetActivatorComponent() = default;
+WRenderTargetActivatorComponent::WRenderTargetActivatorComponent() = default;
+WRenderTargetActivatorComponent::~WRenderTargetActivatorComponent() = default;
 
-void ezRenderTargetActivatorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WRenderTargetActivatorComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_hRenderTarget;
 }
 
-void ezRenderTargetActivatorComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WRenderTargetActivatorComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_hRenderTarget;
 }
 
-ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WRenderTargetActivatorComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   if (m_hRenderTarget.IsValid())
   {
-    ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.1f);
-    return EZ_SUCCESS;
+    ref_bounds = WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), 0.1f);
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezRenderTargetActivatorComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WRenderTargetActivatorComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!m_hRenderTarget.IsValid())
     return;
 
-  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, WResourceAcquireMode::BlockTillLoaded);
 
   // The consumer view will sample from the render target texture. This includes shadow maps because we don't know how the texture is used in the material.
-  ezRenderWorld::AddViewDependency(*msg.m_pView, pRenderTarget->GetGALTexture(), ezGALResourceState::ShaderResource);
+  WRenderWorld::AddViewDependency(*msg.m_pView, pRenderTarget->GetGALTexture(), WGALResourceState::ShaderResource);
 
   // only add render target views from main views
   // otherwise every shadow casting light source would activate a render target
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+  if (msg.m_pView->GetCameraUsageHint() != WCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != WCameraUsageHint::EditorView)
     return;
 
   for (auto hView : pRenderTarget->GetAllRenderViews())
   {
-    ezRenderWorld::AddViewToRender(hView);
+    WRenderWorld::AddViewToRender(hView);
   }
 }
 
-void ezRenderTargetActivatorComponent::SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource)
+void WRenderTargetActivatorComponent::SetRenderTarget(const WRenderToTexture2DResourceHandle& hResource)
 {
   m_hRenderTarget = hResource;
 
@@ -91,4 +91,4 @@ void ezRenderTargetActivatorComponent::SetRenderTarget(const ezRenderToTexture2D
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderTargetActivatorComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderTargetActivatorComponent);

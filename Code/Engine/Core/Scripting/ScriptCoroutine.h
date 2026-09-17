@@ -4,21 +4,21 @@
 
 #include <Core/Scripting/ScriptRTTI.h>
 
-class ezScriptWorldModule;
+class WScriptWorldModule;
 
-using ezScriptCoroutineId = ezGenericId<20, 12>;
+using WScriptCoroutineId = WGenericId<20, 12>;
 
 /// A handle to a script coroutine which can be used to determine whether a coroutine is still running
 /// even after the underlying coroutine object has already been deleted.
 ///
-/// \sa ezScriptWorldModule::CreateCoroutine, ezScriptWorldModule::IsCoroutineFinished
-struct ezScriptCoroutineHandle
+/// \sa WScriptWorldModule::CreateCoroutine, WScriptWorldModule::IsCoroutineFinished
+struct WScriptCoroutineHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezScriptCoroutineHandle, ezScriptCoroutineId);
+  W_DECLARE_HANDLE_TYPE(WScriptCoroutineHandle, WScriptCoroutineId);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutineHandle);
-EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezScriptCoroutineHandle);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WScriptCoroutineHandle);
+W_DECLARE_CUSTOM_VARIANT_TYPE(WScriptCoroutineHandle);
 
 /// Base class of script coroutines.
 ///
@@ -28,30 +28,30 @@ EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezScriptCoroutineHandle);
 /// The return value of the Update() function determines whether the Update() function should be called again next frame
 /// or at latest after the specified delay. If the Update() function returns completed the Stop() function is called and the
 /// coroutine object is destroyed.
-/// The ezScriptWorldModule is used to create and manage coroutine objects. The coroutine can then either be started and
-/// scheduled automatically by calling ezScriptWorldModule::StartCoroutine or the
+/// The WScriptWorldModule is used to create and manage coroutine objects. The coroutine can then either be started and
+/// scheduled automatically by calling WScriptWorldModule::StartCoroutine or the
 /// Start/Stop/Update function is called manually if the coroutine is embedded as a subroutine in another coroutine.
-class EZ_CORE_DLL ezScriptCoroutine
+class W_CORE_DLL WScriptCoroutine
 {
 public:
-  ezScriptCoroutine();
-  virtual ~ezScriptCoroutine();
+  WScriptCoroutine();
+  virtual ~WScriptCoroutine();
 
-  ezScriptCoroutineHandle GetHandle() { return ezScriptCoroutineHandle(m_Id); }
+  WScriptCoroutineHandle GetHandle() { return WScriptCoroutineHandle(m_Id); }
 
-  ezStringView GetName() const { return m_sName; }
+  WStringView GetName() const { return m_sName; }
 
-  ezScriptInstance* GetScriptInstance() { return m_pInstance; }
-  const ezScriptInstance* GetScriptInstance() const { return m_pInstance; }
+  WScriptInstance* GetScriptInstance() { return m_pInstance; }
+  const WScriptInstance* GetScriptInstance() const { return m_pInstance; }
 
-  ezScriptWorldModule* GetScriptWorldModule() { return m_pOwnerModule; }
-  const ezScriptWorldModule* GetScriptWorldModule() const { return m_pOwnerModule; }
+  WScriptWorldModule* GetScriptWorldModule() { return m_pOwnerModule; }
+  const WScriptWorldModule* GetScriptWorldModule() const { return m_pOwnerModule; }
 
   struct Result
   {
     struct State
     {
-      using StorageType = ezUInt8;
+      using StorageType = WUInt8;
 
       enum Enum
       {
@@ -64,47 +64,47 @@ public:
       };
     };
 
-    static EZ_ALWAYS_INLINE Result Running(ezTime maxDelay = ezTime::MakeZero()) { return {State::Running, maxDelay}; }
-    static EZ_ALWAYS_INLINE Result Completed() { return {State::Completed}; }
-    static EZ_ALWAYS_INLINE Result Failed() { return {State::Failed}; }
+    static W_ALWAYS_INLINE Result Running(WTime maxDelay = WTime::MakeZero()) { return {State::Running, maxDelay}; }
+    static W_ALWAYS_INLINE Result Completed() { return {State::Completed}; }
+    static W_ALWAYS_INLINE Result Failed() { return {State::Failed}; }
 
-    ezEnum<State> m_State;
-    ezTime m_MaxDelay = ezTime::MakeZero();
+    WEnum<State> m_State;
+    WTime m_MaxDelay = WTime::MakeZero();
   };
 
-  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) = 0;
+  virtual void StartWithVarargs(WArrayPtr<WVariant> arguments) = 0;
   virtual void Stop() {}
-  virtual Result Update(ezTime deltaTimeSinceLastUpdate) = 0;
+  virtual Result Update(WTime deltaTimeSinceLastUpdate) = 0;
 
-  void UpdateAndSchedule(ezTime deltaTimeSinceLastUpdate = ezTime::MakeZero());
+  void UpdateAndSchedule(WTime deltaTimeSinceLastUpdate = WTime::MakeZero());
 
 private:
-  friend class ezScriptWorldModule;
-  void Initialize(ezScriptCoroutineId id, ezStringView sName, ezScriptInstance& inout_instance, ezScriptWorldModule& inout_ownerModule);
+  friend class WScriptWorldModule;
+  void Initialize(WScriptCoroutineId id, WStringView sName, WScriptInstance& inout_instance, WScriptWorldModule& inout_ownerModule);
   void Deinitialize();
 
-  static const ezAbstractFunctionProperty* GetUpdateFunctionProperty();
+  static const WAbstractFunctionProperty* GetUpdateFunctionProperty();
 
-  ezScriptCoroutineId m_Id;
-  ezHashedString m_sName;
-  ezScriptInstance* m_pInstance = nullptr;
-  ezScriptWorldModule* m_pOwnerModule = nullptr;
+  WScriptCoroutineId m_Id;
+  WHashedString m_sName;
+  WScriptInstance* m_pInstance = nullptr;
+  WScriptWorldModule* m_pOwnerModule = nullptr;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutine);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WScriptCoroutine);
 
 /// Base class of coroutines which are implemented in C++ to allow automatic unpacking of the arguments from variants
 template <typename Derived, class... Args>
-class ezTypedScriptCoroutine : public ezScriptCoroutine
+class WTypedScriptCoroutine : public WScriptCoroutine
 {
 private:
   template <std::size_t... I>
-  EZ_ALWAYS_INLINE void StartImpl(ezArrayPtr<ezVariant> arguments, std::index_sequence<I...>)
+  W_ALWAYS_INLINE void StartImpl(WArrayPtr<WVariant> arguments, std::index_sequence<I...>)
   {
-    static_cast<Derived*>(this)->Start(ezVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);
+    static_cast<Derived*>(this)->Start(WVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);
   }
 
-  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) override
+  virtual void StartWithVarargs(WArrayPtr<WVariant> arguments) override
   {
     StartImpl(arguments, std::make_index_sequence<sizeof...(Args)>{});
   }
@@ -113,10 +113,10 @@ private:
 /// Mode that decides what should happen if a new coroutine is created while there is already another coroutine running with the same name
 /// on a given instance.
 ///
-/// \sa ezScriptWorldModule::CreateCoroutine
-struct ezScriptCoroutineCreationMode
+/// \sa WScriptWorldModule::CreateCoroutine
+struct WScriptCoroutineCreationMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -128,90 +128,90 @@ struct ezScriptCoroutineCreationMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutineCreationMode);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WScriptCoroutineCreationMode);
 
 /// A coroutine type that stores a custom allocator.
 ///
 /// The custom allocator allows to pass more data to the created coroutine object than the default allocator.
 /// E.g. this is used to pass the visual script graph to a visual script coroutine without the user needing to know
 /// that the coroutine is actually implemented in visual script.
-class EZ_CORE_DLL ezScriptCoroutineRTTI : public ezRTTI, public ezRefCountingImpl
+class W_CORE_DLL WScriptCoroutineRTTI : public WRTTI, public WRefCountingImpl
 {
 public:
-  ezScriptCoroutineRTTI(ezStringView sName, ezUniquePtr<ezRTTIAllocator>&& pAllocator);
-  ~ezScriptCoroutineRTTI();
+  WScriptCoroutineRTTI(WStringView sName, WUniquePtr<WRTTIAllocator>&& pAllocator);
+  ~WScriptCoroutineRTTI();
 
 private:
-  ezString m_sTypeNameStorage;
-  ezUniquePtr<ezRTTIAllocator> m_pAllocatorStorage;
+  WString m_sTypeNameStorage;
+  WUniquePtr<WRTTIAllocator> m_pAllocatorStorage;
 };
 
 /// A function property that creates an instance of the given coroutine type and starts it immediately.
-class EZ_CORE_DLL ezScriptCoroutineFunctionProperty : public ezScriptFunctionProperty
+class W_CORE_DLL WScriptCoroutineFunctionProperty : public WScriptFunctionProperty
 {
 public:
-  ezScriptCoroutineFunctionProperty(ezStringView sName, const ezSharedPtr<ezScriptCoroutineRTTI>& pType, ezScriptCoroutineCreationMode::Enum creationMode);
-  ~ezScriptCoroutineFunctionProperty();
+  WScriptCoroutineFunctionProperty(WStringView sName, const WSharedPtr<WScriptCoroutineRTTI>& pType, WScriptCoroutineCreationMode::Enum creationMode);
+  ~WScriptCoroutineFunctionProperty();
 
-  virtual ezFunctionType::Enum GetFunctionType() const override { return ezFunctionType::Member; }
-  virtual const ezRTTI* GetReturnType() const override { return nullptr; }
-  virtual ezBitflags<ezPropertyFlags> GetReturnFlags() const override { return ezPropertyFlags::Void; }
-  virtual ezUInt32 GetArgumentCount() const override { return 0; }
+  virtual WFunctionType::Enum GetFunctionType() const override { return WFunctionType::Member; }
+  virtual const WRTTI* GetReturnType() const override { return nullptr; }
+  virtual WBitflags<WPropertyFlags> GetReturnFlags() const override { return WPropertyFlags::Void; }
+  virtual WUInt32 GetArgumentCount() const override { return 0; }
 
-  virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override
+  virtual const WRTTI* GetArgumentType(WUInt32 uiParamIndex) const override
   {
-    EZ_IGNORE_UNUSED(uiParamIndex);
+    W_IGNORE_UNUSED(uiParamIndex);
     return nullptr;
   }
 
-  virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override
+  virtual WBitflags<WPropertyFlags> GetArgumentFlags(WUInt32 uiParamIndex) const override
   {
-    EZ_IGNORE_UNUSED(uiParamIndex);
-    return ezPropertyFlags::Void;
+    W_IGNORE_UNUSED(uiParamIndex);
+    return WPropertyFlags::Void;
   }
 
-  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const override;
+  virtual void Execute(void* pInstance, WArrayPtr<WVariant> arguments, WVariant& out_returnValue) const override;
 
 protected:
-  ezSharedPtr<ezScriptCoroutineRTTI> m_pType;
-  ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
+  WSharedPtr<WScriptCoroutineRTTI> m_pType;
+  WEnum<WScriptCoroutineCreationMode> m_CreationMode;
 };
 
 /// A message handler that creates an instance of the given coroutine type and starts it immediately.
-class EZ_CORE_DLL ezScriptCoroutineMessageHandler : public ezScriptMessageHandler
+class W_CORE_DLL WScriptCoroutineMessageHandler : public WScriptMessageHandler
 {
 public:
-  ezScriptCoroutineMessageHandler(ezStringView sName, const ezScriptMessageDesc& desc, const ezSharedPtr<ezScriptCoroutineRTTI>& pType, ezScriptCoroutineCreationMode::Enum creationMode);
-  ~ezScriptCoroutineMessageHandler();
+  WScriptCoroutineMessageHandler(WStringView sName, const WScriptMessageDesc& desc, const WSharedPtr<WScriptCoroutineRTTI>& pType, WScriptCoroutineCreationMode::Enum creationMode);
+  ~WScriptCoroutineMessageHandler();
 
-  static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
+  static void Dispatch(WAbstractMessageHandler* pSelf, void* pInstance, WMessage& ref_msg);
 
 protected:
-  ezHashedString m_sName;
-  ezSharedPtr<ezScriptCoroutineRTTI> m_pType;
-  ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
+  WHashedString m_sName;
+  WSharedPtr<WScriptCoroutineRTTI> m_pType;
+  WEnum<WScriptCoroutineCreationMode> m_CreationMode;
 };
 
 /// HashHelper implementation so coroutine handles can be used as key in a hash table. Also needed to store in a variant.
 template <>
-struct ezHashHelper<ezScriptCoroutineHandle>
+struct WHashHelper<WScriptCoroutineHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezScriptCoroutineHandle value) { return ezHashHelper<ezUInt32>::Hash(value.GetInternalID().m_Data); }
+  W_ALWAYS_INLINE static WUInt32 Hash(WScriptCoroutineHandle value) { return WHashHelper<WUInt32>::Hash(value.GetInternalID().m_Data); }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezScriptCoroutineHandle a, ezScriptCoroutineHandle b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(WScriptCoroutineHandle a, WScriptCoroutineHandle b) { return a == b; }
 };
 
 /// Currently not implemented as it is not needed for coroutine handles.
-EZ_ALWAYS_INLINE void operator<<(ezStreamWriter& inout_stream, const ezScriptCoroutineHandle& hValue)
+W_ALWAYS_INLINE void operator<<(WStreamWriter& inout_stream, const WScriptCoroutineHandle& hValue)
 {
-  EZ_IGNORE_UNUSED(inout_stream);
-  EZ_IGNORE_UNUSED(hValue);
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(hValue);
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
-EZ_ALWAYS_INLINE void operator>>(ezStreamReader& inout_stream, ezScriptCoroutineHandle& ref_hValue)
+W_ALWAYS_INLINE void operator>>(WStreamReader& inout_stream, WScriptCoroutineHandle& ref_hValue)
 {
-  EZ_IGNORE_UNUSED(inout_stream);
-  EZ_IGNORE_UNUSED(ref_hValue);
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(ref_hValue);
+  W_ASSERT_NOT_IMPLEMENTED;
 }

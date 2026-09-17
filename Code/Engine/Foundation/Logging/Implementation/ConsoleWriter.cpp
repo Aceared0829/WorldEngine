@@ -5,78 +5,78 @@
 
 #include <ConsoleWriter_Platform.inl>
 
-ezLog::TimestampMode ezLogWriter::Console::s_TimestampMode = ezLog::TimestampMode::None;
+WLog::TimestampMode WLogWriter::Console::s_TimestampMode = WLog::TimestampMode::None;
 
-void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData)
+void WLogWriter::Console::LogMessageHandler(const WLoggingEventData& eventData)
 {
-  ezStringBuilder sTimestamp;
-  ezLog::GenerateFormattedTimestamp(s_TimestampMode, sTimestamp);
+  WStringBuilder sTimestamp;
+  WLog::GenerateFormattedTimestamp(s_TimestampMode, sTimestamp);
 
-  static ezMutex WriterLock; // will only be created if this writer is used at all
-  EZ_LOCK(WriterLock);
+  static WMutex WriterLock; // will only be created if this writer is used at all
+  W_LOCK(WriterLock);
 
-  if (eventData.m_EventType == ezLogMsgType::BeginGroup)
+  if (eventData.m_EventType == WLogMsgType::BeginGroup)
     printf("\n");
 
-  ezTempHybridArray<char, 11> indentation;
+  WTempHybridArray<char, 11> indentation;
   indentation.SetCount(eventData.m_uiIndentation + 1, ' ');
   indentation[eventData.m_uiIndentation] = 0;
 
-  ezStringBuilder sTemp1, sTemp2;
+  WStringBuilder sTemp1, sTemp2;
 
   switch (eventData.m_EventType)
   {
-    case ezLogMsgType::Flush:
+    case WLogMsgType::Flush:
       fflush(stdout);
       break;
 
-    case ezLogMsgType::BeginGroup:
+    case WLogMsgType::BeginGroup:
       SetConsoleColor(0x02);
       printf("%s+++++ %s (%s) +++++\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), eventData.m_sTag.GetData(sTemp2));
       break;
 
-    case ezLogMsgType::EndGroup:
+    case WLogMsgType::EndGroup:
       SetConsoleColor(0x02);
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
       printf("%s----- %s (%.6f sec)-----\n\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), eventData.m_fSeconds);
 #else
       printf("%s----- %s (%s)-----\n\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), "timing info not available");
 #endif
       break;
 
-    case ezLogMsgType::ErrorMsg:
+    case WLogMsgType::ErrorMsg:
       SetConsoleColor(0x0C);
       printf("%s%sError: %s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       fflush(stdout);
       break;
 
-    case ezLogMsgType::SeriousWarningMsg:
+    case WLogMsgType::SeriousWarningMsg:
       SetConsoleColor(0x0C);
       printf("%s%sSeriously: %s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
-    case ezLogMsgType::WarningMsg:
+    case WLogMsgType::WarningMsg:
       SetConsoleColor(0x0E);
       printf("%s%sWarning: %s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
-    case ezLogMsgType::SuccessMsg:
+    case WLogMsgType::SuccessMsg:
       SetConsoleColor(0x0A);
       printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       fflush(stdout);
       break;
 
-    case ezLogMsgType::InfoMsg:
+    case WLogMsgType::InfoMsg:
       SetConsoleColor(0x07);
       printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
-    case ezLogMsgType::DevMsg:
+    case WLogMsgType::DevMsg:
       SetConsoleColor(0x08);
       printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
-    case ezLogMsgType::DebugMsg:
+    case WLogMsgType::DebugMsg:
       SetConsoleColor(0x09);
       printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
@@ -85,14 +85,14 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
       SetConsoleColor(0x0D);
       printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
 
-      ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
+      WLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
       break;
   }
 
   SetConsoleColor(0x07);
 }
 
-void ezLogWriter::Console::SetTimestampMode(ezLog::TimestampMode mode)
+void WLogWriter::Console::SetTimestampMode(WLog::TimestampMode mode)
 {
   s_TimestampMode = mode;
 }

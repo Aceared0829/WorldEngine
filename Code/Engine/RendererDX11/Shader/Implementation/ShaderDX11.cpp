@@ -5,18 +5,18 @@
 
 #include <d3d11.h>
 
-ezGALShaderDX11::ezGALShaderDX11(const ezGALShaderCreationDescription& Description)
-  : ezGALShader(Description)
+WGALShaderDX11::WGALShaderDX11(const WGALShaderCreationDescription& Description)
+  : WGALShader(Description)
 
 {
 }
 
-ezGALShaderDX11::~ezGALShaderDX11() = default;
+WGALShaderDX11::~WGALShaderDX11() = default;
 
-void ezGALShaderDX11::SetDebugName(ezStringView sName) const
+void WGALShaderDX11::SetDebugName(WStringView sName) const
 {
   const char* szName = sName.GetStartPointer();
-  const ezUInt32 uiLength = sName.GetElementCount();
+  const WUInt32 uiLength = sName.GetElementCount();
 
   if (m_pVertexShader != nullptr)
   {
@@ -49,90 +49,90 @@ void ezGALShaderDX11::SetDebugName(ezStringView sName) const
   }
 }
 
-ezResult ezGALShaderDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALShaderDX11::InitPlatform(WGALDevice* pDevice)
 {
   m_pDevice = pDevice;
-  EZ_SUCCEED_OR_RETURN(CreateBindingMapping(true));
-  EZ_SUCCEED_OR_RETURN(CreateLayouts(pDevice, false));
+  W_SUCCEED_OR_RETURN(CreateBindingMapping(true));
+  W_SUCCEED_OR_RETURN(CreateLayouts(pDevice, false));
 
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
   ID3D11Device* pD3D11Device = pDXDevice->GetDXDevice();
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::VertexShader))
+  if (m_Description.HasByteCodeForStage(WGALShaderStage::VertexShader))
   {
-    if (FAILED(pD3D11Device->CreateVertexShader(m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetByteCode(),
-          m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetSize(), nullptr, &m_pVertexShader)))
+    if (FAILED(pD3D11Device->CreateVertexShader(m_Description.m_ByteCodes[WGALShaderStage::VertexShader]->GetByteCode(),
+          m_Description.m_ByteCodes[WGALShaderStage::VertexShader]->GetSize(), nullptr, &m_pVertexShader)))
     {
-      ezLog::Error("Couldn't create native vertex shader from bytecode!");
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create native vertex shader from bytecode!");
+      return W_FAILURE;
     }
   }
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::HullShader))
+  if (m_Description.HasByteCodeForStage(WGALShaderStage::HullShader))
   {
-    if (FAILED(pD3D11Device->CreateHullShader(m_Description.m_ByteCodes[ezGALShaderStage::HullShader]->GetByteCode(),
-          m_Description.m_ByteCodes[ezGALShaderStage::HullShader]->GetSize(), nullptr, &m_pHullShader)))
+    if (FAILED(pD3D11Device->CreateHullShader(m_Description.m_ByteCodes[WGALShaderStage::HullShader]->GetByteCode(),
+          m_Description.m_ByteCodes[WGALShaderStage::HullShader]->GetSize(), nullptr, &m_pHullShader)))
     {
-      ezLog::Error("Couldn't create native hull shader from bytecode!");
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create native hull shader from bytecode!");
+      return W_FAILURE;
     }
   }
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::DomainShader))
+  if (m_Description.HasByteCodeForStage(WGALShaderStage::DomainShader))
   {
-    if (FAILED(pD3D11Device->CreateDomainShader(m_Description.m_ByteCodes[ezGALShaderStage::DomainShader]->GetByteCode(),
-          m_Description.m_ByteCodes[ezGALShaderStage::DomainShader]->GetSize(), nullptr, &m_pDomainShader)))
+    if (FAILED(pD3D11Device->CreateDomainShader(m_Description.m_ByteCodes[WGALShaderStage::DomainShader]->GetByteCode(),
+          m_Description.m_ByteCodes[WGALShaderStage::DomainShader]->GetSize(), nullptr, &m_pDomainShader)))
     {
-      ezLog::Error("Couldn't create native domain shader from bytecode!");
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create native domain shader from bytecode!");
+      return W_FAILURE;
     }
   }
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::GeometryShader))
+  if (m_Description.HasByteCodeForStage(WGALShaderStage::GeometryShader))
   {
-    if (FAILED(pD3D11Device->CreateGeometryShader(m_Description.m_ByteCodes[ezGALShaderStage::GeometryShader]->GetByteCode(),
-          m_Description.m_ByteCodes[ezGALShaderStage::GeometryShader]->GetSize(), nullptr, &m_pGeometryShader)))
+    if (FAILED(pD3D11Device->CreateGeometryShader(m_Description.m_ByteCodes[WGALShaderStage::GeometryShader]->GetByteCode(),
+          m_Description.m_ByteCodes[WGALShaderStage::GeometryShader]->GetSize(), nullptr, &m_pGeometryShader)))
     {
-      ezLog::Error("Couldn't create native geometry shader from bytecode!");
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create native geometry shader from bytecode!");
+      return W_FAILURE;
     }
   }
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::PixelShader))
+  if (m_Description.HasByteCodeForStage(WGALShaderStage::PixelShader))
   {
-    if (FAILED(pD3D11Device->CreatePixelShader(m_Description.m_ByteCodes[ezGALShaderStage::PixelShader]->GetByteCode(),
-          m_Description.m_ByteCodes[ezGALShaderStage::PixelShader]->GetSize(), nullptr, &m_pPixelShader)))
+    if (FAILED(pD3D11Device->CreatePixelShader(m_Description.m_ByteCodes[WGALShaderStage::PixelShader]->GetByteCode(),
+          m_Description.m_ByteCodes[WGALShaderStage::PixelShader]->GetSize(), nullptr, &m_pPixelShader)))
     {
-      ezLog::Error("Couldn't create native pixel shader from bytecode!");
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create native pixel shader from bytecode!");
+      return W_FAILURE;
     }
   }
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::ComputeShader))
+  if (m_Description.HasByteCodeForStage(WGALShaderStage::ComputeShader))
   {
-    if (FAILED(pD3D11Device->CreateComputeShader(m_Description.m_ByteCodes[ezGALShaderStage::ComputeShader]->GetByteCode(),
-          m_Description.m_ByteCodes[ezGALShaderStage::ComputeShader]->GetSize(), nullptr, &m_pComputeShader)))
+    if (FAILED(pD3D11Device->CreateComputeShader(m_Description.m_ByteCodes[WGALShaderStage::ComputeShader]->GetByteCode(),
+          m_Description.m_ByteCodes[WGALShaderStage::ComputeShader]->GetSize(), nullptr, &m_pComputeShader)))
     {
-      ezLog::Error("Couldn't create native compute shader from bytecode!");
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create native compute shader from bytecode!");
+      return W_FAILURE;
     }
   }
 
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALShaderDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALShaderDX11::DeInitPlatform(WGALDevice* pDevice)
 {
   DestroyBindingMapping();
   DestroyLayouts(pDevice);
 
-  EZ_GAL_DX11_RELEASE(m_pVertexShader);
-  EZ_GAL_DX11_RELEASE(m_pHullShader);
-  EZ_GAL_DX11_RELEASE(m_pDomainShader);
-  EZ_GAL_DX11_RELEASE(m_pGeometryShader);
-  EZ_GAL_DX11_RELEASE(m_pPixelShader);
-  EZ_GAL_DX11_RELEASE(m_pComputeShader);
+  W_GAL_DX11_RELEASE(m_pVertexShader);
+  W_GAL_DX11_RELEASE(m_pHullShader);
+  W_GAL_DX11_RELEASE(m_pDomainShader);
+  W_GAL_DX11_RELEASE(m_pGeometryShader);
+  W_GAL_DX11_RELEASE(m_pPixelShader);
+  W_GAL_DX11_RELEASE(m_pComputeShader);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

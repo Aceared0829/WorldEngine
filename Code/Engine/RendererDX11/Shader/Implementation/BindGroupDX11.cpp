@@ -1,32 +1,32 @@
 #include <RendererDX11/Shader/BindGroupDX11.h>
 
-ezGALBindGroupDX11::ezGALBindGroupDX11(const ezGALBindGroupCreationDescription& Description)
-  : ezGALBindGroup(Description)
+WGALBindGroupDX11::WGALBindGroupDX11(const WGALBindGroupCreationDescription& Description)
+  : WGALBindGroup(Description)
 {
 }
 
-ezGALBindGroupDX11::~ezGALBindGroupDX11() = default;
+WGALBindGroupDX11::~WGALBindGroupDX11() = default;
 
-ezResult ezGALBindGroupDX11::InitPlatform(ezGALDevice*)
+WResult WGALBindGroupDX11::InitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALBindGroupDX11::DeInitPlatform(ezGALDevice*)
+WResult WGALBindGroupDX11::DeInitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALBindGroupDX11::Invalidate(ezGALDevice*)
+void WGALBindGroupDX11::Invalidate(WGALDevice*)
 {
   m_bInvalidated = true;
 }
 
-bool ezGALBindGroupDX11::IsInvalidated() const
+bool WGALBindGroupDX11::IsInvalidated() const
 {
   return m_bInvalidated;
 }
 
-void ezGALBindGroupDX11::SetDebugNamePlatform(const char*) const
+void WGALBindGroupDX11::SetDebugNamePlatform(const char*) const
 {
 }

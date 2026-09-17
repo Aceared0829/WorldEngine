@@ -8,15 +8,15 @@
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-struct ezMsgExtractRenderData;
+struct WMsgExtractRenderData;
 
 /// A particle system stores all data for one 'layer' of a running particle effect
-class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
+class W_PARTICLEPLUGIN_DLL WParticleSystemInstance
 {
 public:
-  ezParticleSystemInstance();
+  WParticleSystemInstance();
 
-  void Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier);
+  void Construct(WUInt32 uiMaxParticles, WWorld* pWorld, WParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier);
   void Destruct();
 
   bool IsVisible() const { return m_bVisible; }
@@ -26,88 +26,88 @@ public:
 
   bool HasActiveParticles() const;
 
-  void ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate);
+  void ConfigureFromTemplate(const WParticleSystemDescriptor* pTemplate);
   void Finalize();
 
-  void ReinitializeStreamProcessors(const ezParticleSystemDescriptor* pTemplate);
+  void ReinitializeStreamProcessors(const WParticleSystemDescriptor* pTemplate);
 
-  void CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate);
+  void CreateStreamProcessors(const WParticleSystemDescriptor* pTemplate);
 
   void SetupOptionalStreams();
 
-  void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
-  const ezTransform& GetTransform() const { return m_Transform; }
-  const ezVec3& GetParticleStartVelocity() const { return m_vParticleStartVelocity; }
+  void SetTransform(const WTransform& transform, const WVec3& vParticleStartVelocity);
+  const WTransform& GetTransform() const { return m_Transform; }
+  const WVec3& GetParticleStartVelocity() const { return m_vParticleStartVelocity; }
 
-  ezParticleSystemState::Enum Update(const ezTime& diff);
+  WParticleSystemState::Enum Update(const WTime& diff);
 
-  ezWorld* GetWorld() const { return m_pWorld; }
+  WWorld* GetWorld() const { return m_pWorld; }
 
-  ezUInt64 GetMaxParticles() const { return m_StreamGroup.GetNumElements(); }
-  ezUInt64 GetNumActiveParticles() const { return m_StreamGroup.GetNumActiveElements(); }
+  WUInt64 GetMaxParticles() const { return m_StreamGroup.GetNumElements(); }
+  WUInt64 GetNumActiveParticles() const { return m_StreamGroup.GetNumActiveElements(); }
 
 
 
   /// Returns the desired stream, if it already exists, nullptr otherwise.
-  ezProcessingStream* QueryStream(ezTempHashedString sName, ezProcessingStream::DataType type) const;
+  WProcessingStream* QueryStream(WTempHashedString sName, WProcessingStream::DataType type) const;
 
   /// Returns the desired stream, if it already exists, creates it otherwise.
-  void CreateStream(ezStringView sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& ref_binding, bool bExpectInitializedValue);
+  void CreateStream(WStringView sName, WProcessingStream::DataType type, WProcessingStream** pStream, WParticleStreamBinding& ref_binding, bool bExpectInitializedValue);
 
-  void ProcessEventQueue(ezParticleEventQueue queue);
+  void ProcessEventQueue(WParticleEventQueue queue);
 
-  ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
-  ezParticleWorldModule* GetOwnerWorldModule() const;
+  WParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
+  WParticleWorldModule* GetOwnerWorldModule() const;
 
-  void ExtractSystemRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const;
+  void ExtractSystemRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const;
 
-  using ParticleDeathHandler = ezEvent<const ezStreamGroupElementRemovedEvent&>::Handler;
+  using ParticleDeathHandler = WEvent<const WStreamGroupElementRemovedEvent&>::Handler;
 
   void AddParticleDeathEventHandler(ParticleDeathHandler handler);
   void RemoveParticleDeathEventHandler(ParticleDeathHandler handler);
 
-  void SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxParticleSize);
-  const ezBoundingBoxSphere& GetBoundingVolume() const { return m_BoundingVolume; }
+  void SetBoundingVolume(const WBoundingBoxSphere& volume, float fMaxParticleSize);
+  const WBoundingBoxSphere& GetBoundingVolume() const { return m_BoundingVolume; }
 
   bool IsContinuous() const;
 
   float GetSpawnCountMultiplier() const { return m_fSpawnCountMultiplier; }
 
 private:
-  bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
-  bool IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
-  bool IsBehaviorConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
-  bool IsTypeConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
-  bool IsFinalizerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
+  bool IsEmitterConfigEqual(const WParticleSystemDescriptor* pTemplate) const;
+  bool IsInitializerConfigEqual(const WParticleSystemDescriptor* pTemplate) const;
+  bool IsBehaviorConfigEqual(const WParticleSystemDescriptor* pTemplate) const;
+  bool IsTypeConfigEqual(const WParticleSystemDescriptor* pTemplate) const;
+  bool IsFinalizerConfigEqual(const WParticleSystemDescriptor* pTemplate) const;
 
   void CreateStreamZeroInitializers();
 
-  ezSmallArray<ezParticleEmitter*, 2> m_Emitters;
-  ezSmallArray<ezParticleInitializer*, 6> m_Initializers;
-  ezSmallArray<ezParticleBehavior*, 6> m_Behaviors;
-  ezSmallArray<ezParticleFinalizer*, 2> m_Finalizers;
-  ezSmallArray<ezParticleType*, 2> m_Types;
+  WSmallArray<WParticleEmitter*, 2> m_Emitters;
+  WSmallArray<WParticleInitializer*, 6> m_Initializers;
+  WSmallArray<WParticleBehavior*, 6> m_Behaviors;
+  WSmallArray<WParticleFinalizer*, 2> m_Finalizers;
+  WSmallArray<WParticleType*, 2> m_Types;
 
   bool m_bVisible; // typically used in editor to hide a system
   bool m_bEmitterEnabled;
-  ezParticleEffectInstance* m_pOwnerEffect;
-  ezWorld* m_pWorld;
-  ezTransform m_Transform;
-  ezVec3 m_vParticleStartVelocity;
+  WParticleEffectInstance* m_pOwnerEffect;
+  WWorld* m_pWorld;
+  WTransform m_Transform;
+  WVec3 m_vParticleStartVelocity;
   float m_fSpawnCountMultiplier = 1.0f;
 
-  ezProcessingStreamGroup m_StreamGroup;
+  WProcessingStreamGroup m_StreamGroup;
 
   struct StreamInfo
   {
-    ezHashedString m_sName;
+    WHashedString m_sName;
     bool m_bGetsInitialized = false;
     bool m_bInUse = false;
-    ezProcessingStreamProcessor* m_pDefaultInitializer = nullptr;
+    WProcessingStreamProcessor* m_pDefaultInitializer = nullptr;
   };
 
-  ezSmallArray<StreamInfo, 16> m_StreamInfo;
+  WSmallArray<StreamInfo, 16> m_StreamInfo;
 
   // culling data
-  ezBoundingBoxSphere m_BoundingVolume;
+  WBoundingBoxSphere m_BoundingVolume;
 };

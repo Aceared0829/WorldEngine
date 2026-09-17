@@ -9,33 +9,33 @@
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WTimedDeathComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MinDelay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1.0))),
-    EZ_MEMBER_PROPERTY("DelayRange", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_RESOURCE_MEMBER_PROPERTY("TimeoutPrefab", m_hTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    W_MEMBER_PROPERTY("MinDelay", m_MinDelay)->AddAttributes(new WClampValueAttribute(WTime(), WVariant()), new WDefaultValueAttribute(WTime::MakeFromSeconds(1.0))),
+    W_MEMBER_PROPERTY("DelayRange", m_DelayRange)->AddAttributes(new WClampValueAttribute(WTime(), WVariant())),
+    W_RESOURCE_MEMBER_PROPERTY("TimeoutPrefab", m_hTimeoutPrefab)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Prefab", WDependencyFlags::Package)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnTriggered),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new WCategoryAttribute("Gameplay"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTimedDeathComponent::ezTimedDeathComponent() = default;
-ezTimedDeathComponent::~ezTimedDeathComponent() = default;
+WTimedDeathComponent::WTimedDeathComponent() = default;
+WTimedDeathComponent::~WTimedDeathComponent() = default;
 
-void ezTimedDeathComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WTimedDeathComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -45,10 +45,10 @@ void ezTimedDeathComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_hTimeoutPrefab;
 }
 
-void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WTimedDeathComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -57,34 +57,34 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_hTimeoutPrefab;
 }
 
-void ezTimedDeathComponent::OnSimulationStarted()
+void WTimedDeathComponent::OnSimulationStarted()
 {
-  ezMsgComponentInternalTrigger msg;
+  WMsgComponentInternalTrigger msg;
   msg.m_sMessage.Assign("Suicide");
 
-  ezWorld* pWorld = GetWorld();
+  WWorld* pWorld = GetWorld();
 
-  const ezTime tKill = ezTime::MakeFromSeconds(pWorld->GetRandomNumberGenerator().DoubleMinMax(m_MinDelay.GetSeconds(), m_MinDelay.GetSeconds() + m_DelayRange.GetSeconds()));
+  const WTime tKill = WTime::MakeFromSeconds(pWorld->GetRandomNumberGenerator().DoubleMinMax(m_MinDelay.GetSeconds(), m_MinDelay.GetSeconds() + m_DelayRange.GetSeconds()));
 
   PostMessage(msg, tKill);
 
   // make sure the prefab is available when the component dies
   if (m_hTimeoutPrefab.IsValid())
   {
-    ezResourceManager::PreloadResource(m_hTimeoutPrefab);
+    WResourceManager::PreloadResource(m_hTimeoutPrefab);
   }
 }
 
-void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
+void WTimedDeathComponent::OnTriggered(WMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_sMessage != ezTempHashedString("Suicide"))
+  if (msg.m_sMessage != WTempHashedString("Suicide"))
     return;
 
   if (m_hTimeoutPrefab.IsValid())
   {
-    ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WPrefabResource> pPrefab(m_hTimeoutPrefab, WResourceAcquireMode::AllowLoadingFallback);
 
-    ezPrefabInstantiationOptions options;
+    WPrefabInstantiationOptions options;
     options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
 
     pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), options);
@@ -99,15 +99,15 @@ void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezTimedDeathComponentPatch_1_2 : public ezGraphPatch
+class WTimedDeathComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezTimedDeathComponentPatch_1_2()
-    : ezGraphPatch("ezTimedDeathComponent", 2)
+  WTimedDeathComponentPatch_1_2()
+    : WGraphPatch("WTimedDeathComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Min Delay", "MinDelay");
     pNode->RenameProperty("Delay Range", "DelayRange");
@@ -115,8 +115,8 @@ public:
   }
 };
 
-ezTimedDeathComponentPatch_1_2 g_ezTimedDeathComponentPatch_1_2;
+WTimedDeathComponentPatch_1_2 g_WTimedDeathComponentPatch_1_2;
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_TimedDeathComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_TimedDeathComponent);

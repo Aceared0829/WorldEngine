@@ -1,22 +1,22 @@
 #pragma once
 
 template <typename PathStateType>
-void ezPathSearch<PathStateType>::ClearPathStates()
+void WPathSearch<PathStateType>::ClearPathStates()
 {
   m_PathStates.Clear();
   m_StateQueue.Clear();
 }
 
 template <typename PathStateType>
-ezInt64 ezPathSearch<PathStateType>::FindBestNodeToExpand(PathStateType*& out_pPathState)
+WInt64 WPathSearch<PathStateType>::FindBestNodeToExpand(PathStateType*& out_pPathState)
 {
-  float fLowestEstimation = ezMath::Infinity<float>();
+  float fLowestEstimation = WMath::Infinity<float>();
   out_pPathState = nullptr;
-  ezUInt32 iBestInQueue = 0;
+  WUInt32 iBestInQueue = 0;
 
-  for (ezUInt32 i = 0; i < m_StateQueue.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_StateQueue.GetCount(); ++i)
   {
-    const ezInt64 iNodeIndex = m_StateQueue[i];
+    const WInt64 iNodeIndex = m_StateQueue[i];
 
     PathStateType* pState = &m_PathStates[iNodeIndex];
 
@@ -28,16 +28,16 @@ ezInt64 ezPathSearch<PathStateType>::FindBestNodeToExpand(PathStateType*& out_pP
     }
   }
 
-  EZ_ASSERT_DEV(out_pPathState != nullptr, "Implementation Error");
+  W_ASSERT_DEV(out_pPathState != nullptr, "Implementation Error");
 
-  const ezInt64 iBestNodeIndex = m_StateQueue[iBestInQueue];
+  const WInt64 iBestNodeIndex = m_StateQueue[iBestInQueue];
   m_StateQueue.RemoveAtAndSwap(iBestInQueue);
 
   return iBestNodeIndex;
 }
 
 template <typename PathStateType>
-void ezPathSearch<PathStateType>::FillOutPathResult(ezInt64 iEndNodeIndex, ezDeque<PathResultData>& out_Path)
+void WPathSearch<PathStateType>::FillOutPathResult(WInt64 iEndNodeIndex, WDeque<PathResultData>& out_Path)
 {
   out_Path.Clear();
 
@@ -59,15 +59,15 @@ void ezPathSearch<PathStateType>::FillOutPathResult(ezInt64 iEndNodeIndex, ezDeq
 }
 
 template <typename PathStateType>
-void ezPathSearch<PathStateType>::AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState)
+void WPathSearch<PathStateType>::AddPathNode(WInt64 iNodeIndex, const PathStateType& NewState)
 {
-  EZ_ASSERT_DEV(NewState.m_fCostToNode > m_CurState.m_fCostToNode,
-    "The costs must grow from one node to the next.\nStart Node Costs: {0}\nAdjacent Node Costs: {1}", ezArgF(m_CurState.m_fCostToNode, 2),
-    ezArgF(NewState.m_fCostToNode, 2));
-  // EZ_ASSERT_DEV(NewState.m_fEstimatedCostToTarget >=  m_CurState.m_fEstimatedCostToTarget, "The estimated path costs cannot go down, the
+  W_ASSERT_DEV(NewState.m_fCostToNode > m_CurState.m_fCostToNode,
+    "The costs must grow from one node to the next.\nStart Node Costs: {0}\nAdjacent Node Costs: {1}", WArgF(m_CurState.m_fCostToNode, 2),
+    WArgF(NewState.m_fCostToNode, 2));
+  // W_ASSERT_DEV(NewState.m_fEstimatedCostToTarget >=  m_CurState.m_fEstimatedCostToTarget, "The estimated path costs cannot go down, the
   // heuristic must be 'optimistic' regarding to the real costs.\nEstimated Costs from Current: {0}\nEstimated Costs from Adjacent: {1}",
-  // ezArgF(m_pCurPathState->m_fEstimatedCostToTarget, 2), ezArgF(NewState.m_fEstimatedCostToTarget, 2));
-  EZ_ASSERT_DEV(NewState.m_fEstimatedCostToTarget >= NewState.m_fCostToNode, "Unrealistic expectations will get you nowhere.");
+  // WArgF(m_pCurPathState->m_fEstimatedCostToTarget, 2), WArgF(NewState.m_fEstimatedCostToTarget, 2));
+  W_ASSERT_DEV(NewState.m_fEstimatedCostToTarget >= NewState.m_fCostToNode, "Unrealistic expectations will get you nowhere.");
 
   PathStateType* pExistingState;
 
@@ -94,10 +94,10 @@ void ezPathSearch<PathStateType>::AddPathNode(ezInt64 iNodeIndex, const PathStat
 }
 
 template <typename PathStateType>
-ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex,
-  ezDeque<PathResultData>& out_Path, float fMaxPathCost /* = Infinity */)
+WResult WPathSearch<PathStateType>::FindPath(WInt64 iStartNodeIndex, const PathStateType& StartState, WInt64 iTargetNodeIndex,
+  WDeque<PathResultData>& out_Path, float fMaxPathCost /* = Infinity */)
 {
-  EZ_ASSERT_DEV(m_pStateGenerator != nullptr, "No Path State Generator is set.");
+  W_ASSERT_DEV(m_pStateGenerator != nullptr, "No Path State Generator is set.");
 
   ClearPathStates();
 
@@ -114,7 +114,7 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
     out_Path.Clear();
     out_Path.PushBack(r);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   m_PathStates.Reserve(10000);
@@ -140,8 +140,8 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
     if (m_iCurNodeIndex == iTargetNodeIndex)
     {
       FillOutPathResult(m_iCurNodeIndex, out_Path);
-      m_pStateGenerator->SearchFinished(EZ_SUCCESS);
-      return EZ_SUCCESS;
+      m_pStateGenerator->SearchFinished(W_SUCCESS);
+      return W_SUCCESS;
     }
 
     // The heuristic may overestimate how much it takes to reach the destination
@@ -149,8 +149,8 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
     // the actual costs
     if (pCurState->m_fCostToNode >= fMaxPathCost)
     {
-      m_pStateGenerator->SearchFinished(EZ_FAILURE);
-      return EZ_FAILURE;
+      m_pStateGenerator->SearchFinished(W_FAILURE);
+      return W_FAILURE;
     }
 
     m_CurState = *pCurState;
@@ -159,16 +159,16 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
     m_pStateGenerator->GenerateAdjacentStates(m_iCurNodeIndex, m_CurState, this);
   }
 
-  m_pStateGenerator->SearchFinished(EZ_FAILURE);
-  return EZ_FAILURE;
+  m_pStateGenerator->SearchFinished(W_FAILURE);
+  return W_FAILURE;
 }
 
 
 template <typename PathStateType>
-ezResult ezPathSearch<PathStateType>::FindClosest(
-  ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path, float fMaxPathCost)
+WResult WPathSearch<PathStateType>::FindClosest(
+  WInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, WDeque<PathResultData>& out_Path, float fMaxPathCost)
 {
-  EZ_ASSERT_DEV(m_pStateGenerator != nullptr, "No Path State Generator is set.");
+  W_ASSERT_DEV(m_pStateGenerator != nullptr, "No Path State Generator is set.");
 
   ClearPathStates();
 
@@ -195,8 +195,8 @@ ezResult ezPathSearch<PathStateType>::FindClosest(
     if (Callback(m_iCurNodeIndex, *pCurState, m_pStateGenerator))
     {
       FillOutPathResult(m_iCurNodeIndex, out_Path);
-      m_pStateGenerator->SearchFinished(EZ_SUCCESS);
-      return EZ_SUCCESS;
+      m_pStateGenerator->SearchFinished(W_SUCCESS);
+      return W_SUCCESS;
     }
 
     // The heuristic may overestimate how much it takes to reach the destination
@@ -204,8 +204,8 @@ ezResult ezPathSearch<PathStateType>::FindClosest(
     // the actual costs
     if (pCurState->m_fCostToNode >= fMaxPathCost)
     {
-      m_pStateGenerator->SearchFinished(EZ_FAILURE);
-      return EZ_FAILURE;
+      m_pStateGenerator->SearchFinished(W_FAILURE);
+      return W_FAILURE;
     }
 
     m_CurState = *pCurState;
@@ -214,6 +214,6 @@ ezResult ezPathSearch<PathStateType>::FindClosest(
     m_pStateGenerator->GenerateAdjacentStates(m_iCurNodeIndex, m_CurState, this);
   }
 
-  m_pStateGenerator->SearchFinished(EZ_FAILURE);
-  return EZ_FAILURE;
+  m_pStateGenerator->SearchFinished(W_FAILURE);
+  return W_FAILURE;
 }

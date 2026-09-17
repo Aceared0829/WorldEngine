@@ -9,21 +9,21 @@
 
 #include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/ParticleSystemConstants.h>
 
-class ezGALBufferPool;
-class ezRenderContext;
+class WGALBufferPool;
+class WRenderContext;
 
 /// Implements rendering of particle systems
 ///
 /// Base class for all particle renderers. Provides common functionality for uploading
 /// particle data to the GPU and binding shaders with particle system constants.
-class EZ_PARTICLEPLUGIN_DLL ezParticleRenderer : public ezRenderer
+class W_PARTICLEPLUGIN_DLL WParticleRenderer : public WRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleRenderer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleRenderer, WRenderer);
+  W_DISALLOW_COPY_AND_ASSIGN(WParticleRenderer);
 
 public:
-  ezParticleRenderer();
-  ~ezParticleRenderer();
+  WParticleRenderer();
+  ~WParticleRenderer();
 
 protected:
   /// Helper for managing per-particle-system constant buffer data during rendering.
@@ -32,28 +32,28 @@ protected:
   /// Provides methods to fill in system-specific rendering parameters.
   struct TempSystemCB
   {
-    TempSystemCB(ezRenderContext* pRenderContext);
+    TempSystemCB(WRenderContext* pRenderContext);
     ~TempSystemCB();
 
     /// Sets general particle system rendering parameters including transform, texture variations, and lighting.
-    void SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature = 0, float fLightDirectionality = 0, float fGeometryProximityFadeOut = 0.1f, float fCameraProximityFadeOut = 0.5f, ezUInt8 uiTextureAtlasOrientation = 0);
+    void SetGenericData(const WTransform& objectTransform, WTime effectLifeTime, WUInt8 uiNumVariationsX, WUInt8 uiNumVariationsY, WUInt8 uiNumFlipbookAnimsX, WUInt8 uiNumFlipbookAnimsY, float fNormalCurvature = 0, float fLightDirectionality = 0, float fGeometryProximityFadeOut = 0.1f, float fCameraProximityFadeOut = 0.5f, WUInt8 uiTextureAtlasOrientation = 0);
 
     /// Sets trail-specific rendering parameters.
-    void SetTrailData(float fSnapshotFraction, ezInt32 iNumUsedTrailPoints);
+    void SetTrailData(float fSnapshotFraction, WInt32 iNumUsedTrailPoints);
 
-    ezConstantBufferStorage<ezParticleSystemConstants>* m_pConstants;
-    ezConstantBufferStorageHandle m_hConstantBuffer;
+    WConstantBufferStorage<WParticleSystemConstants>* m_pConstants;
+    WConstantBufferStorageHandle m_hConstantBuffer;
   };
 
   /// Allocates a GPU buffer from the pool for uploading particle data.
-  void CreateParticleDataBuffer(ezGALBufferPool& inout_Buffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch);
+  void CreateParticleDataBuffer(WGALBufferPool& inout_Buffer, WUInt32 uiDataTypeSize, WUInt32 uiNumParticlesPerBatch);
 
   /// Returns a particle data buffer to the pool.
-  void DestroyParticleDataBuffer(ezGALBufferPool& inout_Buffer);
+  void DestroyParticleDataBuffer(WGALBufferPool& inout_Buffer);
 
   /// Loads and binds the specified particle shader for rendering.
-  void BindParticleShader(ezRenderContext* pRenderContext, const char* szShader) const;
+  void BindParticleShader(WRenderContext* pRenderContext, const char* szShader) const;
 
 protected:
-  ezShaderResourceHandle m_hShader;
+  WShaderResourceHandle m_hShader;
 };

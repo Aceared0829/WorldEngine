@@ -5,31 +5,31 @@
 
 struct GPUTimingScope;
 
-#if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
+#if W_ENABLED(W_USE_PROFILING) || defined(W_DOCS)
 
 /// Sets profiling marker and GPU timings for the current scope.
-class EZ_RENDERERFOUNDATION_DLL ezProfilingScopeAndMarker : public ezProfilingScope
+class W_RENDERERFOUNDATION_DLL WProfilingScopeAndMarker : public WProfilingScope
 {
 public:
-  static GPUTimingScope* Start(ezGALCommandEncoder* pCommandEncoder, const char* szName);
-  static void Stop(ezGALCommandEncoder* pCommandEncoder, GPUTimingScope*& ref_pTimingScope);
+  static GPUTimingScope* Start(WGALCommandEncoder* pCommandEncoder, const char* szName);
+  static void Stop(WGALCommandEncoder* pCommandEncoder, GPUTimingScope*& ref_pTimingScope);
 
-  ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName);
+  WProfilingScopeAndMarker(WGALCommandEncoder* pCommandEncoder, const char* szName);
 
-  ~ezProfilingScopeAndMarker();
+  ~WProfilingScopeAndMarker();
 
 protected:
-  ezGALCommandEncoder* m_pCommandEncoder;
+  WGALCommandEncoder* m_pCommandEncoder;
   GPUTimingScope* m_pTimingScope;
 };
 
 /// Profiles the current scope using the given name and also inserts a marker with the given command encoder.
-#  define EZ_PROFILE_AND_MARKER(GALCommandEncoder, ScopeName)                                                \
-    ezProfilingScopeAndMarker EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(GALCommandEncoder, ScopeName); \
-    EZ_TRACY_PROFILE_SCOPE(ScopeName)
+#  define W_PROFILE_AND_MARKER(GALCommandEncoder, ScopeName)                                                \
+    WProfilingScopeAndMarker W_PP_CONCAT(_WProfilingScope, W_SOURCE_LINE)(GALCommandEncoder, ScopeName); \
+    W_TRACY_PROFILE_SCOPE(ScopeName)
 
 #else
 
-#  define EZ_PROFILE_AND_MARKER(GALCommandEncoder, ScopeName) /*empty*/
+#  define W_PROFILE_AND_MARKER(GALCommandEncoder, ScopeName) /*empty*/
 
 #endif

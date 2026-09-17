@@ -6,56 +6,56 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineAssetDocument, 4, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineAssetDocument, 4, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineAssetDocument::ezStateMachineAssetDocument(ezStringView sDocumentPath)
-  : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezStateMachineNodeManager), ezAssetDocEngineConnection::FullObjectMirroring)
+WStateMachineAssetDocument::WStateMachineAssetDocument(WStringView sDocumentPath)
+  : WAssetDocument(sDocumentPath, W_DEFAULT_NEW(WStateMachineNodeManager), WAssetDocEngineConnection::FullObjectMirroring)
 {
 }
 
-ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WStateMachineAssetDocument::InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  return ezAssetDocument::RemoteExport(AssetHeader, szTargetFile);
+  return WAssetDocument::RemoteExport(AssetHeader, szTargetFile);
 }
 
-ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WStateMachineAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  EZ_REPORT_FAILURE("Should not be called");
-  return ezTransformStatus();
+  W_REPORT_FAILURE("Should not be called");
+  return WTransformStatus();
 }
 
-void ezStateMachineAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+void WStateMachineAssetDocument::InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const
 {
-  auto pManager = static_cast<const ezStateMachineNodeManager*>(GetObjectManager());
+  auto pManager = static_cast<const WStateMachineNodeManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
-void ezStateMachineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
+void WStateMachineAssetDocument::AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(graph);
-  const auto pManager = static_cast<const ezStateMachineNodeManager*>(GetObjectManager());
+  const auto pManager = static_cast<const WStateMachineNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
-void ezStateMachineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
+void WStateMachineAssetDocument::RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
-  auto pManager = static_cast<ezStateMachineNodeManager*>(GetObjectManager());
+  auto pManager = static_cast<WStateMachineNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
-void ezStateMachineAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
+void WStateMachineAssetDocument::GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const
 {
-  out_mimeTypes.PushBack("application/ezEditor.StateMachineGraph");
+  out_mimeTypes.PushBack("application/WEditor.StateMachineGraph");
 }
 
-bool ezStateMachineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool WStateMachineAssetDocument::CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_MimeType) const
 {
-  out_MimeType = "application/ezEditor.StateMachineGraph";
+  out_MimeType = "application/WEditor.StateMachineGraph";
 
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   if (!pManager->CopySelectedObjects(out_objectGraph))
     return false;
 
@@ -71,8 +71,8 @@ bool ezStateMachineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out
   return true;
 }
 
-bool ezStateMachineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
+bool WStateMachineAssetDocument::Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType)
 {
-  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  WVisualGraphObjectManager* pManager = static_cast<WVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, WQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }

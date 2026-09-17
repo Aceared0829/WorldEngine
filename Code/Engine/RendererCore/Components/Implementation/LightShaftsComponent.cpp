@@ -8,45 +8,45 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightShaftsRenderData, 1, ezRTTIDefaultAllocator<ezLightShaftsRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLightShaftsRenderData, 1, WRTTIDefaultAllocator<WLightShaftsRenderData>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezLightShaftsComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WLightShaftsComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("BrightnessThreshold", GetBrightnessThreshold, SetBrightnessThreshold)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.0f)),
-    EZ_ACCESSOR_PROPERTY("MaxBrightness", GetMaxBrightness, SetMaxBrightness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
-    EZ_ACCESSOR_PROPERTY("DiskMaskRadius", GetDiskMaskRadius, SetDiskMaskRadius)->AddAttributes(new ezClampValueAttribute(0.0f, 2.0f), new ezDefaultValueAttribute(0.1f)),
-    EZ_ACCESSOR_PROPERTY("TintColor", GetTintColor, SetTintColor),
+    W_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY("BrightnessThreshold", GetBrightnessThreshold, SetBrightnessThreshold)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(0.0f)),
+    W_ACCESSOR_PROPERTY("MaxBrightness", GetMaxBrightness, SetMaxBrightness)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(10.0f)),
+    W_ACCESSOR_PROPERTY("DiskMaskRadius", GetDiskMaskRadius, SetDiskMaskRadius)->AddAttributes(new WClampValueAttribute(0.0f, 2.0f), new WDefaultValueAttribute(0.1f)),
+    W_ACCESSOR_PROPERTY("TintColor", GetTintColor, SetTintColor),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects"),
+    new WCategoryAttribute("Effects"),
   }
-  EZ_END_ATTRIBUTES;  
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezLightShaftsComponent::ezLightShaftsComponent() = default;
-ezLightShaftsComponent::~ezLightShaftsComponent() = default;
+WLightShaftsComponent::WLightShaftsComponent() = default;
+WLightShaftsComponent::~WLightShaftsComponent() = default;
 
-void ezLightShaftsComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WLightShaftsComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fIntensity;
   s << m_fMaxBrightness;
@@ -55,12 +55,12 @@ void ezLightShaftsComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << m_TintColor;
 }
 
-void ezLightShaftsComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WLightShaftsComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_fIntensity;
   s >> m_fMaxBrightness;
@@ -73,15 +73,15 @@ void ezLightShaftsComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-ezResult ezLightShaftsComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WLightShaftsComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   ref_bAlwaysVisible = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLightShaftsComponent::SetIntensity(float fIntensity)
+void WLightShaftsComponent::SetIntensity(float fIntensity)
 {
-  m_fIntensity = ezMath::Max(fIntensity, 0.0f);
+  m_fIntensity = WMath::Max(fIntensity, 0.0f);
 
   if (IsActiveAndInitialized())
   {
@@ -89,9 +89,9 @@ void ezLightShaftsComponent::SetIntensity(float fIntensity)
   }
 }
 
-void ezLightShaftsComponent::SetBrightnessThreshold(float fBrightnessThreshold)
+void WLightShaftsComponent::SetBrightnessThreshold(float fBrightnessThreshold)
 {
-  m_fBrightnessThreshold = ezMath::Max(fBrightnessThreshold, 0.0f);
+  m_fBrightnessThreshold = WMath::Max(fBrightnessThreshold, 0.0f);
 
   if (IsActiveAndInitialized())
   {
@@ -99,9 +99,9 @@ void ezLightShaftsComponent::SetBrightnessThreshold(float fBrightnessThreshold)
   }
 }
 
-void ezLightShaftsComponent::SetMaxBrightness(float fMaxBrightness)
+void WLightShaftsComponent::SetMaxBrightness(float fMaxBrightness)
 {
-  m_fMaxBrightness = ezMath::Max(fMaxBrightness, 0.0f);
+  m_fMaxBrightness = WMath::Max(fMaxBrightness, 0.0f);
 
   if (IsActiveAndInitialized())
   {
@@ -109,9 +109,9 @@ void ezLightShaftsComponent::SetMaxBrightness(float fMaxBrightness)
   }
 }
 
-void ezLightShaftsComponent::SetDiskMaskRadius(float fDiskMaskRadius)
+void WLightShaftsComponent::SetDiskMaskRadius(float fDiskMaskRadius)
 {
-  m_fDiskMaskRadius = ezMath::Clamp(fDiskMaskRadius, 0.0f, 2.0f);
+  m_fDiskMaskRadius = WMath::Clamp(fDiskMaskRadius, 0.0f, 2.0f);
 
   if (IsActiveAndInitialized())
   {
@@ -119,7 +119,7 @@ void ezLightShaftsComponent::SetDiskMaskRadius(float fDiskMaskRadius)
   }
 }
 
-void ezLightShaftsComponent::SetTintColor(const ezColorGammaUB& color)
+void WLightShaftsComponent::SetTintColor(const WColorGammaUB& color)
 {
   m_TintColor = color;
 
@@ -129,29 +129,29 @@ void ezLightShaftsComponent::SetTintColor(const ezColorGammaUB& color)
   }
 }
 
-void ezLightShaftsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WLightShaftsComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't render in shadow and reflection views
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Reflection)
     return;
 
   // Don't extract render data for selection.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory)
     return;
 
-  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezLightShaftsRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WLightShaftsRenderData>(GetOwner());
 
-  pRenderData->m_vDirection = GetOwner()->GetGlobalRotation() * ezVec3(-1, 0, 0);
+  pRenderData->m_vDirection = GetOwner()->GetGlobalRotation() * WVec3(-1, 0, 0);
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fMaxBrightness = m_fMaxBrightness;
   pRenderData->m_fBrightnessThreshold = m_fBrightnessThreshold;
   pRenderData->m_fDiskMaskRadius = m_fDiskMaskRadius;
   pRenderData->m_TintColor = m_TintColor;
 
-  pRenderData->m_uiSortingKey = ezInvalidIndex;
+  pRenderData->m_uiSortingKey = WInvalidIndex;
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
+  msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::Light, WRenderData::Caching::IfStatic);
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LightShaftsComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LightShaftsComponent);

@@ -4,40 +4,40 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <shellapi.h>
 #endif
 
-static ezCommandLineUtils g_pCmdLineInstance;
+static WCommandLineUtils g_pCmdLineInstance;
 
-ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
+WCommandLineUtils* WCommandLineUtils::GetGlobalInstance()
 {
   return &g_pCmdLineInstance;
 }
 
-void ezCommandLineUtils::SplitCommandLineString(ezStringView sCommandString, bool bAddExecutableDir, ezDynamicArray<ezString>& out_args, ezDynamicArray<const char*>& out_argsV)
+void WCommandLineUtils::SplitCommandLineString(WStringView sCommandString, bool bAddExecutableDir, WDynamicArray<WString>& out_args, WDynamicArray<const char*>& out_argsV)
 {
   // Add application dir as first argument as customary on other platforms.
   if (bAddExecutableDir)
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
     wchar_t moduleFilename[256];
     GetModuleFileNameW(nullptr, moduleFilename, 256);
-    out_args.PushBack(ezStringUtf8(moduleFilename).GetData());
+    out_args.PushBack(WStringUtf8(moduleFilename).GetData());
 #else
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
 #endif
   }
 
   // Simple args splitting. Not as powerful as Win32's CommandLineToArgvW.
   // Supports double-quoted tokens that may contain spaces. Quotes are stripped from the result.
   bool bInQuotes = false;
-  ezStringBuilder current;
+  WStringBuilder current;
 
   for (auto it = sCommandString.GetIteratorFront(); it.IsValid(); ++it)
   {
-    const ezUInt32 uiChar = it.GetCharacter();
+    const WUInt32 uiChar = it.GetCharacter();
 
     if (uiChar == '\"')
     {
@@ -63,48 +63,48 @@ void ezCommandLineUtils::SplitCommandLineString(ezStringView sCommandString, boo
   }
 
   out_argsV.Reserve(out_args.GetCount());
-  for (ezString& str : out_args)
+  for (WString& str : out_args)
     out_argsV.PushBack(str.GetData());
 }
 
-void ezCommandLineUtils::SetCommandLine(ezUInt32 uiArgc, const char** pArgv, ArgMode mode /*= UseArgcArgv*/)
+void WCommandLineUtils::SetCommandLine(WUInt32 uiArgc, const char** pArgv, ArgMode mode /*= UseArgcArgv*/)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
   if (mode == ArgMode::PreferOsArgs)
   {
     SetCommandLine();
     return;
   }
 #else
-  EZ_IGNORE_UNUSED(mode);
+  W_IGNORE_UNUSED(mode);
 #endif
 
   m_Commands.Clear();
   m_Commands.Reserve(uiArgc);
 
-  for (ezUInt32 i = 0; i < uiArgc; ++i)
+  for (WUInt32 i = 0; i < uiArgc; ++i)
     m_Commands.PushBack(pArgv[i]);
 }
 
-void ezCommandLineUtils::SetCommandLine(ezArrayPtr<ezString> commands)
+void WCommandLineUtils::SetCommandLine(WArrayPtr<WString> commands)
 {
   m_Commands = commands;
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
-void ezCommandLineUtils::SetCommandLine()
+void WCommandLineUtils::SetCommandLine()
 {
   int argc = 0;
 
   LPWSTR* argvw = CommandLineToArgvW(::GetCommandLineW(), &argc);
 
-  EZ_ASSERT_RELEASE(argvw != nullptr, "CommandLineToArgvW failed");
+  W_ASSERT_RELEASE(argvw != nullptr, "CommandLineToArgvW failed");
 
-  ezArrayPtr<ezStringUtf8> ArgvUtf8 = EZ_DEFAULT_NEW_ARRAY(ezStringUtf8, argc);
-  ezArrayPtr<const char*> argv = EZ_DEFAULT_NEW_ARRAY(const char*, argc);
+  WArrayPtr<WStringUtf8> ArgvUtf8 = W_DEFAULT_NEW_ARRAY(WStringUtf8, argc);
+  WArrayPtr<const char*> argv = W_DEFAULT_NEW_ARRAY(const char*, argc);
 
-  for (ezInt32 i = 0; i < argc; ++i)
+  for (WInt32 i = 0; i < argc; ++i)
   {
     ArgvUtf8[i] = argvw[i];
     argv[i] = ArgvUtf8[i].GetData();
@@ -113,22 +113,22 @@ void ezCommandLineUtils::SetCommandLine()
   SetCommandLine(argc, argv.GetPtr(), ArgMode::UseArgcArgv);
 
 
-  EZ_DEFAULT_DELETE_ARRAY(ArgvUtf8);
-  EZ_DEFAULT_DELETE_ARRAY(argv);
+  W_DEFAULT_DELETE_ARRAY(ArgvUtf8);
+  W_DEFAULT_DELETE_ARRAY(argv);
   LocalFree(argvw);
 }
 
 #endif
 
-const ezDynamicArray<ezString>& ezCommandLineUtils::GetCommandLineArray() const
+const WDynamicArray<WString>& WCommandLineUtils::GetCommandLineArray() const
 {
   return m_Commands;
 }
 
-ezString ezCommandLineUtils::GetCommandLineString() const
+WString WCommandLineUtils::GetCommandLineString() const
 {
-  ezStringBuilder commandLine;
-  for (const ezString& command : m_Commands)
+  WStringBuilder commandLine;
+  for (const WString& command : m_Commands)
   {
     if (commandLine.IsEmpty())
     {
@@ -142,21 +142,21 @@ ezString ezCommandLineUtils::GetCommandLineString() const
   return commandLine;
 }
 
-ezUInt32 ezCommandLineUtils::GetParameterCount() const
+WUInt32 WCommandLineUtils::GetParameterCount() const
 {
   return m_Commands.GetCount();
 }
 
-const ezString& ezCommandLineUtils::GetParameter(ezUInt32 uiParam) const
+const WString& WCommandLineUtils::GetParameter(WUInt32 uiParam) const
 {
   return m_Commands[uiParam];
 }
 
-ezInt32 ezCommandLineUtils::GetOptionIndex(ezStringView sOption, bool bCaseSensitive) const
+WInt32 WCommandLineUtils::GetOptionIndex(WStringView sOption, bool bCaseSensitive) const
 {
-  EZ_ASSERT_DEV(sOption.StartsWith("-"), "All command line option names must start with a hyphen (e.g. -file)");
+  W_ASSERT_DEV(sOption.StartsWith("-"), "All command line option names must start with a hyphen (e.g. -file)");
 
-  for (ezUInt32 i = 0; i < m_Commands.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Commands.GetCount(); ++i)
   {
     if ((bCaseSensitive && m_Commands[i].IsEqual(sOption)) || (!bCaseSensitive && m_Commands[i].IsEqual_NoCase(sOption)))
       return i;
@@ -165,22 +165,22 @@ ezInt32 ezCommandLineUtils::GetOptionIndex(ezStringView sOption, bool bCaseSensi
   return -1;
 }
 
-bool ezCommandLineUtils::HasOption(ezStringView sOption, bool bCaseSensitive /*= false*/) const
+bool WCommandLineUtils::HasOption(WStringView sOption, bool bCaseSensitive /*= false*/) const
 {
   return GetOptionIndex(sOption, bCaseSensitive) >= 0;
 }
 
-ezUInt32 ezCommandLineUtils::GetStringOptionArguments(ezStringView sOption, bool bCaseSensitive) const
+WUInt32 WCommandLineUtils::GetStringOptionArguments(WStringView sOption, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
+  const WInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   // not found -> no parameters
   if (iIndex < 0)
     return 0;
 
-  ezUInt32 uiParamCount = 0;
+  WUInt32 uiParamCount = 0;
 
-  for (ezUInt32 uiParam = iIndex + 1; uiParam < m_Commands.GetCount(); ++uiParam)
+  for (WUInt32 uiParam = iIndex + 1; uiParam < m_Commands.GetCount(); ++uiParam)
   {
     if (m_Commands[uiParam].StartsWith("-")) // next command is the next option -> no parameters
       break;
@@ -191,17 +191,17 @@ ezUInt32 ezCommandLineUtils::GetStringOptionArguments(ezStringView sOption, bool
   return uiParamCount;
 }
 
-ezStringView ezCommandLineUtils::GetStringOption(ezStringView sOption, ezUInt32 uiArgument, ezStringView sDefault, bool bCaseSensitive) const
+WStringView WCommandLineUtils::GetStringOption(WStringView sOption, WUInt32 uiArgument, WStringView sDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
+  const WInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   // not found -> no parameters
   if (iIndex < 0)
     return sDefault;
 
-  ezUInt32 uiParamCount = 0;
+  WUInt32 uiParamCount = 0;
 
-  for (ezUInt32 uiParam = iIndex + 1; uiParam < m_Commands.GetCount(); ++uiParam)
+  for (WUInt32 uiParam = iIndex + 1; uiParam < m_Commands.GetCount(); ++uiParam)
   {
     if (m_Commands[uiParam].StartsWith("-")) // next command is the next option -> not enough parameters
       return sDefault;
@@ -210,7 +210,7 @@ ezStringView ezCommandLineUtils::GetStringOption(ezStringView sOption, ezUInt32 
     if (uiParamCount == uiArgument)
     {
       // We trim " as this is automatically done on Windows when parsing command line arguments and this will make it behave the same on Linux.
-      ezStringView sData = m_Commands[uiParam].GetView();
+      WStringView sData = m_Commands[uiParam].GetView();
       sData.Trim("\"");
       return sData;
     }
@@ -220,23 +220,23 @@ ezStringView ezCommandLineUtils::GetStringOption(ezStringView sOption, ezUInt32 
   return sDefault;
 }
 
-const ezString ezCommandLineUtils::GetAbsolutePathOption(ezStringView sOption, ezUInt32 uiArgument /*= 0*/, ezStringView sDefault /*= {} */, bool bCaseSensitive /*= false*/) const
+const WString WCommandLineUtils::GetAbsolutePathOption(WStringView sOption, WUInt32 uiArgument /*= 0*/, WStringView sDefault /*= {} */, bool bCaseSensitive /*= false*/) const
 {
-  ezStringView sPath = GetStringOption(sOption, uiArgument, sDefault, bCaseSensitive);
+  WStringView sPath = GetStringOption(sOption, uiArgument, sDefault, bCaseSensitive);
   if (sPath.IsEmpty())
     return sPath;
 
-  return ezOSFile::MakePathAbsoluteWithCWD(sPath);
+  return WOSFile::MakePathAbsoluteWithCWD(sPath);
 }
 
-bool ezCommandLineUtils::GetBoolOption(ezStringView sOption, bool bDefault, bool bCaseSensitive) const
+bool WCommandLineUtils::GetBoolOption(WStringView sOption, bool bDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
+  const WInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   if (iIndex < 0)
     return bDefault;
 
-  const ezUInt32 uiIndex = iIndex;
+  const WUInt32 uiIndex = iIndex;
   if (uiIndex + 1 == m_Commands.GetCount())    // last command, treat this as 'on'
     return true;
 
@@ -245,66 +245,66 @@ bool ezCommandLineUtils::GetBoolOption(ezStringView sOption, bool bDefault, bool
 
   // otherwise try to convert the next option to a boolean
   bool bRes = bDefault;
-  ezConversionUtils::StringToBool(m_Commands[uiIndex + 1].GetData(), bRes).IgnoreResult();
+  WConversionUtils::StringToBool(m_Commands[uiIndex + 1].GetData(), bRes).IgnoreResult();
 
   return bRes;
 }
 
-ezInt32 ezCommandLineUtils::GetIntOption(ezStringView sOption, ezInt32 iDefault, bool bCaseSensitive) const
+WInt32 WCommandLineUtils::GetIntOption(WStringView sOption, WInt32 iDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
+  const WInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   if (iIndex < 0)
     return iDefault;
 
-  const ezUInt32 uiIndex = iIndex;
+  const WUInt32 uiIndex = iIndex;
   if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return iDefault;
 
   // try to convert the next option to a number
-  ezInt32 iRes = iDefault;
-  ezConversionUtils::StringToInt(m_Commands[uiIndex + 1].GetData(), iRes).IgnoreResult();
+  WInt32 iRes = iDefault;
+  WConversionUtils::StringToInt(m_Commands[uiIndex + 1].GetData(), iRes).IgnoreResult();
 
   return iRes;
 }
 
-ezUInt32 ezCommandLineUtils::GetUIntOption(ezStringView sOption, ezUInt32 uiDefault, bool bCaseSensitive) const
+WUInt32 WCommandLineUtils::GetUIntOption(WStringView sOption, WUInt32 uiDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
+  const WInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   if (iIndex < 0)
     return uiDefault;
 
-  const ezUInt32 uiIndex = iIndex;
+  const WUInt32 uiIndex = iIndex;
   if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return uiDefault;
 
   // try to convert the next option to a number
-  ezUInt32 uiRes = uiDefault;
-  ezConversionUtils::StringToUInt(m_Commands[uiIndex + 1].GetData(), uiRes).IgnoreResult();
+  WUInt32 uiRes = uiDefault;
+  WConversionUtils::StringToUInt(m_Commands[uiIndex + 1].GetData(), uiRes).IgnoreResult();
 
   return uiRes;
 }
 
-double ezCommandLineUtils::GetFloatOption(ezStringView sOption, double fDefault, bool bCaseSensitive) const
+double WCommandLineUtils::GetFloatOption(WStringView sOption, double fDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
+  const WInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   if (iIndex < 0)
     return fDefault;
 
-  const ezUInt32 uiIndex = iIndex;
+  const WUInt32 uiIndex = iIndex;
   if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return fDefault;
 
   // try to convert the next option to a number
   double fRes = fDefault;
-  ezConversionUtils::StringToFloat(m_Commands[uiIndex + 1].GetData(), fRes).IgnoreResult();
+  WConversionUtils::StringToFloat(m_Commands[uiIndex + 1].GetData(), fRes).IgnoreResult();
 
   return fRes;
 }
 
-void ezCommandLineUtils::InjectCustomArgument(ezStringView sArgument)
+void WCommandLineUtils::InjectCustomArgument(WStringView sArgument)
 {
   m_Commands.PushBack(sArgument);
 }

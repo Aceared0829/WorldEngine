@@ -5,23 +5,23 @@
 #include <Core/World/World.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
-struct ezMsgSetText;
-struct ezMsgSetColor;
+struct WMsgSetText;
+struct WMsgSetColor;
 
 // BEGIN-DOCS-CODE-SNIPPET: component-manager-simple
-using DisplayMsgComponentManager = ezComponentManagerSimple<class DisplayMsgComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::FreeList>;
+using DisplayMsgComponentManager = WComponentManagerSimple<class DisplayMsgComponent, WComponentUpdateType::WhenSimulating, WBlockStorageType::FreeList>;
 // END-DOCS-CODE-SNIPPET
 
-class EZ_SAMPLEGAMEPLUGIN_DLL DisplayMsgComponent : public ezComponent
+class W_SAMPLEGAMEPLUGIN_DLL DisplayMsgComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(DisplayMsgComponent, ezComponent, DisplayMsgComponentManager);
+  W_DECLARE_COMPONENT_TYPE(DisplayMsgComponent, WComponent, DisplayMsgComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -36,9 +36,9 @@ public:
 private:
   void Update();
 
-  void OnSetText(ezMsgSetText& msg);   // [ msg handler ]
-  void OnSetColor(ezMsgSetColor& msg); // [ msg handler ]
+  void OnSetText(WMsgSetText& msg);   // [ msg handler ]
+  void OnSetColor(WMsgSetColor& msg); // [ msg handler ]
 
-  ezString m_sCurrentText;
-  ezColor m_TextColor = ezColor::Yellow;
+  WString m_sCurrentText;
+  WColor m_TextColor = WColor::Yellow;
 };

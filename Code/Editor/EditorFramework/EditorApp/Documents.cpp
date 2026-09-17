@@ -5,33 +5,33 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ToolsFoundation/Document/DocumentUtils.h>
 
-void ezQtEditorApp::OpenDocumentQueued(ezStringView sDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
+void WQtEditorApp::OpenDocumentQueued(WStringView sDocument, const WDocumentObject* pOpenContext /*= nullptr*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, ezMakeQString(sDocument)), Q_ARG(void*, (void*)pOpenContext));
+  QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, WMakeQString(sDocument)), Q_ARG(void*, (void*)pOpenContext));
 }
 
-ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+WDocument* WQtEditorApp::OpenDocument(WStringView sDocument, WBitflags<WDocumentFlags> flags, const WDocumentObject* pOpenContext)
 {
-  EZ_PROFILE_SCOPE("OpenDocument");
+  W_PROFILE_SCOPE("OpenDocument");
 
   if (IsInHeadlessMode())
-    flags.Remove(ezDocumentFlags::RequestWindow);
+    flags.Remove(WDocumentFlags::RequestWindow);
 
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  const WDocumentTypeDescriptor* pTypeDesc = nullptr;
 
-  if (ezDocumentManager::FindDocumentTypeFromPath(sDocument, false, pTypeDesc).Failed())
+  if (WDocumentManager::FindDocumentTypeFromPath(sDocument, false, pTypeDesc).Failed())
   {
-    ezStringBuilder sTemp;
-    sTemp.SetFormat("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", ezPathUtils::GetFileExtension(sDocument), sDocument);
-    ezQtUiServices::MessageBoxWarning(sTemp);
+    WStringBuilder sTemp;
+    sTemp.SetFormat("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", WPathUtils::GetFileExtension(sDocument), sDocument);
+    WQtUiServices::MessageBoxWarning(sTemp);
     return nullptr;
   }
 
   // does the same document already exist and is open ?
-  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(sDocument);
+  WDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(sDocument);
   if (!pDocument)
   {
-    ezStatus res = pTypeDesc->m_pManager->CanOpenDocument(sDocument);
+    WStatus res = pTypeDesc->m_pManager->CanOpenDocument(sDocument);
     if (res.Succeeded())
     {
       res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, sDocument, pDocument, flags, pOpenContext);
@@ -39,17 +39,17 @@ ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDoc
 
     if (res.Failed())
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("Failed to open document: \n'{0}'", sDocument);
-      ezQtUiServices::MessageBoxStatus(res, s);
+      WQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Opening of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
+    W_ASSERT_DEV(pDocument != nullptr, "Opening of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
 
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("The document '{}' contained {} objects of an unknown type. Necessary plugins may be missing.\n\n\
 If you save this document, all data for these objects is lost permanently!\n\n\
 The following types are missing:\n",
@@ -59,85 +59,85 @@ The following types are missing:\n",
       {
         s.AppendFormat(" '{0}' ", (*it));
       }
-      ezQtUiServices::MessageBoxWarning(s);
+      WQtUiServices::MessageBoxWarning(s);
     }
 
     if (!pDocument->GetLoadingErrors().IsEmpty())
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("The document '{}' had errors during loading:\n\n", sDocument);
-      for (const ezString& err : pDocument->GetLoadingErrors())
+      for (const WString& err : pDocument->GetLoadingErrors())
       {
         s.Append(err, "\n");
       }
-      ezQtUiServices::MessageBoxWarning(s);
+      WQtUiServices::MessageBoxWarning(s);
     }
   }
 
-  if (flags.IsSet(ezDocumentFlags::RequestWindow))
+  if (flags.IsSet(WDocumentFlags::RequestWindow))
   {
-    ezQtContainerWindow::EnsureVisibleAnyContainer(pDocument).IgnoreResult();
+    WQtContainerWindow::EnsureVisibleAnyContainer(pDocument).IgnoreResult();
   }
 
   return pDocument;
 }
 
-ezDocument* ezQtEditorApp::CreateDocument(ezStringView sDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+WDocument* WQtEditorApp::CreateDocument(WStringView sDocument, WBitflags<WDocumentFlags> flags, const WDocumentObject* pOpenContext)
 {
-  EZ_PROFILE_SCOPE("CreateDocument");
+  W_PROFILE_SCOPE("CreateDocument");
 
   if (IsInHeadlessMode())
-    flags.Remove(ezDocumentFlags::RequestWindow);
+    flags.Remove(WDocumentFlags::RequestWindow);
 
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  const WDocumentTypeDescriptor* pTypeDesc = nullptr;
 
   {
-    ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(sDocument, &pTypeDesc);
+    WStatus res = WDocumentUtils::IsValidSaveLocationForDocument(sDocument, &pTypeDesc);
     if (res.Failed())
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("Failed to create document: \n'{0}'", sDocument);
-      ezQtUiServices::MessageBoxStatus(res, s);
+      WQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
     }
   }
 
-  ezDocument* pDocument = nullptr;
+  WDocument* pDocument = nullptr;
   {
-    ezStatus result = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, sDocument, pDocument, flags, pOpenContext);
+    WStatus result = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, sDocument, pDocument, flags, pOpenContext);
     if (result.Failed())
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("Failed to create document: \n'{0}'", sDocument);
-      ezQtUiServices::MessageBoxStatus(result, s);
+      WQtUiServices::MessageBoxStatus(result, s);
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
-    EZ_ASSERT_DEV(pDocument->GetUnknownObjectTypeInstances() == 0, "Newly created documents should not contain unknown types.");
+    W_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
+    W_ASSERT_DEV(pDocument->GetUnknownObjectTypeInstances() == 0, "Newly created documents should not contain unknown types.");
   }
 
 
-  if (flags.IsSet(ezDocumentFlags::RequestWindow))
+  if (flags.IsSet(WDocumentFlags::RequestWindow))
   {
-    ezQtContainerWindow::EnsureVisibleAnyContainer(pDocument).IgnoreResult();
+    WQtContainerWindow::EnsureVisibleAnyContainer(pDocument).IgnoreResult();
   }
 
   return pDocument;
 }
 
-void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject, void* pOpenContext)
+void WQtEditorApp::SlotQueuedOpenDocument(QString sProject, void* pOpenContext)
 {
-  OpenDocument(sProject.toUtf8().data(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList, static_cast<const ezDocumentObject*>(pOpenContext));
+  OpenDocument(sProject.toUtf8().data(), WDocumentFlags::RequestWindow | WDocumentFlags::AddToRecentFilesList, static_cast<const WDocumentObject*>(pOpenContext));
 }
 
-void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
+void WQtEditorApp::DocumentEventHandler(const WDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentEvent::Type::DocumentSaved:
+    case WDocumentEvent::Type::DocumentSaved:
     {
-      ezPreferences::SaveDocumentPreferences(e.m_pDocument);
+      WPreferences::SaveDocumentPreferences(e.m_pDocument);
     }
     break;
 
@@ -147,11 +147,11 @@ void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
 }
 
 
-void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& r)
+void WQtEditorApp::DocumentManagerEventHandler(const WDocumentManager::Event& r)
 {
   switch (r.m_Type)
   {
-    case ezDocumentManager::Event::Type::AfterDocumentWindowRequested:
+    case WDocumentManager::Event::Type::AfterDocumentWindowRequested:
     {
       if (r.m_pDocument->GetAddToRecentFilesList())
       {
@@ -164,14 +164,14 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
     }
     break;
 
-    case ezDocumentManager::Event::Type::DocumentClosing2:
+    case WDocumentManager::Event::Type::DocumentClosing2:
     {
-      ezPreferences::SaveDocumentPreferences(r.m_pDocument);
-      ezPreferences::ClearDocumentPreferences(r.m_pDocument);
+      WPreferences::SaveDocumentPreferences(r.m_pDocument);
+      WPreferences::ClearDocumentPreferences(r.m_pDocument);
     }
     break;
 
-    case ezDocumentManager::Event::Type::DocumentClosing:
+    case WDocumentManager::Event::Type::DocumentClosing:
     {
       if (r.m_pDocument->GetAddToRecentFilesList())
       {
@@ -188,35 +188,35 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
 
 
 
-void ezQtEditorApp::DocumentManagerRequestHandler(ezDocumentManager::Request& r)
+void WQtEditorApp::DocumentManagerRequestHandler(WDocumentManager::Request& r)
 {
   switch (r.m_Type)
   {
-    case ezDocumentManager::Request::Type::DocumentAllowedToOpen:
+    case WDocumentManager::Request::Type::DocumentAllowedToOpen:
     {
       // if someone else already said no, don't bother to check further
       if (r.m_RequestStatus.Failed())
         return;
 
-      if (!ezToolsProject::IsProjectOpen())
+      if (!WToolsProject::IsProjectOpen())
       {
         // if no project is open yet, try to open the corresponding one
 
-        ezStringBuilder sProjectPath = ezToolsProject::FindProjectDirectoryForDocument(r.m_sDocumentPath);
+        WStringBuilder sProjectPath = WToolsProject::FindProjectDirectoryForDocument(r.m_sDocumentPath);
 
         // if no project could be located, just reject the request
         if (sProjectPath.IsEmpty())
         {
-          r.m_RequestStatus = ezStatus("No project could be opened");
+          r.m_RequestStatus = WStatus("No project could be opened");
           return;
         }
         else
         {
           // append the project file
-          sProjectPath.AppendPath("ezProject");
+          sProjectPath.AppendPath("WProject");
 
           // if a project could be found, try to open it
-          ezStatus res = ezToolsProject::OpenProject(sProjectPath);
+          WStatus res = WToolsProject::OpenProject(sProjectPath);
 
           // if project opening failed, relay that error message
           if (res.Failed())
@@ -228,9 +228,9 @@ void ezQtEditorApp::DocumentManagerRequestHandler(ezDocumentManager::Request& r)
       }
       else
       {
-        if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(r.m_sDocumentPath))
+        if (!WToolsProject::GetSingleton()->IsDocumentInAllowedRoot(r.m_sDocumentPath))
         {
-          r.m_RequestStatus = ezStatus("The document is not part of the currently open project");
+          r.m_RequestStatus = WStatus("The document is not part of the currently open project");
           return;
         }
       }

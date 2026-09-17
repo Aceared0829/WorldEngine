@@ -7,9 +7,9 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/Uuid.h>
 
-class ezRemoteMessage;
+class WRemoteMessage;
 
-struct ezFileserverEvent
+struct WFileserverEvent
 {
   enum class Type
   {
@@ -34,13 +34,13 @@ struct ezFileserverEvent
   };
 
   Type m_Type = Type::None;
-  ezUInt32 m_uiClientID = 0;
+  WUInt32 m_uiClientID = 0;
   const char* m_szName = nullptr;
   const char* m_szPath = nullptr;
   const char* m_szRedirectedPath = nullptr;
-  ezUInt32 m_uiSizeTotal = 0;
-  ezUInt32 m_uiSentTotal = 0;
-  ezFileserveFileState m_FileState = ezFileserveFileState::None;
+  WUInt32 m_uiSizeTotal = 0;
+  WUInt32 m_uiSentTotal = 0;
+  WFileserveFileState m_FileState = WFileserveFileState::None;
 };
 
 /// A file server allows to serve files from a host PC to another process that is potentially on another device.
@@ -50,17 +50,17 @@ struct ezFileserverEvent
 /// Fileserve allows to only deploy a very lean application and instead get all asset data directly from a host PC.
 /// This also allows to modify data on the PC and reload the data in the running application without delay.
 ///
-/// A single file server can serve multiple clients. However, to mount "special directories" (see ezFileSystem) the server
-/// needs to know what local path to map them to (it uses the configuration on ezFileSystem).
+/// A single file server can serve multiple clients. However, to mount "special directories" (see WFileSystem) the server
+/// needs to know what local path to map them to (it uses the configuration on WFileSystem).
 /// That means it cannot serve two clients that require different settings for the same special directory.
 ///
 /// The port on which the server connects to clients can be configured through the command line option "-fs_port X"
-class EZ_FILESERVEPLUGIN_DLL ezFileserver
+class W_FILESERVEPLUGIN_DLL WFileserver
 {
-  EZ_DECLARE_SINGLETON(ezFileserver);
+  W_DECLARE_SINGLETON(WFileserver);
 
 public:
-  ezFileserver();
+  WFileserver();
 
   /// Starts listening for client connections. Uses the configured port.
   void StartServer();
@@ -75,46 +75,46 @@ public:
   bool IsServerRunning() const;
 
   /// Overrides the current port setting. May only be called when the server is currently not running.
-  void SetPort(ezUInt16 uiPort);
+  void SetPort(WUInt16 uiPort);
 
   /// Returns the currently set port. If the command line option "-fs_port X" was used, this will return that value, otherwise the default is
   /// 1042.
-  ezUInt16 GetPort() const { return m_uiPort; }
+  WUInt16 GetPort() const { return m_uiPort; }
 
   /// The server broadcasts events about its activity
-  ezEvent<const ezFileserverEvent&> m_Events;
+  WEvent<const WFileserverEvent&> m_Events;
 
   /// Broadcasts to all clients that they should reload their resources
   void BroadcastReloadResourcesCommand();
 
-  static ezResult SendConnectionInfo(
-    const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& myIPs, ezTime timeout = ezTime::MakeFromSeconds(10));
+  static WResult SendConnectionInfo(
+    const char* szClientAddress, WUInt16 uiMyPort, const WArrayPtr<WStringBuilder>& myIPs, WTime timeout = WTime::MakeFromSeconds(10));
 
-  using ClientMessageHandler = ezDelegate<void(ezFileserveClientContext&, ezRemoteMessage&, ezRemoteInterface&, ezDelegate<void(const char*)>)>;
+  using ClientMessageHandler = WDelegate<void(WFileserveClientContext&, WRemoteMessage&, WRemoteInterface&, WDelegate<void(const char*)>)>;
 
-  void SetCustomMessageHandler(ezUInt32 uiSystemID, ClientMessageHandler handler);
+  void SetCustomMessageHandler(WUInt32 uiSystemID, ClientMessageHandler handler);
 
 private:
-  void NetworkEventHandler(const ezRemoteEvent& e);
-  ezFileserveClientContext& DetermineClient(ezRemoteMessage& msg);
-  void NetworkMsgHandler(ezRemoteMessage& msg);
-  void UnknownNetworkMsgHandler(ezRemoteMessage& msg);
-  void HandleMountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
-  void HandleUnmountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
-  void HandleFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
-  void HandleDeleteFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
-  void HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage& msg);
-  void HandleUploadFileTransfer(ezFileserveClientContext& client, ezRemoteMessage& msg);
-  void HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage& msg);
+  void NetworkEventHandler(const WRemoteEvent& e);
+  WFileserveClientContext& DetermineClient(WRemoteMessage& msg);
+  void NetworkMsgHandler(WRemoteMessage& msg);
+  void UnknownNetworkMsgHandler(WRemoteMessage& msg);
+  void HandleMountRequest(WFileserveClientContext& client, WRemoteMessage& msg);
+  void HandleUnmountRequest(WFileserveClientContext& client, WRemoteMessage& msg);
+  void HandleFileRequest(WFileserveClientContext& client, WRemoteMessage& msg);
+  void HandleDeleteFileRequest(WFileserveClientContext& client, WRemoteMessage& msg);
+  void HandleUploadFileHeader(WFileserveClientContext& client, WRemoteMessage& msg);
+  void HandleUploadFileTransfer(WFileserveClientContext& client, WRemoteMessage& msg);
+  void HandleUploadFileFinished(WFileserveClientContext& client, WRemoteMessage& msg);
   void LogCustomActivity(const char* szText);
 
-  ezHashTable<ezUInt32, ezFileserveClientContext> m_Clients;
-  ezUniquePtr<ezRemoteInterface> m_pNetwork;
-  ezDynamicArray<ezUInt8> m_SendToClient;   // ie. 'downloads' from server to client
-  ezDynamicArray<ezUInt8> m_SentFromClient; // ie. 'uploads' from client to server
-  ezStringBuilder m_sCurFileUpload;
-  ezUuid m_FileUploadGuid;
-  ezUInt32 m_uiFileUploadSize;
-  ezUInt16 m_uiPort = 1042;
-  ezMap<ezUInt32, ClientMessageHandler> m_CustomMessageHandlers;
+  WHashTable<WUInt32, WFileserveClientContext> m_Clients;
+  WUniquePtr<WRemoteInterface> m_pNetwork;
+  WDynamicArray<WUInt8> m_SendToClient;   // ie. 'downloads' from server to client
+  WDynamicArray<WUInt8> m_SentFromClient; // ie. 'uploads' from client to server
+  WStringBuilder m_sCurFileUpload;
+  WUuid m_FileUploadGuid;
+  WUInt32 m_uiFileUploadSize;
+  WUInt16 m_uiPort = 1042;
+  WMap<WUInt32, ClientMessageHandler> m_CustomMessageHandlers;
 };

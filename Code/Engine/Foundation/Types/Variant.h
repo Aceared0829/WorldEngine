@@ -13,44 +13,44 @@
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-class ezRTTI;
+class WRTTI;
 
-/// Defines a reference to an immutable object owned by an ezVariant.
+/// Defines a reference to an immutable object owned by an WVariant.
 ///
-/// Used to store custom types inside an ezVariant. As lifetime is governed by the ezVariant, it is generally not safe to store an ezTypedObject.
-/// This class is needed to be able to differentiate between ezVariantType::TypedPointer and ezVariantType::TypedObject e.g. in ezVariant::DispatchTo.
-/// \sa ezVariant, EZ_DECLARE_CUSTOM_VARIANT_TYPE
-struct ezTypedObject
+/// Used to store custom types inside an WVariant. As lifetime is governed by the WVariant, it is generally not safe to store an WTypedObject.
+/// This class is needed to be able to differentiate between WVariantType::TypedPointer and WVariantType::TypedObject e.g. in WVariant::DispatchTo.
+/// \sa WVariant, W_DECLARE_CUSTOM_VARIANT_TYPE
+struct WTypedObject
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
   const void* m_pObject = nullptr;
-  const ezRTTI* m_pType = nullptr;
+  const WRTTI* m_pType = nullptr;
 
-  bool operator==(const ezTypedObject& rhs) const
+  bool operator==(const WTypedObject& rhs) const
   {
     return m_pObject == rhs.m_pObject;
   }
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezTypedObject&);
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WTypedObject&);
 };
 
-/// ezVariant is a class that can store different types of variables, which is useful in situations where it is not clear up front,
+/// WVariant is a class that can store different types of variables, which is useful in situations where it is not clear up front,
 /// which type of data will be passed around.
 ///
-/// The variant supports a fixed list of types that it can store (\see ezVariant::Type). All types of 16 bytes or less in size can be stored
+/// The variant supports a fixed list of types that it can store (\see WVariant::Type). All types of 16 bytes or less in size can be stored
 /// without requiring a heap allocation. For larger types memory is allocated on the heap. In general variants should be used for code that
-/// needs to be flexible. Although ezVariant is implemented very efficiently, it should be avoided to use ezVariant in code that needs to be
+/// needs to be flexible. Although WVariant is implemented very efficiently, it should be avoided to use WVariant in code that needs to be
 /// fast.
-class EZ_FOUNDATION_DLL ezVariant
+class W_FOUNDATION_DLL WVariant
 {
 public:
-  using Type = ezVariantType;
+  using Type = WVariantType;
   template <typename T>
-  using TypeDeduction = ezVariantTypeDeduction<T>;
+  using TypeDeduction = WVariantTypeDeduction<T>;
 
   /// helper struct to wrap a string pointer
   struct StringWrapper
   {
-    EZ_ALWAYS_INLINE StringWrapper(const char* szStr)
+    W_ALWAYS_INLINE StringWrapper(const char* szStr)
       : m_str(szStr)
     {
     }
@@ -58,84 +58,84 @@ public:
   };
 
   /// Initializes the variant to be 'Invalid'
-  ezVariant(); // [tested]
+  WVariant(); // [tested]
 
   /// Copies the data from the other variant.
   ///
   /// \note If the data of the variant needed to be allocated on the heap, it will be shared among variants.
   /// Thus, once you have stored such a type inside a variant, you can copy it to other variants, without introducing
   /// additional memory allocations.
-  ezVariant(const ezVariant& other); // [tested]
+  WVariant(const WVariant& other); // [tested]
 
   /// Moves the data from the other variant.
-  ezVariant(ezVariant&& other) noexcept; // [tested]
+  WVariant(WVariant&& other) noexcept; // [tested]
 
-  ezVariant(const bool& value);
-  ezVariant(const ezInt8& value);
-  ezVariant(const ezUInt8& value);
-  ezVariant(const ezInt16& value);
-  ezVariant(const ezUInt16& value);
-  ezVariant(const ezInt32& value);
-  ezVariant(const ezUInt32& value);
-  ezVariant(const ezInt64& value);
-  ezVariant(const ezUInt64& value);
-  ezVariant(const float& value);
-  ezVariant(const double& value);
-  ezVariant(const ezColor& value);
-  ezVariant(const ezVec2& value);
-  ezVariant(const ezVec3& value);
-  ezVariant(const ezVec4& value);
-  ezVariant(const ezVec2I32& value);
-  ezVariant(const ezVec3I32& value);
-  ezVariant(const ezVec4I32& value);
-  ezVariant(const ezVec2U32& value);
-  ezVariant(const ezVec3U32& value);
-  ezVariant(const ezVec4U32& value);
-  ezVariant(const ezQuat& value);
-  ezVariant(const ezMat3& value);
-  ezVariant(const ezMat4& value);
-  ezVariant(const ezTransform& value);
-  ezVariant(const char* value);
-  ezVariant(const ezString& value);
-  ezVariant(const ezUntrackedString& value);
-  ezVariant(const ezStringView& value, bool bCopyString = true);
-  ezVariant(const ezDataBuffer& value);
-  ezVariant(const ezTime& value);
-  ezVariant(const ezUuid& value);
-  ezVariant(const ezAngle& value);
-  ezVariant(const ezColorGammaUB& value);
-  ezVariant(const ezHashedString& value);
-  ezVariant(const ezTempHashedString& value);
+  WVariant(const bool& value);
+  WVariant(const WInt8& value);
+  WVariant(const WUInt8& value);
+  WVariant(const WInt16& value);
+  WVariant(const WUInt16& value);
+  WVariant(const WInt32& value);
+  WVariant(const WUInt32& value);
+  WVariant(const WInt64& value);
+  WVariant(const WUInt64& value);
+  WVariant(const float& value);
+  WVariant(const double& value);
+  WVariant(const WColor& value);
+  WVariant(const WVec2& value);
+  WVariant(const WVec3& value);
+  WVariant(const WVec4& value);
+  WVariant(const WVec2I32& value);
+  WVariant(const WVec3I32& value);
+  WVariant(const WVec4I32& value);
+  WVariant(const WVec2U32& value);
+  WVariant(const WVec3U32& value);
+  WVariant(const WVec4U32& value);
+  WVariant(const WQuat& value);
+  WVariant(const WMat3& value);
+  WVariant(const WMat4& value);
+  WVariant(const WTransform& value);
+  WVariant(const char* value);
+  WVariant(const WString& value);
+  WVariant(const WUntrackedString& value);
+  WVariant(const WStringView& value, bool bCopyString = true);
+  WVariant(const WDataBuffer& value);
+  WVariant(const WTime& value);
+  WVariant(const WUuid& value);
+  WVariant(const WAngle& value);
+  WVariant(const WColorGammaUB& value);
+  WVariant(const WHashedString& value);
+  WVariant(const WTempHashedString& value);
 
-  ezVariant(const ezVariantArray& value);
-  ezVariant(const ezVariantDictionary& value);
+  WVariant(const WVariantArray& value);
+  WVariant(const WVariantDictionary& value);
 
-  ezVariant(const ezTypedPointer& value);
-  ezVariant(const ezTypedObject& value);
+  WVariant(const WTypedPointer& value);
+  WVariant(const WTypedObject& value);
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
-  ezVariant(const T& value);
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::CustomTypeCast, int> = 0>
+  WVariant(const T& value);
 
   template <typename T>
-  ezVariant(const T* value);
+  WVariant(const T* value);
 
   /// Initializes to a TypedPointer of the given object and type.
-  ezVariant(void* value, const ezRTTI* pType);
+  WVariant(void* value, const WRTTI* pType);
 
   /// Initializes to a TypedObject by cloning the given object and type.
-  void CopyTypedObject(const void* value, const ezRTTI* pType); // [tested]
+  void CopyTypedObject(const void* value, const WRTTI* pType); // [tested]
 
   /// Initializes to a TypedObject by taking ownership of the given object and type.
-  void MoveTypedObject(void* value, const ezRTTI* pType); // [tested]
+  void MoveTypedObject(void* value, const WRTTI* pType); // [tested]
 
   /// If necessary, this will deallocate any heap memory that is not in use any more.
-  ~ezVariant();
+  ~WVariant();
 
   /// Copies the data from the \a other variant into this one.
-  void operator=(const ezVariant& other); // [tested]
+  void operator=(const WVariant& other); // [tested]
 
   /// Moves the data from the \a other variant into this one.
-  void operator=(ezVariant&& other) noexcept; // [tested]
+  void operator=(WVariant&& other) noexcept; // [tested]
 
   /// Deduces the type of \a T and stores \a value.
   ///
@@ -149,15 +149,15 @@ public:
   ///
   /// \note If the two types are not numbers and not equal, an assert will occur. So be careful to only compare variants
   /// that can either both be converted to double (\see CanConvertTo()) or whose types are equal.
-  bool operator==(const ezVariant& other) const; // [tested]
+  bool operator==(const WVariant& other) const; // [tested]
 
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezVariant&);
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WVariant&);
 
   /// See non-templated operator==
   template <typename T>
   bool operator==(const T& other) const; // [tested]
 
-#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+#if W_DISABLED(W_USE_CPP20_OPERATORS)
   /// See non-templated operator!=
   template <typename T>
   bool operator!=(const T& other) const // [tested]
@@ -177,29 +177,29 @@ public:
   /// Returns whether the stored type is floating point (float or double).
   bool IsFloatingPoint() const; // [tested]
 
-  /// Returns whether the stored type is a string (ezString or ezStringView).
+  /// Returns whether the stored type is a string (WString or WStringView).
   bool IsString() const; // [tested]
 
-  /// Returns whether the stored type is a hashed string (ezHashedString or ezTempHashedString).
+  /// Returns whether the stored type is a hashed string (WHashedString or WTempHashedString).
   bool IsHashedString() const;
 
   /// Returns whether the stored type is exactly the given type.
   ///
   /// \note This explicitly also differentiates between the different integer types.
   /// So when the variant stores an Int32, IsA<Int64>() will return false, even though the types could be converted.
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::DirectCast, int> = 0>
   bool IsA() const; // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::PointerCast, int> = 0>
   bool IsA() const; // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::TypedObject, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::TypedObject, int> = 0>
   bool IsA() const; // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::CustomTypeCast, int> = 0>
   bool IsA() const; // [tested]
 
-  /// Returns the exact ezVariant::Type value.
+  /// Returns the exact WVariant::Type value.
   Type::Enum GetType() const; // [tested]
 
   /// Returns the variants value as the provided type.
@@ -209,29 +209,29 @@ public:
   /// So be careful to use this function only when you know exactly that the stored type matches the expected type.
   ///
   /// Prefer to use ConvertTo() when you can instead.
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::DirectCast, int> = 0>
   const T& Get() const; // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::PointerCast, int> = 0>
   T Get() const;        // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::TypedObject, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::TypedObject, int> = 0>
   const T Get() const;  // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::CustomTypeCast, int> = 0>
   const T& Get() const; // [tested]
 
-  /// Returns an writable ezTypedPointer to the internal data.
+  /// Returns an writable WTypedPointer to the internal data.
   /// If the data is currently shared a clone will be made to ensure we hold the only reference.
-  ezTypedPointer GetWriteAccess(); // [tested]
+  WTypedPointer GetWriteAccess(); // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::DirectCast, int> = 0>
   T& GetWritable();                // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::PointerCast, int> = 0>
   T GetWritable();                 // [tested]
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::CustomTypeCast, int> = 0>
   T& GetWritable();                // [tested]
 
 
@@ -239,19 +239,19 @@ public:
   /// For TypedPointer and TypedObject this will return a pointer to the target object.
   const void* GetData() const; // [tested]
 
-  /// Returns the ezRTTI type of the held value.
+  /// Returns the WRTTI type of the held value.
   /// For TypedPointer and TypedObject this will return the type of the target object.
-  const ezRTTI* GetReflectedType() const; // [tested]
+  const WRTTI* GetReflectedType() const; // [tested]
 
   /// Returns the sub value at iIndex. This could be an element in an array or a member property inside a reflected type.
   ///
   /// Out of bounds access is handled gracefully and will return an invalid variant.
-  const ezVariant operator[](ezUInt32 uiIndex) const; // [tested]
+  const WVariant operator[](WUInt32 uiIndex) const; // [tested]
 
   /// Returns the sub value with szKey. This could be a value in a dictionary or a member property inside a reflected type.
   ///
   /// This function will return an invalid variant if no corresponding sub value is found.
-  const ezVariant operator[](StringWrapper key) const; // [tested]
+  const WVariant operator[](StringWrapper key) const; // [tested]
 
   /// Returns whether the stored type can generally be converted to the desired type.
   ///
@@ -278,10 +278,10 @@ public:
   /// that ConvertTo() will succeed. Conversion between numbers and to strings will generally succeed. However, converting from a string to
   /// another type can fail or succeed, depending on the exact string value.
   template <typename T>
-  T ConvertTo(ezResult* out_pConversionStatus = nullptr) const; // [tested]
+  T ConvertTo(WResult* out_pConversionStatus = nullptr) const; // [tested]
 
   /// Same as the templated function.
-  ezVariant ConvertTo(Type::Enum type, ezResult* out_pConversionStatus = nullptr) const; // [tested]
+  WVariant ConvertTo(Type::Enum type, WResult* out_pConversionStatus = nullptr) const; // [tested]
 
   /// This will call the overloaded operator() (function call operator) of the provided functor.
   ///
@@ -294,19 +294,19 @@ public:
   static auto DispatchTo(Functor& ref_functor, Type::Enum type, Args&&... args); // [tested]
 
   /// Computes the hash value of the stored data. Returns uiSeed (unchanged) for an invalid Variant.
-  ezUInt64 ComputeHash(ezUInt64 uiSeed = 0) const;
+  WUInt64 ComputeHash(WUInt64 uiSeed = 0) const;
 
 private:
-  friend class ezVariantHelper;
+  friend class WVariantHelper;
   friend struct CompareFunc;
   friend struct GetTypeFromVariantFunc;
 
   struct SharedData
   {
     void* m_Ptr;
-    const ezRTTI* m_pType;
-    ezAtomicInteger32 m_uiRef = 1;
-    EZ_ALWAYS_INLINE SharedData(void* pPtr, const ezRTTI* pType)
+    const WRTTI* m_pType;
+    WAtomicInteger32 m_uiRef = 1;
+    W_ALWAYS_INLINE SharedData(void* pPtr, const WRTTI* pType)
       : m_Ptr(pPtr)
       , m_pType(pType)
     {
@@ -322,7 +322,7 @@ private:
     T m_t;
 
   public:
-    EZ_ALWAYS_INLINE TypedSharedData(const T& value, const ezRTTI* pType = nullptr)
+    W_ALWAYS_INLINE TypedSharedData(const T& value, const WRTTI* pType = nullptr)
       : SharedData(&m_t, pType)
       , m_t(value)
     {
@@ -330,14 +330,14 @@ private:
 
     virtual SharedData* Clone() const override
     {
-      return EZ_DEFAULT_NEW(TypedSharedData<T>, m_t, m_pType);
+      return W_DEFAULT_NEW(TypedSharedData<T>, m_t, m_pType);
     }
   };
 
   class RTTISharedData : public SharedData
   {
   public:
-    RTTISharedData(void* pData, const ezRTTI* pType);
+    RTTISharedData(void* pData, const WRTTI* pType);
 
     ~RTTISharedData();
 
@@ -347,8 +347,8 @@ private:
   struct InlinedStruct
   {
     constexpr static int DataSize = 4 * sizeof(float) - sizeof(void*);
-    ezUInt8 m_Data[DataSize];
-    const ezRTTI* m_pType;
+    WUInt8 m_Data[DataSize];
+    const WRTTI* m_pType;
   };
 
   union Data
@@ -358,8 +358,8 @@ private:
     InlinedStruct inlined;
   } m_Data;
 
-  ezUInt32 m_uiType : 31;
-  ezUInt32 m_bIsShared : 1; // NOLINT(ez*)
+  WUInt32 m_uiType : 31;
+  WUInt32 m_bIsShared : 1; // NOLINT(W*)
 
   template <typename T>
   void InitInplace(const T& value);
@@ -368,47 +368,47 @@ private:
   void InitShared(const T& value);
 
   template <typename T>
-  void InitTypedObject(const T& value, ezTraitInt<0>);
+  void InitTypedObject(const T& value, WTraitInt<0>);
   template <typename T>
-  void InitTypedObject(const T& value, ezTraitInt<1>);
+  void InitTypedObject(const T& value, WTraitInt<1>);
 
-  void InitTypedPointer(void* value, const ezRTTI* pType);
+  void InitTypedPointer(void* value, const WRTTI* pType);
 
   void Release();
-  void CopyFrom(const ezVariant& other);
-  void MoveFrom(ezVariant&& other);
+  void CopyFrom(const WVariant& other);
+  void MoveFrom(WVariant&& other);
 
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::DirectCast, int> = 0>
   const T& Cast() const;
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::PointerCast, int> = 0>
   T Cast() const;
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::TypedObject, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::TypedObject, int> = 0>
   const T Cast() const;
-  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
+  template <typename T, typename std::enable_if_t<WVariantTypeDeduction<T>::classification == WVariantClass::CustomTypeCast, int> = 0>
   const T& Cast() const;
 
-  static bool IsNumberStatic(ezUInt32 type);
-  static bool IsFloatingPointStatic(ezUInt32 type);
-  static bool IsStringStatic(ezUInt32 type);
-  static bool IsHashedStringStatic(ezUInt32 type);
-  static bool IsVector2Static(ezUInt32 type);
-  static bool IsVector3Static(ezUInt32 type);
-  static bool IsVector4Static(ezUInt32 type);
+  static bool IsNumberStatic(WUInt32 type);
+  static bool IsFloatingPointStatic(WUInt32 type);
+  static bool IsStringStatic(WUInt32 type);
+  static bool IsHashedStringStatic(WUInt32 type);
+  static bool IsVector2Static(WUInt32 type);
+  static bool IsVector3Static(WUInt32 type);
+  static bool IsVector4Static(WUInt32 type);
 
-  // Needed to prevent including ezRTTI in ezVariant.h
-  static bool IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2);
-  static ezStringView GetTypeName(const ezRTTI* pType);
+  // Needed to prevent including WRTTI in WVariant.h
+  static bool IsDerivedFrom(const WRTTI* pType1, const WRTTI* pType2);
+  static WStringView GetTypeName(const WRTTI* pType);
 
   template <typename T>
   T ConvertNumber() const;
 };
 
-/// An overload of ezDynamicCast for dynamic casting a variant to a pointer type.
+/// An overload of WDynamicCast for dynamic casting a variant to a pointer type.
 ///
-/// If the ezVariant stores an ezTypedPointer pointer, this pointer will be dynamically cast to T*.
-/// If the ezVariant stores any other type (or nothing), nullptr is returned.
+/// If the WVariant stores an WTypedPointer pointer, this pointer will be dynamically cast to T*.
+/// If the WVariant stores any other type (or nothing), nullptr is returned.
 template <typename T>
-EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
+W_ALWAYS_INLINE T WDynamicCast(const WVariant& variant)
 {
   if (variant.IsA<T>())
   {
@@ -419,18 +419,18 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
 }
 
 // Simple math operator overloads. An invalid variant is returned if the given variants have incompatible types.
-EZ_FOUNDATION_DLL ezVariant operator+(const ezVariant& a, const ezVariant& b);
-EZ_FOUNDATION_DLL ezVariant operator-(const ezVariant& a, const ezVariant& b);
-EZ_FOUNDATION_DLL ezVariant operator*(const ezVariant& a, const ezVariant& b);
-EZ_FOUNDATION_DLL ezVariant operator/(const ezVariant& a, const ezVariant& b);
+W_FOUNDATION_DLL WVariant operator+(const WVariant& a, const WVariant& b);
+W_FOUNDATION_DLL WVariant operator-(const WVariant& a, const WVariant& b);
+W_FOUNDATION_DLL WVariant operator*(const WVariant& a, const WVariant& b);
+W_FOUNDATION_DLL WVariant operator/(const WVariant& a, const WVariant& b);
 
-namespace ezMath
+namespace WMath
 {
-  /// An overload of ezMath::Lerp to interpolate variants. A and b must have the same type.
+  /// An overload of WMath::Lerp to interpolate variants. A and b must have the same type.
   ///
   /// If the type can't be interpolated like e.g. strings, a is returned for a fFactor less than 0.5, b is returned for a fFactor greater or equal to 0.5.
-  EZ_FOUNDATION_DLL ezVariant Lerp(const ezVariant& a, const ezVariant& b, double fFactor);
-} // namespace ezMath
+  W_FOUNDATION_DLL WVariant Lerp(const WVariant& a, const WVariant& b, double fFactor);
+} // namespace WMath
 
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>
 

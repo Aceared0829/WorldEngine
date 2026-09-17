@@ -1,114 +1,114 @@
 #include <RendererCore/Pipeline/SubGraphNode.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubGraphTextureInputNode, 1, ezRTTIDefaultAllocator<ezSubGraphTextureInputNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSubGraphTextureInputNode, 1, WRTTIDefaultAllocator<WSubGraphTextureInputNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_Value),
+    W_MEMBER_PROPERTY("Value", m_Value),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Subgraph"),
-    new ezTitleAttribute("Texture Input: {Name}"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
+    new WCategoryAttribute("Subgraph"),
+    new WTitleAttribute("Texture Input: {Name}"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Blue)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubGraphTextureOutputNode, 1, ezRTTIDefaultAllocator<ezSubGraphTextureOutputNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSubGraphTextureOutputNode, 1, WRTTIDefaultAllocator<WSubGraphTextureOutputNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_Value),
+    W_MEMBER_PROPERTY("Value", m_Value),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Subgraph"),
-    new ezTitleAttribute("Texture Output: {Name}"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
+    new WCategoryAttribute("Subgraph"),
+    new WTitleAttribute("Texture Output: {Name}"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Blue)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubGraphBufferInputNode, 1, ezRTTIDefaultAllocator<ezSubGraphBufferInputNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSubGraphBufferInputNode, 1, WRTTIDefaultAllocator<WSubGraphBufferInputNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_Value),
+    W_MEMBER_PROPERTY("Value", m_Value),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Subgraph"),
-    new ezTitleAttribute("Buffer Input: {Name}"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Teal)),
+    new WCategoryAttribute("Subgraph"),
+    new WTitleAttribute("Buffer Input: {Name}"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Teal)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubGraphBufferOutputNode, 1, ezRTTIDefaultAllocator<ezSubGraphBufferOutputNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSubGraphBufferOutputNode, 1, WRTTIDefaultAllocator<WSubGraphBufferOutputNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_Value),
+    W_MEMBER_PROPERTY("Value", m_Value),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Subgraph"),
-    new ezTitleAttribute("Buffer Output: {Name}"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Teal)),
+    new WCategoryAttribute("Subgraph"),
+    new WTitleAttribute("Buffer Output: {Name}"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Teal)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubGraphNode, 1, ezRTTIDefaultAllocator<ezSubGraphNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSubGraphNode, 1, WRTTIDefaultAllocator<WSubGraphNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Pipeline", m_sPipeline)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_RenderPipeline", ezDependencyFlags::Transform)),
+    W_MEMBER_PROPERTY("Pipeline", m_sPipeline)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_RenderPipeline", WDependencyFlags::Transform)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Subgraph"),
-    new ezTitleAttribute("Subgraph: {Pipeline}"),
+    new WCategoryAttribute("Subgraph"),
+    new WTitleAttribute("Subgraph: {Pipeline}"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSubGraphTextureInputNode::ezSubGraphTextureInputNode()
-  : ezRenderPipelinePass("TextureInput")
+WSubGraphTextureInputNode::WSubGraphTextureInputNode()
+  : WRenderPipelinePass("TextureInput")
 {
 }
 
-ezSubGraphTextureOutputNode::ezSubGraphTextureOutputNode()
-  : ezRenderPipelinePass("TextureOutput")
+WSubGraphTextureOutputNode::WSubGraphTextureOutputNode()
+  : WRenderPipelinePass("TextureOutput")
 {
 }
 
-ezSubGraphBufferInputNode::ezSubGraphBufferInputNode()
-  : ezRenderPipelinePass("BufferInput")
+WSubGraphBufferInputNode::WSubGraphBufferInputNode()
+  : WRenderPipelinePass("BufferInput")
 {
 }
 
-ezSubGraphBufferOutputNode::ezSubGraphBufferOutputNode()
-  : ezRenderPipelinePass("BufferOutput")
+WSubGraphBufferOutputNode::WSubGraphBufferOutputNode()
+  : WRenderPipelinePass("BufferOutput")
 {
 }
 
-ezSubGraphNode::ezSubGraphNode()
-  : ezRenderPipelineNode()
+WSubGraphNode::WSubGraphNode()
+  : WRenderPipelineNode()
 {
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineSubgraph);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineSubgraph);

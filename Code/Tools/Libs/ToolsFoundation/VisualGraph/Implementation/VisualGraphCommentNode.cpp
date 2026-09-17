@@ -3,20 +3,20 @@
 #include <ToolsFoundation/VisualGraph/VisualGraphCommentNode.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualGraphComment, 1, ezRTTIDefaultAllocator<ezVisualGraphComment>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualGraphComment, 1, WRTTIDefaultAllocator<WVisualGraphComment>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Comment", m_sComment)->AddAttributes(new ezDefaultValueAttribute("Comment")),
-    EZ_MEMBER_PROPERTY("Size", m_vSize),
-    EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColorScheme::DarkUI(ezColorScheme::Gray))),
+    W_MEMBER_PROPERTY("Comment", m_sComment)->AddAttributes(new WDefaultValueAttribute("Comment")),
+    W_MEMBER_PROPERTY("Size", m_vSize),
+    W_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new WDefaultValueAttribute(WColorScheme::DarkUI(WColorScheme::Gray))),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Misc"),
+    new WCategoryAttribute("Misc"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

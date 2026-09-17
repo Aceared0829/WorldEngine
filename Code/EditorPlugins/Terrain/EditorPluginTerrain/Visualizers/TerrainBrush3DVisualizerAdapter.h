@@ -3,11 +3,11 @@
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-class ezTerrainBrush3DVisualizerAdapter : public ezVisualizerAdapter
+class WTerrainBrush3DVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezTerrainBrush3DVisualizerAdapter();
-  ~ezTerrainBrush3DVisualizerAdapter();
+  WTerrainBrush3DVisualizerAdapter();
+  ~WTerrainBrush3DVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -15,6 +15,6 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  ezEngineGizmoHandle m_hLinesInner;
-  ezEngineGizmoHandle m_hLinesOuter;
+  WEngineGizmoHandle m_hLinesInner;
+  WEngineGizmoHandle m_hLinesOuter;
 };

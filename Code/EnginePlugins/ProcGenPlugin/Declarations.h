@@ -10,13 +10,13 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 
-using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
-using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
-using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+using WColorGradientResourceHandle = WTypedResourceHandle<class WColorGradientResource>;
+using WPrefabResourceHandle = WTypedResourceHandle<class WPrefabResource>;
+using WSurfaceResourceHandle = WTypedResourceHandle<class WSurfaceResource>;
 
-struct ezProcGenBinaryOperator
+struct WProcGenBinaryOperator
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -31,11 +31,11 @@ struct ezProcGenBinaryOperator
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBinaryOperator);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcGenBinaryOperator);
 
-struct ezProcGenBlendMode
+struct WProcGenBlendMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -51,11 +51,11 @@ struct ezProcGenBlendMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBlendMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcGenBlendMode);
 
-struct ezProcVertexColorChannelMapping
+struct WProcVertexColorChannelMapping
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -70,24 +70,24 @@ struct ezProcVertexColorChannelMapping
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorChannelMapping);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcVertexColorChannelMapping);
 
-struct ezProcVertexColorMapping
+struct WProcVertexColorMapping
 {
-  ezEnum<ezProcVertexColorChannelMapping> m_R = ezProcVertexColorChannelMapping::R;
-  ezEnum<ezProcVertexColorChannelMapping> m_G = ezProcVertexColorChannelMapping::G;
-  ezEnum<ezProcVertexColorChannelMapping> m_B = ezProcVertexColorChannelMapping::B;
-  ezEnum<ezProcVertexColorChannelMapping> m_A = ezProcVertexColorChannelMapping::A;
+  WEnum<WProcVertexColorChannelMapping> m_R = WProcVertexColorChannelMapping::R;
+  WEnum<WProcVertexColorChannelMapping> m_G = WProcVertexColorChannelMapping::G;
+  WEnum<WProcVertexColorChannelMapping> m_B = WProcVertexColorChannelMapping::B;
+  WEnum<WProcVertexColorChannelMapping> m_A = WProcVertexColorChannelMapping::A;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorMapping);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcVertexColorMapping);
 
-struct ezProcPlacementMode
+struct WProcPlacementMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -99,11 +99,11 @@ struct ezProcPlacementMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcPlacementMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcPlacementMode);
 
-struct ezProcPlacementPattern
+struct WProcPlacementPattern
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -117,11 +117,11 @@ struct ezProcPlacementPattern
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcPlacementPattern);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcPlacementPattern);
 
-struct ezProcVolumeImageMode
+struct WProcVolumeImageMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -135,11 +135,11 @@ struct ezProcVolumeImageMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVolumeImageMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcVolumeImageMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
   class PlacementTile;
   class FindPlacementTilesTask;
@@ -150,8 +150,8 @@ namespace ezProcGenInternal
 
   struct InvalidatedArea
   {
-    ezBoundingBox m_Box;
-    ezWorld* m_pWorld = nullptr;
+    WBoundingBox m_Box;
+    WWorld* m_pWorld = nullptr;
   };
 
   struct Pattern
@@ -163,26 +163,26 @@ namespace ezProcGenInternal
       float threshold;
     };
 
-    ezArrayPtr<Point> m_Points;
+    WArrayPtr<Point> m_Points;
     float m_fSize;
   };
 
-  struct EZ_PROCGENPLUGIN_DLL GraphSharedDataBase : public ezRefCounted
+  struct W_PROCGENPLUGIN_DLL GraphSharedDataBase : public WRefCounted
   {
     virtual ~GraphSharedDataBase();
   };
 
-  struct EZ_PROCGENPLUGIN_DLL Output : public ezRefCounted
+  struct W_PROCGENPLUGIN_DLL Output : public WRefCounted
   {
     virtual ~Output();
 
-    ezHashedString m_sName;
+    WHashedString m_sName;
 
-    ezSmallArray<ezUInt8, 4> m_VolumeTagSetIndices;
-    ezSmallArray<ezUInt8, 4> m_CurveIndices;
-    ezSharedPtr<const GraphSharedDataBase> m_pGraphSharedData;
+    WSmallArray<WUInt8, 4> m_VolumeTagSetIndices;
+    WSmallArray<WUInt8, 4> m_CurveIndices;
+    WSharedPtr<const GraphSharedDataBase> m_pGraphSharedData;
 
-    ezUniquePtr<ezExpressionByteCode> m_pByteCode;
+    WUniquePtr<WExpressionByteCode> m_pByteCode;
   };
 
   struct PlacementOutput : public Output
@@ -194,99 +194,99 @@ namespace ezProcGenInternal
       return !m_ObjectsToPlace.IsEmpty() && m_pPattern != nullptr && m_fFootprint > 0.0f && m_fCullDistance > 0.0f && m_pByteCode != nullptr;
     }
 
-    ezHybridArray<ezPrefabResourceHandle, 4> m_ObjectsToPlace;
+    WHybridArray<WPrefabResourceHandle, 4> m_ObjectsToPlace;
 
     const Pattern* m_pPattern = nullptr;
     float m_fFootprint = 1.0f;
 
-    ezVec3 m_vMinOffset = ezVec3::MakeZero();
-    ezVec3 m_vMaxOffset = ezVec3::MakeZero();
+    WVec3 m_vMinOffset = WVec3::MakeZero();
+    WVec3 m_vMaxOffset = WVec3::MakeZero();
 
-    ezAngle m_YawRotationSnap = ezAngle::MakeFromRadian(0.0f);
+    WAngle m_YawRotationSnap = WAngle::MakeFromRadian(0.0f);
     float m_fAlignToNormal = 1.0f;
 
-    ezVec3 m_vMinScale = ezVec3(1.0f);
-    ezVec3 m_vMaxScale = ezVec3(1.0f);
+    WVec3 m_vMinScale = WVec3(1.0f);
+    WVec3 m_vMaxScale = WVec3(1.0f);
 
     float m_fCullDistance = 30.0f;
 
-    ezUInt32 m_uiCollisionLayer = 0;
+    WUInt32 m_uiCollisionLayer = 0;
 
-    ezColorGradientResourceHandle m_hColorGradient;
+    WColorGradientResourceHandle m_hColorGradient;
 
-    ezSurfaceResourceHandle m_hSurface;
+    WSurfaceResourceHandle m_hSurface;
 
-    ezEnum<ezProcPlacementMode> m_Mode;
-    ezUInt8 m_uiNumAdditionalRays = 4;
+    WEnum<WProcPlacementMode> m_Mode;
+    WUInt8 m_uiNumAdditionalRays = 4;
     float m_fRaySpread = 1.0f;
   };
 
-  struct EZ_PROCGENPLUGIN_DLL VertexColorOutput : public Output
+  struct W_PROCGENPLUGIN_DLL VertexColorOutput : public Output
   {
   };
 
-  struct EZ_PROCGENPLUGIN_DLL ExpressionInputs
+  struct W_PROCGENPLUGIN_DLL ExpressionInputs
   {
-    static ezHashedString s_sPosition;
-    static ezHashedString s_sPositionX;
-    static ezHashedString s_sPositionY;
-    static ezHashedString s_sPositionZ;
-    static ezHashedString s_sNormal;
-    static ezHashedString s_sNormalX;
-    static ezHashedString s_sNormalY;
-    static ezHashedString s_sNormalZ;
-    static ezHashedString s_sColor;
-    static ezHashedString s_sColorR;
-    static ezHashedString s_sColorG;
-    static ezHashedString s_sColorB;
-    static ezHashedString s_sColorA;
-    static ezHashedString s_sPointIndex;
+    static WHashedString s_sPosition;
+    static WHashedString s_sPositionX;
+    static WHashedString s_sPositionY;
+    static WHashedString s_sPositionZ;
+    static WHashedString s_sNormal;
+    static WHashedString s_sNormalX;
+    static WHashedString s_sNormalY;
+    static WHashedString s_sNormalZ;
+    static WHashedString s_sColor;
+    static WHashedString s_sColorR;
+    static WHashedString s_sColorG;
+    static WHashedString s_sColorB;
+    static WHashedString s_sColorA;
+    static WHashedString s_sPointIndex;
   };
 
-  struct EZ_PROCGENPLUGIN_DLL ExpressionOutputs
+  struct W_PROCGENPLUGIN_DLL ExpressionOutputs
   {
-    static ezHashedString s_sOutDensity;
-    static ezHashedString s_sOutScale;
-    static ezHashedString s_sOutColorIndex;
-    static ezHashedString s_sOutObjectIndex;
+    static WHashedString s_sOutDensity;
+    static WHashedString s_sOutScale;
+    static WHashedString s_sOutColorIndex;
+    static WHashedString s_sOutObjectIndex;
 
-    static ezHashedString s_sOutColor;
-    static ezHashedString s_sOutColorR;
-    static ezHashedString s_sOutColorG;
-    static ezHashedString s_sOutColorB;
-    static ezHashedString s_sOutColorA;
+    static WHashedString s_sOutColor;
+    static WHashedString s_sOutColorR;
+    static WHashedString s_sOutColorG;
+    static WHashedString s_sOutColorB;
+    static WHashedString s_sOutColorA;
   };
 
   struct PlacementPoint
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezVec3 m_vPosition;
+    WVec3 m_vPosition;
     float m_fScale;
-    ezVec3 m_vNormal;
-    ezUInt8 m_uiColorIndex;
-    ezUInt8 m_uiObjectIndex;
-    ezUInt16 m_uiPointIndex;
+    WVec3 m_vNormal;
+    WUInt8 m_uiColorIndex;
+    WUInt8 m_uiObjectIndex;
+    WUInt16 m_uiPointIndex;
   };
 
   struct PlacementTransform
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezSimdTransform m_Transform;
-    ezColorLinear16f m_ObjectColor;
-    ezUInt16 m_uiPointIndex;
-    ezUInt8 m_uiObjectIndex;
+    WSimdTransform m_Transform;
+    WColorLinear16f m_ObjectColor;
+    WUInt16 m_uiPointIndex;
+    WUInt8 m_uiObjectIndex;
     bool m_bHasValidColor;
-    ezUInt32 m_uiPadding;
+    WUInt32 m_uiPadding;
   };
 
   struct PlacementTileDesc
   {
-    ezComponentHandle m_hComponent;
-    ezUInt32 m_uiOutputIndex;
-    ezInt32 m_iPosX;
-    ezInt32 m_iPosY;
+    WComponentHandle m_hComponent;
+    WUInt32 m_uiOutputIndex;
+    WInt32 m_iPosX;
+    WInt32 m_iPosY;
     float m_fMinZ;
     float m_fMaxZ;
     float m_fTileSize;
@@ -297,15 +297,15 @@ namespace ezProcGenInternal
       return m_hComponent == other.m_hComponent && m_uiOutputIndex == other.m_uiOutputIndex && m_iPosX == other.m_iPosX && m_iPosY == other.m_iPosY;
     }
 
-    ezBoundingBox GetBoundingBox() const
+    WBoundingBox GetBoundingBox() const
     {
-      ezVec2 vCenter = ezVec2(m_iPosX * m_fTileSize, m_iPosY * m_fTileSize);
-      ezVec3 vMin = (vCenter - ezVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMinZ);
-      ezVec3 vMax = (vCenter + ezVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMaxZ);
+      WVec2 vCenter = WVec2(m_iPosX * m_fTileSize, m_iPosY * m_fTileSize);
+      WVec3 vMin = (vCenter - WVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMinZ);
+      WVec3 vMax = (vCenter + WVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMaxZ);
 
-      return ezBoundingBox::MakeFromMinMax(vMin, vMax);
+      return WBoundingBox::MakeFromMinMax(vMin, vMax);
     }
 
-    ezHybridArray<ezSimdMat4f, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
+    WHybridArray<WSimdMat4f, 8, WAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
   };
-} // namespace ezProcGenInternal
+} // namespace WProcGenInternal

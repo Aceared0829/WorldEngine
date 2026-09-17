@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="vk::Flags&lt;*&gt;">
+		<DisplayString>[{($T1)m_mask}]</DisplayString>
+	</Type>
+
+	<!-- Strings-->
+	<Type Name="WHybridStringBase&lt;*&gt;">
+		<AlternativeType Name="WStringBuilder" />
+		<DisplayString>{m_Data.m_pElements,s8}</DisplayString>
+		<StringView>m_Data.m_pElements,s8</StringView>
+		<Expand>
+			<Item Name="String">m_Data.m_pElements,s8</Item>
+			<Item Name="ElementCount">m_Data.m_uiCount-1</Item>
+		</Expand>
+	</Type>
+
+    <Type Name="WStringView">
+        <DisplayString Condition="m_pStart != 0">{m_pStart,[m_uiElementCount]}</DisplayString>
+        <DisplayString Condition="m_pStart == 0">&lt;Invalid String&gt;</DisplayString>
+        <StringView>m_pStart,[m_uiElementCount]</StringView>
+        <Expand>
+            <Item Name="String" Condition="m_pStart != 0">m_pStart,[m_uiElementCount]</Item>
+            <Item Name="ElementCount">m_uiElementCount</Item>
+            <Item Name="Valid">m_pStart != 0</Item>
+            <Item Name="ZeroTerminated" Condition="m_pStart != 0">m_pStart[m_uiElementCount] == 0</Item>
+        </Expand>
+    </Type>
+
+    <Type Name="WStringIterator">
+		<AlternativeType Name="WStringReverseIterator" />
+		<DisplayString Condition="m_pCurPtr == 0">&lt;Invalid Iterator&gt;</DisplayString>
+		<DisplayString Condition="(m_pCurPtr[1] &amp; 0xC0) != 0x80">{m_pCurPtr,[1]s8}</DisplayString>
+		<DisplayString Condition="(m_pCurPtr[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[2] &amp; 0xC0) != 0x80">{m_pCurPtr,[2]s8}</DisplayString>
+		<DisplayString Condition="(m_pCurPtr[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[3] &amp; 0xC0) != 0x80">{m_pCurPtr,[3]s8}</DisplayString>
+		<DisplayString Condition="(m_pCurPtr[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[3] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[4] &amp; 0xC0) != 0x80">{m_pCurPtr,[4]s8}</DisplayString>
+	</Type>
+
+	<Type Name="WHashedString">
+		<DisplayString>{m_Data.m_pElement->m_Value.m_sString}</DisplayString>
+		<StringView>m_Data.m_pElement->m_Value.m_sString</StringView>
+		<Expand>
+			<Item Name="hash">m_Data.m_pElement->m_Key,x</Item>
+		</Expand>
+	</Type>
+
+	<!-- Container & Arrays-->
+	<Type Name="WDynamicArrayBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WArrayBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WSmallArrayBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<Item Name="userdata">m_uiUserData</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>(m_uiCapacity &lt;= $T2) ? ($T1*)((intptr_t)(m_StaticData)) : m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WStaticArray&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>($T1*)m_Data</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WHashTableBase&lt;*&gt;">
+    <AlternativeType Name="WHashSetBase&lt;*&gt;" />
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="index" InitialValue="0" />
+        <Variable Name="flags" InitialValue="0" />
+        <Variable Name="count" InitialValue="0" />
+        <Size>m_uiCount</Size>
+        <Loop>
+          <Exec>flags = (m_pEntryFlags[index / 16] >> ((index &amp; 15) * 2)) &amp; 3</Exec>
+          <If Condition="(flags &amp; 0x01) == 0x01">
+            <Item>m_pEntries[index]</Item>
+            <Exec>count++</Exec>
+          </If>
+          <Exec>index++</Exec>
+          <Break Condition="count == m_uiCount" />
+        </Loop>
+      </CustomListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WListBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<LinkedListItems>
+				<Size>m_uiCount</Size>
+				<HeadPointer>m_First.m_pNext</HeadPointer>
+				<NextPointer>m_pNext</NextPointer>
+				<ValueNode>m_Data</ValueNode>
+			</LinkedListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WDequeBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<IndexListItems>
+				<Size>m_uiCount</Size>
+				<ValueNode>m_pChunks[(m_uiFirstElement + $i) / m_uiChunkSize][(m_uiFirstElement + $i) % m_uiChunkSize]</ValueNode>
+			</IndexListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WMapBase&lt;*&gt;">
+		<AlternativeType Name="WSetBase&lt;*&gt;" />
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<TreeItems>
+				<Size>m_uiCount</Size>
+				<HeadPointer>m_pRoot</HeadPointer>
+				<LeftPointer>m_pLink[0]</LeftPointer>
+				<RightPointer>m_pLink[1]</RightPointer>
+				<ValueNode Condition="m_uiLevel != 0">*this</ValueNode>
+			</TreeItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WStaticRingBuffer&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="index" InitialValue="m_uiFirstElement" />
+        <Size>m_uiCount</Size>
+        <Loop>
+          <Item>m_pElements[index]</Item>
+          <Exec>index = (index + 1) % $T2</Exec>
+        </Loop>
+      </CustomListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="WArrayPtr&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_pPtr</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<!-- Basic Types -->
+	<Type Name="WVariant">
+		<DisplayString Condition="m_uiType == Type::TypedObject &amp;&amp; m_bIsShared">({m_Data.shared->m_pType->m_sTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)}</DisplayString>
+		<DisplayString Condition="m_uiType == Type::TypedObject &amp;&amp; !m_bIsShared">({m_Data.inlined.m_pType->m_sTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(&amp;m_Data)}</DisplayString>
+    <DisplayString Condition="m_uiType == Type::TypedPointer">({reinterpret_cast&lt;WTypedPointer*&gt;(&amp;m_Data)->m_pType->m_sTypeName,sb}*) {reinterpret_cast&lt;WTypedPointer*&gt;(&amp;m_Data)->m_pObject}</DisplayString>
+    <Expand>
+			<Item Name="Type">(Type::Enum) m_uiType</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Int8">*reinterpret_cast&lt;WInt8*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::UInt8">*reinterpret_cast&lt;WUInt8*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Int16">*reinterpret_cast&lt;WInt16*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::UInt16">*reinterpret_cast&lt;WUInt16*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Int32">*reinterpret_cast&lt;WInt32*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::UInt32">*reinterpret_cast&lt;WUInt32*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Int64">*reinterpret_cast&lt;WInt64*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::UInt64">*reinterpret_cast&lt;WUInt64*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Float">*reinterpret_cast&lt;float*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Double">*reinterpret_cast&lt;double*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Color">*reinterpret_cast&lt;WColor*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector2">*reinterpret_cast&lt;WVec2Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector3">*reinterpret_cast&lt;WVec3Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector4">*reinterpret_cast&lt;WVec4Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector2I">*reinterpret_cast&lt;WVec2Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector3I">*reinterpret_cast&lt;WVec3Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector4I">*reinterpret_cast&lt;WVec4Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector2U">*reinterpret_cast&lt;WVec2Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector3U">*reinterpret_cast&lt;WVec3Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Vector4U">*reinterpret_cast&lt;WVec4Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Quaternion">*reinterpret_cast&lt;WQuatTemplate&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Matrix3">*reinterpret_cast&lt;WMat3Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Matrix4">*reinterpret_cast&lt;WMat4Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Transform">*reinterpret_cast&lt;WTransformTemplate&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::String">*reinterpret_cast&lt;WHybridStringBase&lt;32&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::StringView">*reinterpret_cast&lt;WStringView*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::DataBuffer">*reinterpret_cast&lt;WDynamicArray&lt;unsigned char,WDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Time">*reinterpret_cast&lt;WTime*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Uuid">*reinterpret_cast&lt;WUuid*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::Angle">*reinterpret_cast&lt;WAngle*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::ColorGamma">*reinterpret_cast&lt;WColorGammaUB*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::HashedString">*reinterpret_cast&lt;WHashedString*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::TempHashedString">*reinterpret_cast&lt;WTempHashedString*&gt;(&amp;m_Data)</Item>
+
+			<Item Name="Value" Condition="m_uiType == Type::TypedPointer">*reinterpret_cast&lt;WTypedPointer*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::TypedObject &amp;&amp; m_bIsShared">reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::TypedObject &amp;&amp; !m_bIsShared">reinterpret_cast&lt;void*&gt;(&amp;m_Data)</Item>
+			<Item Name="ReflectedType" Condition="m_uiType == Type::TypedObject &amp;&amp; !m_bIsShared">m_Data.inlined.m_pType</Item>
+			<Item Name="ReflectedType" Condition="m_uiType == Type::TypedObject &amp;&amp; m_bIsShared">m_Data.shared->m_pType</Item>
+
+
+			<Item Name="Value" Condition="m_uiType == Type::VariantArray">*reinterpret_cast&lt;WDynamicArray&lt;WVariant,WDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::VariantDictionary">*reinterpret_cast&lt;WHashTable&lt;WHybridString&lt;32,WDefaultAllocatorWrapper&gt;,WVariant,WHashHelper&lt;WHybridString&lt;32,WDefaultAllocatorWrapper&gt; &gt;,WDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+
+			<Item Name="IsShared">m_bIsShared != 0</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="WEnum&lt;*&gt;">
+		<DisplayString>{($T1::Enum)m_Value}</DisplayString>
+	</Type>
+
+	<Type Name="WBitflags&lt;*&gt;">
+		<DisplayString>{($T1::Enum)m_Value}</DisplayString>
+	</Type>
+
+	<Type Name="WVec2Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y} }}</DisplayString>
+	</Type>
+
+	<Type Name="WVec3Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y}, z={z} }}</DisplayString>
+	</Type>
+
+	<Type Name="WVec4Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y}, z={z}, w={w} }}</DisplayString>
+	</Type>
+
+	<Type Name="WQuatTemplate&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y}, z={z}, w={w} }}</DisplayString>
+	</Type>
+
+	<Type Name="WPlaneTemplate&lt;*&gt;">
+		<DisplayString>{{ nx={m_vNormal.x}, ny={m_vNormal.y}, nz={m_vNormal.z}, negDist={m_fNegDistance} }}</DisplayString>
+	</Type>
+
+	<Type Name="WColor">
+		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
+	</Type>
+
+	<Type Name="WColorBaseUB">
+		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
+	</Type>
+
+	<Type Name="WColorLinearUB">
+		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
+	</Type>
+
+	<Type Name="WTime">
+		<DisplayString>{{seconds = {m_fTime} }}</DisplayString>
+		<Expand>
+			<Item Name="seconds">m_fTime</Item>
+			<Item Name="milliseconds">m_fTime * 1000.0</Item>
+			<Item Name="microseconds">m_fTime * 1000000.0</Item>
+			<Item Name="nanoseconds">m_fTime * 1000000000.0</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="WMat3Template&lt;*&gt;">
+		<Expand>
+			<Item Name="Column0">&amp;m_fElementsCM[0],3</Item>
+			<Item Name="Column1">&amp;m_fElementsCM[3],3</Item>
+			<Item Name="Column2">&amp;m_fElementsCM[6],3</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="WMat4Template&lt;*&gt;">
+		<Expand>
+			<Item Name="Column0">&amp;m_fElementsCM[0],4</Item>
+			<Item Name="Column1">&amp;m_fElementsCM[4],4</Item>
+			<Item Name="Column2">&amp;m_fElementsCM[8],4</Item>
+			<Item Name="Column3">&amp;m_fElementsCM[12],4</Item>
+		</Expand>
+	</Type>
+
+  <Type Name="WUuid">
+    <DisplayString>{{ {*reinterpret_cast&lt;WUInt32*&gt;(this),nvoXb}-{*(reinterpret_cast&lt;WUInt16*&gt;(this) + 2),nvoXb}-{*(reinterpret_cast&lt;WUInt16*&gt;(this) + 3),nvoXb}-{*(reinterpret_cast&lt;WUInt8*&gt;(this) + 8),nvoXb}{*(reinterpret_cast&lt;WUInt8*&gt;(this) + 9),nvoXb}-{*(reinterpret_cast&lt;WUInt8*&gt;(this) + 10),nvoXb}{*(reinterpret_cast&lt;WUInt8*&gt;(this) + 11),nvoXb}{*(reinterpret_cast&lt;WUInt8*&gt;(this) + 12),nvoXb}{*(reinterpret_cast&lt;WUInt8*&gt;(this) + 13),nvoXb}{*(reinterpret_cast&lt;WUInt8*&gt;(this) + 14),nvoXb}{*(reinterpret_cast&lt;WUInt8*&gt;(this) + 15),nvoXb} }}</DisplayString>
+  </Type>
+
+	<Type Name="WResource">
+		<DisplayString>{{ID = {m_sUniqueID} }}</DisplayString>
+		<Expand>
+			<Item Name="ID">m_sUniqueID</Item>
+			<Item Name="Desc">m_sResourceDescription</Item>
+			<Item Name="State">m_LoadingState</Item>
+			<Item Name="RefCount">m_iReferenceCount</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="WUniquePtr&lt;*&gt;">
+		<DisplayString>WUniquePtr {*m_pInstance}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pInstance</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="WSharedPtr&lt;*&gt;">
+		<DisplayString>WSharedPtr {*m_pInstance}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pInstance</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="WScopedRefPointer&lt;*&gt;">
+		<DisplayString>WScopedRefPointer {*m_pReferencedObject}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pReferencedObject</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="WRefCounted">
+		<DisplayString>RefCount = {m_iRefCount}</DisplayString>
+	</Type>
+
+	<Type Name="WMutex">
+		<DisplayString Condition="m_iLockCount > 0">locked</DisplayString>
+		<DisplayString Condition="m_iLockCount == 0">unlocked</DisplayString>
+		<Expand>
+			<Item Name="[locking_thread_id]" Condition="m_iLockCount > 0">(DWORD)((RTL_CRITICAL_SECTION*)m_hHandle.data)->OwningThread</Item>
+			<Item Name="critical_section">*((RTL_CRITICAL_SECTION*)m_hHandle.data)</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="WAngle">
+		<DisplayString>{{Degree = {m_fRadian*57.295}}}</DisplayString>
+		<Expand>
+			<Item Name="Radians">m_fRadian</Item>
+		</Expand>
+	</Type>
+</AutoVisualizer>
+
+
+
+

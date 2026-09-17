@@ -1,57 +1,57 @@
 #pragma once
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
-class ezPropertyAnimAssetDocument;
-class ezPropertyAnimObjectManager;
+class WPropertyAnimAssetDocument;
+class WPropertyAnimObjectManager;
 
-class ezPropertyAnimObjectAccessor : public ezObjectCommandAccessor
+class WPropertyAnimObjectAccessor : public WObjectCommandAccessor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimObjectAccessor, ezObjectCommandAccessor);
+  W_ADD_DYNAMIC_REFLECTION(WPropertyAnimObjectAccessor, WObjectCommandAccessor);
 
 public:
-  ezPropertyAnimObjectAccessor(ezPropertyAnimAssetDocument* pDoc, ezCommandHistory* pHistory);
+  WPropertyAnimObjectAccessor(WPropertyAnimAssetDocument* pDoc, WCommandHistory* pHistory);
 
-  virtual ezStatus GetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) override;
-  virtual ezStatus SetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
+  virtual WStatus GetValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value, WVariant index = WVariant()) override;
+  virtual WStatus SetValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
 
-  virtual ezStatus InsertValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
-  virtual ezStatus RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus MoveValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex) override;
+  virtual WStatus InsertValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
+  virtual WStatus RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus MoveValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex) override;
 
-  virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType,
-    ezUuid& inout_objectGuid) override;
-  virtual ezStatus RemoveObject(const ezDocumentObject* pObject) override;
-  virtual ezStatus MoveObject(
-    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) override;
+  virtual WStatus AddObject(const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType,
+    WUuid& inout_objectGuid) override;
+  virtual WStatus RemoveObject(const WDocumentObject* pObject) override;
+  virtual WStatus MoveObject(
+    const WDocumentObject* pObject, const WDocumentObject* pNewParent, const WAbstractProperty* pParentProp, const WVariant& index) override;
 
 private:
-  bool IsTemporary(const ezDocumentObject* pObject) const;
-  bool IsTemporary(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp) const;
-  using OnAddTrack = ezDelegate<void(const ezUuid&)>;
-  ezUuid FindOrAddTrack(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, OnAddTrack onAddTrack);
+  bool IsTemporary(const WDocumentObject* pObject) const;
+  bool IsTemporary(const WDocumentObject* pParent, const WAbstractProperty* pParentProp) const;
+  using OnAddTrack = WDelegate<void(const WUuid&)>;
+  WUuid FindOrAddTrack(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target, OnAddTrack onAddTrack);
 
-  ezStatus SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target,
+  WStatus SetCurveCp(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target,
     double fOldValue, double fNewValue);
-  ezStatus SetOrInsertCurveCp(const ezUuid& track, double fValue);
+  WStatus SetOrInsertCurveCp(const WUuid& track, double fValue);
 
-  ezStatus SetColorCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, const ezColorGammaUB& oldValue,
-    const ezColorGammaUB& newValue);
-  ezStatus SetOrInsertColorCurveCp(const ezUuid& track, const ezColorGammaUB& value);
+  WStatus SetColorCurveCp(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, const WColorGammaUB& oldValue,
+    const WColorGammaUB& newValue);
+  WStatus SetOrInsertColorCurveCp(const WUuid& track, const WColorGammaUB& value);
 
-  ezStatus SetAlphaCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezUInt8 oldValue, ezUInt8 newValue);
-  ezStatus SetOrInsertAlphaCurveCp(const ezUuid& track, ezUInt8 value);
+  WStatus SetAlphaCurveCp(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WUInt8 oldValue, WUInt8 newValue);
+  WStatus SetOrInsertAlphaCurveCp(const WUuid& track, WUInt8 value);
 
-  ezStatus SetIntensityCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, float oldValue, float newValue);
-  ezStatus SetOrInsertIntensityCurveCp(const ezUuid& track, float value);
+  WStatus SetIntensityCurveCp(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, float oldValue, float newValue);
+  WStatus SetOrInsertIntensityCurveCp(const WUuid& track, float value);
 
-  void SeparateColor(const ezColor& color, ezColorGammaUB& gamma, ezUInt8& alpha, float& intensity);
+  void SeparateColor(const WColor& color, WColorGammaUB& gamma, WUInt8& alpha, float& intensity);
 
-  ezUniquePtr<ezObjectAccessorBase> m_pObjAccessor;
-  ezPropertyAnimAssetDocument* m_pDocument = nullptr;
-  ezPropertyAnimObjectManager* m_pObjectManager = nullptr;
+  WUniquePtr<WObjectAccessorBase> m_pObjAccessor;
+  WPropertyAnimAssetDocument* m_pDocument = nullptr;
+  WPropertyAnimObjectManager* m_pObjectManager = nullptr;
 };

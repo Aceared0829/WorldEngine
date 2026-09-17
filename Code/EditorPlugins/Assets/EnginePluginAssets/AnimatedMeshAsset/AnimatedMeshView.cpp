@@ -6,59 +6,59 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
-ezAnimatedMeshViewContext::ezAnimatedMeshViewContext(ezAnimatedMeshContext* pAnimatedMeshContext)
-  : ezEngineProcessViewContext(pAnimatedMeshContext)
+WAnimatedMeshViewContext::WAnimatedMeshViewContext(WAnimatedMeshContext* pAnimatedMeshContext)
+  : WEngineProcessViewContext(pAnimatedMeshContext)
 {
   m_pContext = pAnimatedMeshContext;
 
   // Start with something valid.
-  m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.SetCameraMode(WCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
+  m_Camera.LookAt(WVec3(1, 1, 1), WVec3::MakeZero(), WVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezAnimatedMeshViewContext::~ezAnimatedMeshViewContext() = default;
+WAnimatedMeshViewContext::~WAnimatedMeshViewContext() = default;
 
-bool ezAnimatedMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
+bool WAnimatedMeshViewContext::UpdateThumbnailCamera(const WBoundingBoxSphere& bounds)
 {
-  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(5, -2, 3));
+  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -WVec3(5, -2, 3));
 }
 
 
-ezViewHandle ezAnimatedMeshViewContext::CreateView()
+WViewHandle WAnimatedMeshViewContext::CreateView()
 {
-  ezView* pView = CreateDefaultView("AnimatedMesh Editor - View");
+  WView* pView = CreateDefaultView("AnimatedMesh Editor - View");
   return pView->GetHandle();
 }
 
-void ezAnimatedMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+void WAnimatedMeshViewContext::SetCamera(const WViewRedrawMsgToEngine* pMsg)
 {
   if (m_pContext->m_bDisplayGrid)
   {
-    ezEngineProcessViewContext::DrawSimpleGrid();
+    WEngineProcessViewContext::DrawSimpleGrid();
   }
 
-  ezEngineProcessViewContext::SetCamera(pMsg);
+  WEngineProcessViewContext::SetCamera(pMsg);
 
   auto hAnimatedMesh = m_pContext->GetAnimatedMesh();
   if (hAnimatedMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pAnimatedMesh(hAnimatedMesh, ezResourceAcquireMode::AllowLoadingFallback);
-    ezResourceLock<ezMeshBufferResource> pAnimatedMeshBuffer(pAnimatedMesh->GetMeshBuffer(), ezResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WMeshResource> pAnimatedMesh(hAnimatedMesh, WResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WMeshBufferResource> pAnimatedMeshBuffer(pAnimatedMesh->GetMeshBuffer(), WResourceAcquireMode::AllowLoadingFallback);
 
-    ezUInt32 uiNumVertices = 0;
-    ezUInt32 uiVertexByteSize = 0;
+    WUInt32 uiNumVertices = 0;
+    WUInt32 uiVertexByteSize = 0;
     for (auto hBuffer : pAnimatedMeshBuffer->GetVertexBuffers())
     {
-      if (auto pBuffer = ezGALDevice::GetDefaultDevice()->GetBuffer(hBuffer))
+      if (auto pBuffer = WGALDevice::GetDefaultDevice()->GetBuffer(hBuffer))
       {
         auto& bufferDesc = pBuffer->GetDescription();
-        uiNumVertices = ezMath::Max(uiNumVertices, bufferDesc.m_uiTotalSize / bufferDesc.m_uiStructSize);
+        uiNumVertices = WMath::Max(uiNumVertices, bufferDesc.m_uiTotalSize / bufferDesc.m_uiStructSize);
         uiVertexByteSize += bufferDesc.m_uiStructSize;
       }
     }
 
-    ezUInt32 uiNumTriangles = pAnimatedMeshBuffer->GetPrimitiveCount();
-    ezVec3 bboxExtents = ezVec3(2);
+    WUInt32 uiNumTriangles = pAnimatedMeshBuffer->GetPrimitiveCount();
+    WVec3 bboxExtents = WVec3(2);
 
     if (pAnimatedMeshBuffer->GetBounds().IsValid())
     {
@@ -66,18 +66,18 @@ void ezAnimatedMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     }
 
     auto& streamConfig = pAnimatedMeshBuffer->GetVertexStreamConfig();
-    const ezUInt32 uiNumUVs = streamConfig.HasTexCoord0() + streamConfig.HasTexCoord1();
-    const ezUInt32 uiNumColors = streamConfig.HasColor0() + streamConfig.HasColor1();
+    const WUInt32 uiNumUVs = streamConfig.HasTexCoord0() + streamConfig.HasTexCoord1();
+    const WUInt32 uiNumColors = streamConfig.HasColor0() + streamConfig.HasColor1();
 
-    ezStringBuilder sText;
+    WStringBuilder sText;
     sText.AppendFormat("Bones: \t{}\n", pAnimatedMesh->m_Bones.GetCount());
     sText.AppendFormat("Triangles: \t{}\n", uiNumTriangles);
     sText.AppendFormat("Vertices: \t{}\n", uiNumVertices);
     sText.AppendFormat("UV Channels: \t{}\n", uiNumUVs);
     sText.AppendFormat("Color Channels: \t{}\n", uiNumColors);
     sText.AppendFormat("Bytes Per Vertex: \t{}\n", uiVertexByteSize);
-    sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}\t", ezArgF(bboxExtents.x, 2), ezArgF(bboxExtents.y, 2), ezArgF(bboxExtents.z, 2));
+    sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}\t", WArgF(bboxExtents.x, 2), WArgF(bboxExtents.y, 2), WArgF(bboxExtents.z, 2));
 
-    ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
+    WDebugRenderer::DrawInfoText(m_hView, WDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }
 }

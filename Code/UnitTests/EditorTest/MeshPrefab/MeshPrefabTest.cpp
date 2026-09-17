@@ -8,41 +8,41 @@
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-static ezEditorMeshPrefabTest s_EditorMeshPrefabTest;
+static WEditorMeshPrefabTest s_EditorMeshPrefabTest;
 
 namespace
 {
-  void GetComponentTypes(const ezDocumentObject* pObject, ezDynamicArray<ezString>& out_types)
+  void GetComponentTypes(const WDocumentObject* pObject, WDynamicArray<WString>& out_types)
   {
     out_types.Clear();
 
-    for (const ezDocumentObject* pChild : pObject->GetChildren())
+    for (const WDocumentObject* pChild : pObject->GetChildren())
     {
-      if (pChild->GetParentProperty() == "Components"_ezsv)
+      if (pChild->GetParentProperty() == "Components"_wsv)
       {
         out_types.PushBack(pChild->GetType()->GetTypeName());
       }
     }
   }
 
-  const ezDocumentObject* FindComponent(const ezDocumentObject* pObject, ezStringView sType)
+  const WDocumentObject* FindComponent(const WDocumentObject* pObject, WStringView sType)
   {
-    for (const ezDocumentObject* pChild : pObject->GetChildren())
+    for (const WDocumentObject* pChild : pObject->GetChildren())
     {
-      if (pChild->GetParentProperty() == "Components"_ezsv && pChild->GetType()->GetTypeName() == sType)
+      if (pChild->GetParentProperty() == "Components"_wsv && pChild->GetType()->GetTypeName() == sType)
         return pChild;
     }
 
     return nullptr;
   }
 
-  ezDynamicArray<const ezDocumentObject*> GetChildObjects(const ezDocumentObject* pObject)
+  WDynamicArray<const WDocumentObject*> GetChildObjects(const WDocumentObject* pObject)
   {
-    ezDynamicArray<const ezDocumentObject*> res;
+    WDynamicArray<const WDocumentObject*> res;
 
-    for (const ezDocumentObject* pChild : pObject->GetChildren())
+    for (const WDocumentObject* pChild : pObject->GetChildren())
     {
-      if (pChild->GetParentProperty() == "Children"_ezsv)
+      if (pChild->GetParentProperty() == "Children"_wsv)
         res.PushBack(pChild);
     }
 
@@ -50,12 +50,12 @@ namespace
   }
 } // namespace
 
-const char* ezEditorMeshPrefabTest::GetTestName() const
+const char* WEditorMeshPrefabTest::GetTestName() const
 {
   return "Mesh Prefab Tests";
 }
 
-void ezEditorMeshPrefabTest::SetupSubTests()
+void WEditorMeshPrefabTest::SetupSubTests()
 {
   AddSubTest("Simple Mesh", SubTests::ST_SimpleMesh);
   AddSubTest("LOD Mesh", SubTests::ST_LodMesh);
@@ -69,34 +69,34 @@ void ezEditorMeshPrefabTest::SetupSubTests()
   AddSubTest("Animated LOD Component", SubTests::ST_AnimatedLodComponent);
 }
 
-ezResult ezEditorMeshPrefabTest::InitializeTest()
+WResult WEditorMeshPrefabTest::InitializeTest()
 {
   if (SUPER::InitializeTest().Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (SUPER::OpenProject("Data/UnitTests/EditorTest").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // the project has to be settled first, or the curator keeps rehashing while the sub-tests
   // create their assets
-  if (ezStatus res = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually); res.Failed())
+  if (WStatus res = WAssetCurator::GetSingleton()->TransformAllAssets(WTransformFlags::TriggeredManually); res.Failed())
   {
-    ezLog::Error("Asset transform failed: {}", res.GetMessageString());
-    return EZ_FAILURE;
+    WLog::Error("Asset transform failed: {}", res.GetMessageString());
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezEditorMeshPrefabTest::DeInitializeTest()
+WResult WEditorMeshPrefabTest::DeInitializeTest()
 {
   if (SUPER::DeInitializeTest().Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezTestAppRun ezEditorMeshPrefabTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WEditorMeshPrefabTest::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   switch (iIdentifier)
   {
@@ -132,39 +132,39 @@ ezTestAppRun ezEditorMeshPrefabTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
       break;
   }
 
-  return ezTestAppRun::Quit;
+  return WTestAppRun::Quit;
 }
 
-ezString ezEditorMeshPrefabTest::MakePrivateSourceMesh(const char* szName)
+WString WEditorMeshPrefabTest::MakePrivateSourceMesh(const char* szName)
 {
-  ezStringBuilder sSrc = m_sProjectPath;
+  WStringBuilder sSrc = m_sProjectPath;
   sSrc.AppendPath("Meshes/Cube.obj");
 
-  ezStringBuilder sRelative;
+  WStringBuilder sRelative;
   sRelative.SetFormat("Meshes/{}.obj", szName);
 
-  ezStringBuilder sDst = m_sProjectPath;
+  WStringBuilder sDst = m_sProjectPath;
   sDst.AppendPath(sRelative);
 
-  if (ezOSFile::CopyFile(sSrc, sDst).Failed())
+  if (WOSFile::CopyFile(sSrc, sDst).Failed())
     return {};
 
-  ezFileSystemModel::GetSingleton()->NotifyOfChange(sDst);
+  WFileSystemModel::GetSingleton()->NotifyOfChange(sDst);
   return sRelative;
 }
 
-ezUuid ezEditorMeshPrefabTest::CreateMeshAsset(const char* szRelativePath, ezUInt8 uiSimplification, const char* szSourceFile)
+WUuid WEditorMeshPrefabTest::CreateMeshAsset(const char* szRelativePath, WUInt8 uiSimplification, const char* szSourceFile)
 {
-  ezStringBuilder sPath = m_sProjectPath;
+  WStringBuilder sPath = m_sProjectPath;
   sPath.AppendPath(szRelativePath);
 
-  ezDocument* pDoc = m_pApplication->m_pEditorApp->CreateDocument(sPath, ezDocumentFlags::None);
+  WDocument* pDoc = m_pApplication->m_pEditorApp->CreateDocument(sPath, WDocumentFlags::None);
   if (pDoc == nullptr)
     return {};
 
   {
-    ezDocumentObject* pProps = pDoc->GetObjectManager()->GetRootObject()->GetChildren()[0];
-    ezObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
+    WDocumentObject* pProps = pDoc->GetObjectManager()->GetRootObject()->GetChildren()[0];
+    WObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
 
     pAcc->StartTransaction("Init");
     pAcc->SetValueByName(pProps, "MeshFile", szSourceFile).AssertSuccess();
@@ -180,24 +180,24 @@ ezUuid ezEditorMeshPrefabTest::CreateMeshAsset(const char* szRelativePath, ezUIn
 
   pDoc->SaveDocument(true).AssertSuccess();
 
-  const ezUuid guid = pDoc->GetGuid();
+  const WUuid guid = pDoc->GetGuid();
   pDoc->GetDocumentManager()->CloseDocument(pDoc);
 
   ProcessEvents(10);
-  ezAssetCurator::GetSingleton()->MainThreadTick(true);
+  WAssetCurator::GetSingleton()->MainThreadTick(true);
 
   // Bounds are recorded by a transform, under the asset hash current at that moment. The curator
   // keeps rehashing a newly created asset while indexing it, so a single transform tends to write
   // them under a hash that is stale by the time they are read. Retry until they can be read back.
   // Only this asset is transformed, transforming the generated prefabs would log unrelated errors.
-  for (ezUInt32 i = 0; i < 10; ++i)
+  for (WUInt32 i = 0; i < 10; ++i)
   {
-    ezTransformStatus transformRes = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
-    EZ_IGNORE_UNUSED(transformRes);
+    WTransformStatus transformRes = WAssetCurator::GetSingleton()->TransformAsset(guid, WTransformFlags::TriggeredManually);
+    W_IGNORE_UNUSED(transformRes);
     ProcessEvents(5);
-    ezAssetCurator::GetSingleton()->MainThreadTick(true);
+    WAssetCurator::GetSingleton()->MainThreadTick(true);
 
-    auto pCheck = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
+    auto pCheck = WAssetCurator::GetSingleton()->GetSubAsset(guid);
     if (pCheck.isValid() && pCheck->m_pAssetInfo != nullptr && pCheck->m_pAssetInfo->GetTransformInfo() != nullptr)
       break;
   }
@@ -205,408 +205,408 @@ ezUuid ezEditorMeshPrefabTest::CreateMeshAsset(const char* szRelativePath, ezUIn
   return guid;
 }
 
-void ezEditorMeshPrefabTest::SimpleMesh()
+void WEditorMeshPrefabTest::SimpleMesh()
 {
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefab/Simple.ezMeshAsset");
-  if (!EZ_TEST_BOOL(meshGuid.IsValid()))
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefab/Simple.WMeshAsset");
+  if (!W_TEST_BOOL(meshGuid.IsValid()))
     return;
 
-  ezMeshPrefabSource source;
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+  WMeshPrefabSource source;
+  if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
     return;
 
-  EZ_TEST_BOOL(!source.m_bAnimated);
-  EZ_TEST_BOOL(source.m_LodGuids.IsEmpty());
-  EZ_TEST_BOOL_MSG(source.m_bHasBounds, "The mesh was transformed, so its bounds should be known.");
-  EZ_TEST_BOOL(source.GetDefaultRenderComponentType() == "ezMeshComponent"_ezsv);
+  W_TEST_BOOL(!source.m_bAnimated);
+  W_TEST_BOOL(source.m_LodGuids.IsEmpty());
+  W_TEST_BOOL_MSG(source.m_bHasBounds, "The mesh was transformed, so its bounds should be known.");
+  W_TEST_BOOL(source.GetDefaultRenderComponentType() == "WMeshComponent"_wsv);
 
-  ezStringBuilder sPrefabPath = m_sProjectPath;
-  sPrefabPath.AppendPath("MeshPrefab/Simple.ezPrefab");
+  WStringBuilder sPrefabPath = m_sProjectPath;
+  sPrefabPath.AppendPath("MeshPrefab/Simple.WPrefab");
 
-  ezMeshPrefabOptions options;
+  WMeshPrefabOptions options;
   options.m_sPrefabPath = sPrefabPath;
   options.m_sRenderComponentType = source.GetDefaultRenderComponentType();
   options.m_bOpenAfterCreate = false;
 
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
+  if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
     return;
 
-  EZ_TEST_BOOL(ezOSFile::ExistsFile(sPrefabPath));
+  W_TEST_BOOL(WOSFile::ExistsFile(sPrefabPath));
 
-  ezDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, ezDocumentFlags::None);
-  if (!EZ_TEST_BOOL(pPrefab != nullptr))
+  WDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, WDocumentFlags::None);
+  if (!W_TEST_BOOL(pPrefab != nullptr))
     return;
 
-  EZ_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
+  W_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
 
-  const ezDocumentObject* pRoot = pPrefab->GetObjectManager()->GetRootObject();
+  const WDocumentObject* pRoot = pPrefab->GetObjectManager()->GetRootObject();
   auto topLevel = GetChildObjects(pRoot);
-  if (!EZ_TEST_INT(topLevel.GetCount(), 1))
+  if (!W_TEST_INT(topLevel.GetCount(), 1))
     return;
 
-  const ezDocumentObject* pPrefabRoot = topLevel[0];
-  EZ_TEST_STRING(pPrefabRoot->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>(), "<Prefab-Root>");
+  const WDocumentObject* pPrefabRoot = topLevel[0];
+  W_TEST_STRING(pPrefabRoot->GetTypeAccessor().GetValue("Name").ConvertTo<WString>(), "<Prefab-Root>");
 
-  const ezDocumentObject* pMeshComp = FindComponent(pPrefabRoot, "ezMeshComponent");
-  if (!EZ_TEST_BOOL(pMeshComp != nullptr))
+  const WDocumentObject* pMeshComp = FindComponent(pPrefabRoot, "WMeshComponent");
+  if (!W_TEST_BOOL(pMeshComp != nullptr))
     return;
 
-  ezStringBuilder sExpectedRef;
+  WStringBuilder sExpectedRef;
   sExpectedRef.SetFormat("{}", meshGuid);
-  EZ_TEST_STRING(pMeshComp->GetTypeAccessor().GetValue("Mesh").ConvertTo<ezString>(), sExpectedRef);
+  W_TEST_STRING(pMeshComp->GetTypeAccessor().GetValue("Mesh").ConvertTo<WString>(), sExpectedRef);
 }
 
-void ezEditorMeshPrefabTest::LodMesh()
+void WEditorMeshPrefabTest::LodMesh()
 {
   // the layout the mesh import produces: the main asset plus LOD-N assets in a sibling _data folder
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefab/Lod.ezMeshAsset");
-  const ezUuid lod1Guid = CreateMeshAsset("MeshPrefab/Lod_data/LOD-1.ezMeshAsset", 50);
-  const ezUuid lod2Guid = CreateMeshAsset("MeshPrefab/Lod_data/LOD-2.ezMeshAsset", 75);
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefab/Lod.WMeshAsset");
+  const WUuid lod1Guid = CreateMeshAsset("MeshPrefab/Lod_data/LOD-1.WMeshAsset", 50);
+  const WUuid lod2Guid = CreateMeshAsset("MeshPrefab/Lod_data/LOD-2.WMeshAsset", 75);
 
-  if (!EZ_TEST_BOOL(meshGuid.IsValid() && lod1Guid.IsValid() && lod2Guid.IsValid()))
+  if (!W_TEST_BOOL(meshGuid.IsValid() && lod1Guid.IsValid() && lod2Guid.IsValid()))
     return;
 
-  ezMeshPrefabSource source;
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+  WMeshPrefabSource source;
+  if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
     return;
 
-  if (!EZ_TEST_INT(source.m_LodGuids.GetCount(), 2))
+  if (!W_TEST_INT(source.m_LodGuids.GetCount(), 2))
     return;
 
-  EZ_TEST_BOOL(source.m_LodGuids[0] == lod1Guid);
-  EZ_TEST_BOOL(source.m_LodGuids[1] == lod2Guid);
-  EZ_TEST_BOOL(source.GetDefaultRenderComponentType() == "ezLodMeshComponent"_ezsv);
+  W_TEST_BOOL(source.m_LodGuids[0] == lod1Guid);
+  W_TEST_BOOL(source.m_LodGuids[1] == lod2Guid);
+  W_TEST_BOOL(source.GetDefaultRenderComponentType() == "WLodMeshComponent"_wsv);
 
   // A mesh asset renamed after import keeps its original _data folder, named after the source model
   // file. The LODs still have to be found.
   {
-    ezStringBuilder sRenamedDir = m_sProjectPath;
+    WStringBuilder sRenamedDir = m_sProjectPath;
     sRenamedDir.AppendPath("MeshPrefabRenamed");
-    ezOSFile::CreateDirectoryStructure(sRenamedDir).AssertSuccess();
+    WOSFile::CreateDirectoryStructure(sRenamedDir).AssertSuccess();
 
-    const ezUuid renamedGuid = CreateMeshAsset("MeshPrefabRenamed/Renamed.ezMeshAsset");
-    const ezUuid renamedLod1 = CreateMeshAsset("MeshPrefabRenamed/Cube_data/LOD-1.ezMeshAsset", 50);
+    const WUuid renamedGuid = CreateMeshAsset("MeshPrefabRenamed/Renamed.WMeshAsset");
+    const WUuid renamedLod1 = CreateMeshAsset("MeshPrefabRenamed/Cube_data/LOD-1.WMeshAsset", 50);
 
-    if (EZ_TEST_BOOL(renamedGuid.IsValid() && renamedLod1.IsValid()))
+    if (W_TEST_BOOL(renamedGuid.IsValid() && renamedLod1.IsValid()))
     {
-      ezMeshPrefabSource renamedSource;
-      if (EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(renamedGuid, renamedSource).Succeeded()))
+      WMeshPrefabSource renamedSource;
+      if (W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(renamedGuid, renamedSource).Succeeded()))
       {
-        if (EZ_TEST_INT(renamedSource.m_LodGuids.GetCount(), 1))
+        if (W_TEST_INT(renamedSource.m_LodGuids.GetCount(), 1))
         {
-          EZ_TEST_BOOL(renamedSource.m_LodGuids[0] == renamedLod1);
+          W_TEST_BOOL(renamedSource.m_LodGuids[0] == renamedLod1);
         }
       }
     }
   }
 
-  ezStringBuilder sPrefabPath = m_sProjectPath;
-  sPrefabPath.AppendPath("MeshPrefab/Lod.ezPrefab");
+  WStringBuilder sPrefabPath = m_sProjectPath;
+  sPrefabPath.AppendPath("MeshPrefab/Lod.WPrefab");
 
-  ezMeshPrefabOptions options;
+  WMeshPrefabOptions options;
   options.m_sPrefabPath = sPrefabPath;
   options.m_sRenderComponentType = source.GetDefaultRenderComponentType();
   options.m_bOpenAfterCreate = false;
 
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
+  if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
     return;
 
-  ezDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, ezDocumentFlags::None);
-  if (!EZ_TEST_BOOL(pPrefab != nullptr))
+  WDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, WDocumentFlags::None);
+  if (!W_TEST_BOOL(pPrefab != nullptr))
     return;
 
-  EZ_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
+  W_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
 
-  const ezDocumentObject* pPrefabRoot = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject())[0];
-  const ezDocumentObject* pLodComp = FindComponent(pPrefabRoot, "ezLodMeshComponent");
-  if (!EZ_TEST_BOOL(pLodComp != nullptr))
+  const WDocumentObject* pPrefabRoot = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject())[0];
+  const WDocumentObject* pLodComp = FindComponent(pPrefabRoot, "WLodMeshComponent");
+  if (!W_TEST_BOOL(pLodComp != nullptr))
     return;
 
   // LOD 0 is the mesh asset itself, so there is one entry more than there are LOD assets
-  ezHybridArray<const ezDocumentObject*, 4> lods;
-  for (const ezDocumentObject* pChild : pLodComp->GetChildren())
+  WHybridArray<const WDocumentObject*, 4> lods;
+  for (const WDocumentObject* pChild : pLodComp->GetChildren())
   {
-    if (pChild->GetParentProperty() == "Meshes"_ezsv)
+    if (pChild->GetParentProperty() == "Meshes"_wsv)
       lods.PushBack(pChild);
   }
 
-  if (!EZ_TEST_INT(lods.GetCount(), 3))
+  if (!W_TEST_INT(lods.GetCount(), 3))
     return;
 
-  const ezUuid expected[] = {meshGuid, lod1Guid, lod2Guid};
+  const WUuid expected[] = {meshGuid, lod1Guid, lod2Guid};
   float fPrevThreshold = 2.0f;
 
-  for (ezUInt32 i = 0; i < 3; ++i)
+  for (WUInt32 i = 0; i < 3; ++i)
   {
-    ezStringBuilder sExpectedRef;
+    WStringBuilder sExpectedRef;
     sExpectedRef.SetFormat("{}", expected[i]);
-    EZ_TEST_STRING(lods[i]->GetTypeAccessor().GetValue("Mesh").ConvertTo<ezString>(), sExpectedRef);
+    W_TEST_STRING(lods[i]->GetTypeAccessor().GetValue("Mesh").ConvertTo<WString>(), sExpectedRef);
 
     // thresholds have to decrease, otherwise the component never switches LOD
     const float fThreshold = lods[i]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>();
-    EZ_TEST_BOOL(fThreshold < fPrevThreshold);
+    W_TEST_BOOL(fThreshold < fPrevThreshold);
     fPrevThreshold = fThreshold;
   }
 
-  EZ_TEST_FLOAT(lods[0]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>(), 0.2f, 0.001f);
-  EZ_TEST_FLOAT(lods[1]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>(), 0.1f, 0.001f);
+  W_TEST_FLOAT(lods[0]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>(), 0.2f, 0.001f);
+  W_TEST_FLOAT(lods[1]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>(), 0.1f, 0.001f);
 
   // the last LOD has to reach all the way out, or the mesh disappears in the distance
-  EZ_TEST_FLOAT(lods[2]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>(), 0.0f, 0.001f);
+  W_TEST_FLOAT(lods[2]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>(), 0.0f, 0.001f);
 
   const float fRadius = pLodComp->GetTypeAccessor().GetValue("BoundsRadius").ConvertTo<float>();
-  EZ_TEST_FLOAT(fRadius, source.m_fBoundsRadius, 0.001f);
-  EZ_TEST_BOOL_MSG(fRadius != 1.0f, "The bounds radius should come from the mesh, not stay at the default.");
+  W_TEST_FLOAT(fRadius, source.m_fBoundsRadius, 0.001f);
+  W_TEST_BOOL_MSG(fRadius != 1.0f, "The bounds radius should come from the mesh, not stay at the default.");
 }
 
-void ezEditorMeshPrefabTest::BoxCollider()
+void WEditorMeshPrefabTest::BoxCollider()
 {
-  if (!ezMeshPrefabCreator::IsPhysicsAvailable())
+  if (!WMeshPrefabCreator::IsPhysicsAvailable())
   {
-    ezLog::Info("Jolt is not available, skipping the collider test.");
+    WLog::Info("Jolt is not available, skipping the collider test.");
     return;
   }
 
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefab/Box.ezMeshAsset");
-  if (!EZ_TEST_BOOL(meshGuid.IsValid()))
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefab/Box.WMeshAsset");
+  if (!W_TEST_BOOL(meshGuid.IsValid()))
     return;
 
-  ezMeshPrefabSource source;
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+  WMeshPrefabSource source;
+  if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
     return;
 
-  if (!EZ_TEST_BOOL_MSG(source.m_bHasBounds, "A box collider cannot be sized without bounds."))
+  if (!W_TEST_BOOL_MSG(source.m_bHasBounds, "A box collider cannot be sized without bounds."))
     return;
 
-  ezStringBuilder sPrefabPath = m_sProjectPath;
-  sPrefabPath.AppendPath("MeshPrefab/Box.ezPrefab");
+  WStringBuilder sPrefabPath = m_sProjectPath;
+  sPrefabPath.AppendPath("MeshPrefab/Box.WPrefab");
 
-  ezMeshPrefabOptions options;
+  WMeshPrefabOptions options;
   options.m_sPrefabPath = sPrefabPath;
-  options.m_sRenderComponentType = "ezMeshComponent";
-  options.m_Physics = ezMeshPrefabPhysics::StaticBox;
+  options.m_sRenderComponentType = "WMeshComponent";
+  options.m_Physics = WMeshPrefabPhysics::StaticBox;
   options.m_uiCollisionLayer = 3;
   options.m_bOpenAfterCreate = false;
 
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
+  if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
     return;
 
-  ezDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, ezDocumentFlags::None);
-  if (!EZ_TEST_BOOL(pPrefab != nullptr))
+  WDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, WDocumentFlags::None);
+  if (!W_TEST_BOOL(pPrefab != nullptr))
     return;
 
-  EZ_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
+  W_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
 
-  const ezDocumentObject* pPrefabRoot = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject())[0];
+  const WDocumentObject* pPrefabRoot = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject())[0];
 
-  const ezDocumentObject* pActor = FindComponent(pPrefabRoot, "ezJoltStaticActorComponent");
-  if (!EZ_TEST_BOOL(pActor != nullptr))
+  const WDocumentObject* pActor = FindComponent(pPrefabRoot, "WJoltStaticActorComponent");
+  if (!W_TEST_BOOL(pActor != nullptr))
     return;
 
-  EZ_TEST_INT(pActor->GetTypeAccessor().GetValue("CollisionLayer").ConvertTo<ezUInt32>(), 3);
+  W_TEST_INT(pActor->GetTypeAccessor().GetValue("CollisionLayer").ConvertTo<WUInt32>(), 3);
 
   auto children = GetChildObjects(pPrefabRoot);
-  if (!EZ_TEST_INT(children.GetCount(), 1))
+  if (!W_TEST_INT(children.GetCount(), 1))
     return;
 
-  const ezDocumentObject* pShape = FindComponent(children[0], "ezJoltShapeBoxComponent");
-  if (!EZ_TEST_BOOL(pShape != nullptr))
+  const WDocumentObject* pShape = FindComponent(children[0], "WJoltShapeBoxComponent");
+  if (!W_TEST_BOOL(pShape != nullptr))
     return;
 
-  const ezVec3 vHalfExtents = pShape->GetTypeAccessor().GetValue("HalfExtents").ConvertTo<ezVec3>();
-  EZ_TEST_VEC3(vHalfExtents, source.m_vBoundsHalfExtents, 0.001f);
+  const WVec3 vHalfExtents = pShape->GetTypeAccessor().GetValue("HalfExtents").ConvertTo<WVec3>();
+  W_TEST_VEC3(vHalfExtents, source.m_vBoundsHalfExtents, 0.001f);
 
-  const ezVec3 vPos = children[0]->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-  EZ_TEST_VEC3(vPos, source.m_vBoundsCenter, 0.001f);
+  const WVec3 vPos = children[0]->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<WVec3>();
+  W_TEST_VEC3(vPos, source.m_vBoundsCenter, 0.001f);
 }
 
-void ezEditorMeshPrefabTest::CollisionMesh()
+void WEditorMeshPrefabTest::CollisionMesh()
 {
-  if (!ezMeshPrefabCreator::IsPhysicsAvailable())
+  if (!WMeshPrefabCreator::IsPhysicsAvailable())
   {
-    ezLog::Info("Jolt is not available, skipping the collision mesh test.");
+    WLog::Info("Jolt is not available, skipping the collision mesh test.");
     return;
   }
 
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefab/ColMesh.ezMeshAsset");
-  if (!EZ_TEST_BOOL(meshGuid.IsValid()))
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefab/ColMesh.WMeshAsset");
+  if (!W_TEST_BOOL(meshGuid.IsValid()))
     return;
 
-  ezMeshPrefabSource source;
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+  WMeshPrefabSource source;
+  if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
     return;
 
-  EZ_TEST_STRING(source.m_sMeshFile, "Meshes/Cube.obj");
+  W_TEST_STRING(source.m_sMeshFile, "Meshes/Cube.obj");
 
-  ezStringBuilder sPrefabPath = m_sProjectPath;
-  sPrefabPath.AppendPath("MeshPrefab/ColMesh.ezPrefab");
+  WStringBuilder sPrefabPath = m_sProjectPath;
+  sPrefabPath.AppendPath("MeshPrefab/ColMesh.WPrefab");
 
-  ezMeshPrefabOptions options;
+  WMeshPrefabOptions options;
   options.m_sPrefabPath = sPrefabPath;
-  options.m_sRenderComponentType = "ezMeshComponent";
-  options.m_Physics = ezMeshPrefabPhysics::StaticTriangleMesh;
+  options.m_sRenderComponentType = "WMeshComponent";
+  options.m_Physics = WMeshPrefabPhysics::StaticTriangleMesh;
   options.m_bOpenAfterCreate = false;
 
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
+  if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
     return;
 
-  ezStringBuilder sColMeshPath = m_sProjectPath;
-  sColMeshPath.AppendPath("MeshPrefab/ColMesh.ezJoltCollisionMeshAsset");
-  EZ_TEST_BOOL(ezOSFile::ExistsFile(sColMeshPath));
+  WStringBuilder sColMeshPath = m_sProjectPath;
+  sColMeshPath.AppendPath("MeshPrefab/ColMesh.WJoltCollisionMeshAsset");
+  W_TEST_BOOL(WOSFile::ExistsFile(sColMeshPath));
 
-  ezDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, ezDocumentFlags::None);
-  if (!EZ_TEST_BOOL(pPrefab != nullptr))
+  WDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, WDocumentFlags::None);
+  if (!W_TEST_BOOL(pPrefab != nullptr))
     return;
 
-  EZ_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
+  W_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
 
-  const ezDocumentObject* pPrefabRoot = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject())[0];
-  const ezDocumentObject* pActor = FindComponent(pPrefabRoot, "ezJoltStaticActorComponent");
-  if (!EZ_TEST_BOOL(pActor != nullptr))
+  const WDocumentObject* pPrefabRoot = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject())[0];
+  const WDocumentObject* pActor = FindComponent(pPrefabRoot, "WJoltStaticActorComponent");
+  if (!W_TEST_BOOL(pActor != nullptr))
     return;
 
   // a triangle mesh collider needs no separate shape component, the actor references the mesh itself
-  const ezString sColMeshRef = pActor->GetTypeAccessor().GetValue("CollisionMesh").ConvertTo<ezString>();
-  EZ_TEST_BOOL_MSG(!sColMeshRef.IsEmpty(), "The actor should reference the generated collision mesh.");
-  EZ_TEST_INT(GetChildObjects(pPrefabRoot).GetCount(), 0);
+  const WString sColMeshRef = pActor->GetTypeAccessor().GetValue("CollisionMesh").ConvertTo<WString>();
+  W_TEST_BOOL_MSG(!sColMeshRef.IsEmpty(), "The actor should reference the generated collision mesh.");
+  W_TEST_INT(GetChildObjects(pPrefabRoot).GetCount(), 0);
 
   // running it again has to reuse that asset rather than create a second one
-  ezStringBuilder sPrefabPath2 = m_sProjectPath;
-  sPrefabPath2.AppendPath("MeshPrefab/ColMesh2.ezPrefab");
+  WStringBuilder sPrefabPath2 = m_sProjectPath;
+  sPrefabPath2.AppendPath("MeshPrefab/ColMesh2.WPrefab");
 
-  ezMeshPrefabOptions options2 = options;
+  WMeshPrefabOptions options2 = options;
   options2.m_sPrefabPath = sPrefabPath2;
 
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options2).Succeeded()))
+  if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options2).Succeeded()))
     return;
 
-  ezDocument* pPrefab2 = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath2, ezDocumentFlags::None);
-  if (!EZ_TEST_BOOL(pPrefab2 != nullptr))
+  WDocument* pPrefab2 = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath2, WDocumentFlags::None);
+  if (!W_TEST_BOOL(pPrefab2 != nullptr))
     return;
 
-  EZ_SCOPE_EXIT(pPrefab2->GetDocumentManager()->CloseDocument(pPrefab2));
+  W_SCOPE_EXIT(pPrefab2->GetDocumentManager()->CloseDocument(pPrefab2));
 
-  const ezDocumentObject* pPrefabRoot2 = GetChildObjects(pPrefab2->GetObjectManager()->GetRootObject())[0];
-  const ezDocumentObject* pActor2 = FindComponent(pPrefabRoot2, "ezJoltStaticActorComponent");
-  if (!EZ_TEST_BOOL(pActor2 != nullptr))
+  const WDocumentObject* pPrefabRoot2 = GetChildObjects(pPrefab2->GetObjectManager()->GetRootObject())[0];
+  const WDocumentObject* pActor2 = FindComponent(pPrefabRoot2, "WJoltStaticActorComponent");
+  if (!W_TEST_BOOL(pActor2 != nullptr))
     return;
 
-  EZ_TEST_STRING(pActor2->GetTypeAccessor().GetValue("CollisionMesh").ConvertTo<ezString>(), sColMeshRef);
+  W_TEST_STRING(pActor2->GetTypeAccessor().GetValue("CollisionMesh").ConvertTo<WString>(), sColMeshRef);
 }
 
-void ezEditorMeshPrefabTest::ConvexAndDefaults()
+void WEditorMeshPrefabTest::ConvexAndDefaults()
 {
-  if (!ezMeshPrefabCreator::IsPhysicsAvailable())
+  if (!WMeshPrefabCreator::IsPhysicsAvailable())
   {
-    ezLog::Info("Jolt is not available, skipping the convex hull test.");
+    WLog::Info("Jolt is not available, skipping the convex hull test.");
     return;
   }
 
   // Collision meshes are matched by source file, and every other mesh here is built from Cube.obj.
   // Without a private source this would find the colliders the other sub-tests generated.
-  const ezString sSource = MakePrivateSourceMesh("ConvexCube");
-  if (!EZ_TEST_BOOL(!sSource.IsEmpty()))
+  const WString sSource = MakePrivateSourceMesh("ConvexCube");
+  if (!W_TEST_BOOL(!sSource.IsEmpty()))
     return;
 
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefabConvex/Convex.ezMeshAsset", 0, sSource);
-  if (!EZ_TEST_BOOL(meshGuid.IsValid()))
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefabConvex/Convex.WMeshAsset", 0, sSource);
+  if (!W_TEST_BOOL(meshGuid.IsValid()))
     return;
 
   {
-    ezMeshPrefabSource source;
-    if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+    WMeshPrefabSource source;
+    if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
       return;
 
-    EZ_TEST_BOOL(source.GetDefaultPhysics() == ezMeshPrefabPhysics::None);
-    EZ_TEST_BOOL(!source.m_ExistingConvexColMesh.IsValid());
+    W_TEST_BOOL(source.GetDefaultPhysics() == WMeshPrefabPhysics::None);
+    W_TEST_BOOL(!source.m_ExistingConvexColMesh.IsValid());
 
-    ezStringBuilder sPrefabPath = m_sProjectPath;
-    sPrefabPath.AppendPath("MeshPrefabConvex/Convex.ezPrefab");
+    WStringBuilder sPrefabPath = m_sProjectPath;
+    sPrefabPath.AppendPath("MeshPrefabConvex/Convex.WPrefab");
 
-    ezMeshPrefabOptions options;
+    WMeshPrefabOptions options;
     options.m_sPrefabPath = sPrefabPath;
-    options.m_sRenderComponentType = "ezMeshComponent";
-    options.m_Physics = ezMeshPrefabPhysics::StaticConvexHull;
+    options.m_sRenderComponentType = "WMeshComponent";
+    options.m_Physics = WMeshPrefabPhysics::StaticConvexHull;
     options.m_bOpenAfterCreate = false;
 
-    if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
+    if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
       return;
 
     // a convex hull is a static actor plus a shape component, unlike a triangle mesh
-    ezDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, ezDocumentFlags::None);
-    if (!EZ_TEST_BOOL(pPrefab != nullptr))
+    WDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, WDocumentFlags::None);
+    if (!W_TEST_BOOL(pPrefab != nullptr))
       return;
 
-    EZ_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
+    W_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
 
-    const ezDocumentObject* pPrefabRoot = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject())[0];
-    EZ_TEST_BOOL(FindComponent(pPrefabRoot, "ezJoltStaticActorComponent") != nullptr);
+    const WDocumentObject* pPrefabRoot = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject())[0];
+    W_TEST_BOOL(FindComponent(pPrefabRoot, "WJoltStaticActorComponent") != nullptr);
 
-    const ezDocumentObject* pShape = FindComponent(pPrefabRoot, "ezJoltShapeConvexHullComponent");
-    if (!EZ_TEST_BOOL(pShape != nullptr))
+    const WDocumentObject* pShape = FindComponent(pPrefabRoot, "WJoltShapeConvexHullComponent");
+    if (!W_TEST_BOOL(pShape != nullptr))
       return;
 
-    EZ_TEST_BOOL(!pShape->GetTypeAccessor().GetValue("CollisionMesh").ConvertTo<ezString>().IsEmpty());
+    W_TEST_BOOL(!pShape->GetTypeAccessor().GetValue("CollisionMesh").ConvertTo<WString>().IsEmpty());
   }
 
   // the convex collision mesh now exists, so it should drive the default on a second run
   {
-    ezMeshPrefabSource source;
-    if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+    WMeshPrefabSource source;
+    if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
       return;
 
-    EZ_TEST_BOOL(source.m_ExistingConvexColMesh.IsValid());
-    EZ_TEST_BOOL(source.GetDefaultPhysics() == ezMeshPrefabPhysics::StaticConvexHull);
+    W_TEST_BOOL(source.m_ExistingConvexColMesh.IsValid());
+    W_TEST_BOOL(source.GetDefaultPhysics() == WMeshPrefabPhysics::StaticConvexHull);
   }
 }
 
-void ezEditorMeshPrefabTest::ExistingPrefab()
+void WEditorMeshPrefabTest::ExistingPrefab()
 {
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefabExisting/Existing.ezMeshAsset");
-  if (!EZ_TEST_BOOL(meshGuid.IsValid()))
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefabExisting/Existing.WMeshAsset");
+  if (!W_TEST_BOOL(meshGuid.IsValid()))
     return;
 
-  ezMeshPrefabSource source;
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+  WMeshPrefabSource source;
+  if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
     return;
 
-  ezStringBuilder sPrefabPath = m_sProjectPath;
-  sPrefabPath.AppendPath("MeshPrefabExisting/Existing.ezPrefab");
+  WStringBuilder sPrefabPath = m_sProjectPath;
+  sPrefabPath.AppendPath("MeshPrefabExisting/Existing.WPrefab");
 
-  ezMeshPrefabOptions options;
+  WMeshPrefabOptions options;
   options.m_sPrefabPath = sPrefabPath;
-  options.m_sRenderComponentType = "ezMeshComponent";
+  options.m_sRenderComponentType = "WMeshComponent";
   options.m_bOpenAfterCreate = false;
 
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
+  if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
     return;
 
-  const ezStatus second = ezMeshPrefabCreator::CreateMeshPrefab(source, options);
-  EZ_TEST_BOOL_MSG(second.Failed(), "Creating a prefab over an existing one should fail, not overwrite it.");
-  EZ_TEST_BOOL(!second.GetMessageString().IsEmpty());
+  const WStatus second = WMeshPrefabCreator::CreateMeshPrefab(source, options);
+  W_TEST_BOOL_MSG(second.Failed(), "Creating a prefab over an existing one should fail, not overwrite it.");
+  W_TEST_BOOL(!second.GetMessageString().IsEmpty());
 }
 
-void ezEditorMeshPrefabTest::KeepsOpenDocuments()
+void WEditorMeshPrefabTest::KeepsOpenDocuments()
 {
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefabOpen/Open.ezMeshAsset");
-  if (!EZ_TEST_BOOL(meshGuid.IsValid()))
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefabOpen/Open.WMeshAsset");
+  if (!W_TEST_BOOL(meshGuid.IsValid()))
     return;
 
-  ezStringBuilder sMeshPath = m_sProjectPath;
-  sMeshPath.AppendPath("MeshPrefabOpen/Open.ezMeshAsset");
+  WStringBuilder sMeshPath = m_sProjectPath;
+  sMeshPath.AppendPath("MeshPrefabOpen/Open.WMeshAsset");
 
   // Opened without a window, which is what the curator does while transforming. Reading a property
   // out of it must not close it.
-  ezDocument* pOpened = m_pApplication->m_pEditorApp->OpenDocument(sMeshPath, ezDocumentFlags::None);
-  if (!EZ_TEST_BOOL(pOpened != nullptr))
+  WDocument* pOpened = m_pApplication->m_pEditorApp->OpenDocument(sMeshPath, WDocumentFlags::None);
+  if (!W_TEST_BOOL(pOpened != nullptr))
     return;
 
-  ezMeshPrefabSource source;
-  EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded());
-  EZ_TEST_STRING(source.m_sMeshFile, "Meshes/Cube.obj");
+  WMeshPrefabSource source;
+  W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded());
+  W_TEST_STRING(source.m_sMeshFile, "Meshes/Cube.obj");
 
-  const ezDocument* pStillOpen = ezDocumentManager::GetDocumentByGuid(meshGuid);
-  EZ_TEST_BOOL_MSG(pStillOpen == pOpened, "Gathering must not close a document that was already open.");
+  const WDocument* pStillOpen = WDocumentManager::GetDocumentByGuid(meshGuid);
+  W_TEST_BOOL_MSG(pStillOpen == pOpened, "Gathering must not close a document that was already open.");
 
   if (pStillOpen == pOpened)
   {
@@ -614,214 +614,214 @@ void ezEditorMeshPrefabTest::KeepsOpenDocuments()
   }
 }
 
-void ezEditorMeshPrefabTest::PrefabDataDirRelativePath()
+void WEditorMeshPrefabTest::PrefabDataDirRelativePath()
 {
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefab/RelPath.ezMeshAsset");
-  if (!EZ_TEST_BOOL(meshGuid.IsValid()))
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefab/RelPath.WMeshAsset");
+  if (!W_TEST_BOOL(meshGuid.IsValid()))
     return;
 
-  ezMeshPrefabSource source;
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+  WMeshPrefabSource source;
+  if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
     return;
 
-  const ezString sAbsolute = ezMeshPrefabCreator::SuggestPrefabPath(source);
-  const ezString sDisplay = ezMeshPrefabCreator::MakeDisplayPath(sAbsolute);
+  const WString sAbsolute = WMeshPrefabCreator::SuggestPrefabPath(source);
+  const WString sDisplay = WMeshPrefabCreator::MakeDisplayPath(sAbsolute);
 
   // What the dialog shows has to be the short form, not the full path off the drive root.
-  EZ_TEST_BOOL_MSG(!ezPathUtils::IsAbsolutePath(sDisplay), "The display path must be relative.");
-  EZ_TEST_BOOL_MSG(sDisplay.FindSubString("MeshPrefab/RelPath") != nullptr, "The display path must still name the file.");
+  W_TEST_BOOL_MSG(!WPathUtils::IsAbsolutePath(sDisplay), "The display path must be relative.");
+  W_TEST_BOOL_MSG(sDisplay.FindSubString("MeshPrefab/RelPath") != nullptr, "The display path must still name the file.");
 
   // and it has to round trip, or the dialog cannot hand it back to the creator
   {
-    ezStringBuilder sResolved;
-    EZ_TEST_BOOL(ezMeshPrefabCreator::ResolveDisplayPath(sDisplay, sResolved).Succeeded());
-    EZ_TEST_STRING(sResolved, sAbsolute);
+    WStringBuilder sResolved;
+    W_TEST_BOOL(WMeshPrefabCreator::ResolveDisplayPath(sDisplay, sResolved).Succeeded());
+    W_TEST_STRING(sResolved, sAbsolute);
   }
 
   // an absolute path stays valid input, which is what the file browse button produces
   {
-    ezStringBuilder sResolved;
-    EZ_TEST_BOOL(ezMeshPrefabCreator::ResolveDisplayPath(sAbsolute, sResolved).Succeeded());
-    EZ_TEST_STRING(sResolved, sAbsolute);
+    WStringBuilder sResolved;
+    W_TEST_BOOL(WMeshPrefabCreator::ResolveDisplayPath(sAbsolute, sResolved).Succeeded());
+    W_TEST_STRING(sResolved, sAbsolute);
   }
 
   // a path that names no data directory has to be refused rather than written somewhere unexpected
   {
-    ezStringBuilder sResolved;
-    EZ_TEST_BOOL(ezMeshPrefabCreator::ResolveDisplayPath("NoSuchDataDir/Thing.ezPrefab", sResolved).Failed());
-    EZ_TEST_BOOL(ezMeshPrefabCreator::ResolveDisplayPath("", sResolved).Failed());
+    WStringBuilder sResolved;
+    W_TEST_BOOL(WMeshPrefabCreator::ResolveDisplayPath("NoSuchDataDir/Thing.WPrefab", sResolved).Failed());
+    W_TEST_BOOL(WMeshPrefabCreator::ResolveDisplayPath("", sResolved).Failed());
   }
 
   // creating from the relative form has to put the file exactly where the absolute form would
   {
-    ezMeshPrefabOptions options;
+    WMeshPrefabOptions options;
     options.m_sPrefabPath = sDisplay;
     options.m_bOpenAfterCreate = false;
 
-    if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
+    if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
       return;
 
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sAbsolute));
+    W_TEST_BOOL(WOSFile::ExistsFile(sAbsolute));
   }
 
   // an unresolvable path must fail instead of creating something
   {
-    ezMeshPrefabOptions options;
-    options.m_sPrefabPath = "NoSuchDataDir/Thing.ezPrefab";
+    WMeshPrefabOptions options;
+    options.m_sPrefabPath = "NoSuchDataDir/Thing.WPrefab";
     options.m_bOpenAfterCreate = false;
 
-    EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Failed());
+    W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Failed());
   }
 }
 
-void ezEditorMeshPrefabTest::MultiplePrefabs()
+void WEditorMeshPrefabTest::MultiplePrefabs()
 {
-  ezHybridArray<ezUuid, 4> meshes;
-  ezHybridArray<ezString, 4> expectedPrefabs;
+  WHybridArray<WUuid, 4> meshes;
+  WHybridArray<WString, 4> expectedPrefabs;
 
-  for (ezUInt32 i = 0; i < 3; ++i)
+  for (WUInt32 i = 0; i < 3; ++i)
   {
-    ezStringBuilder sAssetPath;
-    sAssetPath.SetFormat("MeshPrefabBatch/Batch{}.ezMeshAsset", i);
+    WStringBuilder sAssetPath;
+    sAssetPath.SetFormat("MeshPrefabBatch/Batch{}.WMeshAsset", i);
 
-    const ezUuid guid = CreateMeshAsset(sAssetPath);
-    if (!EZ_TEST_BOOL(guid.IsValid()))
+    const WUuid guid = CreateMeshAsset(sAssetPath);
+    if (!W_TEST_BOOL(guid.IsValid()))
       return;
 
     meshes.PushBack(guid);
 
-    ezStringBuilder sPrefab = m_sProjectPath;
+    WStringBuilder sPrefab = m_sProjectPath;
     sPrefab.AppendPath(sAssetPath);
-    sPrefab.ChangeFileExtension("ezPrefab");
+    sPrefab.ChangeFileExtension("WPrefab");
     expectedPrefabs.PushBack(sPrefab);
   }
 
-  ezMeshPrefabOptions options;
+  WMeshPrefabOptions options;
   options.m_bOpenAfterCreate = false;
 
   // no path: each prefab has to end up next to its own mesh
   {
-    ezUInt32 uiCreated = 0;
-    ezUInt32 uiSkipped = 0;
-    if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefabs(meshes, options, uiCreated, uiSkipped).Succeeded()))
+    WUInt32 uiCreated = 0;
+    WUInt32 uiSkipped = 0;
+    if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefabs(meshes, options, uiCreated, uiSkipped).Succeeded()))
       return;
 
-    EZ_TEST_INT(uiCreated, 3);
-    EZ_TEST_INT(uiSkipped, 0);
+    W_TEST_INT(uiCreated, 3);
+    W_TEST_INT(uiSkipped, 0);
 
-    for (const ezString& sPrefab : expectedPrefabs)
+    for (const WString& sPrefab : expectedPrefabs)
     {
-      EZ_TEST_BOOL_MSG(ezOSFile::ExistsFile(sPrefab), "Every mesh has to get a prefab at its own default path.");
+      W_TEST_BOOL_MSG(WOSFile::ExistsFile(sPrefab), "Every mesh has to get a prefab at its own default path.");
     }
   }
 
   ProcessEvents(10);
-  ezAssetCurator::GetSingleton()->MainThreadTick(true);
+  WAssetCurator::GetSingleton()->MainThreadTick(true);
 
   // Running it again must not pile up numbered duplicates. A mesh that already has a prefab is done,
   // which is why such a mesh is skipped rather than failing the run.
   {
-    ezUInt32 uiCreated = 0;
-    ezUInt32 uiSkipped = 0;
-    if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefabs(meshes, options, uiCreated, uiSkipped).Succeeded()))
+    WUInt32 uiCreated = 0;
+    WUInt32 uiSkipped = 0;
+    if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefabs(meshes, options, uiCreated, uiSkipped).Succeeded()))
       return;
 
-    EZ_TEST_INT(uiCreated, 0);
-    EZ_TEST_INT(uiSkipped, 3);
+    W_TEST_INT(uiCreated, 0);
+    W_TEST_INT(uiSkipped, 3);
 
-    for (const ezString& sPrefab : expectedPrefabs)
+    for (const WString& sPrefab : expectedPrefabs)
     {
-      ezStringBuilder sSecondName(ezPathUtils::GetFileName(sPrefab), "2");
+      WStringBuilder sSecondName(WPathUtils::GetFileName(sPrefab), "2");
 
-      ezStringBuilder sSecond = sPrefab;
+      WStringBuilder sSecond = sPrefab;
       sSecond.ChangeFileName(sSecondName);
 
-      EZ_TEST_BOOL_MSG(!ezOSFile::ExistsFile(sSecond), "A second run must not create a numbered duplicate.");
+      W_TEST_BOOL_MSG(!WOSFile::ExistsFile(sSecond), "A second run must not create a numbered duplicate.");
     }
   }
 
   // A guid that is not a mesh asset is a skip, not a failure - a selection can hold anything.
   {
-    ezHybridArray<ezUuid, 2> mixed;
-    mixed.PushBack(ezUuid::MakeUuid());
+    WHybridArray<WUuid, 2> mixed;
+    mixed.PushBack(WUuid::MakeUuid());
 
-    ezUInt32 uiCreated = 0;
-    ezUInt32 uiSkipped = 0;
-    EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefabs(mixed, options, uiCreated, uiSkipped).Succeeded());
-    EZ_TEST_INT(uiCreated, 0);
-    EZ_TEST_INT(uiSkipped, 1);
+    WUInt32 uiCreated = 0;
+    WUInt32 uiSkipped = 0;
+    W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefabs(mixed, options, uiCreated, uiSkipped).Succeeded());
+    W_TEST_INT(uiCreated, 0);
+    W_TEST_INT(uiSkipped, 1);
   }
 }
 
-void ezEditorMeshPrefabTest::AnimatedLodComponent()
+void WEditorMeshPrefabTest::AnimatedLodComponent()
 {
   // The LOD folder is found by the mesh asset name, so this mesh needs a name of its own.
-  const ezUuid meshGuid = CreateMeshAsset("MeshPrefabAnimLod/AnimLod.ezMeshAsset");
-  const ezUuid lod1Guid = CreateMeshAsset("MeshPrefabAnimLod/AnimLod_data/LOD-1.ezMeshAsset", 50);
+  const WUuid meshGuid = CreateMeshAsset("MeshPrefabAnimLod/AnimLod.WMeshAsset");
+  const WUuid lod1Guid = CreateMeshAsset("MeshPrefabAnimLod/AnimLod_data/LOD-1.WMeshAsset", 50);
 
-  if (!EZ_TEST_BOOL(meshGuid.IsValid() && lod1Guid.IsValid()))
+  if (!W_TEST_BOOL(meshGuid.IsValid() && lod1Guid.IsValid()))
     return;
 
-  ezMeshPrefabSource source;
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
+  WMeshPrefabSource source;
+  if (!W_TEST_BOOL(WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Succeeded()))
     return;
 
-  if (!EZ_TEST_INT(source.m_LodGuids.GetCount(), 1))
+  if (!W_TEST_INT(source.m_LodGuids.GetCount(), 1))
     return;
 
   // A static mesh with LODs still defaults to the static LOD component.
-  EZ_TEST_BOOL(source.GetDefaultRenderComponentType() == "ezLodMeshComponent"_ezsv);
+  W_TEST_BOOL(source.GetDefaultRenderComponentType() == "WLodMeshComponent"_wsv);
 
   // The animated LOD component is only offered for animated meshes. What matters here is that it is
   // built correctly when asked for, including the LOD element type, which differs from the static one.
-  ezStringBuilder sPrefabPath = m_sProjectPath;
-  sPrefabPath.AppendPath("MeshPrefabAnimLod/AnimLod.ezPrefab");
+  WStringBuilder sPrefabPath = m_sProjectPath;
+  sPrefabPath.AppendPath("MeshPrefabAnimLod/AnimLod.WPrefab");
 
-  ezMeshPrefabOptions options;
+  WMeshPrefabOptions options;
   options.m_sPrefabPath = sPrefabPath;
-  options.m_sRenderComponentType = "ezLodAnimatedMeshComponent";
+  options.m_sRenderComponentType = "WLodAnimatedMeshComponent";
   options.m_bOpenAfterCreate = false;
 
-  if (!EZ_TEST_BOOL(ezMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
+  if (!W_TEST_BOOL(WMeshPrefabCreator::CreateMeshPrefab(source, options).Succeeded()))
     return;
 
-  ezDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, ezDocumentFlags::None);
-  if (!EZ_TEST_BOOL(pPrefab != nullptr))
+  WDocument* pPrefab = m_pApplication->m_pEditorApp->OpenDocument(sPrefabPath, WDocumentFlags::None);
+  if (!W_TEST_BOOL(pPrefab != nullptr))
     return;
 
-  EZ_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
+  W_SCOPE_EXIT(pPrefab->GetDocumentManager()->CloseDocument(pPrefab));
 
   auto topLevel = GetChildObjects(pPrefab->GetObjectManager()->GetRootObject());
-  if (!EZ_TEST_INT(topLevel.GetCount(), 1))
+  if (!W_TEST_INT(topLevel.GetCount(), 1))
     return;
 
-  const ezDocumentObject* pComp = FindComponent(topLevel[0], "ezLodAnimatedMeshComponent");
-  if (!EZ_TEST_BOOL(pComp != nullptr))
+  const WDocumentObject* pComp = FindComponent(topLevel[0], "WLodAnimatedMeshComponent");
+  if (!W_TEST_BOOL(pComp != nullptr))
     return;
 
   // LOD 0 is the mesh itself, LOD 1 is the sibling that was found
-  ezHybridArray<const ezDocumentObject*, 4> lods;
-  for (const ezDocumentObject* pChild : pComp->GetChildren())
+  WHybridArray<const WDocumentObject*, 4> lods;
+  for (const WDocumentObject* pChild : pComp->GetChildren())
   {
-    if (pChild->GetParentProperty() == "Meshes"_ezsv)
+    if (pChild->GetParentProperty() == "Meshes"_wsv)
       lods.PushBack(pChild);
   }
 
-  if (!EZ_TEST_INT(lods.GetCount(), 2))
+  if (!W_TEST_INT(lods.GetCount(), 2))
     return;
 
   // The two LOD components have separate element types with identical property names. Using the
   // static one here would build a document the animated component cannot read.
-  EZ_TEST_STRING(lods[0]->GetTypeAccessor().GetType()->GetTypeName(), "ezLodAnimatedMeshLod");
+  W_TEST_STRING(lods[0]->GetTypeAccessor().GetType()->GetTypeName(), "WLodAnimatedMeshLod");
 
-  ezStringBuilder sExpectedRef;
+  WStringBuilder sExpectedRef;
   sExpectedRef.SetFormat("{}", meshGuid);
-  EZ_TEST_STRING(lods[0]->GetTypeAccessor().GetValue("Mesh").ConvertTo<ezString>(), sExpectedRef);
+  W_TEST_STRING(lods[0]->GetTypeAccessor().GetValue("Mesh").ConvertTo<WString>(), sExpectedRef);
 
   sExpectedRef.SetFormat("{}", lod1Guid);
-  EZ_TEST_STRING(lods[1]->GetTypeAccessor().GetValue("Mesh").ConvertTo<ezString>(), sExpectedRef);
+  W_TEST_STRING(lods[1]->GetTypeAccessor().GetValue("Mesh").ConvertTo<WString>(), sExpectedRef);
 
   // the last LOD has to reach out to the horizon, or the object disappears at a distance
-  EZ_TEST_FLOAT(lods[1]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>(), 0.0f, 0.0001f);
-  EZ_TEST_BOOL(lods[0]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>() > 0.0f);
+  W_TEST_FLOAT(lods[1]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>(), 0.0f, 0.0001f);
+  W_TEST_BOOL(lods[0]->GetTypeAccessor().GetValue("Threshold").ConvertTo<float>() > 0.0f);
 }

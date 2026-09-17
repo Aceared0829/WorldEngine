@@ -7,30 +7,30 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/RendererReflection.h>
 
-ezTextureViewContext::ezTextureViewContext(ezTextureContext* pContext)
-  : ezEngineProcessViewContext(pContext)
+WTextureViewContext::WTextureViewContext(WTextureContext* pContext)
+  : WEngineProcessViewContext(pContext)
 {
   m_pTextureContext = pContext;
 }
 
-ezTextureViewContext::~ezTextureViewContext() = default;
+WTextureViewContext::~WTextureViewContext() = default;
 
-ezViewHandle ezTextureViewContext::CreateView()
+WViewHandle WTextureViewContext::CreateView()
 {
-  ezView* pView = CreateDefaultView("Texture Editor - View");
+  WView* pView = CreateDefaultView("Texture Editor - View");
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), false);
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(WMakeHashedString("DepthPrePass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(WMakeHashedString("AOPass.Active"), false);
 
   return pView->GetHandle();
 }
 
-void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+void WTextureViewContext::SetCamera(const WViewRedrawMsgToEngine* pMsg)
 {
   // Do not apply render mode here otherwise we would switch to a different pipeline.
   // Also use hard-coded clipping planes so the quad is not culled too early.
 
-  ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
+  WCameraMode::Enum cameraMode = (WCameraMode::Enum)pMsg->m_iCameraMode;
   m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, 0.0001f, 50.0f);
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 
@@ -38,19 +38,19 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   auto hResource = m_pTextureContext->GetTexture();
   if (hResource.IsValid())
   {
-    ezResourceLock<ezTexture2DResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
-    const ezGALResourceFormat::Enum format = pResource->GetFormat();
+    WResourceLock<WTexture2DResource> pResource(hResource, WResourceAcquireMode::AllowLoadingFallback);
+    const WGALResourceFormat::Enum format = pResource->GetFormat();
     const int iMipLevel = m_pTextureContext->GetLodLevel();
-    const ezUInt32 uiWidth = pResource->GetWidth();
-    const ezUInt32 uiHeight = pResource->GetHeight();
+    const WUInt32 uiWidth = pResource->GetWidth();
+    const WUInt32 uiHeight = pResource->GetHeight();
 
-    ezStringBuilder sText;
-    if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sText, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
+    WStringBuilder sText;
+    if (!WReflectionUtils::EnumerationToString(WGetStaticRTTI<WGALResourceFormat>(), format, sText, WReflectionUtils::EnumConversionMode::ValueNameOnly))
     {
       sText = "Unknown format";
     }
 
-    const ezUInt32 uiArraySlices = m_pTextureContext->GetNumArraySlices();
+    const WUInt32 uiArraySlices = m_pTextureContext->GetNumArraySlices();
     if (uiArraySlices > 1)
     {
       sText.PrependFormat("{}x{} [{} slices] - ", uiWidth, uiHeight, uiArraySlices);
@@ -67,12 +67,12 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     }
     else
     {
-      const ezUInt32 uiMipWidth = ezMath::Max(1u, uiWidth >> ezMath::Max(iMipLevel, 0));
-      const ezUInt32 uiMipHeight = ezMath::Max(1u, uiHeight >> ezMath::Max(iMipLevel, 0));
+      const WUInt32 uiMipWidth = WMath::Max(1u, uiWidth >> WMath::Max(iMipLevel, 0));
+      const WUInt32 uiMipHeight = WMath::Max(1u, uiHeight >> WMath::Max(iMipLevel, 0));
 
       sText.AppendFormat("{} ({}x{})", iMipLevel, uiMipWidth, uiMipHeight);
     }
 
-    ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
+    WDebugRenderer::DrawInfoText(m_hView, WDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }
 }

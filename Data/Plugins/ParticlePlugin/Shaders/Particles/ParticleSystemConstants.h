@@ -3,7 +3,7 @@
 #include <Shaders/Common/ConstantBufferMacros.h>
 #include <Shaders/Common/Platforms.h>
 
-CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_DRAW_CALL)
+CONSTANT_BUFFER2(WParticleSystemConstants, 2, BG_DRAW_CALL)
 {
   MAT4(ObjectToWorldMatrix);
 

@@ -3,23 +3,23 @@
 #include <Core/Scripting/ScriptClassResource.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptData.h>
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptClassResource : public ezScriptClassResource
+class W_VISUALSCRIPTPLUGIN_DLL WVisualScriptClassResource : public WScriptClassResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptClassResource, ezScriptClassResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezVisualScriptClassResource);
+  W_ADD_DYNAMIC_REFLECTION(WVisualScriptClassResource, WScriptClassResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WVisualScriptClassResource);
 
 public:
-  ezVisualScriptClassResource();
-  ~ezVisualScriptClassResource();
+  WVisualScriptClassResource();
+  ~WVisualScriptClassResource();
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* pStream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* pStream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const override;
+  virtual WUniquePtr<WScriptInstance> Instantiate(WReflectedClass& inout_owner, WWorld* pWorld) const override;
 
-  ezSharedPtr<ezVisualScriptDataStorage> m_pConstantDataStorage;
-  ezSharedPtr<const ezVisualScriptDataDescription> m_pInstanceDataDesc;
-  ezSharedPtr<ezVisualScriptInstanceDataMapping> m_pInstanceDataMapping;
+  WSharedPtr<WVisualScriptDataStorage> m_pConstantDataStorage;
+  WSharedPtr<const WVisualScriptDataDescription> m_pInstanceDataDesc;
+  WSharedPtr<WVisualScriptInstanceDataMapping> m_pInstanceDataMapping;
 };

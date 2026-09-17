@@ -5,20 +5,20 @@
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezSphereManipulatorAdapter : public ezManipulatorAdapter
+class WSphereManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezSphereManipulatorAdapter();
-  ~ezSphereManipulatorAdapter();
+  WSphereManipulatorAdapter();
+  ~WSphereManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
   virtual void Update() override;
-  void GizmoEventHandler(const ezGizmoEvent& e);
+  void GizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
-  ezSphereGizmo m_Gizmo;
+  WSphereGizmo m_Gizmo;
 };

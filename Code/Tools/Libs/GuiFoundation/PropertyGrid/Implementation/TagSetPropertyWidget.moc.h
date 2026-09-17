@@ -9,15 +9,15 @@ class QPushButton;
 class QMenu;
 class QCheckBox;
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorTagSetWidget : public ezQtPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorTagSetWidget : public WQtPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorTagSetWidget();
-  virtual ~ezQtPropertyEditorTagSetWidget();
+  WQtPropertyEditorTagSetWidget();
+  virtual ~WQtPropertyEditorTagSetWidget();
 
-  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
+  virtual void SetSelection(const WArrayPtr<WPropertySelection>& items) override;
   virtual bool HasLabel() const override { return true; }
 
 protected:
@@ -33,11 +33,11 @@ private:
   void InternalUpdateValue();
 
 private:
-  ezDynamicArray<QCheckBox*> m_Tags;
-  ezDynamicArray<QAction*> m_InvalidTagActions; ///< Rebuilt every InternalUpdateValue(), since which tags are "invalid" depends on the current selection.
+  WDynamicArray<QCheckBox*> m_Tags;
+  WDynamicArray<QAction*> m_InvalidTagActions; ///< Rebuilt every InternalUpdateValue(), since which tags are "invalid" depends on the current selection.
   QAction* m_pInvalidTagsAnchor = nullptr;      ///< Dynamic invalid-tag actions are inserted right before this one.
   QHBoxLayout* m_pLayout;
   QPushButton* m_pWidget;
   QMenu* m_pMenu;
-  ezString m_sTagFilter;
+  WString m_sTagFilter;
 };

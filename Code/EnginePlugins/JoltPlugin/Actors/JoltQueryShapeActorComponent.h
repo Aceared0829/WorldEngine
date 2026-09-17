@@ -4,19 +4,19 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_JOLTPLUGIN_DLL ezJoltQueryShapeActorComponentManager : public ezComponentManager<class ezJoltQueryShapeActorComponent, ezBlockStorageType::FreeList>
+class W_JOLTPLUGIN_DLL WJoltQueryShapeActorComponentManager : public WComponentManager<class WJoltQueryShapeActorComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezJoltQueryShapeActorComponentManager(ezWorld* pWorld);
-  ~ezJoltQueryShapeActorComponentManager();
+  WJoltQueryShapeActorComponentManager(WWorld* pWorld);
+  ~WJoltQueryShapeActorComponentManager();
 
 private:
-  friend class ezJoltWorldModule;
-  friend class ezJoltQueryShapeActorComponent;
+  friend class WJoltWorldModule;
+  friend class WJoltQueryShapeActorComponent;
 
   void UpdateMovingQueryShapes();
 
-  ezDynamicArray<ezJoltQueryShapeActorComponent*> m_MovingQueryShapes;
+  WDynamicArray<WJoltQueryShapeActorComponent*> m_MovingQueryShapes;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,32 +27,32 @@ private:
 /// This is useful to represent detail shapes (like the collision shapes of animated meshes) that should be pickable,
 /// but that shouldn't interact with the world otherwise.
 /// They are more lightweight at runtime than full kinematic dynamic actors.
-class EZ_JOLTPLUGIN_DLL ezJoltQueryShapeActorComponent : public ezJoltActorComponent
+class W_JOLTPLUGIN_DLL WJoltQueryShapeActorComponent : public WJoltActorComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltQueryShapeActorComponent, ezJoltActorComponent, ezJoltQueryShapeActorComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltQueryShapeActorComponent, WJoltActorComponent, WJoltQueryShapeActorComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltQueryShapeActorComponent
+  // WJoltQueryShapeActorComponent
 public:
-  ezJoltQueryShapeActorComponent();
-  ~ezJoltQueryShapeActorComponent();
+  WJoltQueryShapeActorComponent();
+  ~WJoltQueryShapeActorComponent();
 
-  void SetSurfaceFile(ezStringView sFile); // [ property ]
-  ezStringView GetSurfaceFile() const;     // [ property ]
+  void SetSurfaceFile(WStringView sFile); // [ property ]
+  WStringView GetSurfaceFile() const;     // [ property ]
 
-  ezSurfaceResourceHandle m_hSurface;      // [ property ]
+  WSurfaceResourceHandle m_hSurface;      // [ property ]
 
 protected:
-  const ezJoltMaterial* GetJoltMaterial() const;
+  const WJoltMaterial* GetJoltMaterial() const;
 };

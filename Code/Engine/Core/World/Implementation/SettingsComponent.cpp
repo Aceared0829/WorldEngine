@@ -3,23 +3,23 @@
 #include <Core/World/SettingsComponent.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSettingsComponent, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSettingsComponent, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Settings"),
+    new WCategoryAttribute("Settings"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSettingsComponent::ezSettingsComponent()
+WSettingsComponent::WSettingsComponent()
 {
   SetModified();
 }
 
-ezSettingsComponent::~ezSettingsComponent() = default;
+WSettingsComponent::~WSettingsComponent() = default;
 
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_SettingsComponent);
+W_STATICLINK_FILE(Core, Core_World_Implementation_SettingsComponent);

@@ -6,9 +6,9 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-ezCVarInt cvar_RenderingReflectionPoolSkyLightRefreshFrames("Rendering.ReflectionPool.SkyLightRefreshFrames", 60, ezCVarFlags::Default, "How many frames must pass between two updates of a dynamic sky light. Each update invalidates every other reflection probe, so a low value keeps the scene busy re-rendering probes. Set to 0 to update the sky light every frame.");
+WCVarInt cvar_RenderingReflectionPoolSkyLightRefreshFrames("Rendering.ReflectionPool.SkyLightRefreshFrames", 60, WCVarFlags::Default, "How many frames must pass between two updates of a dynamic sky light. Each update invalidates every other reflection probe, so a low value keeps the scene busy re-rendering probes. Set to 0 to update the sky light every frame.");
 
-ezReflectionProbeMapping::ezReflectionProbeMapping(ezUInt32 uiAtlasSize)
+WReflectionProbeMapping::WReflectionProbeMapping(WUInt32 uiAtlasSize)
   : m_uiAtlasSize(uiAtlasSize)
 {
   m_MappedCubes.SetCount(m_uiAtlasSize);
@@ -16,80 +16,80 @@ ezReflectionProbeMapping::ezReflectionProbeMapping(ezUInt32 uiAtlasSize)
   m_UnusedProbeSlots.Reserve(m_uiAtlasSize);
   m_AddProbes.Reserve(m_uiAtlasSize);
 
-  EZ_ASSERT_DEV(m_hReflectionSpecularTexture.IsInvalidated(), "World data already created.");
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALTextureCreationDescription desc;
+  W_ASSERT_DEV(m_hReflectionSpecularTexture.IsInvalidated(), "World data already created.");
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  WGALTextureCreationDescription desc;
   desc.m_uiWidth = s_uiReflectionCubeMapSize;
   desc.m_uiHeight = s_uiReflectionCubeMapSize;
   desc.m_uiMipLevelCount = GetMipLevels();
   desc.m_uiArraySize = s_uiNumReflectionProbeCubeMaps;
-  desc.m_Format = ezGALResourceFormat::RGBAHalf;
-  desc.m_Type = ezGALTextureType::TextureCubeArray;
-  desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess | ezGALTextureUsageFlags::RenderTarget);
+  desc.m_Format = WGALResourceFormat::RGBAHalf;
+  desc.m_Type = WGALTextureType::TextureCubeArray;
+  desc.m_TextureFlags.Add(WGALTextureUsageFlags::UnorderedAccess | WGALTextureUsageFlags::RenderTarget);
   desc.m_ResourceAccess.m_bImmutable = false;
 
   m_hReflectionSpecularTexture = pDevice->CreateTexture(desc);
   pDevice->GetTexture(m_hReflectionSpecularTexture)->SetDebugName("Reflection Specular Texture");
 }
 
-ezReflectionProbeMapping::~ezReflectionProbeMapping()
+WReflectionProbeMapping::~WReflectionProbeMapping()
 {
-  EZ_ASSERT_DEV(!m_hReflectionSpecularTexture.IsInvalidated(), "World data not created.");
-  ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hReflectionSpecularTexture);
+  W_ASSERT_DEV(!m_hReflectionSpecularTexture.IsInvalidated(), "World data not created.");
+  WGALDevice::GetDefaultDevice()->DestroyTexture(m_hReflectionSpecularTexture);
   m_hReflectionSpecularTexture.Invalidate();
 }
 
-void ezReflectionProbeMapping::AddProbe(ezReflectionProbeId probe, ezBitflags<ezProbeFlags> flags)
+void WReflectionProbeMapping::AddProbe(WReflectionProbeId probe, WBitflags<WProbeFlags> flags)
 {
   m_RegisteredProbes.EnsureCount(probe.m_InstanceIndex + 1);
   ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_InstanceIndex];
-  EZ_ASSERT_DEBUG(probeData.m_Flags == 0, "");
+  W_ASSERT_DEBUG(probeData.m_Flags == 0, "");
   probeData.m_id = probe;
   probeData.m_Flags.SetValue(flags.GetValue());
-  probeData.m_Flags.Add(ezProbeMappingFlags::Dirty);
-  if (probeData.m_Flags.IsSet(ezProbeMappingFlags::SkyLight))
+  probeData.m_Flags.Add(WProbeMappingFlags::Dirty);
+  if (probeData.m_Flags.IsSet(WProbeMappingFlags::SkyLight))
   {
     m_SkyLight = probe;
     MapProbe(probe, 0);
   }
 }
 
-void ezReflectionProbeMapping::UpdateProbe(ezReflectionProbeId probe, ezBitflags<ezProbeFlags> flags)
+void WReflectionProbeMapping::UpdateProbe(WReflectionProbeId probe, WBitflags<WProbeFlags> flags)
 {
   ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_InstanceIndex];
-  if (!probeData.m_Flags.IsSet(ezProbeMappingFlags::SkyLight) && probeData.m_Flags.IsSet(ezProbeMappingFlags::Dynamic) != flags.IsSet(ezProbeFlags::Dynamic))
+  if (!probeData.m_Flags.IsSet(WProbeMappingFlags::SkyLight) && probeData.m_Flags.IsSet(WProbeMappingFlags::Dynamic) != flags.IsSet(WProbeFlags::Dynamic))
   {
     UnmapProbe(probe);
   }
-  ezBitflags<ezProbeMappingFlags> preserveFlags = probeData.m_Flags & ezProbeMappingFlags::Usable;
+  WBitflags<WProbeMappingFlags> preserveFlags = probeData.m_Flags & WProbeMappingFlags::Usable;
   probeData.m_Flags.SetValue(flags.GetValue());
-  probeData.m_Flags.Add(preserveFlags | ezProbeMappingFlags::Dirty);
+  probeData.m_Flags.Add(preserveFlags | WProbeMappingFlags::Dirty);
 }
 
-void ezReflectionProbeMapping::ProbeUpdateFinished(ezReflectionProbeId probe)
+void WReflectionProbeMapping::ProbeUpdateFinished(WReflectionProbeId probe)
 {
   ProbeDataInternal& probeData0 = m_RegisteredProbes[probe.m_InstanceIndex];
   if (m_SkyLight == probe)
   {
-    m_uiLastSkyLightUpdateFrame = ezRenderWorld::GetFrameCounter();
+    m_uiLastSkyLightUpdateFrame = WRenderWorld::GetFrameCounter();
     m_bSkyLightUpdatedOnce = true;
   }
-  if (m_SkyLight == probe && probeData0.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
+  if (m_SkyLight == probe && probeData0.m_Flags.IsSet(WProbeMappingFlags::Dirty))
   {
     // If the sky irradiance changed all other probes are no longer valid and need to be marked as dirty.
     for (ProbeDataInternal& probeData : m_RegisteredProbes)
     {
       if (!probeData.m_id.IsInvalidated() && probeData.m_id != probe)
       {
-        probeData.m_Flags.Add(ezProbeMappingFlags::Dirty);
+        probeData.m_Flags.Add(WProbeMappingFlags::Dirty);
       }
     }
   }
-  probeData0.m_Flags.Add(ezProbeMappingFlags::Usable);
-  probeData0.m_Flags.Remove(ezProbeMappingFlags::Dirty);
+  probeData0.m_Flags.Add(WProbeMappingFlags::Usable);
+  probeData0.m_Flags.Remove(WProbeMappingFlags::Dirty);
 }
 
-void ezReflectionProbeMapping::RemoveProbe(ezReflectionProbeId probe)
+void WReflectionProbeMapping::RemoveProbe(WReflectionProbeId probe)
 {
   if (m_SkyLight == probe)
   {
@@ -99,7 +99,7 @@ void ezReflectionProbeMapping::RemoveProbe(ezReflectionProbeId probe)
     {
       if (!probeData.m_id.IsInvalidated() && probeData.m_id != probe)
       {
-        probeData.m_Flags.Add(ezProbeMappingFlags::Dirty);
+        probeData.m_Flags.Add(WProbeMappingFlags::Dirty);
       }
     }
   }
@@ -108,17 +108,17 @@ void ezReflectionProbeMapping::RemoveProbe(ezReflectionProbeId probe)
   probeData = {};
 }
 
-ezInt32 ezReflectionProbeMapping::GetReflectionIndex(ezReflectionProbeId probe, bool bForExtraction) const
+WInt32 WReflectionProbeMapping::GetReflectionIndex(WReflectionProbeId probe, bool bForExtraction) const
 {
   const ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_InstanceIndex];
-  if (bForExtraction && !probeData.m_Flags.IsSet(ezProbeMappingFlags::Usable))
+  if (bForExtraction && !probeData.m_Flags.IsSet(WProbeMappingFlags::Usable))
   {
     return -1;
   }
   return probeData.m_uiReflectionIndex;
 }
 
-void ezReflectionProbeMapping::PreExtraction()
+void WReflectionProbeMapping::PreExtraction()
 {
   // Reset priorities
   for (ProbeDataInternal& probeData : m_RegisteredProbes)
@@ -128,7 +128,7 @@ void ezReflectionProbeMapping::PreExtraction()
   if (!m_SkyLight.IsInvalidated())
   {
     ProbeDataInternal& probeData = m_RegisteredProbes[m_SkyLight.m_InstanceIndex];
-    probeData.m_fPriority = ezMath::MaxValue<float>();
+    probeData.m_fPriority = WMath::MaxValue<float>();
   }
 
   m_SortedProbes.Clear();
@@ -137,17 +137,17 @@ void ezReflectionProbeMapping::PreExtraction()
   m_AddProbes.Clear();
 }
 
-void ezReflectionProbeMapping::AddWeight(ezReflectionProbeId probe, float fPriority)
+void WReflectionProbeMapping::AddWeight(WReflectionProbeId probe, float fPriority)
 {
   ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_InstanceIndex];
-  probeData.m_fPriority = ezMath::Max(probeData.m_fPriority, fPriority);
+  probeData.m_fPriority = WMath::Max(probeData.m_fPriority, fPriority);
 }
 
-void ezReflectionProbeMapping::PostExtraction()
+void WReflectionProbeMapping::PostExtraction()
 {
   {
     // Sort all active non-skylight probes so we can find the best candidates to evict from the atlas.
-    for (ezUInt32 i = 1; i < s_uiNumReflectionProbeCubeMaps; i++)
+    for (WUInt32 i = 1; i < s_uiNumReflectionProbeCubeMaps; i++)
     {
       auto id = m_MappedCubes[i];
       if (!id.IsInvalidated())
@@ -177,8 +177,8 @@ void ezReflectionProbeMapping::PostExtraction()
 
   {
     // Look at the first N best probes that would ideally be mapped in the atlas and find unmapped ones.
-    const ezUInt32 uiMaxCount = ezMath::Min(m_uiAtlasSize, m_SortedProbes.GetCount());
-    for (ezUInt32 i = 0; i < uiMaxCount; i++)
+    const WUInt32 uiMaxCount = WMath::Min(m_uiAtlasSize, m_SortedProbes.GetCount());
+    for (WUInt32 i = 0; i < uiMaxCount; i++)
     {
       const SortedProbes& probe = m_SortedProbes[i];
       const ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_uiIndex.m_InstanceIndex];
@@ -193,8 +193,8 @@ void ezReflectionProbeMapping::PostExtraction()
 
   {
     // Trigger resource loading of static or updates of dynamic probes.
-    const ezUInt32 uiMaxCount = m_AddProbes.GetCount();
-    for (ezUInt32 i = 0; i < uiMaxCount; i++)
+    const WUInt32 uiMaxCount = m_AddProbes.GetCount();
+    for (WUInt32 i = 0; i < uiMaxCount; i++)
     {
       const SortedProbes& probe = m_AddProbes[i];
       const ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_uiIndex.m_InstanceIndex];
@@ -215,10 +215,10 @@ void ezReflectionProbeMapping::PostExtraction()
 
   // Map probes with higher priority
   {
-    const ezUInt32 uiMaxCount = ezMath::Min(m_AddProbes.GetCount(), m_UnusedProbeSlots.GetCount());
-    for (ezUInt32 i = 0; i < uiMaxCount; i++)
+    const WUInt32 uiMaxCount = WMath::Min(m_AddProbes.GetCount(), m_UnusedProbeSlots.GetCount());
+    for (WUInt32 i = 0; i < uiMaxCount; i++)
     {
-      ezInt32 iReflectionIndex = m_UnusedProbeSlots[i];
+      WInt32 iReflectionIndex = m_UnusedProbeSlots[i];
       const SortedProbes probe = m_AddProbes[i];
       MapProbe(probe.m_uiIndex, iReflectionIndex);
     }
@@ -235,7 +235,7 @@ void ezReflectionProbeMapping::PostExtraction()
     if (!m_SkyLight.IsInvalidated())
     {
       const ProbeDataInternal& skyLightData = m_RegisteredProbes[m_SkyLight.m_InstanceIndex];
-      const bool bFirstBake = !skyLightData.m_Flags.IsSet(ezProbeMappingFlags::Usable);
+      const bool bFirstBake = !skyLightData.m_Flags.IsSet(WProbeMappingFlags::Usable);
 
       // A sky light that has no content yet is always requested. Once it has content, refreshes are rate
       // limited, as each one invalidates all other probes and would otherwise keep the scene from settling.
@@ -245,14 +245,14 @@ void ezReflectionProbeMapping::PostExtraction()
       }
     }
 
-    const ezUInt32 uiMaxCount = m_ActiveProbes.GetCount();
-    for (ezUInt32 i = 0; i < uiMaxCount; i++)
+    const WUInt32 uiMaxCount = m_ActiveProbes.GetCount();
+    for (WUInt32 i = 0; i < uiMaxCount; i++)
     {
       const SortedProbes probe = m_ActiveProbes[i];
       const ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_uiIndex.m_InstanceIndex];
 
       // #TODO Add static probes once resources are loaded.
-      if (probeData.m_Flags.IsSet(ezProbeMappingFlags::Dynamic) || probeData.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
+      if (probeData.m_Flags.IsSet(WProbeMappingFlags::Dynamic) || probeData.m_Flags.IsSet(WProbeMappingFlags::Dirty))
       {
         RequestUpdate(probeData);
       }
@@ -260,26 +260,26 @@ void ezReflectionProbeMapping::PostExtraction()
   }
 }
 
-void ezReflectionProbeMapping::RequestUpdate(const ProbeDataInternal& probeData)
+void WReflectionProbeMapping::RequestUpdate(const ProbeDataInternal& probeData)
 {
-  ezReflectionProbeMappingEvent e = {probeData.m_id, ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested};
+  WReflectionProbeMappingEvent e = {probeData.m_id, WReflectionProbeMappingEvent::Type::ProbeUpdateRequested};
   e.m_fPriority = probeData.m_fPriority;
-  e.m_bFirstBake = !probeData.m_Flags.IsSet(ezProbeMappingFlags::Usable);
+  e.m_bFirstBake = !probeData.m_Flags.IsSet(WProbeMappingFlags::Usable);
   m_Events.Broadcast(e);
 }
 
-bool ezReflectionProbeMapping::IsSkyLightRefreshDue() const
+bool WReflectionProbeMapping::IsSkyLightRefreshDue() const
 {
   if (!m_bSkyLightUpdatedOnce)
     return true;
 
-  const ezUInt64 uiInterval = (ezUInt64)ezMath::Max<ezInt64>(0, cvar_RenderingReflectionPoolSkyLightRefreshFrames);
+  const WUInt64 uiInterval = (WUInt64)WMath::Max<WInt64>(0, cvar_RenderingReflectionPoolSkyLightRefreshFrames);
 
-  const ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
+  const WUInt64 uiCurrentFrame = WRenderWorld::GetFrameCounter();
   return uiCurrentFrame >= m_uiLastSkyLightUpdateFrame + uiInterval;
 }
 
-void ezReflectionProbeMapping::MapProbe(ezReflectionProbeId id, ezInt32 iReflectionIndex)
+void WReflectionProbeMapping::MapProbe(WReflectionProbeId id, WInt32 iReflectionIndex)
 {
   ProbeDataInternal& probeData = m_RegisteredProbes[id.m_InstanceIndex];
 
@@ -289,11 +289,11 @@ void ezReflectionProbeMapping::MapProbe(ezReflectionProbeId id, ezInt32 iReflect
   // has no content yet, so sorting it to the back would delay exactly the probes that need an update most.
   m_ActiveProbes.PushBack({id, probeData.m_fPriority});
 
-  ezReflectionProbeMappingEvent e = {id, ezReflectionProbeMappingEvent::Type::ProbeMapped};
+  WReflectionProbeMappingEvent e = {id, WReflectionProbeMappingEvent::Type::ProbeMapped};
   m_Events.Broadcast(e);
 }
 
-void ezReflectionProbeMapping::UnmapProbe(ezReflectionProbeId id)
+void WReflectionProbeMapping::UnmapProbe(WReflectionProbeId id)
 {
   ProbeDataInternal& probeData = m_RegisteredProbes[id.m_InstanceIndex];
   if (probeData.m_uiReflectionIndex != -1)
@@ -303,10 +303,10 @@ void ezReflectionProbeMapping::UnmapProbe(ezReflectionProbeId id)
 
     // The atlas slot is given up, so whatever content was rendered into it is gone. If the probe is mapped
     // again later it has to be treated as a first bake, otherwise it would be sampled before being rendered.
-    probeData.m_Flags.Remove(ezProbeMappingFlags::Usable);
-    probeData.m_Flags.Add(ezProbeMappingFlags::Dirty);
+    probeData.m_Flags.Remove(WProbeMappingFlags::Usable);
+    probeData.m_Flags.Add(WProbeMappingFlags::Dirty);
 
-    ezReflectionProbeMappingEvent e = {id, ezReflectionProbeMappingEvent::Type::ProbeUnmapped};
+    WReflectionProbeMappingEvent e = {id, WReflectionProbeMappingEvent::Type::ProbeUnmapped};
     m_Events.Broadcast(e);
   }
 }

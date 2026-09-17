@@ -6,42 +6,42 @@
 #include <ParticlePlugin/Module/ParticleModule.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezParticleSystemInstance;
-class ezProcessingStream;
-class ezParticleInitializer;
-class ezParticleEffectInstance;
+class WParticleSystemInstance;
+class WProcessingStream;
+class WParticleInitializer;
+class WParticleEffectInstance;
 
 /// Base class for all particle initializers
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory : public ezReflectedClass
+class W_PARTICLEPLUGIN_DLL WParticleInitializerFactory : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializerFactory, WReflectedClass);
 
 public:
-  virtual const ezRTTI* GetInitializerType() const = 0;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const = 0;
-  virtual float GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const;
+  virtual const WRTTI* GetInitializerType() const = 0;
+  virtual void CopyInitializerProperties(WParticleInitializer* pInitializer, bool bFirstTime) const = 0;
+  virtual float GetSpawnCountMultiplier(const WParticleEffectInstance* pEffect) const;
 
-  ezParticleInitializer* CreateInitializer(ezParticleSystemInstance* pOwner) const;
+  WParticleInitializer* CreateInitializer(WParticleSystemInstance* pOwner) const;
 
-  virtual void Save(ezStreamWriter& inout_stream) const = 0;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
+  virtual void Save(WStreamWriter& inout_stream) const = 0;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) = 0;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const {}
 };
 
 /// Base class for particle initializers
 ///
 /// Initializers set the initial values of newly spawned particles.
 /// They are executed once per particle when it is created.
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer : public ezParticleModule
+class W_PARTICLEPLUGIN_DLL WParticleInitializer : public WParticleModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer, ezParticleModule);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializer, WParticleModule);
 
-  friend class ezParticleSystemInstance;
-  friend class ezParticleInitializerFactory;
+  friend class WParticleSystemInstance;
+  friend class WParticleInitializerFactory;
 
 protected:
-  ezParticleInitializer();
+  WParticleInitializer();
 
-  virtual void Process(ezUInt64 uiNumElements) final override {}
+  virtual void Process(WUInt64 uiNumElements) final override {}
 };

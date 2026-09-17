@@ -5,9 +5,9 @@
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezCamera;
+class WCamera;
 
-struct ezGizmoEvent
+struct WGizmoEvent
 {
   enum class Type
   {
@@ -17,24 +17,24 @@ struct ezGizmoEvent
     CancelInteractions,
   };
 
-  const ezEditorInputContext* m_pGizmo = nullptr;
+  const WEditorInputContext* m_pGizmo = nullptr;
   Type m_Type;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezGizmo : public ezEditorInputContext
+class W_EDITORFRAMEWORK_DLL WGizmo : public WEditorInputContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmo, ezEditorInputContext);
+  W_ADD_DYNAMIC_REFLECTION(WGizmo, WEditorInputContext);
 
 public:
-  ezGizmo();
+  WGizmo();
 
   void SetVisible(bool bVisible);
   bool IsVisible() const { return m_bVisible; }
 
-  void SetTransformation(const ezTransform& transform);
-  const ezTransform& GetTransformation() const { return m_Transformation; }
+  void SetTransformation(const WTransform& transform);
+  const WTransform& GetTransformation() const { return m_Transformation; }
 
-  void ConfigureInteraction(ezGizmoHandle* pHandle, const ezCamera* pCamera, const ezVec3& vInteractionPivot, const ezVec2I32& vViewport)
+  void ConfigureInteraction(WGizmoHandle* pHandle, const WCamera* pCamera, const WVec3& vInteractionPivot, const WVec2I32& vViewport)
   {
     m_pInteractionGizmoHandle = pHandle;
     m_pCamera = pCamera;
@@ -42,22 +42,22 @@ public:
     m_vViewport = vViewport;
   }
 
-  ezEvent<const ezGizmoEvent&> m_GizmoEvents;
+  WEvent<const WGizmoEvent&> m_GizmoEvents;
 
 protected:
   virtual void OnVisibleChanged(bool bVisible) = 0;
-  virtual void OnTransformationChanged(const ezTransform& transform) = 0;
+  virtual void OnTransformationChanged(const WTransform& transform) = 0;
 
-  void GetInverseViewProjectionMatrix(ezMat4& out_mInvViewProj) const;
-  ezResult GetPointOnPlane(const ezPlane& plane, const ezVec2I32& vScreenPos, const ezMat4& mInvViewProj, ezVec3& out_Result) const;
-  ezResult GetPointOnAxis(const ezVec3& vStartPos, const ezVec3& vAxis, const ezVec2I32& vScreenPos, const ezMat4& mInvViewProj, ezVec3& out_Result, float* out_pProjectedLength = nullptr) const;
+  void GetInverseViewProjectionMatrix(WMat4& out_mInvViewProj) const;
+  WResult GetPointOnPlane(const WPlane& plane, const WVec2I32& vScreenPos, const WMat4& mInvViewProj, WVec3& out_Result) const;
+  WResult GetPointOnAxis(const WVec3& vStartPos, const WVec3& vAxis, const WVec2I32& vScreenPos, const WMat4& mInvViewProj, WVec3& out_Result, float* out_pProjectedLength = nullptr) const;
 
-  const ezCamera* m_pCamera = nullptr;
-  ezGizmoHandle* m_pInteractionGizmoHandle = nullptr;
-  ezVec3 m_vInteractionPivot;
-  ezVec2I32 m_vViewport;
+  const WCamera* m_pCamera = nullptr;
+  WGizmoHandle* m_pInteractionGizmoHandle = nullptr;
+  WVec3 m_vInteractionPivot;
+  WVec2I32 m_vViewport;
 
 private:
   bool m_bVisible = false;
-  ezTransform m_Transformation;
+  WTransform m_Transformation;
 };

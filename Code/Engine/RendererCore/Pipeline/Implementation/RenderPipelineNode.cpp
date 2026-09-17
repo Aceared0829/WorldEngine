@@ -3,90 +3,90 @@
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineNode, 1)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(WRenderPipelineNode, 1)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodePin, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodePin, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-   new ezHiddenAttribute(),
+   new WHiddenAttribute(),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeInputPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeInputPin, WRenderPipelineNodePin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeOutputPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeOutputPin, WRenderPipelineNodePin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeInputProviderPin, ezRenderPipelineNodeInputPin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeInputProviderPin, WRenderPipelineNodeInputPin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeOutputProviderPin, ezRenderPipelineNodeOutputPin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeOutputProviderPin, WRenderPipelineNodeOutputPin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodePassThroughPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodePassThroughPin, WRenderPipelineNodePin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferInputPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeBufferInputPin, WRenderPipelineNodePin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferOutputPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeBufferOutputPin, WRenderPipelineNodePin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferInputProviderPin, ezRenderPipelineNodeBufferInputPin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeBufferInputProviderPin, WRenderPipelineNodeBufferInputPin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferOutputProviderPin, ezRenderPipelineNodeBufferOutputPin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeBufferOutputProviderPin, WRenderPipelineNodeBufferOutputPin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferPassThroughPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineNodeBufferPassThroughPin, WRenderPipelineNodePin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezRenderPipelineNode::InitializePins()
+void WRenderPipelineNode::InitializePins()
 {
   m_InputPins.Clear();
   m_OutputPins.Clear();
   m_NameToPin.Clear();
 
-  const ezRTTI* pType = GetDynamicRTTI();
+  const WRTTI* pType = GetDynamicRTTI();
 
-  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+  WTempHybridArray<const WAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   for (auto pProp : properties)
   {
-    if (pProp->GetCategory() != ezPropertyCategory::Member || !pProp->GetSpecificType()->IsDerivedFrom(ezGetStaticRTTI<ezRenderPipelineNodePin>()))
+    if (pProp->GetCategory() != WPropertyCategory::Member || !pProp->GetSpecificType()->IsDerivedFrom(WGetStaticRTTI<WRenderPipelineNodePin>()))
       continue;
 
-    auto pPinProp = static_cast<const ezAbstractMemberProperty*>(pProp);
-    ezRenderPipelineNodePin* pPin = static_cast<ezRenderPipelineNodePin*>(pPinProp->GetPropertyPointer(this));
+    auto pPinProp = static_cast<const WAbstractMemberProperty*>(pProp);
+    WRenderPipelineNodePin* pPin = static_cast<WRenderPipelineNodePin*>(pPinProp->GetPropertyPointer(this));
 
     pPin->m_pParent = this;
-    const bool bMoreThanOneType = ((ezInt32)pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough) + (ezInt32)pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::Input) + (ezInt32)pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::Output)) > 1;
-    const bool bProviderOnPassThrough = pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough) && pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider);
+    const bool bMoreThanOneType = ((WInt32)pPin->m_Type.IsSet(WRenderPipelineNodePin::Type::PassThrough) + (WInt32)pPin->m_Type.IsSet(WRenderPipelineNodePin::Type::Input) + (WInt32)pPin->m_Type.IsSet(WRenderPipelineNodePin::Type::Output)) > 1;
+    const bool bProviderOnPassThrough = pPin->m_Type.IsSet(WRenderPipelineNodePin::Type::PassThrough) && pPin->m_Type.IsSet(WRenderPipelineNodePin::Type::TextureProvider);
     if (bMoreThanOneType || bProviderOnPassThrough)
     {
-      EZ_REPORT_FAILURE("Pin '{0}' has an invalid type. Do not use ezRenderPipelineNodePin directly as member but one of its derived types", pProp->GetPropertyName());
+      W_REPORT_FAILURE("Pin '{0}' has an invalid type. Do not use WRenderPipelineNodePin directly as member but one of its derived types", pProp->GetPropertyName());
       continue;
     }
 
-    if (pPin->m_Type.IsAnySet(ezRenderPipelineNodePin::Type::Input | ezRenderPipelineNodePin::Type::PassThrough))
+    if (pPin->m_Type.IsAnySet(WRenderPipelineNodePin::Type::Input | WRenderPipelineNodePin::Type::PassThrough))
     {
-      pPin->m_uiInputIndex = static_cast<ezUInt8>(m_InputPins.GetCount());
+      pPin->m_uiInputIndex = static_cast<WUInt8>(m_InputPins.GetCount());
       m_InputPins.PushBack(pPin);
     }
-    if (pPin->m_Type.IsAnySet(ezRenderPipelineNodePin::Type::Output | ezRenderPipelineNodePin::Type::PassThrough))
+    if (pPin->m_Type.IsAnySet(WRenderPipelineNodePin::Type::Output | WRenderPipelineNodePin::Type::PassThrough))
     {
-      pPin->m_uiOutputIndex = static_cast<ezUInt8>(m_OutputPins.GetCount());
+      pPin->m_uiOutputIndex = static_cast<WUInt8>(m_OutputPins.GetCount());
       m_OutputPins.PushBack(pPin);
     }
 
-    ezHashedString sHashedName;
+    WHashedString sHashedName;
     sHashedName.Assign(pProp->GetPropertyName());
     m_NameToPin.Insert(sHashedName, pPin);
   }
@@ -94,7 +94,7 @@ void ezRenderPipelineNode::InitializePins()
   AddDynamicPins(m_NameToPin);
 }
 
-ezHashedString ezRenderPipelineNode::GetPinName(const ezRenderPipelineNodePin* pPin) const
+WHashedString WRenderPipelineNode::GetPinName(const WRenderPipelineNodePin* pPin) const
 {
   for (auto it = m_NameToPin.GetIterator(); it.IsValid(); ++it)
   {
@@ -103,12 +103,12 @@ ezHashedString ezRenderPipelineNode::GetPinName(const ezRenderPipelineNodePin* p
       return it.Key();
     }
   }
-  return ezHashedString();
+  return WHashedString();
 }
 
-const ezRenderPipelineNodePin* ezRenderPipelineNode::GetPinByName(ezTempHashedString sName) const
+const WRenderPipelineNodePin* WRenderPipelineNode::GetPinByName(WTempHashedString sName) const
 {
-  const ezRenderPipelineNodePin* pin;
+  const WRenderPipelineNodePin* pin;
   if (m_NameToPin.TryGetValue(sName, pin))
   {
     return pin;
@@ -118,4 +118,4 @@ const ezRenderPipelineNodePin* ezRenderPipelineNode::GetPinByName(ezTempHashedSt
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineNode);

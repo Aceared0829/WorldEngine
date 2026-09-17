@@ -9,29 +9,29 @@
 #include <qlistwidget.h>
 #include <qspinbox.h>
 
-class ezCommandInterpreterInspector : public ezCommandInterpreter
+class WCommandInterpreterInspector : public WCommandInterpreter
 {
 public:
-  virtual void Interpret(ezCommandInterpreterState& inout_state) override
+  virtual void Interpret(WCommandInterpreterState& inout_state) override
   {
-    ezTelemetryMessage Msg;
+    WTelemetryMessage Msg;
     Msg.SetMessageID('CMD', 'EXEC');
     Msg.GetWriter() << inout_state.m_sInput;
-    ezTelemetry::SendToServer(Msg);
+    WTelemetry::SendToServer(Msg);
   }
 
-  virtual void AutoComplete(ezCommandInterpreterState& inout_state) override
+  virtual void AutoComplete(WCommandInterpreterState& inout_state) override
   {
-    ezTelemetryMessage Msg;
+    WTelemetryMessage Msg;
     Msg.SetMessageID('CMD', 'COMP');
     Msg.GetWriter() << inout_state.m_sInput;
-    ezTelemetry::SendToServer(Msg);
+    WTelemetry::SendToServer(Msg);
   }
 };
 
-ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
+WQtCVarsWidget* WQtCVarsWidget::s_pWidget = nullptr;
 
-ezQtCVarsWidget::ezQtCVarsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtCVarsWidget::WQtCVarsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "CVars", pParent)
 {
   s_pWidget = this;
@@ -41,34 +41,34 @@ ezQtCVarsWidget::ezQtCVarsWidget(ads::CDockManager* pDockManager, QWidget* pPare
 
   setIcon(QIcon(":/GuiFoundation/Icons/CVar.svg"));
 
-  connect(CVarWidget, &ezQtCVarWidget::onBoolChanged, this, &ezQtCVarsWidget::BoolChanged);
-  connect(CVarWidget, &ezQtCVarWidget::onFloatChanged, this, &ezQtCVarsWidget::FloatChanged);
-  connect(CVarWidget, &ezQtCVarWidget::onIntChanged, this, &ezQtCVarsWidget::IntChanged);
-  connect(CVarWidget, &ezQtCVarWidget::onStringChanged, this, &ezQtCVarsWidget::StringChanged);
+  connect(CVarWidget, &WQtCVarWidget::onBoolChanged, this, &WQtCVarsWidget::BoolChanged);
+  connect(CVarWidget, &WQtCVarWidget::onFloatChanged, this, &WQtCVarsWidget::FloatChanged);
+  connect(CVarWidget, &WQtCVarWidget::onIntChanged, this, &WQtCVarsWidget::IntChanged);
+  connect(CVarWidget, &WQtCVarWidget::onStringChanged, this, &WQtCVarsWidget::StringChanged);
 
-  CVarWidget->GetConsole().SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterInspector));
+  CVarWidget->GetConsole().SetCommandInterpreter(W_DEFAULT_NEW(WCommandInterpreterInspector));
 
   ResetStats();
 }
 
-void ezQtCVarsWidget::ResetStats()
+void WQtCVarsWidget::ResetStats()
 {
   m_CVarsBackup = m_CVars;
   m_CVars.Clear();
   CVarWidget->Clear();
 }
 
-void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
+void WQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
 
   bool bUpdateCVarsTable = false;
   bool bFillCVarsTable = false;
 
-  while (ezTelemetry::RetrieveMessage('CVAR', msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('CVAR', msg) == W_SUCCESS)
   {
     if (msg.GetMessageID() == ' CLR')
     {
@@ -97,10 +97,10 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
 
     if (msg.GetMessageID() == 'DATA')
     {
-      ezString sName;
+      WString sName;
       msg.GetReader() >> sName;
 
-      ezCVarWidgetData& sd = s_pWidget->m_CVars[sName];
+      WCVarWidgetData& sd = s_pWidget->m_CVars[sName];
 
       msg.GetReader() >> sd.m_sPlugin;
       msg.GetReader() >> sd.m_uiType;
@@ -108,16 +108,16 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
 
       switch (sd.m_uiType)
       {
-        case ezCVarType::Bool:
+        case WCVarType::Bool:
           msg.GetReader() >> sd.m_bValue;
           break;
-        case ezCVarType::Float:
+        case WCVarType::Float:
           msg.GetReader() >> sd.m_fValue;
           break;
-        case ezCVarType::Int:
+        case WCVarType::Int:
           msg.GetReader() >> sd.m_iValue;
           break;
-        case ezCVarType::String:
+        case WCVarType::String:
           msg.GetReader() >> sd.m_sValue;
           break;
       }
@@ -135,15 +135,15 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
     s_pWidget->CVarWidget->UpdateCVarUI(s_pWidget->m_CVars);
 }
 
-void ezQtCVarsWidget::ProcessTelemetryConsole(void* pUnuseed)
+void WQtCVarsWidget::ProcessTelemetryConsole(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage msg;
-  ezStringBuilder tmp;
+  WTelemetryMessage msg;
+  WStringBuilder tmp;
 
-  while (ezTelemetry::RetrieveMessage('CMD', msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('CMD', msg) == W_SUCCESS)
   {
     if (msg.GetMessageID() == 'RES')
     {
@@ -153,63 +153,63 @@ void ezQtCVarsWidget::ProcessTelemetryConsole(void* pUnuseed)
   }
 }
 
-void ezQtCVarsWidget::SyncAllCVarsToServer()
+void WQtCVarsWidget::SyncAllCVarsToServer()
 {
   for (auto it = m_CVars.GetIterator(); it.IsValid(); ++it)
     SendCVarUpdateToServer(it.Key().GetData(), it.Value());
 }
 
-void ezQtCVarsWidget::SendCVarUpdateToServer(ezStringView sName, const ezCVarWidgetData& cvd)
+void WQtCVarsWidget::SendCVarUpdateToServer(WStringView sName, const WCVarWidgetData& cvd)
 {
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
   Msg.SetMessageID('SVAR', ' SET');
   Msg.GetWriter() << sName;
   Msg.GetWriter() << cvd.m_uiType;
 
   switch (cvd.m_uiType)
   {
-    case ezCVarType::Bool:
+    case WCVarType::Bool:
       Msg.GetWriter() << cvd.m_bValue;
       break;
 
-    case ezCVarType::Float:
+    case WCVarType::Float:
       Msg.GetWriter() << cvd.m_fValue;
       break;
 
-    case ezCVarType::Int:
+    case WCVarType::Int:
       Msg.GetWriter() << cvd.m_iValue;
       break;
 
-    case ezCVarType::String:
+    case WCVarType::String:
       Msg.GetWriter() << cvd.m_sValue;
       break;
   }
 
-  ezTelemetry::SendToServer(Msg);
+  WTelemetry::SendToServer(Msg);
 }
 
-void ezQtCVarsWidget::BoolChanged(ezStringView sCVar, bool newValue)
+void WQtCVarsWidget::BoolChanged(WStringView sCVar, bool newValue)
 {
   auto& cvarData = m_CVars[sCVar];
   cvarData.m_bValue = newValue;
   SendCVarUpdateToServer(sCVar, cvarData);
 }
 
-void ezQtCVarsWidget::FloatChanged(ezStringView sCVar, float newValue)
+void WQtCVarsWidget::FloatChanged(WStringView sCVar, float newValue)
 {
   auto& cvarData = m_CVars[sCVar];
   cvarData.m_fValue = newValue;
   SendCVarUpdateToServer(sCVar, cvarData);
 }
 
-void ezQtCVarsWidget::IntChanged(ezStringView sCVar, int newValue)
+void WQtCVarsWidget::IntChanged(WStringView sCVar, int newValue)
 {
   auto& cvarData = m_CVars[sCVar];
   cvarData.m_iValue = newValue;
   SendCVarUpdateToServer(sCVar, cvarData);
 }
 
-void ezQtCVarsWidget::StringChanged(ezStringView sCVar, ezStringView sNewValue)
+void WQtCVarsWidget::StringChanged(WStringView sCVar, WStringView sNewValue)
 {
   auto& cvarData = m_CVars[sCVar];
   cvarData.m_sValue = sNewValue;

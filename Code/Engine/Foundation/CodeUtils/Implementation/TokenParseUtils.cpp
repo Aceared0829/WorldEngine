@@ -5,21 +5,21 @@
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-namespace ezTokenParseUtils
+namespace WTokenParseUtils
 {
-  void SkipWhitespace(const TokenStream& tokens, ezUInt32& ref_uiCurToken)
+  void SkipWhitespace(const TokenStream& tokens, WUInt32& ref_uiCurToken)
   {
-    while (ref_uiCurToken < tokens.GetCount() && ((tokens[ref_uiCurToken]->m_iType == ezTokenType::Whitespace) || (tokens[ref_uiCurToken]->m_iType == ezTokenType::BlockComment) || (tokens[ref_uiCurToken]->m_iType == ezTokenType::LineComment)))
+    while (ref_uiCurToken < tokens.GetCount() && ((tokens[ref_uiCurToken]->m_iType == WTokenType::Whitespace) || (tokens[ref_uiCurToken]->m_iType == WTokenType::BlockComment) || (tokens[ref_uiCurToken]->m_iType == WTokenType::LineComment)))
       ++ref_uiCurToken;
   }
 
-  void SkipWhitespaceAndNewline(const TokenStream& tokens, ezUInt32& ref_uiCurToken)
+  void SkipWhitespaceAndNewline(const TokenStream& tokens, WUInt32& ref_uiCurToken)
   {
-    while (ref_uiCurToken < tokens.GetCount() && ((tokens[ref_uiCurToken]->m_iType == ezTokenType::Whitespace) || (tokens[ref_uiCurToken]->m_iType == ezTokenType::BlockComment) || (tokens[ref_uiCurToken]->m_iType == ezTokenType::Newline) || (tokens[ref_uiCurToken]->m_iType == ezTokenType::LineComment)))
+    while (ref_uiCurToken < tokens.GetCount() && ((tokens[ref_uiCurToken]->m_iType == WTokenType::Whitespace) || (tokens[ref_uiCurToken]->m_iType == WTokenType::BlockComment) || (tokens[ref_uiCurToken]->m_iType == WTokenType::Newline) || (tokens[ref_uiCurToken]->m_iType == WTokenType::LineComment)))
       ++ref_uiCurToken;
   }
 
-  bool IsEndOfLine(const TokenStream& tokens, ezUInt32 uiCurToken, bool bIgnoreWhitespace)
+  bool IsEndOfLine(const TokenStream& tokens, WUInt32 uiCurToken, bool bIgnoreWhitespace)
   {
     if (bIgnoreWhitespace)
       SkipWhitespace(tokens, uiCurToken);
@@ -27,22 +27,22 @@ namespace ezTokenParseUtils
     if (uiCurToken >= tokens.GetCount())
       return true;
 
-    return tokens[uiCurToken]->m_iType == ezTokenType::Newline || tokens[uiCurToken]->m_iType == ezTokenType::EndOfFile;
+    return tokens[uiCurToken]->m_iType == WTokenType::Newline || tokens[uiCurToken]->m_iType == WTokenType::EndOfFile;
   }
 
-  void CopyRelevantTokens(const TokenStream& source, ezUInt32 uiFirstSourceToken, TokenStream& ref_destination, bool bPreserveNewLines)
+  void CopyRelevantTokens(const TokenStream& source, WUInt32 uiFirstSourceToken, TokenStream& ref_destination, bool bPreserveNewLines)
   {
     ref_destination.Reserve(ref_destination.GetCount() + source.GetCount() - uiFirstSourceToken);
 
     {
       // skip all whitespace at the start of the replacement string
-      ezUInt32 i = uiFirstSourceToken;
+      WUInt32 i = uiFirstSourceToken;
       SkipWhitespace(source, i);
 
       // add all the relevant tokens to the definition
       for (; i < source.GetCount(); ++i)
       {
-        if (source[i]->m_iType == ezTokenType::BlockComment || source[i]->m_iType == ezTokenType::LineComment || source[i]->m_iType == ezTokenType::EndOfFile || (!bPreserveNewLines && source[i]->m_iType == ezTokenType::Newline))
+        if (source[i]->m_iType == WTokenType::BlockComment || source[i]->m_iType == WTokenType::LineComment || source[i]->m_iType == WTokenType::EndOfFile || (!bPreserveNewLines && source[i]->m_iType == WTokenType::Newline))
           continue;
 
         ref_destination.PushBack(source[i]);
@@ -50,11 +50,11 @@ namespace ezTokenParseUtils
     }
 
     // remove whitespace at end of macro
-    while (!ref_destination.IsEmpty() && ref_destination.PeekBack()->m_iType == ezTokenType::Whitespace)
+    while (!ref_destination.IsEmpty() && ref_destination.PeekBack()->m_iType == WTokenType::Whitespace)
       ref_destination.PopBack();
   }
 
-  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezStringView sToken, ezUInt32* pAccepted)
+  bool Accept(const TokenStream& tokens, WUInt32& ref_uiCurToken, WStringView sToken, WUInt32* pAccepted)
   {
     SkipWhitespace(tokens, ref_uiCurToken);
 
@@ -73,7 +73,7 @@ namespace ezTokenParseUtils
     return false;
   }
 
-  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezTokenType::Enum type, ezUInt32* pAccepted)
+  bool Accept(const TokenStream& tokens, WUInt32& ref_uiCurToken, WTokenType::Enum type, WUInt32* pAccepted)
   {
     SkipWhitespace(tokens, ref_uiCurToken);
 
@@ -92,7 +92,7 @@ namespace ezTokenParseUtils
     return false;
   }
 
-  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezStringView sToken1, ezStringView sToken2, ezUInt32* pAccepted)
+  bool Accept(const TokenStream& tokens, WUInt32& ref_uiCurToken, WStringView sToken1, WStringView sToken2, WUInt32* pAccepted)
   {
     SkipWhitespace(tokens, ref_uiCurToken);
 
@@ -111,7 +111,7 @@ namespace ezTokenParseUtils
     return false;
   }
 
-  bool AcceptUnless(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezStringView sToken1, ezStringView sToken2, ezUInt32* pAccepted)
+  bool AcceptUnless(const TokenStream& tokens, WUInt32& ref_uiCurToken, WStringView sToken1, WStringView sToken2, WUInt32* pAccepted)
   {
     SkipWhitespace(tokens, ref_uiCurToken);
 
@@ -130,18 +130,18 @@ namespace ezTokenParseUtils
     return false;
   }
 
-  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezArrayPtr<const TokenMatch> matches, ezDynamicArray<ezUInt32>* pAccepted)
+  bool Accept(const TokenStream& tokens, WUInt32& ref_uiCurToken, WArrayPtr<const TokenMatch> matches, WDynamicArray<WUInt32>* pAccepted)
   {
     if (pAccepted)
       pAccepted->Clear();
 
-    ezUInt32 uiCurToken = ref_uiCurToken;
+    WUInt32 uiCurToken = ref_uiCurToken;
     bool bAccepted = true;
-    for (ezUInt32 i = 0; i < matches.GetCount() && bAccepted; ++i)
+    for (WUInt32 i = 0; i < matches.GetCount() && bAccepted; ++i)
     {
-      ezUInt32 uiAcceptedToken = uiCurToken;
+      WUInt32 uiAcceptedToken = uiCurToken;
       const TokenMatch& match = matches[i];
-      if (match.m_Type == ezTokenType::Unknown)
+      if (match.m_Type == WTokenType::Unknown)
       {
         bAccepted = Accept(tokens, uiCurToken, match.m_sToken, &uiAcceptedToken);
       }
@@ -166,14 +166,14 @@ namespace ezTokenParseUtils
     return bAccepted;
   }
 
-  void CombineRelevantTokensToString(const TokenStream& tokens, ezUInt32 uiCurToken, ezStringBuilder& ref_sResult)
+  void CombineRelevantTokensToString(const TokenStream& tokens, WUInt32 uiCurToken, WStringBuilder& ref_sResult)
   {
     ref_sResult.Clear();
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    for (ezUInt32 t = uiCurToken; t < tokens.GetCount(); ++t)
+    for (WUInt32 t = uiCurToken; t < tokens.GetCount(); ++t)
     {
-      if ((tokens[t]->m_iType == ezTokenType::LineComment) || (tokens[t]->m_iType == ezTokenType::BlockComment) || (tokens[t]->m_iType == ezTokenType::Newline) || (tokens[t]->m_iType == ezTokenType::EndOfFile))
+      if ((tokens[t]->m_iType == WTokenType::LineComment) || (tokens[t]->m_iType == WTokenType::BlockComment) || (tokens[t]->m_iType == WTokenType::Newline) || (tokens[t]->m_iType == WTokenType::EndOfFile))
         continue;
 
       sTemp = tokens[t]->m_DataView;
@@ -181,20 +181,20 @@ namespace ezTokenParseUtils
     }
   }
 
-  void CreateCleanTokenStream(const TokenStream& tokens, ezUInt32 uiCurToken, TokenStream& ref_destination)
+  void CreateCleanTokenStream(const TokenStream& tokens, WUInt32 uiCurToken, TokenStream& ref_destination)
   {
     SkipWhitespace(tokens, uiCurToken);
 
-    for (ezUInt32 t = uiCurToken; t < tokens.GetCount(); ++t)
+    for (WUInt32 t = uiCurToken; t < tokens.GetCount(); ++t)
     {
-      if (tokens[t]->m_iType == ezTokenType::Newline)
+      if (tokens[t]->m_iType == WTokenType::Newline)
       {
         // remove all whitespace before a newline
-        while (!ref_destination.IsEmpty() && ref_destination.PeekBack()->m_iType == ezTokenType::Whitespace)
+        while (!ref_destination.IsEmpty() && ref_destination.PeekBack()->m_iType == WTokenType::Whitespace)
           ref_destination.PopBack();
 
         // if there is already a newline stored, discard the new one
-        if (!ref_destination.IsEmpty() && ref_destination.PeekBack()->m_iType == ezTokenType::Newline)
+        if (!ref_destination.IsEmpty() && ref_destination.PeekBack()->m_iType == WTokenType::Newline)
           continue;
       }
 
@@ -202,7 +202,7 @@ namespace ezTokenParseUtils
     }
   }
 
-  void CombineTokensToString(const TokenStream& tokens0, ezUInt32 uiCurToken, ezStringBuilder& ref_sResult, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
+  void CombineTokensToString(const TokenStream& tokens0, WUInt32 uiCurToken, WStringBuilder& ref_sResult, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
   {
     TokenStream Tokens;
 
@@ -215,18 +215,18 @@ namespace ezTokenParseUtils
       Tokens = tokens0;
 
     ref_sResult.Clear();
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    ezUInt32 uiCurLine = 0xFFFFFFFF;
-    ezHashedString sCurFile;
+    WUInt32 uiCurLine = 0xFFFFFFFF;
+    WHashedString sCurFile;
 
-    for (ezUInt32 t = uiCurToken; t < Tokens.GetCount(); ++t)
+    for (WUInt32 t = uiCurToken; t < Tokens.GetCount(); ++t)
     {
       // skip all comments, if not desired
-      if ((Tokens[t]->m_iType == ezTokenType::BlockComment || Tokens[t]->m_iType == ezTokenType::LineComment) && !bKeepComments)
+      if ((Tokens[t]->m_iType == WTokenType::BlockComment || Tokens[t]->m_iType == WTokenType::LineComment) && !bKeepComments)
         continue;
 
-      if (Tokens[t]->m_iType == ezTokenType::EndOfFile)
+      if (Tokens[t]->m_iType == WTokenType::EndOfFile)
         return;
 
       if (bInsertLine)
@@ -238,7 +238,7 @@ namespace ezTokenParseUtils
           sCurFile = Tokens[t]->m_File;
         }
 
-        if (t > 0 && Tokens[t - 1]->m_iType == ezTokenType::Newline)
+        if (t > 0 && Tokens[t - 1]->m_iType == WTokenType::Newline)
         {
           if (Tokens[t]->m_uiLine != uiCurLine || Tokens[t]->m_File != sCurFile)
           {
@@ -251,7 +251,7 @@ namespace ezTokenParseUtils
           }
         }
 
-        if (Tokens[t]->m_iType == ezTokenType::Newline)
+        if (Tokens[t]->m_iType == WTokenType::Newline)
         {
           ++uiCurLine;
         }
@@ -262,15 +262,15 @@ namespace ezTokenParseUtils
     }
   }
 
-  void RenderTemplate(ezStringView sTemplate, const ezDelegate<void(ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)>& resolveAndAppendPlaceholder, ezStringBuilder& out_sOutput)
+  void RenderTemplate(WStringView sTemplate, const WDelegate<void(WStringView sPlaceholder, WVariant index, bool bOptional, WStringBuilder& ref_sOutput)>& resolveAndAppendPlaceholder, WStringBuilder& out_sOutput)
   {
-    ezTokenizer tokenizer(ezTempAllocator::Get());
-    tokenizer.Tokenize(ezMakeByteArrayPtr(sTemplate.GetStartPointer(), sTemplate.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
+    WTokenizer tokenizer(WTempAllocator::Get());
+    tokenizer.Tokenize(WMakeByteArrayPtr(sTemplate.GetStartPointer(), sTemplate.GetElementCount()), WLog::GetThreadLocalLogSystem(), false);
 
-    ezUInt32 uiCurToken = 0;
-    ezTempHybridArray<const ezToken*, 32> tokens;
+    WUInt32 uiCurToken = 0;
+    WTempHybridArray<const WToken*, 32> tokens;
     tokens.Reserve(tokenizer.GetTokens().GetCount());
-    for (const ezToken& token : tokenizer.GetTokens())
+    for (const WToken& token : tokenizer.GetTokens())
     {
       tokens.PushBack(&token);
     }
@@ -279,40 +279,40 @@ namespace ezTokenParseUtils
     out_sOutput.Reserve(sTemplate.GetElementCount());
 
     const char* szStart = sTemplate.GetStartPointer();
-    while (!Accept(tokens, uiCurToken, ezTokenType::EndOfFile))
+    while (!Accept(tokens, uiCurToken, WTokenType::EndOfFile))
     {
-      const ezToken* pToken = tokens[uiCurToken];
+      const WToken* pToken = tokens[uiCurToken];
 
       // Find '{', an optional '?' and '$', a NAME, an optional '[INDEX]' and finally '}'.
-      ezUInt32 uiNextToken = uiCurToken;
-      ezUInt32 uiOpenToken = 0;
-      ezUInt32 uiNameToken = 0;
-      ezUInt32 uiCloseToken = 0;
+      WUInt32 uiNextToken = uiCurToken;
+      WUInt32 uiOpenToken = 0;
+      WUInt32 uiNameToken = 0;
+      WUInt32 uiCloseToken = 0;
       bool bOptional = false;
       bool bMatched = false;
-      ezVariant index;
+      WVariant index;
 
-      if (Accept(tokens, uiNextToken, "{"_ezsv, &uiOpenToken))
+      if (Accept(tokens, uiNextToken, "{"_wsv, &uiOpenToken))
       {
-        bOptional = Accept(tokens, uiNextToken, "?"_ezsv);
+        bOptional = Accept(tokens, uiNextToken, "?"_wsv);
 
         // the '$' carries no meaning, {$NAME} and {NAME} are equivalent
-        Accept(tokens, uiNextToken, "$"_ezsv);
+        Accept(tokens, uiNextToken, "$"_wsv);
 
-        if (Accept(tokens, uiNextToken, ezTokenType::Identifier, &uiNameToken))
+        if (Accept(tokens, uiNextToken, WTokenType::Identifier, &uiNameToken))
         {
           bool bIndexValid = true;
 
-          ezUInt32 uiIndexToken = 0;
-          if (Accept(tokens, uiNextToken, "["_ezsv))
+          WUInt32 uiIndexToken = 0;
+          if (Accept(tokens, uiNextToken, "["_wsv))
           {
-            bIndexValid = Accept(tokens, uiNextToken, ezTokenType::Integer, &uiIndexToken) && Accept(tokens, uiNextToken, "]"_ezsv);
+            bIndexValid = Accept(tokens, uiNextToken, WTokenType::Integer, &uiIndexToken) && Accept(tokens, uiNextToken, "]"_wsv);
 
             if (bIndexValid)
             {
-              // an integer token that doesn't fit into ezInt32 is not treated as a placeholder
-              ezInt32 iIndex = 0;
-              bIndexValid = ezConversionUtils::StringToInt(tokens[uiIndexToken]->m_DataView, iIndex).Succeeded();
+              // an integer token that doesn't fit into WInt32 is not treated as a placeholder
+              WInt32 iIndex = 0;
+              bIndexValid = WConversionUtils::StringToInt(tokens[uiIndexToken]->m_DataView, iIndex).Succeeded();
 
               if (bIndexValid)
               {
@@ -321,18 +321,18 @@ namespace ezTokenParseUtils
             }
           }
 
-          bMatched = bIndexValid && Accept(tokens, uiNextToken, "}"_ezsv, &uiCloseToken);
+          bMatched = bIndexValid && Accept(tokens, uiNextToken, "}"_wsv, &uiCloseToken);
         }
       }
 
       if (bMatched)
       {
-        out_sOutput.Append(ezStringView(szStart, tokens[uiOpenToken]->m_DataView.GetStartPointer()));
+        out_sOutput.Append(WStringView(szStart, tokens[uiOpenToken]->m_DataView.GetStartPointer()));
         resolveAndAppendPlaceholder(tokens[uiNameToken]->m_DataView, index, bOptional, out_sOutput);
         szStart = tokens[uiCloseToken]->m_DataView.GetEndPointer();
         uiCurToken = uiNextToken;
       }
-      else if (pToken->m_iType == ezTokenType::String1 || pToken->m_iType == ezTokenType::String2)
+      else if (pToken->m_iType == WTokenType::String1 || pToken->m_iType == WTokenType::String2)
       {
         // The tokenizer turns a quoted section into a single string token, so placeholders inside it have to be resolved by rendering the string content (without the enclosing quotes) separately.
         const char* szContentStart = pToken->m_DataView.GetStartPointer() + 1;
@@ -344,10 +344,10 @@ namespace ezTokenParseUtils
           --szContentEnd;
         }
 
-        ezStringBuilder sContent(ezTempAllocator::Get());
-        RenderTemplate(ezStringView(szContentStart, szContentEnd), resolveAndAppendPlaceholder, sContent);
+        WStringBuilder sContent(WTempAllocator::Get());
+        RenderTemplate(WStringView(szContentStart, szContentEnd), resolveAndAppendPlaceholder, sContent);
 
-        out_sOutput.Append(ezStringView(szStart, szContentStart));
+        out_sOutput.Append(WStringView(szStart, szContentStart));
         out_sOutput.Append(sContent.GetView());
         szStart = szContentEnd;
         ++uiCurToken;
@@ -357,6 +357,6 @@ namespace ezTokenParseUtils
         ++uiCurToken;
       }
     }
-    out_sOutput.Append(ezStringView(szStart, sTemplate.GetEndPointer()));
+    out_sOutput.Append(WStringView(szStart, sTemplate.GetEndPointer()));
   }
-} // namespace ezTokenParseUtils
+} // namespace WTokenParseUtils

@@ -8,91 +8,91 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextDocument, 2, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectContextDocument, 2, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGameObjectContextDocument::ezGameObjectContextDocument(
-  ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-  : ezGameObjectDocument(sDocumentPath, pObjectManager, engineConnectionType)
+WGameObjectContextDocument::WGameObjectContextDocument(
+  WStringView sDocumentPath, WDocumentObjectManager* pObjectManager, WAssetDocEngineConnection engineConnectionType)
+  : WGameObjectDocument(sDocumentPath, pObjectManager, engineConnectionType)
 {
 }
 
-ezGameObjectContextDocument::~ezGameObjectContextDocument() = default;
+WGameObjectContextDocument::~WGameObjectContextDocument() = default;
 
-ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid objectGuid)
+WStatus WGameObjectContextDocument::SetContext(WUuid documentGuid, WUuid objectGuid)
 {
   if (!documentGuid.IsValid())
   {
     {
-      ezGameObjectContextEvent e;
-      e.m_Type = ezGameObjectContextEvent::Type::ContextAboutToBeChanged;
+      WGameObjectContextEvent e;
+      e.m_Type = WGameObjectContextEvent::Type::ContextAboutToBeChanged;
       m_GameObjectContextEvents.Broadcast(e);
     }
     ClearContext();
     {
-      ezGameObjectContextEvent e;
-      e.m_Type = ezGameObjectContextEvent::Type::ContextChanged;
+      WGameObjectContextEvent e;
+      e.m_Type = WGameObjectContextEvent::Type::ContextChanged;
       m_GameObjectContextEvents.Broadcast(e);
     }
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 
-  const ezAbstractObjectGraph* pPrefab = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(documentGuid);
+  const WAbstractObjectGraph* pPrefab = WPrefabCache::GetSingleton()->GetCachedPrefabGraph(documentGuid);
   if (!pPrefab)
-    return ezStatus("Context document could not be loaded.");
+    return WStatus("Context document could not be loaded.");
 
   {
-    ezGameObjectContextEvent e;
-    e.m_Type = ezGameObjectContextEvent::Type::ContextAboutToBeChanged;
+    WGameObjectContextEvent e;
+    e.m_Type = WGameObjectContextEvent::Type::ContextAboutToBeChanged;
     m_GameObjectContextEvents.Broadcast(e);
   }
   ClearContext();
-  ezAbstractObjectGraph graph;
+  WAbstractObjectGraph graph;
   pPrefab->Clone(graph);
 
-  ezRttiConverterContext context;
-  ezRttiConverterReader rttiConverter(&graph, &context);
-  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  WRttiConverterContext context;
+  WRttiConverterReader rttiConverter(&graph, &context);
+  WDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), WDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   {
-    EZ_PROFILE_SCOPE("Restoring Objects");
+    W_PROFILE_SCOPE("Restoring Objects");
     auto* pRootNode = graph.GetNodeByName("ObjectTree");
-    EZ_ASSERT_DEV(pRootNode->FindProperty("TempObjects") == nullptr, "TempObjects should not be serialized.");
+    W_ASSERT_DEV(pRootNode->FindProperty("TempObjects") == nullptr, "TempObjects should not be serialized.");
     pRootNode->RenameProperty("Children", "TempObjects");
     objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
   }
   {
-    EZ_PROFILE_SCOPE("Restoring Meta-Data");
+    W_PROFILE_SCOPE("Restoring Meta-Data");
     RestoreMetaDataAfterLoading(graph, false);
   }
   {
-    ezGameObjectContextPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezGameObjectContextPreferencesUser>(this);
+    WGameObjectContextPreferencesUser* pPreferences = WPreferences::QueryPreferences<WGameObjectContextPreferencesUser>(this);
     m_ContextDocument = documentGuid;
     pPreferences->SetContextDocument(m_ContextDocument);
 
-    const ezDocumentObject* pContextObject = GetObjectManager()->GetObject(objectGuid);
-    m_ContextObject = pContextObject ? objectGuid : ezUuid();
+    const WDocumentObject* pContextObject = GetObjectManager()->GetObject(objectGuid);
+    m_ContextObject = pContextObject ? objectGuid : WUuid();
     pPreferences->SetContextObject(m_ContextObject);
   }
   {
-    ezGameObjectContextEvent e;
-    e.m_Type = ezGameObjectContextEvent::Type::ContextChanged;
+    WGameObjectContextEvent e;
+    e.m_Type = WGameObjectContextEvent::Type::ContextChanged;
     m_GameObjectContextEvents.Broadcast(e);
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezUuid ezGameObjectContextDocument::GetContextDocumentGuid() const
+WUuid WGameObjectContextDocument::GetContextDocumentGuid() const
 {
   return m_ContextDocument;
 }
 
-ezUuid ezGameObjectContextDocument::GetContextObjectGuid() const
+WUuid WGameObjectContextDocument::GetContextObjectGuid() const
 {
   return m_ContextObject;
 }
 
-const ezDocumentObject* ezGameObjectContextDocument::GetContextObject() const
+const WDocumentObject* WGameObjectContextDocument::GetContextObject() const
 {
   if (m_ContextDocument.IsValid())
   {
@@ -105,23 +105,23 @@ const ezDocumentObject* ezGameObjectContextDocument::GetContextObject() const
   return nullptr;
 }
 
-void ezGameObjectContextDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WGameObjectContextDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  ezGameObjectContextPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezGameObjectContextPreferencesUser>(this);
+  WGameObjectContextPreferencesUser* pPreferences = WPreferences::QueryPreferences<WGameObjectContextPreferencesUser>(this);
   SetContext(pPreferences->GetContextDocument(), pPreferences->GetContextObject()).LogFailure();
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 }
 
-void ezGameObjectContextDocument::ClearContext()
+void WGameObjectContextDocument::ClearContext()
 {
-  m_ContextDocument = ezUuid();
-  m_ContextObject = ezUuid();
-  ezDocumentObject* pRoot = GetObjectManager()->GetRootObject();
-  ezTempHybridArray<ezVariant, 16> values;
+  m_ContextDocument = WUuid();
+  m_ContextObject = WUuid();
+  WDocumentObject* pRoot = GetObjectManager()->GetRootObject();
+  WTempHybridArray<WVariant, 16> values;
   GetObjectAccessor()->GetValuesByName(pRoot, "TempObjects", values).AssertSuccess();
-  for (ezInt32 i = (ezInt32)values.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)values.GetCount() - 1; i >= 0; --i)
   {
-    ezDocumentObject* pChild = GetObjectManager()->GetObject(values[i].Get<ezUuid>());
+    WDocumentObject* pChild = GetObjectManager()->GetObject(values[i].Get<WUuid>());
     GetObjectManager()->RemoveObject(pChild);
     GetObjectManager()->DestroyObject(pChild);
   }

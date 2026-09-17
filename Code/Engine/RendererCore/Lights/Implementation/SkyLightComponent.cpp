@@ -14,231 +14,231 @@
 
 namespace
 {
-  static ezVariantArray GetDefaultTags()
+  static WVariantArray GetDefaultTags()
   {
-    ezVariantArray value(ezStaticsAllocatorWrapper::GetAllocator());
+    WVariantArray value(WStaticsAllocatorWrapper::GetAllocator());
     value.PushBack("SkyLight");
     return value;
   }
 } // namespace
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSkyLightComponent, 4, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("ReflectionProbeMode", ezReflectionProbeMode, GetReflectionProbeMode, SetReflectionProbeMode)->AddAttributes(new ezGroupAttribute("Capture Description")),
-    EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
-    EZ_ACCESSOR_PROPERTY("DiffuseIntensity", GetDiffuseIntensity, SetDiffuseIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.4f)),
-    EZ_ACCESSOR_PROPERTY("DiffuseSaturation", GetDiffuseSaturation, SetDiffuseSaturation)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.3f)),
-    EZ_ACCESSOR_PROPERTY("SpecularIntensity", GetSpecularIntensity, SetSpecularIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_SET_ACCESSOR_PROPERTY("IncludeTags", GetIncludeTags, InsertIncludeTag, RemoveIncludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default"), new ezDefaultValueAttribute(GetDefaultTags())),
-    EZ_SET_ACCESSOR_PROPERTY("ExcludeTags", GetExcludeTags, InsertExcludeTag, RemoveExcludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, {}), new ezMinValueTextAttribute("Auto")),
-    EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
-    EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
-    EZ_ACCESSOR_PROPERTY("ShowMipMaps", GetShowMipMaps, SetShowMipMaps),
+    W_ENUM_ACCESSOR_PROPERTY("ReflectionProbeMode", WReflectionProbeMode, GetReflectionProbeMode, SetReflectionProbeMode)->AddAttributes(new WGroupAttribute("Capture Description")),
+    W_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
+    W_ACCESSOR_PROPERTY("DiffuseIntensity", GetDiffuseIntensity, SetDiffuseIntensity)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(0.4f)),
+    W_ACCESSOR_PROPERTY("DiffuseSaturation", GetDiffuseSaturation, SetDiffuseSaturation)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(0.3f)),
+    W_ACCESSOR_PROPERTY("SpecularIntensity", GetSpecularIntensity, SetSpecularIntensity)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
+    W_SET_ACCESSOR_PROPERTY("IncludeTags", GetIncludeTags, InsertIncludeTag, RemoveIncludeTag)->AddAttributes(new WTagSetWidgetAttribute("Default"), new WDefaultValueAttribute(GetDefaultTags())),
+    W_SET_ACCESSOR_PROPERTY("ExcludeTags", GetExcludeTags, InsertExcludeTag, RemoveExcludeTag)->AddAttributes(new WTagSetWidgetAttribute("Default")),
+    W_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, {}), new WMinValueTextAttribute("Auto")),
+    W_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new WDefaultValueAttribute(100.0f), new WClampValueAttribute(0.01f, 10000.0f)),
+    W_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    W_ACCESSOR_PROPERTY("ShowMipMaps", GetShowMipMaps, SetShowMipMaps),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgTransformChanged, OnTransformChanged),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Lighting"),
+    new WCategoryAttribute("Lighting"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSkyLightComponent::ezSkyLightComponent()
+WSkyLightComponent::WSkyLightComponent()
 {
-  m_Desc.m_uniqueID = ezUuid::MakeUuid();
+  m_Desc.m_uniqueID = WUuid::MakeUuid();
 }
 
-ezSkyLightComponent::~ezSkyLightComponent() = default;
+WSkyLightComponent::~WSkyLightComponent() = default;
 
-void ezSkyLightComponent::OnActivated()
+void WSkyLightComponent::OnActivated()
 {
   GetOwner()->EnableStaticTransformChangesNotifications();
-  m_Id = ezReflectionPool::RegisterSkyLight(GetWorld(), m_Desc, this);
+  m_Id = WReflectionPool::RegisterSkyLight(GetWorld(), m_Desc, this);
 
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezSkyLightComponent::OnDeactivated()
+void WSkyLightComponent::OnDeactivated()
 {
-  ezReflectionPool::DeregisterSkyLight(GetWorld(), m_Id);
+  WReflectionPool::DeregisterSkyLight(GetWorld(), m_Id);
   m_Id.Invalidate();
 
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezSkyLightComponent::SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode)
+void WSkyLightComponent::SetReflectionProbeMode(WEnum<WReflectionProbeMode> mode)
 {
   m_Desc.m_Mode = mode;
   m_bStatesDirty = true;
 }
 
-ezEnum<ezReflectionProbeMode> ezSkyLightComponent::GetReflectionProbeMode() const
+WEnum<WReflectionProbeMode> WSkyLightComponent::GetReflectionProbeMode() const
 {
   return m_Desc.m_Mode;
 }
 
-void ezSkyLightComponent::SetDiffuseIntensity(float fIntensity)
+void WSkyLightComponent::SetDiffuseIntensity(float fIntensity)
 {
   m_Desc.m_fDiffuseIntensity = fIntensity;
   m_bStatesDirty = true;
 }
 
-float ezSkyLightComponent::GetDiffuseIntensity() const
+float WSkyLightComponent::GetDiffuseIntensity() const
 {
   return m_Desc.m_fDiffuseIntensity;
 }
 
-void ezSkyLightComponent::SetDiffuseSaturation(float fSaturation)
+void WSkyLightComponent::SetDiffuseSaturation(float fSaturation)
 {
   m_Desc.m_fDiffuseSaturation = fSaturation;
   m_bStatesDirty = true;
 }
 
-float ezSkyLightComponent::GetDiffuseSaturation() const
+float WSkyLightComponent::GetDiffuseSaturation() const
 {
   return m_Desc.m_fDiffuseSaturation;
 }
 
-void ezSkyLightComponent::SetSpecularIntensity(float fIntensity)
+void WSkyLightComponent::SetSpecularIntensity(float fIntensity)
 {
   m_Desc.m_fSpecularIntensity = fIntensity;
   m_bStatesDirty = true;
 }
 
-float ezSkyLightComponent::GetSpecularIntensity() const
+float WSkyLightComponent::GetSpecularIntensity() const
 {
   return m_Desc.m_fSpecularIntensity;
 }
 
-const ezTagSet& ezSkyLightComponent::GetIncludeTags() const
+const WTagSet& WSkyLightComponent::GetIncludeTags() const
 {
   return m_Desc.m_IncludeTags;
 }
 
-void ezSkyLightComponent::InsertIncludeTag(const char* szTag)
+void WSkyLightComponent::InsertIncludeTag(const char* szTag)
 {
   m_Desc.m_IncludeTags.SetByName(szTag);
   m_bStatesDirty = true;
 }
 
-void ezSkyLightComponent::RemoveIncludeTag(const char* szTag)
+void WSkyLightComponent::RemoveIncludeTag(const char* szTag)
 {
   m_Desc.m_IncludeTags.RemoveByName(szTag);
   m_bStatesDirty = true;
 }
 
-const ezTagSet& ezSkyLightComponent::GetExcludeTags() const
+const WTagSet& WSkyLightComponent::GetExcludeTags() const
 {
   return m_Desc.m_ExcludeTags;
 }
 
-void ezSkyLightComponent::InsertExcludeTag(const char* szTag)
+void WSkyLightComponent::InsertExcludeTag(const char* szTag)
 {
   m_Desc.m_ExcludeTags.SetByName(szTag);
   m_bStatesDirty = true;
 }
 
-void ezSkyLightComponent::RemoveExcludeTag(const char* szTag)
+void WSkyLightComponent::RemoveExcludeTag(const char* szTag)
 {
   m_Desc.m_ExcludeTags.RemoveByName(szTag);
   m_bStatesDirty = true;
 }
 
-void ezSkyLightComponent::SetShowDebugInfo(bool bShowDebugInfo)
+void WSkyLightComponent::SetShowDebugInfo(bool bShowDebugInfo)
 {
   m_Desc.m_bShowDebugInfo = bShowDebugInfo;
   m_bStatesDirty = true;
 }
 
-bool ezSkyLightComponent::GetShowDebugInfo() const
+bool WSkyLightComponent::GetShowDebugInfo() const
 {
   return m_Desc.m_bShowDebugInfo;
 }
 
-void ezSkyLightComponent::SetShowMipMaps(bool bShowMipMaps)
+void WSkyLightComponent::SetShowMipMaps(bool bShowMipMaps)
 {
   m_Desc.m_bShowMipMaps = bShowMipMaps;
   m_bStatesDirty = true;
 }
 
-bool ezSkyLightComponent::GetShowMipMaps() const
+bool WSkyLightComponent::GetShowMipMaps() const
 {
   return m_Desc.m_bShowMipMaps;
 }
 
-void ezSkyLightComponent::SetCubeMapFile(ezStringView sFile)
+void WSkyLightComponent::SetCubeMapFile(WStringView sFile)
 {
-  ezTextureCubeResourceHandle hCubeMap;
+  WTextureCubeResourceHandle hCubeMap;
 
   if (!sFile.IsEmpty())
   {
-    hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(sFile);
+    hCubeMap = WResourceManager::LoadResource<WTextureCubeResource>(sFile);
   }
 
   m_hCubeMap = hCubeMap;
   m_bStatesDirty = true;
 }
 
-ezStringView ezSkyLightComponent::GetCubeMapFile() const
+WStringView WSkyLightComponent::GetCubeMapFile() const
 {
   return m_hCubeMap.GetResourceID();
 }
 
-void ezSkyLightComponent::SetNearPlane(float fNearPlane)
+void WSkyLightComponent::SetNearPlane(float fNearPlane)
 {
   m_Desc.m_fNearPlane = fNearPlane;
   m_bStatesDirty = true;
 }
 
-void ezSkyLightComponent::SetFarPlane(float fFarPlane)
+void WSkyLightComponent::SetFarPlane(float fFarPlane)
 {
   m_Desc.m_fFarPlane = fFarPlane;
   m_bStatesDirty = true;
 }
 
-void ezSkyLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WSkyLightComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
+  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? WDefaultSpatialDataCategories::RenderDynamic : WDefaultSpatialDataCategories::RenderStatic);
 }
 
-void ezSkyLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WSkyLightComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't trigger reflection rendering in shadow or other reflection views.
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Reflection)
     return;
 
   if (m_bStatesDirty)
   {
     m_bStatesDirty = false;
-    ezReflectionPool::UpdateSkyLight(GetWorld(), m_Id, m_Desc, this);
+    WReflectionPool::UpdateSkyLight(GetWorld(), m_Id, m_Desc, this);
   }
 
-  ezReflectionPool::ExtractReflectionProbe(this, msg, nullptr, GetWorld(), m_Id, ezMath::MaxValue<float>());
+  WReflectionPool::ExtractReflectionProbe(this, msg, nullptr, GetWorld(), m_Id, WMath::MaxValue<float>());
 }
 
-void ezSkyLightComponent::OnTransformChanged(ezMsgTransformChanged& msg)
+void WSkyLightComponent::OnTransformChanged(WMsgTransformChanged& msg)
 {
   m_bStatesDirty = true;
 }
 
-void ezSkyLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSkyLightComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   m_Desc.m_IncludeTags.Save(s);
   m_Desc.m_ExcludeTags.Save(s);
@@ -252,14 +252,14 @@ void ezSkyLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_Desc.m_fFarPlane;
 }
 
-void ezSkyLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSkyLightComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
-  m_Desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
-  m_Desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  m_Desc.m_IncludeTags.Load(s, WTagRegistry::GetGlobalRegistry());
+  m_Desc.m_ExcludeTags.Load(s, WTagRegistry::GetGlobalRegistry());
   s >> m_Desc.m_Mode;
   s >> m_Desc.m_bShowDebugInfo;
   s >> m_Desc.m_fDiffuseIntensity;
@@ -286,22 +286,22 @@ void ezSkyLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezSkyLightComponentPatch_2_3 : public ezGraphPatch
+class WSkyLightComponentPatch_2_3 : public WGraphPatch
 {
 public:
-  ezSkyLightComponentPatch_2_3()
-    : ezGraphPatch("ezSkyLightComponent", 3)
+  WSkyLightComponentPatch_2_3()
+    : WGraphPatch("WSkyLightComponent", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     // Inline ReflectionData sub-object into the sky light itself.
-    if (const ezAbstractObjectNode::Property* pProp0 = pNode->FindProperty("ReflectionData"))
+    if (const WAbstractObjectNode::Property* pProp0 = pNode->FindProperty("ReflectionData"))
     {
-      if (pProp0->m_Value.IsA<ezUuid>())
+      if (pProp0->m_Value.IsA<WUuid>())
       {
-        if (ezAbstractObjectNode* pSubNode = pGraph->GetNode(pProp0->m_Value.Get<ezUuid>()))
+        if (WAbstractObjectNode* pSubNode = pGraph->GetNode(pProp0->m_Value.Get<WUuid>()))
         {
           for (auto pProp : pSubNode->GetProperties())
           {
@@ -313,25 +313,25 @@ public:
   }
 };
 
-ezSkyLightComponentPatch_2_3 g_ezSkyLightComponentPatch_2_3;
+WSkyLightComponentPatch_2_3 g_WSkyLightComponentPatch_2_3;
 
 ///////////////////////////////////////////////////////////////////////////
 
-class ezSkyLightComponentPatch_3_4 : public ezGraphPatch
+class WSkyLightComponentPatch_3_4 : public WGraphPatch
 {
 public:
-  ezSkyLightComponentPatch_3_4()
-    : ezGraphPatch("ezSkyLightComponent", 4)
+  WSkyLightComponentPatch_3_4()
+    : WGraphPatch("WSkyLightComponent", 4)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Intensity", "DiffuseIntensity");
     pNode->RenameProperty("Saturation", "DiffuseSaturation");
   }
 };
 
-ezSkyLightComponentPatch_3_4 g_ezSkyLightComponentPatch_3_4;
+WSkyLightComponentPatch_3_4 g_WSkyLightComponentPatch_3_4;
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SkyLightComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SkyLightComponent);

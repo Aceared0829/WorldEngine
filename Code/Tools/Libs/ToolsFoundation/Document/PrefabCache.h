@@ -7,36 +7,36 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezAbstractObjectGraph;
+class WAbstractObjectGraph;
 
-class EZ_TOOLSFOUNDATION_DLL ezPrefabCache
+class W_TOOLSFOUNDATION_DLL WPrefabCache
 {
-  EZ_DECLARE_SINGLETON(ezPrefabCache);
+  W_DECLARE_SINGLETON(WPrefabCache);
 
 public:
-  ezPrefabCache();
+  WPrefabCache();
 
-  const ezStringBuilder& GetCachedPrefabDocument(const ezUuid& documentGuid);
-  const ezAbstractObjectGraph* GetCachedPrefabGraph(const ezUuid& documentGuid);
-  void LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGraph);
+  const WStringBuilder& GetCachedPrefabDocument(const WUuid& documentGuid);
+  const WAbstractObjectGraph* GetCachedPrefabGraph(const WUuid& documentGuid);
+  void LoadGraph(WAbstractObjectGraph& out_graph, WStringView sGraph);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, ezPrefabCache);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, WPrefabCache);
 
   struct PrefabData
   {
     PrefabData() = default;
 
-    ezUuid m_documentGuid;
-    ezString m_sAbsPath;
+    WUuid m_documentGuid;
+    WString m_sAbsPath;
 
-    ezAbstractObjectGraph m_Graph;
-    ezStringBuilder m_sDocContent;
-    ezTimestamp m_fileModifiedTime;
+    WAbstractObjectGraph m_Graph;
+    WStringBuilder m_sDocContent;
+    WTimestamp m_fileModifiedTime;
   };
-  PrefabData& GetOrCreatePrefabCache(const ezUuid& documentGuid);
+  PrefabData& GetOrCreatePrefabCache(const WUuid& documentGuid);
   void UpdatePrefabData(PrefabData& data);
 
-  ezMap<ezUInt64, ezUniquePtr<ezAbstractObjectGraph>> m_CachedGraphs;
-  ezMap<ezUuid, ezUniquePtr<PrefabData>> m_PrefabData;
+  WMap<WUInt64, WUniquePtr<WAbstractObjectGraph>> m_CachedGraphs;
+  WMap<WUuid, WUniquePtr<PrefabData>> m_PrefabData;
 };

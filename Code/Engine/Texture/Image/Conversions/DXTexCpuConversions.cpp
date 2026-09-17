@@ -1,6 +1,6 @@
 #include <Texture/TexturePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 
 // BC.h poisons the preprocessor, making it impossible to include algorithm afterwards, so this has to be here.
 #  include <algorithm>
@@ -11,46 +11,46 @@
 
 #  include <Foundation/Threading/TaskSystem.h>
 
-ezImageConversionEntry g_DXTexCpuConversions[] = {
-  ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC6H_UF16, ezImageConversionFlags::Default),
+WImageConversionEntry g_DXTexCpuConversions[] = {
+  WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::BC6H_UF16, WImageConversionFlags::Default),
 
-  ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC1_UNORM, ezImageConversionFlags::Default, 100),
-  ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC7_UNORM, ezImageConversionFlags::Default, 100),
+  WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::BC1_UNORM, WImageConversionFlags::Default, 100),
+  WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::BC7_UNORM, WImageConversionFlags::Default, 100),
 
-  ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC1_UNORM_SRGB, ezImageConversionFlags::Default, 100),
-  ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC7_UNORM_SRGB, ezImageConversionFlags::Default, 100),
+  WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, WImageFormat::BC1_UNORM_SRGB, WImageConversionFlags::Default, 100),
+  WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, WImageFormat::BC7_UNORM_SRGB, WImageConversionFlags::Default, 100),
 };
 
-class ezImageConversion_CompressDxTexCpu : public ezImageConversionStepCompressBlocks
+class WImageConversion_CompressDxTexCpu : public WImageConversionStepCompressBlocks
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
     return g_DXTexCpuConversions;
   }
 
-  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
-    ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult CompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 numBlocksX, WUInt32 numBlocksY,
+    WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    if (targetFormat == ezImageFormat::BC7_UNORM || targetFormat == ezImageFormat::BC7_UNORM_SRGB)
+    if (targetFormat == WImageFormat::BC7_UNORM || targetFormat == WImageFormat::BC7_UNORM_SRGB)
     {
-      const ezUInt32 srcStride = numBlocksX * 4 * 4;
-      const ezUInt32 targetStride = numBlocksX * 16;
+      const WUInt32 srcStride = numBlocksX * 4 * 4;
+      const WUInt32 targetStride = numBlocksX * 16;
 
-      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex)
+      WTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](WUInt32 startIndex, WUInt32 endIndex)
         {
-        const ezUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
-        ezUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
-        for (ezUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
+        const WUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
+        WUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
+        for (WUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
         {
-          for (ezUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
+          for (WUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
           {
             DirectX::XMVECTOR temp[16];
-            for (ezUInt32 y = 0; y < 4; y++)
+            for (WUInt32 y = 0; y < 4; y++)
             {
-              for (ezUInt32 x = 0; x < 4; x++)
+              for (WUInt32 x = 0; x < 4; x++)
               {
-                const ezUInt8* pixel = srcIt + y * srcStride + x * 4;
+                const WUInt8* pixel = srcIt + y * srcStride + x * 4;
                 temp[y * 4 + x] = DirectX::XMVectorSet(pixel[0] / 255.0f, pixel[1] / 255.0f, pixel[2] / 255.0f, pixel[3] / 255.0f);
               }
             }
@@ -62,27 +62,27 @@ public:
           srcIt += 3 * srcStride;
         } });
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
-    else if (targetFormat == ezImageFormat::BC1_UNORM || targetFormat == ezImageFormat::BC1_UNORM_SRGB)
+    else if (targetFormat == WImageFormat::BC1_UNORM || targetFormat == WImageFormat::BC1_UNORM_SRGB)
     {
-      const ezUInt32 srcStride = numBlocksX * 4 * 4;
-      const ezUInt32 targetStride = numBlocksX * 8;
+      const WUInt32 srcStride = numBlocksX * 4 * 4;
+      const WUInt32 targetStride = numBlocksX * 8;
 
-      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex)
+      WTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](WUInt32 startIndex, WUInt32 endIndex)
         {
-        const ezUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
-        ezUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
-        for (ezUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
+        const WUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
+        WUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
+        for (WUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
         {
-          for (ezUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
+          for (WUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
           {
             DirectX::XMVECTOR temp[16];
-            for (ezUInt32 y = 0; y < 4; y++)
+            for (WUInt32 y = 0; y < 4; y++)
             {
-              for (ezUInt32 x = 0; x < 4; x++)
+              for (WUInt32 x = 0; x < 4; x++)
               {
-                const ezUInt8* pixel = srcIt + y * srcStride + x * 4;
+                const WUInt8* pixel = srcIt + y * srcStride + x * 4;
                 temp[y * 4 + x] = DirectX::XMVectorSet(pixel[0] / 255.0f, pixel[1] / 255.0f, pixel[2] / 255.0f, pixel[3] / 255.0f);
               }
             }
@@ -94,25 +94,25 @@ public:
           srcIt += 3 * srcStride;
         } });
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
-    else if (targetFormat == ezImageFormat::BC6H_UF16)
+    else if (targetFormat == WImageFormat::BC6H_UF16)
     {
-      const ezUInt32 srcStride = numBlocksX * 4 * 4 * sizeof(float);
-      const ezUInt32 targetStride = numBlocksX * 16;
+      const WUInt32 srcStride = numBlocksX * 4 * 4 * sizeof(float);
+      const WUInt32 targetStride = numBlocksX * 16;
 
-      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex)
+      WTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](WUInt32 startIndex, WUInt32 endIndex)
         {
-        const ezUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
-        ezUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
-        for (ezUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
+        const WUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
+        WUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
+        for (WUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
         {
-          for (ezUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
+          for (WUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
           {
             DirectX::XMVECTOR temp[16];
-            for (ezUInt32 y = 0; y < 4; y++)
+            for (WUInt32 y = 0; y < 4; y++)
             {
-              for (ezUInt32 x = 0; x < 4; x++)
+              for (WUInt32 x = 0; x < 4; x++)
               {
                 const float* pixel = reinterpret_cast<const float*>(srcIt + y * srcStride + x * 4 * sizeof(float));
                 temp[y * 4 + x] = DirectX::XMVectorSet(pixel[0], pixel[1], pixel[2], pixel[3]);
@@ -126,15 +126,15 @@ public:
           srcIt += 3 * srcStride;
         } });
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 };
 
-EZ_STATICLINK_FORCE static ezImageConversion_CompressDxTexCpu s_conversion_compressDxTexCpu;
+W_STATICLINK_FORCE static WImageConversion_CompressDxTexCpu s_conversion_compressDxTexCpu;
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexCpuConversions);
+W_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexCpuConversions);

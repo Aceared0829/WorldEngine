@@ -4,7 +4,7 @@
 
 #include <Core/GameApplication/GameApplicationBase.h>
 
-class ezMcpServer;
+class WMcpServer;
 
 /// Owns the MCP server inside a game process, and the per-frame bookkeeping its tools need.
 ///
@@ -15,7 +15,7 @@ class ezMcpServer;
 ///
 /// Everything is static because there is one process, one server and one frame loop. There is nothing a
 /// second instance would mean.
-class ezMcpEngineHost
+class WMcpEngineHost
 {
 public:
   /// Resolves the port, starts the server and subscribes to the frame loop.
@@ -32,21 +32,21 @@ public:
   /// Monotonic, and the unit that game_wait counts in. Counts presents, not application ticks: the
   /// editor's engine process loops continuously while rendering nothing, so ticks would report progress
   /// that a screenshot or an input frame never sees.
-  static ezUInt64 GetFrameCount() { return s_uiFrameCount; }
+  static WUInt64 GetFrameCount() { return s_uiFrameCount; }
 
   /// Shuts the process down at the end of the current frame.
   ///
   /// Deferred, because the response to app_quit has not reached the socket yet - see
-  /// ezMcpAppTool::RequestQuit(). Quitting from inside the tool call would drop it.
+  /// WMcpAppTool::RequestQuit(). Quitting from inside the tool call would drop it.
   static void RequestQuit();
 
 private:
-  static void ExecutionEventHandler(const ezGameApplicationExecutionEvent& e);
+  static void ExecutionEventHandler(const WGameApplicationExecutionEvent& e);
 
   /// Reads -mcpport, falling back to -editor-mcpport + 1. Returns 0 for 'do not serve'.
-  static ezUInt16 ResolvePort();
+  static WUInt16 ResolvePort();
 
-  static ezMcpServer* s_pServer;
-  static ezUInt64 s_uiFrameCount;
+  static WMcpServer* s_pServer;
+  static WUInt64 s_uiFrameCount;
   static bool s_bQuitRequested;
 };

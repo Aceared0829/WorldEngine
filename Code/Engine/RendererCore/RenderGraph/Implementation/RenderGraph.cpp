@@ -20,63 +20,63 @@
 
 // --- Transient Resource Creation ---
 
-ezRenderGraph::ezRenderGraph(ezGALDevice* pDevice, ezStringView sName, ezEnum<ezRenderGraphPhase> phase)
+WRenderGraph::WRenderGraph(WGALDevice* pDevice, WStringView sName, WEnum<WRenderGraphPhase> phase)
   : m_pDevice(pDevice)
   , m_sGraphName(sName)
   , m_Phase(phase)
 {
-  m_pAllocator = EZ_DEFAULT_NEW(ezRenderGraphResourceAllocator, ezRenderGraphManager::GetResourcePool());
+  m_pAllocator = W_DEFAULT_NEW(WRenderGraphResourceAllocator, WRenderGraphManager::GetResourcePool());
 }
 
-ezRenderGraph::~ezRenderGraph()
+WRenderGraph::~WRenderGraph()
 {
   Reset();
-  ezRenderGraphManager::OnGraphDestroyed(this);
+  WRenderGraphManager::OnGraphDestroyed(this);
 }
 
-ezRenderGraphTextureHandle ezRenderGraph::CreateTexture(const ezGALTextureCreationDescription& desc)
+WRenderGraphTextureHandle WRenderGraph::CreateTexture(const WGALTextureCreationDescription& desc)
 {
-  auto id = ezRenderGraphTextureHandle();
+  auto id = WRenderGraphTextureHandle();
   id.m_InternalId.m_Generation = 0;
   id.m_InternalId.m_InstanceIndex = m_TextureCreationDescriptions.GetCount();
 
-  EZ_ASSERT_DEBUG(desc.Validate(m_pDevice).Succeeded(), "Invalid texture desc");
+  W_ASSERT_DEBUG(desc.Validate(m_pDevice).Succeeded(), "Invalid texture desc");
 
   m_TextureCreationDescriptions.PushBack(desc);
   return id;
 }
 
-ezRenderGraphBufferHandle ezRenderGraph::CreateBuffer(const ezGALBufferCreationDescription& desc)
+WRenderGraphBufferHandle WRenderGraph::CreateBuffer(const WGALBufferCreationDescription& desc)
 {
-  auto id = ezRenderGraphBufferHandle();
+  auto id = WRenderGraphBufferHandle();
   id.m_InternalId.m_Generation = 0;
   id.m_InternalId.m_InstanceIndex = m_BufferCreationDescriptions.GetCount();
 
   m_BufferCreationDescriptions.PushBack(desc);
-  m_BufferCreationDescriptions.PeekBack().m_BufferFlags |= ezGALBufferUsageFlags::Transient;
+  m_BufferCreationDescriptions.PeekBack().m_BufferFlags |= WGALBufferUsageFlags::Transient;
   return id;
 }
 
 // --- Resource Queries ---
 
-const ezGALTextureCreationDescription& ezRenderGraph::GetTextureDesc(ezRenderGraphTextureHandle hTexture) const
+const WGALTextureCreationDescription& WRenderGraph::GetTextureDesc(WRenderGraphTextureHandle hTexture) const
 {
-  EZ_ASSERT_DEBUG(hTexture.m_InternalId.m_InstanceIndex < m_TextureCreationDescriptions.GetCount(), "Invalid texture index");
+  W_ASSERT_DEBUG(hTexture.m_InternalId.m_InstanceIndex < m_TextureCreationDescriptions.GetCount(), "Invalid texture index");
   return m_TextureCreationDescriptions[hTexture.m_InternalId.m_InstanceIndex];
 }
 
-const ezGALBufferCreationDescription& ezRenderGraph::GetBufferDesc(ezRenderGraphBufferHandle hBuffer) const
+const WGALBufferCreationDescription& WRenderGraph::GetBufferDesc(WRenderGraphBufferHandle hBuffer) const
 {
-  EZ_ASSERT_DEBUG(hBuffer.m_InternalId.m_InstanceIndex < m_BufferCreationDescriptions.GetCount(), "Invalid Buffer index");
+  W_ASSERT_DEBUG(hBuffer.m_InternalId.m_InstanceIndex < m_BufferCreationDescriptions.GetCount(), "Invalid Buffer index");
   return m_BufferCreationDescriptions[hBuffer.m_InternalId.m_InstanceIndex];
 }
 
 // --- Import External Resources ---
 
-ezRenderGraphTextureHandle ezRenderGraph::ImportTexture(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> access, ezBitflags<ezGALShaderStageFlags> stage)
+WRenderGraphTextureHandle WRenderGraph::ImportTexture(WGALTextureHandle hTexture, WBitflags<WGALResourceState> access, WBitflags<WGALShaderStageFlags> stage)
 {
-  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
-  if (ezRenderGraphTextureHandle* hGraphTexture = m_ImportTextureToHandle.GetValue(hTexture))
+  W_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
+  if (WRenderGraphTextureHandle* hGraphTexture = m_ImportTextureToHandle.GetValue(hTexture))
   {
     // Replace the access state and stage flags on re-import.
     if (ImportedTexture* pImported = m_HandleToImportTexture.GetValue(*hGraphTexture))
@@ -87,10 +87,10 @@ ezRenderGraphTextureHandle ezRenderGraph::ImportTexture(ezGALTextureHandle hText
     return *hGraphTexture;
   }
 
-  auto id = ezRenderGraphTextureHandle();
+  auto id = WRenderGraphTextureHandle();
   id.m_InternalId.m_Generation = 0;
   id.m_InternalId.m_InstanceIndex = m_TextureCreationDescriptions.GetCount();
-  const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
+  const WGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
   if (pTexture)
   {
     m_TextureCreationDescriptions.PushBack(pTexture->GetDescription());
@@ -99,17 +99,17 @@ ezRenderGraphTextureHandle ezRenderGraph::ImportTexture(ezGALTextureHandle hText
   }
   else
   {
-    ezLog::Error("Failed to import texture into render graph: invalid handle");
+    WLog::Error("Failed to import texture into render graph: invalid handle");
     id.Invalidate();
   }
 
   return id;
 }
 
-ezRenderGraphBufferHandle ezRenderGraph::ImportBuffer(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> access, ezBitflags<ezGALShaderStageFlags> stage)
+WRenderGraphBufferHandle WRenderGraph::ImportBuffer(WGALBufferHandle hBuffer, WBitflags<WGALResourceState> access, WBitflags<WGALShaderStageFlags> stage)
 {
-  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
-  if (ezRenderGraphBufferHandle* hGraphBuffer = m_ImportBufferToHandle.GetValue(hBuffer))
+  W_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
+  if (WRenderGraphBufferHandle* hGraphBuffer = m_ImportBufferToHandle.GetValue(hBuffer))
   {
     // Replace the access state and stage flags on re-import.
     if (ImportedBuffer* pImported = m_HandleToImportBuffer.GetValue(*hGraphBuffer))
@@ -120,10 +120,10 @@ ezRenderGraphBufferHandle ezRenderGraph::ImportBuffer(ezGALBufferHandle hBuffer,
     return *hGraphBuffer;
   }
 
-  auto id = ezRenderGraphBufferHandle();
+  auto id = WRenderGraphBufferHandle();
   id.m_InternalId.m_Generation = 0;
   id.m_InternalId.m_InstanceIndex = m_BufferCreationDescriptions.GetCount();
-  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
+  const WGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
   if (pBuffer)
   {
     m_BufferCreationDescriptions.PushBack(pBuffer->GetDescription());
@@ -132,141 +132,141 @@ ezRenderGraphBufferHandle ezRenderGraph::ImportBuffer(ezGALBufferHandle hBuffer,
   }
   else
   {
-    ezLog::Error("Failed to import Buffer into render graph: invalid handle");
+    WLog::Error("Failed to import Buffer into render graph: invalid handle");
     id.Invalidate();
   }
 
   return id;
 }
 
-ezStatus ezRenderGraph::ReplaceImportedTexture(ezRenderGraphTextureHandle hGraphTexture, ezGALTextureHandle hNewTexture)
+WStatus WRenderGraph::ReplaceImportedTexture(WRenderGraphTextureHandle hGraphTexture, WGALTextureHandle hNewTexture)
 {
-  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
+  W_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
 
   auto it = m_HandleToImportTexture.Find(hGraphTexture);
   // New texture must not be already registered.
   if (m_ImportTextureToHandle.Find(hNewTexture).IsValid())
   {
     if (it.IsValid() && it.Value().m_hTextureHandle != hNewTexture)
-      return ezStatus(ezFmt("Replacement texture handle already registered"));
+      return WStatus(WFmt("Replacement texture handle already registered"));
   }
-  ezGALTextureCreationDescription& oldDesc = m_TextureCreationDescriptions[hGraphTexture.m_InternalId.m_InstanceIndex];
-  const ezGALTexture* pTexture = m_pDevice->GetTexture(hNewTexture);
+  WGALTextureCreationDescription& oldDesc = m_TextureCreationDescriptions[hGraphTexture.m_InternalId.m_InstanceIndex];
+  const WGALTexture* pTexture = m_pDevice->GetTexture(hNewTexture);
   if (!pTexture)
-    return ezStatus(ezFmt("Replacement texture is invalid"));
+    return WStatus(WFmt("Replacement texture is invalid"));
 
-  ezGALTextureCreationDescription newDesc = pTexture->GetDescription();
-  if (oldDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::Presentable))
+  WGALTextureCreationDescription newDesc = pTexture->GetDescription();
+  if (oldDesc.m_TextureFlags.IsSet(WGALTextureUsageFlags::Presentable))
   {
     if (oldDesc.m_uiWidth != newDesc.m_uiWidth)
-      return ezStatus(EZ_FAILURE);
+      return WStatus(W_FAILURE);
     if (oldDesc.m_uiHeight != newDesc.m_uiHeight)
-      return ezStatus(EZ_FAILURE);
+      return WStatus(W_FAILURE);
   }
 
   if (oldDesc.m_uiWidth > newDesc.m_uiWidth)
-    return ezStatus(ezFmt("Replacement texture width {} is less than the original texture width {}", newDesc.m_uiWidth, oldDesc.m_uiWidth));
+    return WStatus(WFmt("Replacement texture width {} is less than the original texture width {}", newDesc.m_uiWidth, oldDesc.m_uiWidth));
 
   if (oldDesc.m_uiHeight > newDesc.m_uiHeight)
-    return ezStatus(ezFmt("Replacement texture height {} is less than the original texture height {}", newDesc.m_uiHeight, oldDesc.m_uiHeight));
+    return WStatus(WFmt("Replacement texture height {} is less than the original texture height {}", newDesc.m_uiHeight, oldDesc.m_uiHeight));
 
   if (oldDesc.m_uiDepth > newDesc.m_uiDepth)
-    return ezStatus(ezFmt("Replacement texture depth {} is less than the original texture depth {}", newDesc.m_uiDepth, oldDesc.m_uiDepth));
+    return WStatus(WFmt("Replacement texture depth {} is less than the original texture depth {}", newDesc.m_uiDepth, oldDesc.m_uiDepth));
 
   if (oldDesc.m_uiArraySize > newDesc.m_uiArraySize)
-    return ezStatus(ezFmt("Replacement texture array size {} is less than the original texture array size {}", newDesc.m_uiArraySize, oldDesc.m_uiArraySize));
+    return WStatus(WFmt("Replacement texture array size {} is less than the original texture array size {}", newDesc.m_uiArraySize, oldDesc.m_uiArraySize));
 
   if (oldDesc.m_uiMipLevelCount > newDesc.m_uiMipLevelCount)
-    return ezStatus(ezFmt("Replacement texture mip levels {} is less than the original texture mip levels {}", newDesc.m_uiMipLevelCount, oldDesc.m_uiMipLevelCount));
+    return WStatus(WFmt("Replacement texture mip levels {} is less than the original texture mip levels {}", newDesc.m_uiMipLevelCount, oldDesc.m_uiMipLevelCount));
 
   if (oldDesc.m_Format != newDesc.m_Format)
-    return ezStatus(ezFmt("Replacement texture format {} is different from original texture format {}", ezArgEnum(newDesc.m_Format), ezArgEnum(oldDesc.m_Format)));
+    return WStatus(WFmt("Replacement texture format {} is different from original texture format {}", WArgEnum(newDesc.m_Format), WArgEnum(oldDesc.m_Format)));
 
   if (oldDesc.m_SampleCount != newDesc.m_SampleCount)
-    return ezStatus(ezFmt("Replacement sample count {} is different from original sample count {}", newDesc.m_SampleCount, oldDesc.m_SampleCount));
+    return WStatus(WFmt("Replacement sample count {} is different from original sample count {}", newDesc.m_SampleCount, oldDesc.m_SampleCount));
 
   // if (oldDesc.m_Type != newDesc.m_Type)
-  //   return ezStatus(ezFmt("Replacement texture type {} is different from original texture type {}", ezArgEnum(newDesc.m_Type), ezArgEnum(oldDesc.m_Type)));
+  //   return WStatus(WFmt("Replacement texture type {} is different from original texture type {}", WArgEnum(newDesc.m_Type), WArgEnum(oldDesc.m_Type)));
 
   if (!newDesc.m_TextureFlags.AreAllSet(oldDesc.m_TextureFlags))
-    return ezStatus(ezFmt("Replacement texture flags {} does not contain some of the original flags {}", ezArgEnum(newDesc.m_TextureFlags), ezArgEnum(oldDesc.m_TextureFlags)));
+    return WStatus(WFmt("Replacement texture flags {} does not contain some of the original flags {}", WArgEnum(newDesc.m_TextureFlags), WArgEnum(oldDesc.m_TextureFlags)));
 
   // Is the target graph texture not imported yet?
   if (!it.IsValid())
   {
     oldDesc = newDesc;
-    m_HandleToImportTexture.Insert(hGraphTexture, ImportedTexture{hNewTexture, newDesc.GetDefaultState(), ezGALShaderStageFlags::Auto});
+    m_HandleToImportTexture.Insert(hGraphTexture, ImportedTexture{hNewTexture, newDesc.GetDefaultState(), WGALShaderStageFlags::Auto});
     m_ImportTextureToHandle.Insert(hNewTexture, hGraphTexture);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (it.Value().m_hTextureHandle == hNewTexture)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
   m_ImportTextureToHandle.Remove(it.Value().m_hTextureHandle);
   it.Value().m_hTextureHandle = hNewTexture;
   m_ImportTextureToHandle[hNewTexture] = hGraphTexture;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // --- Pass Creation ---
 
-ezRenderGraphPassBuilder ezRenderGraph::AddGraphicsPass(ezStringView sName)
+WRenderGraphPassBuilder WRenderGraph::AddGraphicsPass(WStringView sName)
 {
-  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Reset graph first before recording passes again");
-  EZ_ASSERT_DEBUG(m_pCurrentPass == nullptr, "An Add*Pass scope is already open");
-  StartPassBuilder(ezGALQueueType::Graphics, sName);
-  return ezRenderGraphPassBuilder(this);
+  W_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Reset graph first before recording passes again");
+  W_ASSERT_DEBUG(m_pCurrentPass == nullptr, "An Add*Pass scope is already open");
+  StartPassBuilder(WGALQueueType::Graphics, sName);
+  return WRenderGraphPassBuilder(this);
 }
 
-ezRenderGraphPassBuilder ezRenderGraph::AddComputePass(ezStringView sName)
+WRenderGraphPassBuilder WRenderGraph::AddComputePass(WStringView sName)
 {
-  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Reset graph first before recording passes again");
-  EZ_ASSERT_DEBUG(m_pCurrentPass == nullptr, "An Add*Pass scope is already open");
-  StartPassBuilder(ezGALQueueType::Compute, sName);
-  return ezRenderGraphPassBuilder(this);
+  W_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Reset graph first before recording passes again");
+  W_ASSERT_DEBUG(m_pCurrentPass == nullptr, "An Add*Pass scope is already open");
+  StartPassBuilder(WGALQueueType::Compute, sName);
+  return WRenderGraphPassBuilder(this);
 }
 
-ezRenderGraphPassBuilder ezRenderGraph::AddTransferPass(ezStringView sName)
+WRenderGraphPassBuilder WRenderGraph::AddTransferPass(WStringView sName)
 {
-  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Reset graph first before recording passes again");
-  EZ_ASSERT_DEBUG(m_pCurrentPass == nullptr, "An Add*Pass scope is already open");
-  StartPassBuilder(ezGALQueueType::Transfer, sName);
-  return ezRenderGraphPassBuilder(this);
+  W_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Reset graph first before recording passes again");
+  W_ASSERT_DEBUG(m_pCurrentPass == nullptr, "An Add*Pass scope is already open");
+  StartPassBuilder(WGALQueueType::Transfer, sName);
+  return WRenderGraphPassBuilder(this);
 }
 
 // --- Compilation & Execution ---
 
-void ezRenderGraph::PushMarker(ezStringView sMarker)
+void WRenderGraph::PushMarker(WStringView sMarker)
 {
-  EZ_ASSERT_DEV(m_RenderGraphState == RenderGraphState::Recording, "PushMarker can only be called during recording.");
+  W_ASSERT_DEV(m_RenderGraphState == RenderGraphState::Recording, "PushMarker can only be called during recording.");
   auto& evt = m_MarkerEvents.ExpandAndGetRef();
-  evt.m_uiPassIndex = static_cast<ezUInt16>(m_Passes.GetCount());
+  evt.m_uiPassIndex = static_cast<WUInt16>(m_Passes.GetCount());
   evt.m_bPush = true;
   evt.m_sName = sMarker;
 }
 
-void ezRenderGraph::PopMarker()
+void WRenderGraph::PopMarker()
 {
-  EZ_ASSERT_DEV(m_RenderGraphState == RenderGraphState::Recording, "PopMarker can only be called during recording.");
+  W_ASSERT_DEV(m_RenderGraphState == RenderGraphState::Recording, "PopMarker can only be called during recording.");
   auto& evt = m_MarkerEvents.ExpandAndGetRef();
-  evt.m_uiPassIndex = static_cast<ezUInt16>(m_Passes.GetCount());
+  evt.m_uiPassIndex = static_cast<WUInt16>(m_Passes.GetCount());
   evt.m_bPush = false;
 }
 
-void ezRenderGraph::Reset()
+void WRenderGraph::Reset()
 {
   ResetInternal(RenderGraphState::Recording);
 }
 
-ezResult ezRenderGraph::Compile()
+WResult WRenderGraph::Compile()
 {
-  EZ_PROFILE_SCOPE("Compile");
+  W_PROFILE_SCOPE("Compile");
 
   if (m_RenderGraphState < RenderGraphState::Compiled)
   {
-    EZ_SUCCEED_OR_RETURN(ValidateGraph());
+    W_SUCCEED_OR_RETURN(ValidateGraph());
     BuildDependencyGraph();
     CullDeadPasses();
     BuildSortedPassList();
@@ -275,18 +275,18 @@ ezResult ezRenderGraph::Compile()
     BuildRenderingSetups();
     m_RenderGraphState = RenderGraphState::Compiled;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info) const
+WResult WRenderGraph::GetInspectionInfo(WRenderGraphInspectionInfo& out_info) const
 {
   if (m_RenderGraphState < RenderGraphState::Compiled)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // All passes in declaration order, with alive flag.
-  const ezUInt32 uiNumPasses = m_Passes.GetCount();
+  const WUInt32 uiNumPasses = m_Passes.GetCount();
   out_info.m_Passes.SetCount(uiNumPasses);
-  for (ezUInt32 i = 0; i < uiNumPasses; ++i)
+  for (WUInt32 i = 0; i < uiNumPasses; ++i)
   {
     auto& pi = out_info.m_Passes[i];
     pi.m_sName = m_PassNames[i];
@@ -296,14 +296,14 @@ ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info)
   }
 
   // Textures
-  const ezUInt32 uiNumTextures = m_TextureCreationDescriptions.GetCount();
+  const WUInt32 uiNumTextures = m_TextureCreationDescriptions.GetCount();
   out_info.m_Textures.SetCount(uiNumTextures);
-  for (ezUInt32 i = 0; i < uiNumTextures; ++i)
+  for (WUInt32 i = 0; i < uiNumTextures; ++i)
   {
     auto& ti = out_info.m_Textures[i];
     ti.m_Desc = m_TextureCreationDescriptions[i];
 
-    ezRenderGraphTextureHandle hTex;
+    WRenderGraphTextureHandle hTex;
     hTex.m_InternalId.m_InstanceIndex = i;
     hTex.m_InternalId.m_Generation = 0;
     ti.m_bImported = m_HandleToImportTexture.Contains(hTex);
@@ -313,14 +313,14 @@ ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info)
   }
 
   // Buffers
-  const ezUInt32 uiNumBuffers = m_BufferCreationDescriptions.GetCount();
+  const WUInt32 uiNumBuffers = m_BufferCreationDescriptions.GetCount();
   out_info.m_Buffers.SetCount(uiNumBuffers);
-  for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
+  for (WUInt32 i = 0; i < uiNumBuffers; ++i)
   {
     auto& bi = out_info.m_Buffers[i];
     bi.m_Desc = m_BufferCreationDescriptions[i];
 
-    ezRenderGraphBufferHandle hBuf;
+    WRenderGraphBufferHandle hBuf;
     hBuf.m_InternalId.m_InstanceIndex = i;
     hBuf.m_InternalId.m_Generation = 0;
     bi.m_bImported = m_HandleToImportBuffer.Contains(hBuf);
@@ -332,14 +332,14 @@ ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info)
   // Accesses - flatten all pass resource accesses (all passes, not just alive)
   out_info.m_Accesses.Clear();
   out_info.m_Accesses.Reserve(m_ReadBuffers.GetCount() + m_WriteBuffers.GetCount() + m_ReadTextures.GetCount() + m_WriteTextures.GetCount());
-  for (ezUInt32 passIdx = 0; passIdx < uiNumPasses; ++passIdx)
+  for (WUInt32 passIdx = 0; passIdx < uiNumPasses; ++passIdx)
   {
     const Pass& pass = m_Passes[passIdx];
-    ezUInt16 uiAccessIndexInPass = 0;
+    WUInt16 uiAccessIndexInPass = 0;
     for (const TextureInfo& info : pass.GetReadTextures(this))
     {
       auto& a = out_info.m_Accesses.ExpandAndGetRef();
-      a.m_uiPassIndex = static_cast<ezUInt16>(passIdx);
+      a.m_uiPassIndex = static_cast<WUInt16>(passIdx);
       a.m_uiResourceIndex = info.m_hTexture.m_InternalId.m_InstanceIndex;
       a.m_uiAccessIndex = uiAccessIndexInPass++;
       a.m_bIsTexture = true;
@@ -349,7 +349,7 @@ ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info)
     for (const TextureInfo& info : pass.GetWriteTextures(this))
     {
       auto& a = out_info.m_Accesses.ExpandAndGetRef();
-      a.m_uiPassIndex = static_cast<ezUInt16>(passIdx);
+      a.m_uiPassIndex = static_cast<WUInt16>(passIdx);
       a.m_uiResourceIndex = info.m_hTexture.m_InternalId.m_InstanceIndex;
       a.m_uiAccessIndex = uiAccessIndexInPass++;
       a.m_bIsTexture = true;
@@ -359,7 +359,7 @@ ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info)
     for (const BufferInfo& info : pass.GetReadBuffers(this))
     {
       auto& a = out_info.m_Accesses.ExpandAndGetRef();
-      a.m_uiPassIndex = static_cast<ezUInt16>(passIdx);
+      a.m_uiPassIndex = static_cast<WUInt16>(passIdx);
       a.m_uiResourceIndex = info.m_hBuffer.m_InternalId.m_InstanceIndex;
       a.m_uiAccessIndex = uiAccessIndexInPass++;
       a.m_bIsTexture = false;
@@ -368,7 +368,7 @@ ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info)
     for (const BufferInfo& info : pass.GetWriteBuffers(this))
     {
       auto& a = out_info.m_Accesses.ExpandAndGetRef();
-      a.m_uiPassIndex = static_cast<ezUInt16>(passIdx);
+      a.m_uiPassIndex = static_cast<WUInt16>(passIdx);
       a.m_uiResourceIndex = info.m_hBuffer.m_InternalId.m_InstanceIndex;
       a.m_uiAccessIndex = uiAccessIndexInPass++;
       a.m_bIsTexture = false;
@@ -376,12 +376,12 @@ ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info)
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGraphPassObserver*> observers)
+void WRenderGraph::Execute(WRenderGraphContext& ref_ctx, WArrayPtr<WRenderGraphPassObserver*> observers)
 {
-  EZ_ASSERT_DEV(m_RenderGraphState == RenderGraphState::BarriersCreated, "Graph must be compiled before execution");
+  W_ASSERT_DEV(m_RenderGraphState == RenderGraphState::BarriersCreated, "Graph must be compiled before execution");
 
   ref_ctx.m_pTextureToResolvedTexture = &m_TextureToResolvedTexture;
   ref_ctx.m_pBufferToResolvedBuffer = &m_BufferToResolvedBuffer;
@@ -393,42 +393,42 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
   ref_ctx.GetRenderContext()->ResetBindGroups();
 
   {
-    ezRenderGraphRenderEvent ev;
-    ev.m_Type = ezRenderGraphRenderEvent::Type::BeforeGraphExecution;
+    WRenderGraphRenderEvent ev;
+    ev.m_Type = WRenderGraphRenderEvent::Type::BeforeGraphExecution;
     ev.m_pGraph = this;
     ev.m_pContext = &ref_ctx;
-    ezRenderGraphManager::s_RenderEvent.Broadcast(ev);
+    WRenderGraphManager::s_RenderEvent.Broadcast(ev);
   }
 
-  ezStringBuilder sName = m_sGraphName;
+  WStringBuilder sName = m_sGraphName;
   if (!m_sUserName.IsEmpty())
     sName.AppendFormat("-{}", m_sUserName);
 
-  EZ_PROFILE_AND_MARKER(ref_ctx.GetCommandEncoder(), sName.GetData());
+  W_PROFILE_AND_MARKER(ref_ctx.GetCommandEncoder(), sName.GetData());
 
-  ezHybridArray<GPUTimingScope*, 4> scopes;
-  auto ExecuteMarker = [&](const MarkerEvent& evt, ezGALCommandEncoder* pEncoder)
+  WHybridArray<GPUTimingScope*, 4> scopes;
+  auto ExecuteMarker = [&](const MarkerEvent& evt, WGALCommandEncoder* pEncoder)
   {
-#if EZ_ENABLED(EZ_USE_PROFILING)
+#if W_ENABLED(W_USE_PROFILING)
     if (evt.m_bPush)
     {
-      scopes.PushBack(ezProfilingScopeAndMarker::Start(pEncoder, evt.m_sName.GetData()));
+      scopes.PushBack(WProfilingScopeAndMarker::Start(pEncoder, evt.m_sName.GetData()));
     }
     else
     {
       if (!scopes.IsEmpty())
-        ezProfilingScopeAndMarker::Stop(pEncoder, scopes.PeekBack());
+        WProfilingScopeAndMarker::Stop(pEncoder, scopes.PeekBack());
       scopes.PopBack();
     }
 #endif
   };
 
-  ezUInt32 uiNextMarker = 0;
-  const ezUInt32 uiMarkerCount = m_MarkerEvents.GetCount();
-  const ezUInt32 uiPasses = m_CompiledPasses.GetCount();
-  for (ezUInt32 i = 0; i < uiPasses; ++i)
+  WUInt32 uiNextMarker = 0;
+  const WUInt32 uiMarkerCount = m_MarkerEvents.GetCount();
+  const WUInt32 uiPasses = m_CompiledPasses.GetCount();
+  for (WUInt32 i = 0; i < uiPasses; ++i)
   {
-    ezRenderGraphManager::s_uiCurrentPassIndex = i;
+    WRenderGraphManager::s_uiCurrentPassIndex = i;
     const CompiledPass& compiled = m_CompiledPasses[i];
     const Pass& pass = m_Passes[compiled.m_uiOriginalPassIndex];
     const char* szName = m_PassNames[compiled.m_uiOriginalPassIndex].GetData();
@@ -452,17 +452,17 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
       ref_ctx.m_pCommandEncoder->BufferBarrier(bufferBarriers);
     }
 
-    ref_ctx.GetRenderContext()->ResetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
-    ref_ctx.GetRenderContext()->ResetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
-    ref_ctx.GetRenderContext()->ResetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+    ref_ctx.GetRenderContext()->ResetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
+    ref_ctx.GetRenderContext()->ResetBindGroup(W_GAL_BIND_GROUP_MATERIAL);
+    ref_ctx.GetRenderContext()->ResetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
 
     // Begin the appropriate scope and invoke the callback.
     switch (pass.m_QueueType)
     {
-      case ezGALQueueType::Graphics:
+      case WGALQueueType::Graphics:
       {
-        ezSizeU32 size = compiled.m_RenderingSetup.GetFrameBuffer().m_Size;
-        ezRectFloat viewport{0, 0, (float)size.width, (float)size.height};
+        WSizeU32 size = compiled.m_RenderingSetup.GetFrameBuffer().m_Size;
+        WRectFloat viewport{0, 0, (float)size.width, (float)size.height};
         if (size.HasNonZeroArea())
         {
           ref_ctx.m_pRenderContext->BeginRendering(compiled.m_RenderingSetup, viewport, szName, pass.m_bStereoscopic);
@@ -472,7 +472,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
         }
         break;
       }
-      case ezGALQueueType::Compute:
+      case WGALQueueType::Compute:
       {
         ref_ctx.m_pRenderContext->BeginCompute(szName);
         if (pass.m_ExecuteFunction.IsValid())
@@ -480,7 +480,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
         ref_ctx.m_pRenderContext->EndCompute();
         break;
       }
-      case ezGALQueueType::Transfer:
+      case WGALQueueType::Transfer:
       {
         // Transfer pass - no scope required.
         ref_ctx.m_pCommandEncoder->PushMarker(szName);
@@ -490,14 +490,14 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
         break;
       }
       default:
-        EZ_REPORT_FAILURE("Invalid queue type");
+        W_REPORT_FAILURE("Invalid queue type");
         break;
     }
 
     // Execute observer copies after this pass.
     for (auto* pObserver : observers)
     {
-      if (!pObserver->m_bValid || pObserver->m_uiSortedPassIndex != (ezUInt32)i)
+      if (!pObserver->m_bValid || pObserver->m_uiSortedPassIndex != (WUInt32)i)
         continue;
 
       if (!pObserver->m_PreCopyBarriers.IsEmpty())
@@ -518,23 +518,23 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
   }
 
   {
-    ezRenderGraphRenderEvent ev;
-    ev.m_Type = ezRenderGraphRenderEvent::Type::AfterGraphExecution;
+    WRenderGraphRenderEvent ev;
+    ev.m_Type = WRenderGraphRenderEvent::Type::AfterGraphExecution;
     ev.m_pGraph = this;
     ev.m_pContext = &ref_ctx;
-    ezRenderGraphManager::s_RenderEvent.Broadcast(ev);
+    WRenderGraphManager::s_RenderEvent.Broadcast(ev);
   }
 }
 
-void ezRenderGraph::StartPassBuilder(ezEnum<ezGALQueueType> queueType, ezStringView sName)
+void WRenderGraph::StartPassBuilder(WEnum<WGALQueueType> queueType, WStringView sName)
 {
   // Enforce unique pass names by appending a counter suffix on collision.
-  ezString sUniqueName = sName;
-  ezUInt32& uiSuffix = m_UniquePassNames.FindOrAdd(sUniqueName);
+  WString sUniqueName = sName;
+  WUInt32& uiSuffix = m_UniquePassNames.FindOrAdd(sUniqueName);
   uiSuffix++;
   if (uiSuffix >= 2)
   {
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
     sTemp.SetFormat("{} #{}", sName, uiSuffix);
     sUniqueName = sTemp;
   }
@@ -553,29 +553,29 @@ void ezRenderGraph::StartPassBuilder(ezEnum<ezGALQueueType> queueType, ezStringV
   m_pCurrentPass = &pass;
 }
 
-void ezRenderGraph::EndPassBuilder()
+void WRenderGraph::EndPassBuilder()
 {
   // Just clear the pointer as the Pass was already filled in.
   m_pCurrentPass = nullptr;
 }
 
-ezUInt16 ezRenderGraph::FindPassByName(ezStringView sName) const
+WUInt16 WRenderGraph::FindPassByName(WStringView sName) const
 {
-  for (ezUInt32 i = 0; i < m_PassNames.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_PassNames.GetCount(); ++i)
   {
     if (m_PassNames[i] == sName)
-      return static_cast<ezUInt16>(i);
+      return static_cast<WUInt16>(i);
   }
   return s_Unused;
 }
 
-ezRenderGraphTextureHandle ezRenderGraph::FindTextureAccessInPass(ezUInt16 uiOriginalPassIndex, ezUInt16 uiAccessIndex) const
+WRenderGraphTextureHandle WRenderGraph::FindTextureAccessInPass(WUInt16 uiOriginalPassIndex, WUInt16 uiAccessIndex) const
 {
-  EZ_ASSERT_DEBUG(uiOriginalPassIndex < m_Passes.GetCount(), "Invalid pass index");
+  W_ASSERT_DEBUG(uiOriginalPassIndex < m_Passes.GetCount(), "Invalid pass index");
   const Pass& pass = m_Passes[uiOriginalPassIndex];
 
   // Iterate all texture accesses in declaration order: reads, writes, color targets, depth targets.
-  ezUInt16 uiCurrent = 0;
+  WUInt16 uiCurrent = 0;
 
   for (const TextureInfo& info : pass.GetReadTextures(this))
   {
@@ -590,14 +590,14 @@ ezRenderGraphTextureHandle ezRenderGraph::FindTextureAccessInPass(ezUInt16 uiOri
     ++uiCurrent;
   }
 
-  ezRenderGraphTextureHandle invalid;
+  WRenderGraphTextureHandle invalid;
   invalid.Invalidate();
   return invalid;
 }
 
 // --- Private Compile Steps ---
 
-void ezRenderGraph::ResetInternal(RenderGraphState renderGraphState)
+void WRenderGraph::ResetInternal(RenderGraphState renderGraphState)
 {
   if (renderGraphState < RenderGraphState::BarriersCreated)
   {
@@ -674,14 +674,14 @@ void ezRenderGraph::ResetInternal(RenderGraphState renderGraphState)
 }
 
 
-ezResult ezRenderGraph::ValidateImportedResources() const
+WResult WRenderGraph::ValidateImportedResources() const
 {
   for (auto it = m_HandleToImportTexture.GetIterator(); it.IsValid(); ++it)
   {
     if (m_pDevice->GetTexture(it.Value().m_hTextureHandle) == nullptr)
     {
-      ezLog::Error("Render graph '{}': imported texture handle is no longer valid.", m_sUserName);
-      return EZ_FAILURE;
+      WLog::Error("Render graph '{}': imported texture handle is no longer valid.", m_sUserName);
+      return W_FAILURE;
     }
   }
 
@@ -689,101 +689,101 @@ ezResult ezRenderGraph::ValidateImportedResources() const
   {
     if (m_pDevice->GetBuffer(it.Value().m_hBufferHandle) == nullptr)
     {
-      ezLog::Error("Render graph '{}': imported buffer handle is no longer valid.", m_sUserName);
-      return EZ_FAILURE;
+      WLog::Error("Render graph '{}': imported buffer handle is no longer valid.", m_sUserName);
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRenderGraph::ValidateGraph()
+WResult WRenderGraph::ValidateGraph()
 {
-  EZ_PROFILE_SCOPE("ValidateGraph");
-  for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
+  W_PROFILE_SCOPE("ValidateGraph");
+  for (WUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
     const Pass& pass = m_Passes[i];
 
     // Validate texture handle indices.
-    auto validateTextureHandle = [&](ezRenderGraphTextureHandle h, const char* szContext) -> ezResult
+    auto validateTextureHandle = [&](WRenderGraphTextureHandle h, const char* szContext) -> WResult
     {
       if (h.IsInvalidated() || h.m_InternalId.m_InstanceIndex >= m_TextureCreationDescriptions.GetCount())
       {
-        ezLog::Error("Pass '{}': invalid texture handle in {}.", m_PassNames[i], szContext);
-        return EZ_FAILURE;
+        WLog::Error("Pass '{}': invalid texture handle in {}.", m_PassNames[i], szContext);
+        return W_FAILURE;
       }
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     };
 
-    auto validateBufferHandle = [&](ezRenderGraphBufferHandle h, const char* szContext) -> ezResult
+    auto validateBufferHandle = [&](WRenderGraphBufferHandle h, const char* szContext) -> WResult
     {
       if (h.IsInvalidated() || h.m_InternalId.m_InstanceIndex >= m_BufferCreationDescriptions.GetCount())
       {
-        ezLog::Error("Pass '{}': invalid buffer handle in {}.", m_PassNames[i], szContext);
-        return EZ_FAILURE;
+        WLog::Error("Pass '{}': invalid buffer handle in {}.", m_PassNames[i], szContext);
+        return W_FAILURE;
       }
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     };
 
     for (const TextureInfo& info : pass.GetReadTextures(this))
     {
-      EZ_SUCCEED_OR_RETURN(validateTextureHandle(info.m_hTexture, "ReadTexture"));
+      W_SUCCEED_OR_RETURN(validateTextureHandle(info.m_hTexture, "ReadTexture"));
     }
     for (const TextureInfo& info : pass.GetWriteTextures(this))
     {
-      EZ_SUCCEED_OR_RETURN(validateTextureHandle(info.m_hTexture, "WriteTexture"));
+      W_SUCCEED_OR_RETURN(validateTextureHandle(info.m_hTexture, "WriteTexture"));
     }
     for (const BufferInfo& info : pass.GetReadBuffers(this))
     {
-      EZ_SUCCEED_OR_RETURN(validateBufferHandle(info.m_hBuffer, "ReadBuffer"));
+      W_SUCCEED_OR_RETURN(validateBufferHandle(info.m_hBuffer, "ReadBuffer"));
     }
     for (const BufferInfo& info : pass.GetWriteBuffers(this))
     {
-      EZ_SUCCEED_OR_RETURN(validateBufferHandle(info.m_hBuffer, "WriteBuffer"));
+      W_SUCCEED_OR_RETURN(validateBufferHandle(info.m_hBuffer, "WriteBuffer"));
     }
     for (const ColorTargetInfo& info : pass.GetColorTargets(this))
     {
-      EZ_SUCCEED_OR_RETURN(validateTextureHandle(info.m_hTexture, "ColorTarget"));
+      W_SUCCEED_OR_RETURN(validateTextureHandle(info.m_hTexture, "ColorTarget"));
     }
     for (const DepthStencilTargetInfo& info : pass.GetDepthStencilTargets(this))
     {
-      EZ_SUCCEED_OR_RETURN(validateTextureHandle(info.m_hTexture, "DepthStencilTarget"));
+      W_SUCCEED_OR_RETURN(validateTextureHandle(info.m_hTexture, "DepthStencilTarget"));
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRenderGraph::BuildDependencyGraph()
+void WRenderGraph::BuildDependencyGraph()
 {
-  EZ_PROFILE_SCOPE("BuildDependencyGraph");
-  const ezUInt32 uiNumPasses = m_Passes.GetCount();
+  W_PROFILE_SCOPE("BuildDependencyGraph");
+  const WUInt32 uiNumPasses = m_Passes.GetCount();
 
   // Compute per-pass adjacency capacity and assign offsets into the flat storage.
   // Upper bound per pass: one dependency per resource access.
-  ezUInt32 uiTotalCapacity = 0;
-  for (ezUInt32 i = 0; i < uiNumPasses; ++i)
+  WUInt32 uiTotalCapacity = 0;
+  for (WUInt32 i = 0; i < uiNumPasses; ++i)
   {
     Pass& pass = m_Passes[i];
-    pass.m_uiAdjacencyIndex = static_cast<ezUInt16>(uiTotalCapacity);
+    pass.m_uiAdjacencyIndex = static_cast<WUInt16>(uiTotalCapacity);
     pass.m_uiAdjacencyCount = 0;
 
-    const ezUInt32 uiMaxDeps = pass.m_uiReadTextureCount + pass.m_uiReadBufferCount +
+    const WUInt32 uiMaxDeps = pass.m_uiReadTextureCount + pass.m_uiReadBufferCount +
                                pass.m_uiWriteTextureCount + pass.m_uiWriteBufferCount;
     uiTotalCapacity += uiMaxDeps;
   }
   m_AdjacencyStorage.SetCount(uiTotalCapacity);
 
   // Helper: add a dependency edge from pass to writerIdx, deduplicating.
-  auto addDependency = [this](Pass& pass, ezUInt16 passIdx, ezUInt16 writerIdx)
+  auto addDependency = [this](Pass& pass, WUInt16 passIdx, WUInt16 writerIdx)
   {
     if (writerIdx == passIdx)
       return;
 
     // Check for duplicates in the current slice.
-    const ezUInt16* pBegin = m_AdjacencyStorage.GetData() + pass.m_uiAdjacencyIndex;
-    const ezUInt16* pEnd = pBegin + pass.m_uiAdjacencyCount;
-    for (const ezUInt16* p = pBegin; p < pEnd; ++p)
+    const WUInt16* pBegin = m_AdjacencyStorage.GetData() + pass.m_uiAdjacencyIndex;
+    const WUInt16* pEnd = pBegin + pass.m_uiAdjacencyCount;
+    for (const WUInt16* p = pBegin; p < pEnd; ++p)
     {
       if (*p == writerIdx)
         return;
@@ -794,20 +794,20 @@ void ezRenderGraph::BuildDependencyGraph()
   };
 
   // We iterate passes in declaration order and track the latest writer per resource.
-  ezHashTable<ezUInt32, ezUInt16> textureLastWriter(ezFrameAllocator::GetCurrentAllocator()); // texture instance index -> pass index
+  WHashTable<WUInt32, WUInt16> textureLastWriter(WFrameAllocator::GetCurrentAllocator()); // texture instance index -> pass index
   textureLastWriter.Reserve(m_TextureCreationDescriptions.GetCount());
-  ezHashTable<ezUInt32, ezUInt16> bufferLastWriter(ezFrameAllocator::GetCurrentAllocator());
+  WHashTable<WUInt32, WUInt16> bufferLastWriter(WFrameAllocator::GetCurrentAllocator());
   bufferLastWriter.Reserve(m_BufferCreationDescriptions.GetCount());
 
-  for (ezUInt16 passIdx = 0; passIdx < uiNumPasses; ++passIdx)
+  for (WUInt16 passIdx = 0; passIdx < uiNumPasses; ++passIdx)
   {
     Pass& pass = m_Passes[passIdx];
 
     // Check reads: if this pass reads a resource that was written by an earlier pass, add a dependency.
     for (const TextureInfo& info : pass.GetReadTextures(this))
     {
-      const ezUInt32 uiTexIdx = info.m_hTexture.m_InternalId.m_InstanceIndex;
-      ezUInt16 writerIdx;
+      const WUInt32 uiTexIdx = info.m_hTexture.m_InternalId.m_InstanceIndex;
+      WUInt16 writerIdx;
       if (textureLastWriter.TryGetValue(uiTexIdx, writerIdx))
       {
         addDependency(pass, passIdx, writerIdx);
@@ -815,8 +815,8 @@ void ezRenderGraph::BuildDependencyGraph()
     }
     for (const BufferInfo& info : pass.GetReadBuffers(this))
     {
-      const ezUInt32 uiBufIdx = info.m_hBuffer.m_InternalId.m_InstanceIndex;
-      ezUInt16 writerIdx;
+      const WUInt32 uiBufIdx = info.m_hBuffer.m_InternalId.m_InstanceIndex;
+      WUInt16 writerIdx;
       if (bufferLastWriter.TryGetValue(uiBufIdx, writerIdx))
       {
         addDependency(pass, passIdx, writerIdx);
@@ -826,8 +826,8 @@ void ezRenderGraph::BuildDependencyGraph()
     // Also check write-after-write: if this pass writes a resource already written by another pass.
     for (const TextureInfo& info : pass.GetWriteTextures(this))
     {
-      const ezUInt32 uiTexIdx = info.m_hTexture.m_InternalId.m_InstanceIndex;
-      ezUInt16 writerIdx;
+      const WUInt32 uiTexIdx = info.m_hTexture.m_InternalId.m_InstanceIndex;
+      WUInt16 writerIdx;
       if (textureLastWriter.TryGetValue(uiTexIdx, writerIdx))
       {
         addDependency(pass, passIdx, writerIdx);
@@ -836,8 +836,8 @@ void ezRenderGraph::BuildDependencyGraph()
     }
     for (const BufferInfo& info : pass.GetWriteBuffers(this))
     {
-      const ezUInt32 uiBufIdx = info.m_hBuffer.m_InternalId.m_InstanceIndex;
-      ezUInt16 writerIdx;
+      const WUInt32 uiBufIdx = info.m_hBuffer.m_InternalId.m_InstanceIndex;
+      WUInt16 writerIdx;
       if (bufferLastWriter.TryGetValue(uiBufIdx, writerIdx))
       {
         addDependency(pass, passIdx, writerIdx);
@@ -849,21 +849,21 @@ void ezRenderGraph::BuildDependencyGraph()
   }
 }
 
-void ezRenderGraph::CullDeadPasses()
+void WRenderGraph::CullDeadPasses()
 {
-  EZ_PROFILE_SCOPE("CullDeadPasses");
-  const ezUInt32 uiNumPasses = m_Passes.GetCount();
+  W_PROFILE_SCOPE("CullDeadPasses");
+  const WUInt32 uiNumPasses = m_Passes.GetCount();
 
   // Start with all passes marked as dead.
   m_Alive.SetCount(uiNumPasses);
-  for (ezUInt32 i = 0; i < uiNumPasses; ++i)
+  for (WUInt32 i = 0; i < uiNumPasses; ++i)
   {
     m_Alive[i] = false;
   }
 
   // Seed the alive set with passes that have side effects or write to imported resources.
-  ezHybridArray<ezUInt16, 16, ezTempAllocatorWrapper> stack;
-  for (ezUInt16 i = 0; i < uiNumPasses; ++i)
+  WHybridArray<WUInt16, 16, WTempAllocatorWrapper> stack;
+  for (WUInt16 i = 0; i < uiNumPasses; ++i)
   {
     const Pass& pass = m_Passes[i];
     bool bIsRoot = pass.m_bHasSideEffects;
@@ -871,7 +871,7 @@ void ezRenderGraph::CullDeadPasses()
     if (!bIsRoot)
     {
       // Check if this pass writes to an imported texture.
-      for (const TextureInfo& info : pass.GetWriteTextures(const_cast<ezRenderGraph*>(this)))
+      for (const TextureInfo& info : pass.GetWriteTextures(const_cast<WRenderGraph*>(this)))
       {
         if (m_HandleToImportTexture.Contains(info.m_hTexture))
         {
@@ -882,7 +882,7 @@ void ezRenderGraph::CullDeadPasses()
     }
     if (!bIsRoot)
     {
-      for (const BufferInfo& info : pass.GetWriteBuffers(const_cast<ezRenderGraph*>(this)))
+      for (const BufferInfo& info : pass.GetWriteBuffers(const_cast<WRenderGraph*>(this)))
       {
         if (m_HandleToImportBuffer.Contains(info.m_hBuffer))
         {
@@ -902,10 +902,10 @@ void ezRenderGraph::CullDeadPasses()
   // Flood-fill backwards through dependencies.
   while (!stack.IsEmpty())
   {
-    const ezUInt16 current = stack.PeekBack();
+    const WUInt16 current = stack.PeekBack();
     stack.PopBack();
 
-    for (ezUInt16 dep : m_Passes[current].GetAdjacency(this))
+    for (WUInt16 dep : m_Passes[current].GetAdjacency(this))
     {
       if (!m_Alive[dep])
       {
@@ -916,12 +916,12 @@ void ezRenderGraph::CullDeadPasses()
   }
 }
 
-void ezRenderGraph::BuildSortedPassList()
+void WRenderGraph::BuildSortedPassList()
 {
-  EZ_PROFILE_SCOPE("BuildSortedPassList");
+  W_PROFILE_SCOPE("BuildSortedPassList");
   m_AlivePasses.Clear();
 
-  for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
     if (m_Alive[i])
     {
@@ -930,11 +930,11 @@ void ezRenderGraph::BuildSortedPassList()
   }
 }
 
-void ezRenderGraph::ComputeResourceLifetimes()
+void WRenderGraph::ComputeResourceLifetimes()
 {
-  EZ_PROFILE_SCOPE("ComputeResourceLifetimes");
-  const ezUInt32 uiNumTextures = m_TextureCreationDescriptions.GetCount();
-  const ezUInt32 uiNumBuffers = m_BufferCreationDescriptions.GetCount();
+  W_PROFILE_SCOPE("ComputeResourceLifetimes");
+  const WUInt32 uiNumTextures = m_TextureCreationDescriptions.GetCount();
+  const WUInt32 uiNumBuffers = m_BufferCreationDescriptions.GetCount();
 
 
   m_TextureFirstUse.SetCount(uiNumTextures, s_Unused);
@@ -942,32 +942,32 @@ void ezRenderGraph::ComputeResourceLifetimes()
   m_BufferFirstUse.SetCount(uiNumBuffers, s_Unused);
   m_BufferLastUse.SetCount(uiNumBuffers, s_Unused);
 
-  auto touchTexture = [&](const ezRenderGraphTextureHandle& hTexture, ezUInt16 uiSortedIndex)
+  auto touchTexture = [&](const WRenderGraphTextureHandle& hTexture, WUInt16 uiSortedIndex)
   {
     if (m_HandleToImportTexture.Contains(hTexture))
       return;
 
-    const ezUInt32 uiTexIndex = hTexture.GetInternalID().m_InstanceIndex;
+    const WUInt32 uiTexIndex = hTexture.GetInternalID().m_InstanceIndex;
     if (m_TextureFirstUse[uiTexIndex] == s_Unused)
       m_TextureFirstUse[uiTexIndex] = uiSortedIndex;
     m_TextureLastUse[uiTexIndex] = uiSortedIndex;
   };
 
-  auto touchBuffer = [&](const ezRenderGraphBufferHandle& hBuffer, ezUInt16 uiSortedIndex)
+  auto touchBuffer = [&](const WRenderGraphBufferHandle& hBuffer, WUInt16 uiSortedIndex)
   {
     if (m_HandleToImportBuffer.Contains(hBuffer))
       return;
 
-    const ezUInt32 uiBufIndex = hBuffer.GetInternalID().m_InstanceIndex;
+    const WUInt32 uiBufIndex = hBuffer.GetInternalID().m_InstanceIndex;
     if (m_BufferFirstUse[uiBufIndex] == s_Unused)
       m_BufferFirstUse[uiBufIndex] = uiSortedIndex;
     m_BufferLastUse[uiBufIndex] = uiSortedIndex;
   };
 
-  const ezUInt32 uiSortedPasses = m_AlivePasses.GetCount();
-  for (ezUInt32 sortedIdx = 0; sortedIdx < uiSortedPasses; ++sortedIdx)
+  const WUInt32 uiSortedPasses = m_AlivePasses.GetCount();
+  for (WUInt32 sortedIdx = 0; sortedIdx < uiSortedPasses; ++sortedIdx)
   {
-    const ezUInt16 passIdx = m_AlivePasses[sortedIdx].uiOriginalPassIndex;
+    const WUInt16 passIdx = m_AlivePasses[sortedIdx].uiOriginalPassIndex;
     const Pass& pass = m_Passes[passIdx];
 
     for (const TextureInfo& info : pass.GetReadTextures(this))
@@ -988,31 +988,31 @@ void ezRenderGraph::ComputeResourceLifetimes()
     }
   }
 
-  ezUInt32 uiAcquireTextureTotal = 0;
-  ezUInt32 uiAcquireBufferTotal = 0;
-  for (ezUInt32 i = 0; i < uiNumTextures; ++i)
+  WUInt32 uiAcquireTextureTotal = 0;
+  WUInt32 uiAcquireBufferTotal = 0;
+  for (WUInt32 i = 0; i < uiNumTextures; ++i)
   {
-    const ezUInt16 uiAcquireTexturePass = m_TextureFirstUse[i];
+    const WUInt16 uiAcquireTexturePass = m_TextureFirstUse[i];
     if (uiAcquireTexturePass != s_Unused)
     {
       uiAcquireTextureTotal++;
       m_AlivePasses[uiAcquireTexturePass].m_uiAcquireTextureCount++;
     }
-    const ezUInt16 uiReleaseTexturePass = m_TextureLastUse[i];
+    const WUInt16 uiReleaseTexturePass = m_TextureLastUse[i];
     if (uiReleaseTexturePass != s_Unused)
     {
       m_AlivePasses[uiReleaseTexturePass].m_uiReleaseTextureCount++;
     }
   }
-  for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
+  for (WUInt32 i = 0; i < uiNumBuffers; ++i)
   {
-    const ezUInt16 uiAcquireBufferPass = m_BufferFirstUse[i];
+    const WUInt16 uiAcquireBufferPass = m_BufferFirstUse[i];
     if (uiAcquireBufferPass != s_Unused)
     {
       uiAcquireBufferTotal++;
       m_AlivePasses[uiAcquireBufferPass].m_uiAcquireBufferCount++;
     }
-    const ezUInt16 uiReleaseBufferPass = m_BufferLastUse[i];
+    const WUInt16 uiReleaseBufferPass = m_BufferLastUse[i];
     if (uiReleaseBufferPass != s_Unused)
     {
       m_AlivePasses[uiReleaseBufferPass].m_uiReleaseBufferCount++;
@@ -1020,11 +1020,11 @@ void ezRenderGraph::ComputeResourceLifetimes()
   }
 
   // Prefix sums to get per-pass acquire / release indices.
-  ezUInt32 acquireTextureCounter = 0;
-  ezUInt32 releaseTextureCounter = 0;
-  ezUInt32 acquireBufferCounter = 0;
-  ezUInt32 releaseBufferCounter = 0;
-  for (ezUInt32 i = 0; i < uiSortedPasses; ++i)
+  WUInt32 acquireTextureCounter = 0;
+  WUInt32 releaseTextureCounter = 0;
+  WUInt32 acquireBufferCounter = 0;
+  WUInt32 releaseBufferCounter = 0;
+  for (WUInt32 i = 0; i < uiSortedPasses; ++i)
   {
     m_AlivePasses[i].m_uiAcquireTextureIndex = acquireTextureCounter;
     acquireTextureCounter += m_AlivePasses[i].m_uiAcquireTextureCount;
@@ -1050,49 +1050,49 @@ void ezRenderGraph::ComputeResourceLifetimes()
   m_ReleaseBuffers.SetCount(uiAcquireBufferTotal);
 
   // We have computed all acquire / release counts and indices. The count was reset as we now scatter write the allocations into the per-pass arrays.
-  for (ezUInt32 i = 0; i < uiNumTextures; ++i)
+  for (WUInt32 i = 0; i < uiNumTextures; ++i)
   {
-    const ezUInt16 uiAcquireTexturePass = m_TextureFirstUse[i];
+    const WUInt16 uiAcquireTexturePass = m_TextureFirstUse[i];
     if (uiAcquireTexturePass != s_Unused)
     {
-      const ezUInt16 acquireIndex = m_AlivePasses[uiAcquireTexturePass].m_uiAcquireTextureIndex + m_AlivePasses[uiAcquireTexturePass].m_uiAcquireTextureCount;
+      const WUInt16 acquireIndex = m_AlivePasses[uiAcquireTexturePass].m_uiAcquireTextureIndex + m_AlivePasses[uiAcquireTexturePass].m_uiAcquireTextureCount;
       m_AcquireTextures[acquireIndex] = i;
       m_AlivePasses[uiAcquireTexturePass].m_uiAcquireTextureCount++;
     }
-    const ezUInt16 uiReleaseTexturePass = m_TextureLastUse[i];
+    const WUInt16 uiReleaseTexturePass = m_TextureLastUse[i];
     if (uiReleaseTexturePass != s_Unused)
     {
-      const ezUInt16 releaseIndex = m_AlivePasses[uiReleaseTexturePass].m_uiReleaseTextureIndex + m_AlivePasses[uiReleaseTexturePass].m_uiReleaseTextureCount;
+      const WUInt16 releaseIndex = m_AlivePasses[uiReleaseTexturePass].m_uiReleaseTextureIndex + m_AlivePasses[uiReleaseTexturePass].m_uiReleaseTextureCount;
       m_ReleaseTextures[releaseIndex] = i;
       m_AlivePasses[uiReleaseTexturePass].m_uiReleaseTextureCount++;
     }
   }
 
-  for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
+  for (WUInt32 i = 0; i < uiNumBuffers; ++i)
   {
-    const ezUInt16 uiAcquireBufferPass = m_BufferFirstUse[i];
+    const WUInt16 uiAcquireBufferPass = m_BufferFirstUse[i];
     if (uiAcquireBufferPass != s_Unused)
     {
-      const ezUInt16 acquireIndex = m_AlivePasses[uiAcquireBufferPass].m_uiAcquireBufferIndex + m_AlivePasses[uiAcquireBufferPass].m_uiAcquireBufferCount;
+      const WUInt16 acquireIndex = m_AlivePasses[uiAcquireBufferPass].m_uiAcquireBufferIndex + m_AlivePasses[uiAcquireBufferPass].m_uiAcquireBufferCount;
       m_AcquireBuffers[acquireIndex] = i;
       m_AlivePasses[uiAcquireBufferPass].m_uiAcquireBufferCount++;
     }
-    const ezUInt16 uiReleaseBufferPass = m_BufferLastUse[i];
+    const WUInt16 uiReleaseBufferPass = m_BufferLastUse[i];
     if (uiReleaseBufferPass != s_Unused)
     {
-      const ezUInt16 releaseIndex = m_AlivePasses[uiReleaseBufferPass].m_uiReleaseBufferIndex + m_AlivePasses[uiReleaseBufferPass].m_uiReleaseBufferCount;
+      const WUInt16 releaseIndex = m_AlivePasses[uiReleaseBufferPass].m_uiReleaseBufferIndex + m_AlivePasses[uiReleaseBufferPass].m_uiReleaseBufferCount;
       m_ReleaseBuffers[releaseIndex] = i;
       m_AlivePasses[uiReleaseBufferPass].m_uiReleaseBufferCount++;
     }
   }
 }
 
-void ezRenderGraph::AllocateTransientResources()
+void WRenderGraph::AllocateTransientResources()
 {
-  EZ_PROFILE_SCOPE("AllocateTransientResources");
+  W_PROFILE_SCOPE("AllocateTransientResources");
 
-  const ezUInt32 uiNumTextures = m_TextureCreationDescriptions.GetCount();
-  const ezUInt32 uiNumBuffers = m_BufferCreationDescriptions.GetCount();
+  const WUInt32 uiNumTextures = m_TextureCreationDescriptions.GetCount();
+  const WUInt32 uiNumBuffers = m_BufferCreationDescriptions.GetCount();
 
   m_TextureToResolvedTexture.SetCount(uiNumTextures, s_Unused);
   m_BufferToResolvedBuffer.SetCount(uiNumBuffers, s_Unused);
@@ -1112,20 +1112,20 @@ void ezRenderGraph::AllocateTransientResources()
   }
 
   // Go through all intermediate passes and allocate / release transient resources.
-  ezHashTable<ezGALTextureHandle, ezUInt16> TextureToResolvedTextureIndex(ezFrameAllocator::GetCurrentAllocator());
+  WHashTable<WGALTextureHandle, WUInt16> TextureToResolvedTextureIndex(WFrameAllocator::GetCurrentAllocator());
   TextureToResolvedTextureIndex.Reserve(uiNumTextures);
-  ezHashTable<ezGALBufferHandle, ezUInt16> BufferToResolvedBufferIndex(ezFrameAllocator::GetCurrentAllocator());
+  WHashTable<WGALBufferHandle, WUInt16> BufferToResolvedBufferIndex(WFrameAllocator::GetCurrentAllocator());
   BufferToResolvedBufferIndex.Reserve(uiNumBuffers);
-  // By calling Acquire / Release in chronological order the ezRenderGraphResourceAllocator can alias resources that don't overlap by giving out the same resource multiple times.
-  for (ezUInt32 sortedIdx = 0; sortedIdx < m_AlivePasses.GetCount(); ++sortedIdx)
+  // By calling Acquire / Release in chronological order the WRenderGraphResourceAllocator can alias resources that don't overlap by giving out the same resource multiple times.
+  for (WUInt32 sortedIdx = 0; sortedIdx < m_AlivePasses.GetCount(); ++sortedIdx)
   {
     const IntermediatePass& pass = m_AlivePasses[sortedIdx];
-    ezArrayPtr<const ezUInt16> acquireTextures = pass.GetAcquireTextures(this);
-    for (ezUInt16 uiTextureIndex : acquireTextures)
+    WArrayPtr<const WUInt16> acquireTextures = pass.GetAcquireTextures(this);
+    for (WUInt16 uiTextureIndex : acquireTextures)
     {
-      ezGALTextureHandle hTexture = m_pAllocator->AcquireTexture(m_TextureCreationDescriptions[uiTextureIndex]);
+      WGALTextureHandle hTexture = m_pAllocator->AcquireTexture(m_TextureCreationDescriptions[uiTextureIndex]);
       bool bExisted = false;
-      ezUInt16& uiResolvedTextureIndex = TextureToResolvedTextureIndex.FindOrAdd(hTexture, &bExisted);
+      WUInt16& uiResolvedTextureIndex = TextureToResolvedTextureIndex.FindOrAdd(hTexture, &bExisted);
       if (!bExisted)
       {
         uiResolvedTextureIndex = m_ResolvedTextures.GetCount();
@@ -1134,19 +1134,19 @@ void ezRenderGraph::AllocateTransientResources()
       m_TextureToResolvedTexture[uiTextureIndex] = uiResolvedTextureIndex;
     }
 
-    ezArrayPtr<const ezUInt16> releaseTextures = pass.GetReleaseTextures(this);
-    for (ezUInt16 uiTextureIndex : releaseTextures)
+    WArrayPtr<const WUInt16> releaseTextures = pass.GetReleaseTextures(this);
+    for (WUInt16 uiTextureIndex : releaseTextures)
     {
-      const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[uiTextureIndex];
+      const WUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[uiTextureIndex];
       m_pAllocator->ReleaseTexture(m_ResolvedTextures[uiResolvedTextureIndex]);
     }
 
-    ezArrayPtr<const ezUInt16> acquireBuffers = pass.GetAcquireBuffers(this);
-    for (ezUInt16 uiBufferIndex : acquireBuffers)
+    WArrayPtr<const WUInt16> acquireBuffers = pass.GetAcquireBuffers(this);
+    for (WUInt16 uiBufferIndex : acquireBuffers)
     {
-      ezGALBufferHandle hBuffer = m_pAllocator->AcquireBuffer(m_BufferCreationDescriptions[uiBufferIndex]);
+      WGALBufferHandle hBuffer = m_pAllocator->AcquireBuffer(m_BufferCreationDescriptions[uiBufferIndex]);
       bool bExisted = false;
-      ezUInt16& uiResolvedBufferIndex = BufferToResolvedBufferIndex.FindOrAdd(hBuffer, &bExisted);
+      WUInt16& uiResolvedBufferIndex = BufferToResolvedBufferIndex.FindOrAdd(hBuffer, &bExisted);
       if (!bExisted)
       {
         uiResolvedBufferIndex = m_ResolvedBuffers.GetCount();
@@ -1155,23 +1155,23 @@ void ezRenderGraph::AllocateTransientResources()
       m_BufferToResolvedBuffer[uiBufferIndex] = uiResolvedBufferIndex;
     }
 
-    ezArrayPtr<const ezUInt16> releaseBuffers = pass.GetReleaseBuffers(this);
-    for (ezUInt16 uiBufferIndex : releaseBuffers)
+    WArrayPtr<const WUInt16> releaseBuffers = pass.GetReleaseBuffers(this);
+    for (WUInt16 uiBufferIndex : releaseBuffers)
     {
-      const ezUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[uiBufferIndex];
+      const WUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[uiBufferIndex];
       m_pAllocator->ReleaseBuffer(m_ResolvedBuffers[uiResolvedBufferIndex]);
     }
   }
 }
 
-void ezRenderGraph::BuildRenderingSetups()
+void WRenderGraph::BuildRenderingSetups()
 {
-  EZ_PROFILE_SCOPE("BuildRenderingSetups");
+  W_PROFILE_SCOPE("BuildRenderingSetups");
   m_CompiledPasses.SetCount(m_AlivePasses.GetCount());
 
-  for (ezUInt32 sortedIdx = 0; sortedIdx < m_AlivePasses.GetCount(); ++sortedIdx)
+  for (WUInt32 sortedIdx = 0; sortedIdx < m_AlivePasses.GetCount(); ++sortedIdx)
   {
-    const ezUInt16 passIdx = m_AlivePasses[sortedIdx].uiOriginalPassIndex;
+    const WUInt16 passIdx = m_AlivePasses[sortedIdx].uiOriginalPassIndex;
     const Pass& pass = m_Passes[passIdx];
     CompiledPass& compiled = m_CompiledPasses[sortedIdx];
     compiled.m_uiOriginalPassIndex = passIdx;
@@ -1182,17 +1182,17 @@ void ezRenderGraph::BuildRenderingSetups()
     if (colorTargets.IsEmpty() && depthTargets.IsEmpty())
       continue;
 
-    ezGALRenderingSetup& setup = compiled.m_RenderingSetup;
+    WGALRenderingSetup& setup = compiled.m_RenderingSetup;
 
     // Color targets.
-    for (ezUInt8 i = 0; i < colorTargets.GetCount(); ++i)
+    for (WUInt8 i = 0; i < colorTargets.GetCount(); ++i)
     {
       const ColorTargetInfo& ct = colorTargets[i];
-      const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[ct.m_hTexture.m_InternalId.m_InstanceIndex];
-      const ezGALTextureHandle hGAL = m_ResolvedTextures[uiResolvedTextureIndex];
+      const WUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[ct.m_hTexture.m_InternalId.m_InstanceIndex];
+      const WGALTextureHandle hGAL = m_ResolvedTextures[uiResolvedTextureIndex];
       auto pTexture = m_pDevice->GetTexture(hGAL);
 
-      ezGALRenderTargetViewCreationDescription rtvDesc;
+      WGALRenderTargetViewCreationDescription rtvDesc;
       rtvDesc.m_hTexture = hGAL;
       rtvDesc.m_uiMipLevel = ct.m_range.m_uiBaseMipLevel;
       rtvDesc.m_uiFirstSlice = ct.m_range.m_uiBaseArraySlice;
@@ -1200,8 +1200,8 @@ void ezRenderGraph::BuildRenderingSetups()
       rtvDesc.m_OverrideViewFormat = ct.m_overrideViewFormat;
       rtvDesc.m_OverrideViewType = ct.m_overrideViewType;
 
-      ezGALRenderTargetViewHandle hRTV = m_pDevice->GetRenderTargetView(rtvDesc);
-      if (pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DProxy)
+      WGALRenderTargetViewHandle hRTV = m_pDevice->GetRenderTargetView(rtvDesc);
+      if (pTexture->GetDescription().m_Type == WGALTextureType::Texture2DProxy)
       {
         hRTV = m_pDevice->GetDefaultRenderTargetView(hGAL);
       }
@@ -1212,7 +1212,7 @@ void ezRenderGraph::BuildRenderingSetups()
 
     // Apply clear colors.
     const auto clearColors = pass.GetClearColors(this);
-    for (ezUInt8 i = 0; i < clearColors.GetCount(); ++i)
+    for (WUInt8 i = 0; i < clearColors.GetCount(); ++i)
     {
       setup.SetClearColor(i, clearColors[i]);
     }
@@ -1221,17 +1221,17 @@ void ezRenderGraph::BuildRenderingSetups()
     if (!depthTargets.IsEmpty())
     {
       const DepthStencilTargetInfo& ds = depthTargets[0];
-      const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[ds.m_hTexture.m_InternalId.m_InstanceIndex];
-      const ezGALTextureHandle hGAL = m_ResolvedTextures[uiResolvedTextureIndex];
+      const WUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[ds.m_hTexture.m_InternalId.m_InstanceIndex];
+      const WGALTextureHandle hGAL = m_ResolvedTextures[uiResolvedTextureIndex];
 
-      ezGALRenderTargetViewCreationDescription rtvDesc;
+      WGALRenderTargetViewCreationDescription rtvDesc;
       rtvDesc.m_hTexture = hGAL;
       rtvDesc.m_uiMipLevel = ds.m_range.m_uiBaseMipLevel;
       rtvDesc.m_uiFirstSlice = ds.m_range.m_uiBaseArraySlice;
       rtvDesc.m_uiSliceCount = ds.m_range.m_uiArraySlices;
       rtvDesc.m_bReadOnly = ds.m_bReadOnly;
 
-      ezGALRenderTargetViewHandle hDSV = m_pDevice->GetRenderTargetView(rtvDesc);
+      WGALRenderTargetViewHandle hDSV = m_pDevice->GetRenderTargetView(rtvDesc);
       setup.SetDepthStencilTarget(hDSV, ds.m_depthLoadOp, ds.m_depthStoreOp, ds.m_stencilLoadOp, ds.m_stencilStoreOp);
 
       // Apply clear depth/stencil.
@@ -1245,14 +1245,14 @@ void ezRenderGraph::BuildRenderingSetups()
   }
 }
 
-void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezArrayPtr<ezRenderGraphPassObserver*> observers)
+void WRenderGraph::ComputeBarriers(WGALResourceStateTracker& ref_tracker, WArrayPtr<WRenderGraphPassObserver*> observers)
 {
-  EZ_PROFILE_SCOPE("ComputeBarriers");
-  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Compiled, "ComputeBarriers must be called after Compile succeeded");
+  W_PROFILE_SCOPE("ComputeBarriers");
+  W_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Compiled, "ComputeBarriers must be called after Compile succeeded");
 
-  for (ezUInt32 sortedIdx = 0; sortedIdx < m_AlivePasses.GetCount(); ++sortedIdx)
+  for (WUInt32 sortedIdx = 0; sortedIdx < m_AlivePasses.GetCount(); ++sortedIdx)
   {
-    const ezUInt16 passIdx = m_AlivePasses[sortedIdx].uiOriginalPassIndex;
+    const WUInt16 passIdx = m_AlivePasses[sortedIdx].uiOriginalPassIndex;
     const Pass& pass = m_Passes[passIdx];
     CompiledPass& compiled = m_CompiledPasses[sortedIdx];
 
@@ -1263,9 +1263,9 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
       // Add barriers for imported resources that have explicitly set a resource state.
       for (auto it : m_HandleToImportTexture)
       {
-        if (it.Value().m_access != ezGALResourceState::Unknown)
+        if (it.Value().m_access != WGALResourceState::Unknown)
         {
-          ref_tracker.ChangeState(it.Value().m_hTextureHandle, {}, it.Value().m_access, it.Value().m_stage, [&](const ezGALTextureBarrier& barrier)
+          ref_tracker.ChangeState(it.Value().m_hTextureHandle, {}, it.Value().m_access, it.Value().m_stage, [&](const WGALTextureBarrier& barrier)
             {
               m_CompiledTextureBarriers.PushBack(barrier); //
             });
@@ -1273,9 +1273,9 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
       }
       for (auto it : m_HandleToImportBuffer)
       {
-        if (it.Value().m_access != ezGALResourceState::Unknown)
+        if (it.Value().m_access != WGALResourceState::Unknown)
         {
-          ref_tracker.ChangeState(it.Value().m_hBufferHandle, it.Value().m_access, it.Value().m_stage, [&](const ezGALBufferBarrier& barrier)
+          ref_tracker.ChangeState(it.Value().m_hBufferHandle, it.Value().m_access, it.Value().m_stage, [&](const WGALBufferBarrier& barrier)
             {
               m_CompiledBufferBarriers.PushBack(barrier); //
             });
@@ -1286,9 +1286,9 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
     auto readTextures = pass.GetReadTextures(this);
     for (const TextureInfo& info : readTextures)
     {
-      const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
-      ezGALTextureHandle hTexture = m_ResolvedTextures[uiResolvedTextureIndex];
-      ref_tracker.ChangeState(hTexture, info.m_range, info.m_access, info.m_stage, [&](const ezGALTextureBarrier& barrier)
+      const WUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
+      WGALTextureHandle hTexture = m_ResolvedTextures[uiResolvedTextureIndex];
+      ref_tracker.ChangeState(hTexture, info.m_range, info.m_access, info.m_stage, [&](const WGALTextureBarrier& barrier)
         {
           m_CompiledTextureBarriers.PushBack(barrier); //
         });
@@ -1296,9 +1296,9 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
     auto writeTextures = pass.GetWriteTextures(this);
     for (const TextureInfo& info : writeTextures)
     {
-      const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
-      ezGALTextureHandle hTexture = m_ResolvedTextures[uiResolvedTextureIndex];
-      ref_tracker.ChangeState(hTexture, info.m_range, info.m_access, info.m_stage, [&](const ezGALTextureBarrier& barrier)
+      const WUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
+      WGALTextureHandle hTexture = m_ResolvedTextures[uiResolvedTextureIndex];
+      ref_tracker.ChangeState(hTexture, info.m_range, info.m_access, info.m_stage, [&](const WGALTextureBarrier& barrier)
         {
           m_CompiledTextureBarriers.PushBack(barrier); //
         });
@@ -1308,9 +1308,9 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
     auto readBuffers = pass.GetReadBuffers(this);
     for (const BufferInfo& info : readBuffers)
     {
-      const ezUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
-      ezGALBufferHandle hBuffer = m_ResolvedBuffers[uiResolvedBufferIndex];
-      ref_tracker.ChangeState(hBuffer, info.m_access, info.m_stage, [&](const ezGALBufferBarrier& barrier)
+      const WUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
+      WGALBufferHandle hBuffer = m_ResolvedBuffers[uiResolvedBufferIndex];
+      ref_tracker.ChangeState(hBuffer, info.m_access, info.m_stage, [&](const WGALBufferBarrier& barrier)
         {
           m_CompiledBufferBarriers.PushBack(barrier); //
         });
@@ -1318,9 +1318,9 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
     auto writeBuffers = pass.GetWriteBuffers(this);
     for (const BufferInfo& info : writeBuffers)
     {
-      const ezUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
-      ezGALBufferHandle hBuffer = m_ResolvedBuffers[uiResolvedBufferIndex];
-      ref_tracker.ChangeState(hBuffer, info.m_access, info.m_stage, [&](const ezGALBufferBarrier& barrier)
+      const WUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
+      WGALBufferHandle hBuffer = m_ResolvedBuffers[uiResolvedBufferIndex];
+      ref_tracker.ChangeState(hBuffer, info.m_access, info.m_stage, [&](const WGALBufferBarrier& barrier)
         {
           m_CompiledBufferBarriers.PushBack(barrier); //
         });
@@ -1333,16 +1333,16 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
       if (pObserver->GetRequest().m_sPassName != m_PassNames[passIdx])
         continue;
 
-      const ezRenderGraphTextureHandle hSourceTex = FindTextureAccessInPass(passIdx, pObserver->GetRequest().m_uiAccessIndex);
+      const WRenderGraphTextureHandle hSourceTex = FindTextureAccessInPass(passIdx, pObserver->GetRequest().m_uiAccessIndex);
       if (hSourceTex.IsInvalidated())
         continue;
 
-      const ezUInt16 uiResolvedIdx = m_TextureToResolvedTexture[hSourceTex.m_InternalId.m_InstanceIndex];
+      const WUInt16 uiResolvedIdx = m_TextureToResolvedTexture[hSourceTex.m_InternalId.m_InstanceIndex];
       if (uiResolvedIdx == s_Unused)
         continue;
 
-      const ezGALTextureHandle hResolvedSource = m_ResolvedTextures[uiResolvedIdx];
-      const ezGALTextureCreationDescription& srcDesc = m_TextureCreationDescriptions[hSourceTex.m_InternalId.m_InstanceIndex];
+      const WGALTextureHandle hResolvedSource = m_ResolvedTextures[uiResolvedIdx];
+      const WGALTextureCreationDescription& srcDesc = m_TextureCreationDescriptions[hSourceTex.m_InternalId.m_InstanceIndex];
 
       pObserver->EnsureCopyTexture(srcDesc);
       if (pObserver->GetCopyTexture().IsInvalidated())
@@ -1354,27 +1354,27 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
 
       // Source → CopySource barrier (tracked by the state tracker so the
       // next pass's barriers will restore the correct state).
-      ref_tracker.ChangeState(hResolvedSource, {}, ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto, [&](const ezGALTextureBarrier& barrier)
+      ref_tracker.ChangeState(hResolvedSource, {}, WGALResourceState::CopySource, WGALShaderStageFlags::Auto, [&](const WGALTextureBarrier& barrier)
         { pObserver->m_PreCopyBarriers.PushBack(barrier); });
 
-      const ezGALResourceState::Enum destReadState = ezGALResourceFormat::IsDepthFormat(srcDesc.m_Format)
-                                                       ? ezGALResourceState::DepthStencilRead
-                                                       : ezGALResourceState::ShaderResource;
+      const WGALResourceState::Enum destReadState = WGALResourceFormat::IsDepthFormat(srcDesc.m_Format)
+                                                       ? WGALResourceState::DepthStencilRead
+                                                       : WGALResourceState::ShaderResource;
 
       // Destination → CopyDestination barrier (not tracked — external resource).
       {
-        ezGALTextureBarrier destBarrier;
+        WGALTextureBarrier destBarrier;
         destBarrier.m_hTexture = pObserver->GetCopyTexture();
         destBarrier.m_StateBefore = destReadState;
-        destBarrier.m_StateAfter = ezGALResourceState::CopyDestination;
+        destBarrier.m_StateAfter = WGALResourceState::CopyDestination;
         pObserver->m_PreCopyBarriers.PushBack(destBarrier);
       }
 
       // Destination → read barrier after copy.
       {
-        ezGALTextureBarrier destBarrier;
+        WGALTextureBarrier destBarrier;
         destBarrier.m_hTexture = pObserver->GetCopyTexture();
-        destBarrier.m_StateBefore = ezGALResourceState::CopyDestination;
+        destBarrier.m_StateBefore = WGALResourceState::CopyDestination;
         destBarrier.m_StateAfter = destReadState;
         pObserver->m_PostCopyBarriers.PushBack(destBarrier);
       }

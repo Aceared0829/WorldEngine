@@ -5,22 +5,22 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezSkeletonComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkeletonComponentDragDropHandler, 1, WRTTIDefaultAllocator<WSkeletonComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-float ezSkeletonComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WSkeletonComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "Skeleton") ? 1.0f : 0.0f;
 }
 
-void ezSkeletonComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WSkeletonComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezSkeletonComponent";
+  constexpr const char* szComponentType = "WSkeletonComponent";
   constexpr const char* szPropertyName = "Skeleton";
 
   if (pInfo->m_sTargetContext == "viewport")

@@ -9,28 +9,28 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezConsole;
+class WConsole;
 
-/// Which input actions the ezGameApplication may register and execute (see ezGameApplication::RegisterGameApplicationInputActions())
-struct ezGameApplicationInputFlags
+/// Which input actions the WGameApplication may register and execute (see WGameApplication::RegisterGameApplicationInputActions())
+struct WGameApplicationInputFlags
 {
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
   enum Enum
   {
     None = 0,
     All = 0xFFFFFFFF,
 
-    LoadInputConfig = EZ_BIT(0),           ///< Whether to load the project's ezGameAppInputConfig
+    LoadInputConfig = W_BIT(0),           ///< Whether to load the project's WGameAppInputConfig
 
-    Dev_EscapeToClose = EZ_BIT(8),         ///< Register the ESC key to close the application without asking
-    Dev_Console = EZ_BIT(9),               ///< Register the F1 key to open the developer console
-    Dev_ReloadResources = EZ_BIT(10),      ///< Register the F4 key to reload all resources
-    Dev_ShowStats = EZ_BIT(11),            ///< Register the F5 key to show stats on screen, such as FPS
-    Dev_CaptureProfilingInfo = EZ_BIT(12), ///< Register the F8 key to write a profiling capture to disk
-    Dev_CaptureFrame = EZ_BIT(13),         ///< Register the F11 key to make a render frame capture (if capture plugin is available)
-    Dev_Screenshot = EZ_BIT(14),           ///< Register the F12 key to save a screenshot to disk
-    Dev_OpenInspector = EZ_BIT(15),        ///< Register the F10 key to open the ezInspector application
+    Dev_EscapeToClose = W_BIT(8),         ///< Register the ESC key to close the application without asking
+    Dev_Console = W_BIT(9),               ///< Register the F1 key to open the developer console
+    Dev_ReloadResources = W_BIT(10),      ///< Register the F4 key to reload all resources
+    Dev_ShowStats = W_BIT(11),            ///< Register the F5 key to show stats on screen, such as FPS
+    Dev_CaptureProfilingInfo = W_BIT(12), ///< Register the F8 key to write a profiling capture to disk
+    Dev_CaptureFrame = W_BIT(13),         ///< Register the F11 key to make a render frame capture (if capture plugin is available)
+    Dev_Screenshot = W_BIT(14),           ///< Register the F12 key to save a screenshot to disk
+    Dev_OpenInspector = W_BIT(15),        ///< Register the F10 key to open the WInspector application
 
     Dev_All = 0xFFFFFF00,
     Regular = ~Dev_All,
@@ -54,72 +54,72 @@ struct ezGameApplicationInputFlags
   };
 };
 
-/// The base class for all typical game applications made with ezEngine
+/// The base class for all typical game applications made with WorldEngine
 ///
-/// While ezApplication is an abstraction for the operating system entry point,
-/// ezGameApplication extends this to implement startup and tear down functionality
-/// of a typical game that uses the standard functionality of ezEngine.
+/// While WApplication is an abstraction for the operating system entry point,
+/// WGameApplication extends this to implement startup and tear down functionality
+/// of a typical game that uses the standard functionality of WorldEngine.
 ///
-/// ezGameApplication implements a lot of functionality needed by most games,
+/// WGameApplication implements a lot of functionality needed by most games,
 /// such as setting up data directories, loading plugins, configuring the input system, etc.
 ///
 /// For every such step a virtual function is called, allowing to override steps in custom applications.
 ///
 /// The default implementation tries to do as much of this in a data-driven way. E.g. plugin and data
-/// directory configurations are read from DDL files. These can be configured by hand or using ezEditor.
+/// directory configurations are read from DDL files. These can be configured by hand or using WEditor.
 ///
-/// You are NOT supposed to implement game functionality by deriving from ezGameApplication.
-/// Instead see ezGameState.
+/// You are NOT supposed to implement game functionality by deriving from WGameApplication.
+/// Instead see WGameState.
 ///
-/// ezGameApplication will create exactly one ezGameState by looping over all available ezGameState types
+/// WGameApplication will create exactly one WGameState by looping over all available WGameState types
 /// (through reflection) and picking the one that's not marked as a "fallback" gamestate.
 /// If none is found, it uses the fallback gamestate instead.
 /// That game state will live throughout the entire application life-time and will be stepped every frame.
-class EZ_GAMEENGINE_DLL ezGameApplication : public ezGameApplicationBase
+class W_GAMEENGINE_DLL WGameApplication : public WGameApplicationBase
 {
 public:
-  static ezCVarBool cvar_AppVSync;
-  static ezCVarBool cvar_AppShowFPS;
-  static ezCVarBool cvar_WorldShowObjectOrigins;
+  static WCVarBool cvar_AppVSync;
+  static WCVarBool cvar_AppShowFPS;
+  static WCVarBool cvar_WorldShowObjectOrigins;
 
 public:
-  using SUPER = ezGameApplicationBase;
+  using SUPER = WGameApplicationBase;
 
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
-  ezGameApplication(const char* szAppName, const char* szProjectPath);
-  ~ezGameApplication();
+  WGameApplication(const char* szAppName, const char* szProjectPath);
+  ~WGameApplication();
 
-  /// Returns the ezGameApplication singleton
-  static ezGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
+  /// Returns the WGameApplication singleton
+  static WGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
 
   /// Returns the active renderer of the current app. Either the default or overridden via -render command line flag.
-  static ezStringView GetActiveRenderer();
+  static WStringView GetActiveRenderer();
 
   /// When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.
-  static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
+  static void SetOverrideDefaultDeviceCreator(WDelegate<WGALDevice*(const WGALDeviceCreationDescription&)> creator);
 
-  /// Implementation of ezGameApplicationBase::FindProjectDirectory to define the 'project' special data directory.
+  /// Implementation of WGameApplicationBase::FindProjectDirectory to define the 'project' special data directory.
   ///
   /// The default implementation will try to resolve m_sAppProjectPath to an absolute path. m_sAppProjectPath can be absolute itself,
-  /// relative to ">sdk/" or relative to ezOSFile::GetApplicationDirectory().
-  /// m_sAppProjectPath must be set either via the ezGameApplication constructor or manually set before project.
+  /// relative to ">sdk/" or relative to WOSFile::GetApplicationDirectory().
+  /// m_sAppProjectPath must be set either via the WGameApplication constructor or manually set before project.
   ///
-  /// Alternatively, ezGameApplication::FindProjectDirectory() must be overwritten.
-  virtual ezString FindProjectDirectory() const override;
+  /// Alternatively, WGameApplication::FindProjectDirectory() must be overwritten.
+  virtual WString FindProjectDirectory() const override;
 
   /// Returns the project path that was given to the constructor (or modified by an overridden implementation).
-  ezStringView GetAppProjectPath() const { return m_sAppProjectPath; }
+  WStringView GetAppProjectPath() const { return m_sAppProjectPath; }
 
-  /// Call this to configure which actions the ezGameApplication may handle
+  /// Call this to configure which actions the WGameApplication may handle
   ///
   /// Apart from loading the input configuration from disk, this mostly sets up developer options.
-  /// The function is typically called by ezGameState::ConfigureInputActions().
+  /// The function is typically called by WGameState::ConfigureInputActions().
   /// Once you need full control over the keyboard bindings, you should write your own game state
-  /// and override ezGameState::ConfigureInputActions() to not register all the developer options.
-  void RegisterGameApplicationInputActions(ezBitflags<ezGameApplicationInputFlags> flags);
+  /// and override WGameState::ConfigureInputActions() to not register all the developer options.
+  void RegisterGameApplicationInputActions(WBitflags<WGameApplicationInputFlags> flags);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   /// Whether the application was started with any of the unattended command line options.
   ///
   /// Unattended mode is what makes an application usable as a smoke test from a script: it quits on its own
@@ -135,10 +135,10 @@ public:
   virtual void Run() override;
 
 protected:
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;
-  virtual void StoreScreenshot(ezImage&& image, ezStringView sContext = {}) override;
+  virtual void StoreScreenshot(WImage&& image, WStringView sContext = {}) override;
 
   virtual void Init_ConfigureAssetManagement() override;
   virtual void Init_LoadRequiredPlugins() override;
@@ -146,7 +146,7 @@ protected:
   virtual void Init_SetupGraphicsDevice() override;
   virtual void Deinit_ShutdownGraphicsDevice() override;
 
-  virtual ezGameUpdateMode GetGameUpdateMode() const override;
+  virtual WGameUpdateMode GetGameUpdateMode() const override;
 
   virtual bool Run_ProcessApplicationInput() override;
   virtual void Run_AcquireImage() override;
@@ -155,25 +155,25 @@ protected:
   virtual void Run_FinishFrame() override;
 
   /// Stores what is given to the constructor
-  ezString m_sAppProjectPath;
+  WString m_sAppProjectPath;
 
 protected:
-  static ezGameApplication* s_pGameApplicationInstance;
+  static WGameApplication* s_pGameApplicationInstance;
 
-  void RenderWorldDebugInfos(const ezWorld& world);
+  void RenderWorldDebugInfos(const WWorld& world);
   void RenderFps();
   void RenderConsole();
   void OpenInspector();
 
   void UpdateWorldsAndExtractViews();
-  ezSharedPtr<ezDelegateTask<void>> m_pUpdateTask;
+  WSharedPtr<WDelegateTask<void>> m_pUpdateTask;
 
-  static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
+  static WDelegate<WGALDevice*(const WGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
 
   bool m_bShowConsole = false;
-  ezUniquePtr<ezConsole> m_pConsole;
+  WUniquePtr<WConsole> m_pConsole;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 protected:
   /// Reads the unattended options and starts writing the log file. Called before anything else may log.
   void Unattended_Setup();
@@ -195,28 +195,28 @@ protected:
 
   /// Writes the image to the path given with '-screenshot'. Returns false if no path was given.
   ///
-  /// The file is written synchronously and through ezOSFile, so that it is guaranteed to exist when the
+  /// The file is written synchronously and through WOSFile, so that it is guaranteed to exist when the
   /// process exits, and so that the path does not have to be inside a writable data directory.
-  bool Unattended_StoreScreenshot(ezImage& ref_image);
+  bool Unattended_StoreScreenshot(WImage& ref_image);
 
-  void Unattended_OnExecutionEvent(const ezGameApplicationExecutionEvent& e);
-  void Unattended_OnLogEvent(const ezLoggingEventData& e);
+  void Unattended_OnExecutionEvent(const WGameApplicationExecutionEvent& e);
+  void Unattended_OnLogEvent(const WLoggingEventData& e);
 
   bool m_bUnattended = false;
   bool m_bFailOnError = false;
   bool m_bScreenshotRequested = false;
   bool m_bScreenshotDone = false;
-  ezInt32 m_iRunFrames = -1;  ///< negative = run until the application is quit normally
-  ezInt32 m_iRandomSeed = -1; ///< negative = don't touch the random number generators
-  ezTime m_UnattendedTimeout; ///< zero = disabled
-  ezTime m_UnattendedStartTime;
-  ezTime m_FixedTimeStep;     ///< zero = use the real elapsed time
-  ezString m_sScreenshotPath; ///< empty = don't take one
-  ezUInt32 m_uiRenderedFrames = 0;
-  ezAtomicInteger32 m_iLoggedErrors;
-  ezLogWriter::TextFile m_UnattendedLogFile;
-  ezEventSubscriptionID m_UnattendedExecutionEventsID = 0;
-  ezEventSubscriptionID m_UnattendedLogToFileID = 0;
-  ezEventSubscriptionID m_UnattendedLogErrorCounterID = 0;
+  WInt32 m_iRunFrames = -1;  ///< negative = run until the application is quit normally
+  WInt32 m_iRandomSeed = -1; ///< negative = don't touch the random number generators
+  WTime m_UnattendedTimeout; ///< zero = disabled
+  WTime m_UnattendedStartTime;
+  WTime m_FixedTimeStep;     ///< zero = use the real elapsed time
+  WString m_sScreenshotPath; ///< empty = don't take one
+  WUInt32 m_uiRenderedFrames = 0;
+  WAtomicInteger32 m_iLoggedErrors;
+  WLogWriter::TextFile m_UnattendedLogFile;
+  WEventSubscriptionID m_UnattendedExecutionEventsID = 0;
+  WEventSubscriptionID m_UnattendedLogToFileID = 0;
+  WEventSubscriptionID m_UnattendedLogErrorCounterID = 0;
 #endif
 };

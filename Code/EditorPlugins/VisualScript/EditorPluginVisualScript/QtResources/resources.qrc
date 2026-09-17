@@ -10,7 +10,7 @@
     <file>Icons/VariableCategoryMap.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-	<file>ezScriptComponent.svg</file>
+	<file>WScriptComponent.svg</file>
   </qresource>
 </RCC>
 

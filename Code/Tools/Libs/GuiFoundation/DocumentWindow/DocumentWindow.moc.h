@@ -10,13 +10,13 @@
 #include <QMainWindow>
 #include <ads/DockManager.h>
 
-class ezQtContainerWindow;
-class ezDocument;
-class ezQtDocumentWindow;
+class WQtContainerWindow;
+class WDocument;
+class WQtDocumentWindow;
 class QLabel;
 class QToolButton;
 
-struct ezQtDocumentWindowEvent
+struct WQtDocumentWindowEvent
 {
   enum Type
   {
@@ -27,57 +27,57 @@ struct ezQtDocumentWindowEvent
   };
 
   Type m_Type;
-  ezQtDocumentWindow* m_pWindow = nullptr;
+  WQtDocumentWindow* m_pWindow = nullptr;
 };
 
 /// Base class for all document windows. Handles the most basic document window management.
-class EZ_GUIFOUNDATION_DLL ezQtDocumentWindow : public QMainWindow
+class W_GUIFOUNDATION_DLL WQtDocumentWindow : public QMainWindow
 {
   Q_OBJECT
 
 public:
-  static ezEvent<const ezQtDocumentWindowEvent&> s_Events;
+  static WEvent<const WQtDocumentWindowEvent&> s_Events;
 
 public:
-  ezQtDocumentWindow(ezDocument* pDocument);
-  ezQtDocumentWindow(const char* szUniqueName);
-  virtual ~ezQtDocumentWindow();
+  WQtDocumentWindow(WDocument* pDocument);
+  WQtDocumentWindow(const char* szUniqueName);
+  virtual ~WQtDocumentWindow();
 
   ads::CDockManager* m_pDockManager = nullptr;
 
   void EnsureVisible();
 
-  virtual ezString GetWindowIcon() const;
-  virtual ezString GetDisplayName() const { return GetUniqueName(); }
-  virtual ezString GetDisplayNameShort() const;
+  virtual WString GetWindowIcon() const;
+  virtual WString GetDisplayName() const { return GetUniqueName(); }
+  virtual WString GetDisplayNameShort() const;
 
   const char* GetUniqueName() const { return m_sUniqueName; }
 
-  ezDocument* GetDocument() const { return m_pDocument; }
+  WDocument* GetDocument() const { return m_pDocument; }
 
-  ezStatus SaveDocument();
+  WStatus SaveDocument();
 
   bool CanCloseWindow();
   void CloseDocumentWindow();
 
   bool IsVisibleInContainer() const { return m_bIsVisibleInContainer; }
-  void SetTargetFramerate(ezInt16 iTargetFPS);
+  void SetTargetFramerate(WInt16 iTargetFPS);
 
   void TriggerRedraw();
 
   virtual void RequestWindowTabContextMenu(const QPoint& globalPos);
 
-  static const ezDynamicArray<ezQtDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
+  static const WDynamicArray<WQtDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
 
   /// Returns the document window for the given document, if there is any. nullptr otherwise.
-  static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
-  ezQtContainerWindow* GetContainerWindow() const;
+  static WQtDocumentWindow* FindWindowByDocument(const WDocument* pDocument);
+  WQtContainerWindow* GetContainerWindow() const;
 
   /// Shows the given message for the given duration in the statusbar, then shows the permanent message again.
-  void ShowTemporaryStatusBarMsg(const ezFormatString& text, ezTime duration = ezTime::MakeFromSeconds(5));
+  void ShowTemporaryStatusBarMsg(const WFormatString& text, WTime duration = WTime::MakeFromSeconds(5));
 
   /// Sets which text to show permanently in the statusbar. Set an empty string to clear the message.
-  void SetPermanentStatusBarMsg(const ezFormatString& text);
+  void SetPermanentStatusBarMsg(const WFormatString& text);
 
   /// For unit tests to take a screenshot of the window (may include multiple views) to do image comparisons.
   virtual void CreateImageCapture(const char* szOutputPath);
@@ -107,26 +107,26 @@ private:
   void ShutdownDocumentWindow();
 
 private:
-  friend class ezQtContainerWindow;
+  friend class WQtContainerWindow;
 
   void SetVisibleInContainer(bool bVisible);
   bool m_bIsVisibleInContainer = false;
   bool m_bRedrawIsTriggered = false;
   bool m_bIsDrawingATM = false;
   bool m_bTriggerRedrawQueued = false;
-  ezInt16 m_iTargetFramerate = 0;
-  ezDocument* m_pDocument = nullptr;
-  ezQtContainerWindow* m_pContainerWindow = nullptr;
+  WInt16 m_iTargetFramerate = 0;
+  WDocument* m_pDocument = nullptr;
+  WQtContainerWindow* m_pContainerWindow = nullptr;
   QLabel* m_pPermanentDocumentStatusText = nullptr;
   QToolButton* m_pPermanentGlobalStatusButton = nullptr;
   QByteArray m_InitialDocumentLayoutState;
 
 private:
   void Constructor();
-  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
-  void DocumentEventHandler(const ezDocumentEvent& e);
-  void UIServicesEventHandler(const ezQtUiServices::Event& e);
-  void UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e);
+  void DocumentManagerEventHandler(const WDocumentManager::Event& e);
+  void DocumentEventHandler(const WDocumentEvent& e);
+  void UIServicesEventHandler(const WQtUiServices::Event& e);
+  void UIServicesTickEventHandler(const WQtUiServices::TickEvent& e);
 
   virtual void InternalDeleteThis() { delete this; }
   virtual bool InternalCanCloseWindow();
@@ -134,7 +134,7 @@ private:
   virtual void InternalVisibleInContainerChanged(bool bVisible) {}
   virtual void InternalRedraw() {}
 
-  ezString m_sUniqueName;
+  WString m_sUniqueName;
 
-  static ezDynamicArray<ezQtDocumentWindow*> s_AllDocumentWindows;
+  static WDynamicArray<WQtDocumentWindow*> s_AllDocumentWindows;
 };

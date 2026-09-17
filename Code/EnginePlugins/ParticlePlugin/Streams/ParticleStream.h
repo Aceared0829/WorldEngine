@@ -6,31 +6,31 @@
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezParticleStream;
-class ezParticleSystemInstance;
+class WParticleStream;
+class WParticleSystemInstance;
 
 /// Base class for all particle stream factories
 ///
 /// Stream factories are responsible for creating and configuring particle streams.
 /// Each factory specifies the stream name, data type, and the actual stream class to instantiate.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory : public ezReflectedClass
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory, WReflectedClass);
 
 public:
-  ezParticleStreamFactory(const char* szStreamName, ezProcessingStream::DataType dataType, const ezRTTI* pStreamTypeToCreate);
+  WParticleStreamFactory(const char* szStreamName, WProcessingStream::DataType dataType, const WRTTI* pStreamTypeToCreate);
 
-  const ezRTTI* GetParticleStreamType() const;
-  ezProcessingStream::DataType GetStreamDataType() const;
+  const WRTTI* GetParticleStreamType() const;
+  WProcessingStream::DataType GetStreamDataType() const;
   const char* GetStreamName() const;
 
   /// Creates and initializes a new particle stream instance for the given particle system.
-  ezParticleStream* CreateParticleStream(ezParticleSystemInstance* pOwner) const;
+  WParticleStream* CreateParticleStream(WParticleSystemInstance* pOwner) const;
 
 private:
   const char* m_szStreamName = nullptr;
-  ezProcessingStream::DataType m_DataType = ezProcessingStream::DataType::Float;
-  const ezRTTI* m_pStreamTypeToCreate = nullptr;
+  WProcessingStream::DataType m_DataType = WProcessingStream::DataType::Float;
+  const WRTTI* m_pStreamTypeToCreate = nullptr;
 };
 
 /// Base class for all particle streams
@@ -38,32 +38,32 @@ private:
 /// Particle streams store per-particle data like position, velocity, color, or size.
 /// Each stream type provides initialization logic for new particles.
 /// Streams run with high priority (-1000) to ensure they initialize data before other processors.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream : public ezProcessingStreamProcessor
+class W_PARTICLEPLUGIN_DLL WParticleStream : public WProcessingStreamProcessor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream, ezProcessingStreamProcessor);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStream, WProcessingStreamProcessor);
 
-  friend class ezParticleSystemInstance;
-  friend class ezParticleStreamFactory;
+  friend class WParticleSystemInstance;
+  friend class WParticleStreamFactory;
 
 protected:
-  ezParticleStream();
+  WParticleStream();
 
   /// Called once during stream creation to set up any necessary references or state.
-  virtual void Initialize(ezParticleSystemInstance* pOwner) {}
+  virtual void Initialize(WParticleSystemInstance* pOwner) {}
 
-  virtual ezResult UpdateStreamBindings() final override;
+  virtual WResult UpdateStreamBindings() final override;
 
   /// Particle streams do not process existing elements, they only initialize new ones.
-  virtual void Process(ezUInt64 uiNumElements) final override {}
+  virtual void Process(WUInt64 uiNumElements) final override {}
 
   /// The default implementation initializes all data with zero.
   ///
   /// Override this to provide custom initialization for new particles.
   /// The implementation should initialize elements in the range [uiStartIndex, uiStartIndex + uiNumElements).
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStream; ///< The underlying data stream managed by this particle stream
+  WProcessingStream* m_pStream; ///< The underlying data stream managed by this particle stream
 
 private:
-  ezParticleStreamBinding m_StreamBinding;
+  WParticleStreamBinding m_StreamBinding;
 };

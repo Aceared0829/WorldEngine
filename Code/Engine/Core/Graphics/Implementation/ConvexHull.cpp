@@ -7,38 +7,38 @@
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/Plane.h>
 
-ezConvexHullGenerator::ezConvexHullGenerator() = default;
-ezConvexHullGenerator::~ezConvexHullGenerator() = default;
+WConvexHullGenerator::WConvexHullGenerator() = default;
+WConvexHullGenerator::~WConvexHullGenerator() = default;
 
-ezResult ezConvexHullGenerator::ComputeCenterAndScale(const ezArrayPtr<const ezVec3> vertices)
+WResult WConvexHullGenerator::ComputeCenterAndScale(const WArrayPtr<const WVec3> vertices)
 {
   if (vertices.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezBoundingBox box = ezBoundingBox::MakeFromPoints(vertices.GetPtr(), vertices.GetCount());
+  WBoundingBox box = WBoundingBox::MakeFromPoints(vertices.GetPtr(), vertices.GetCount());
 
-  const ezVec3 c = box.GetCenter();
+  const WVec3 c = box.GetCenter();
   m_vCenter.Set(c.x, c.y, c.z);
 
-  const ezVec3 ext = box.GetHalfExtents();
+  const WVec3 ext = box.GetHalfExtents();
 
-  const double minExt = ezMath::Min(ext.x, ext.y, ext.z);
+  const double minExt = WMath::Min(ext.x, ext.y, ext.z);
 
   if (minExt <= 0.000001)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const double maxExt = ezMath::Max(ext.x, ext.y, ext.z);
+  const double maxExt = WMath::Max(ext.x, ext.y, ext.z);
 
   m_fScale = 1.0 / maxExt;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezConvexHullGenerator::StoreNormalizedVertices(const ezArrayPtr<const ezVec3> vertices)
+WResult WConvexHullGenerator::StoreNormalizedVertices(const WArrayPtr<const WVec3> vertices)
 {
   struct Comparer
   {
-    EZ_ALWAYS_INLINE bool Less(const ezVec3d& a, const ezVec3d& b) const
+    W_ALWAYS_INLINE bool Less(const WVec3d& a, const WVec3d& b) const
     {
       constexpr double eps = 0.01;
 
@@ -56,14 +56,14 @@ ezResult ezConvexHullGenerator::StoreNormalizedVertices(const ezArrayPtr<const e
     }
   };
 
-  ezSet<ezVec3d, Comparer> used;
+  WSet<WVec3d, Comparer> used;
 
   m_Vertices.Clear();
   m_Vertices.Reserve(vertices.GetCount());
 
-  for (ezVec3 v : vertices)
+  for (WVec3 v : vertices)
   {
-    ezVec3d norm;
+    WVec3d norm;
     norm.Set(v.x, v.y, v.z);
 
     // bring into [-1; +1] range for normalized precision
@@ -78,19 +78,19 @@ ezResult ezConvexHullGenerator::StoreNormalizedVertices(const ezArrayPtr<const e
   }
 
   if (m_Vertices.GetCount() < 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezConvexHullGenerator::StoreTriangle(ezUInt16 i, ezUInt16 j, ezUInt16 k)
+void WConvexHullGenerator::StoreTriangle(WUInt16 i, WUInt16 j, WUInt16 k)
 {
   Triangle& triangle = m_Triangles.ExpandAndGetRef();
 
-  EZ_ASSERT_DEBUG((i < j) && (i < k) && (j < k), "Invalid Triangle");
+  W_ASSERT_DEBUG((i < j) && (i < k) && (j < k), "Invalid Triangle");
 
-  ezVec3d tangent1 = m_Vertices[k] - m_Vertices[i];
-  ezVec3d tangent2 = m_Vertices[j] - m_Vertices[i];
+  WVec3d tangent1 = m_Vertices[k] - m_Vertices[i];
+  WVec3d tangent2 = m_Vertices[j] - m_Vertices[i];
 
   triangle.m_vNormal = tangent1.CrossRH(tangent2);
   triangle.m_bIsDegenerate = triangle.m_vNormal.IsZero(0.0000001);
@@ -100,11 +100,11 @@ void ezConvexHullGenerator::StoreTriangle(ezUInt16 i, ezUInt16 j, ezUInt16 k)
     // triangle has degenerated to a line
     // use some made up normal to pretend it has some direction
 
-    const ezVec3d orth = m_Vertices[i] - m_vInside;
+    const WVec3d orth = m_Vertices[i] - m_vInside;
     tangent2 = tangent1.CrossRH(orth);
     triangle.m_vNormal = tangent1.CrossRH(tangent2);
 
-    EZ_ASSERT_DEBUG(!triangle.m_vNormal.IsZero(0.0000001), "Normal is still invalid");
+    W_ASSERT_DEBUG(!triangle.m_vNormal.IsZero(0.0000001), "Normal is still invalid");
   }
 
   // needs to be normalized for later pruning
@@ -115,7 +115,7 @@ void ezConvexHullGenerator::StoreTriangle(ezUInt16 i, ezUInt16 j, ezUInt16 k)
   triangle.m_uiVertexIdx[1] = j;
   triangle.m_uiVertexIdx[2] = k;
 
-  const ezUInt32 uiMaxVertices = m_Vertices.GetCount();
+  const WUInt32 uiMaxVertices = m_Vertices.GetCount();
 
   m_Edges[i * uiMaxVertices + j].Add(k);
   m_Edges[i * uiMaxVertices + k].Add(j);
@@ -130,18 +130,18 @@ void ezConvexHullGenerator::StoreTriangle(ezUInt16 i, ezUInt16 j, ezUInt16 k)
   }
 }
 
-ezResult ezConvexHullGenerator::InitializeHull()
+WResult WConvexHullGenerator::InitializeHull()
 {
-  ezVec3d minV = m_Vertices[0];
-  ezVec3d maxV = m_Vertices[0];
-  ezUInt32 minIx = 0;
-  ezUInt32 minIy = 0;
-  ezUInt32 minIz = 0;
-  ezUInt32 maxIx = 0;
-  ezUInt32 maxIy = 0;
-  ezUInt32 maxIz = 0;
+  WVec3d minV = m_Vertices[0];
+  WVec3d maxV = m_Vertices[0];
+  WUInt32 minIx = 0;
+  WUInt32 minIy = 0;
+  WUInt32 minIz = 0;
+  WUInt32 maxIx = 0;
+  WUInt32 maxIy = 0;
+  WUInt32 maxIz = 0;
 
-  for (ezUInt32 i = 0; i < m_Vertices.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Vertices.GetCount(); ++i)
   {
     const auto& v = m_Vertices[i];
 
@@ -182,9 +182,9 @@ ezResult ezConvexHullGenerator::InitializeHull()
     }
   }
 
-  const ezVec3d extents = maxV - minV;
-  ezUInt32 uiMainAxis1;
-  ezUInt32 uiMainAxis2;
+  const WVec3d extents = maxV - minV;
+  WUInt32 uiMainAxis1;
+  WUInt32 uiMainAxis2;
 
   if (extents.x >= extents.y && extents.x >= extents.z)
   {
@@ -203,9 +203,9 @@ ezResult ezConvexHullGenerator::InitializeHull()
   }
 
   if (uiMainAxis1 == uiMainAxis2)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezTempHybridArray<ezUInt32, 6> testIdx;
+  WTempHybridArray<WUInt32, 6> testIdx;
   testIdx.PushBack(uiMainAxis1);
   testIdx.PushBack(uiMainAxis2);
 
@@ -227,34 +227,34 @@ ezResult ezConvexHullGenerator::InitializeHull()
     // if we could not find enough vertices for the initial shape,
     // we will look at a couple more, even if those might not be the best candidates
 
-    ezUInt32 uiMaxVts = ezMath::Min(50U, m_Vertices.GetCount());
-    for (ezUInt32 i = 0; i < uiMaxVts; ++i)
+    WUInt32 uiMaxVts = WMath::Min(50U, m_Vertices.GetCount());
+    for (WUInt32 i = 0; i < uiMaxVts; ++i)
     {
       testIdx.PushBack(i);
     }
   }
 
-  ezVec3d planePoints[3];
+  WVec3d planePoints[3];
   planePoints[0] = m_Vertices[testIdx[0]];
   planePoints[1] = m_Vertices[testIdx[1]];
 
   double maxDist = 0;
-  ezUInt32 uiIx1 = 0xFFFFFFFF, uiIx2 = 0xFFFFFFFF;
+  WUInt32 uiIx1 = 0xFFFFFFFF, uiIx2 = 0xFFFFFFFF;
 
-  for (ezUInt32 i = 2; i < testIdx.GetCount(); ++i)
+  for (WUInt32 i = 2; i < testIdx.GetCount(); ++i)
   {
     planePoints[2] = m_Vertices[testIdx[i]];
 
-    ezPlaned p;
+    WPlaned p;
     if (p.SetFromPoints(planePoints).Failed())
       continue;
 
-    for (ezUInt32 j = 2; j < testIdx.GetCount(); ++j)
+    for (WUInt32 j = 2; j < testIdx.GetCount(); ++j)
     {
       if (i == j)
         continue;
 
-      const double thisDist = ezMath::Abs(p.GetDistanceTo(m_Vertices[testIdx[j]]));
+      const double thisDist = WMath::Abs(p.GetDistanceTo(m_Vertices[testIdx[j]]));
       if (thisDist > maxDist)
       {
         maxDist = thisDist;
@@ -265,7 +265,7 @@ ezResult ezConvexHullGenerator::InitializeHull()
   }
 
   if (uiIx1 == 0xFFFFFFFF || uiIx2 == 0xFFFFFFFF)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // move the four chosen ones to the front of the queue
   testIdx.Clear();
@@ -279,51 +279,51 @@ ezResult ezConvexHullGenerator::InitializeHull()
   {
     if (i > 0)
     {
-      EZ_ASSERT_DEBUG(testIdx[i - 1] != testIdx[i], "Same index used twice");
+      W_ASSERT_DEBUG(testIdx[i - 1] != testIdx[i], "Same index used twice");
     }
 
-    ezMath::Swap(m_Vertices[i], m_Vertices[testIdx[i]]);
+    WMath::Swap(m_Vertices[i], m_Vertices[testIdx[i]]);
   }
 
   // precompute the 'inside' position
   {
     m_vInside.SetZero();
-    for (ezUInt32 v = 0; v < 4; ++v)
+    for (WUInt32 v = 0; v < 4; ++v)
       m_vInside += m_Vertices[v];
     m_vInside /= 4.0;
   }
 
   // construct the hull as containing only the first four points
-  for (ezUInt16 i = 0; i < 4; i++)
+  for (WUInt16 i = 0; i < 4; i++)
   {
-    for (ezUInt16 j = i + 1; j < 4; j++)
+    for (WUInt16 j = i + 1; j < 4; j++)
     {
-      for (ezUInt16 k = j + 1; k < 4; k++)
+      for (WUInt16 k = j + 1; k < 4; k++)
       {
         StoreTriangle(i, j, k);
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezConvexHullGenerator::ComputeHull()
+WResult WConvexHullGenerator::ComputeHull()
 {
-  const ezUInt32 uiMaxVertices = m_Vertices.GetCount();
+  const WUInt32 uiMaxVertices = m_Vertices.GetCount();
 
   if (uiMaxVertices < 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_Edges.Clear();
-  m_Edges.SetCount(ezMath::Square(uiMaxVertices));
+  m_Edges.SetCount(WMath::Square(uiMaxVertices));
   m_Triangles.Clear();
   m_Triangles.Reserve(512);
 
-  EZ_SUCCEED_OR_RETURN(InitializeHull());
+  W_SUCCEED_OR_RETURN(InitializeHull());
 
   // Add the points to the hull, one at a time.
-  for (ezUInt32 vtxId = 4; vtxId < uiMaxVertices; ++vtxId)
+  for (WUInt32 vtxId = 4; vtxId < uiMaxVertices; ++vtxId)
   {
     if (IsInside(vtxId))
       continue;
@@ -337,17 +337,17 @@ ezResult ezConvexHullGenerator::ComputeHull()
   }
 
   if (m_Triangles.GetCount() < 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezConvexHullGenerator::IsInside(ezUInt32 vtxId) const
+bool WConvexHullGenerator::IsInside(WUInt32 vtxId) const
 {
-  const ezVec3d pos = m_Vertices[vtxId];
+  const WVec3d pos = m_Vertices[vtxId];
 
-  const ezInt32 iNumTriangles = m_Triangles.GetCount();
-  for (ezInt32 j = 0; j < iNumTriangles; j++)
+  const WInt32 iNumTriangles = m_Triangles.GetCount();
+  for (WInt32 j = 0; j < iNumTriangles; j++)
   {
     const auto& tri = m_Triangles[j];
 
@@ -359,13 +359,13 @@ bool ezConvexHullGenerator::IsInside(ezUInt32 vtxId) const
   return true;
 }
 
-void ezConvexHullGenerator::RemoveVisibleFaces(ezUInt32 vtxId)
+void WConvexHullGenerator::RemoveVisibleFaces(WUInt32 vtxId)
 {
-  const ezUInt32 uiMaxVertices = m_Vertices.GetCount();
-  const ezVec3d pos = m_Vertices[vtxId];
+  const WUInt32 uiMaxVertices = m_Vertices.GetCount();
+  const WVec3d pos = m_Vertices[vtxId];
 
-  ezInt32 iNumTriangles = m_Triangles.GetCount();
-  for (ezInt32 j = 0; j < iNumTriangles; j++)
+  WInt32 iNumTriangles = m_Triangles.GetCount();
+  for (WInt32 j = 0; j < iNumTriangles; j++)
   {
     const auto& tri = m_Triangles[j];
 
@@ -373,9 +373,9 @@ void ezConvexHullGenerator::RemoveVisibleFaces(ezUInt32 vtxId)
     if (dist <= tri.m_fPlaneDistance)
       continue;
 
-    const ezUInt16 vtx0 = tri.m_uiVertexIdx[0];
-    const ezUInt16 vtx1 = tri.m_uiVertexIdx[1];
-    const ezUInt16 vtx2 = tri.m_uiVertexIdx[2];
+    const WUInt16 vtx0 = tri.m_uiVertexIdx[0];
+    const WUInt16 vtx1 = tri.m_uiVertexIdx[1];
+    const WUInt16 vtx2 = tri.m_uiVertexIdx[2];
 
     m_Edges[vtx0 * uiMaxVertices + vtx1].Remove(vtx2);
     m_Edges[vtx0 * uiMaxVertices + vtx2].Remove(vtx1);
@@ -388,51 +388,51 @@ void ezConvexHullGenerator::RemoveVisibleFaces(ezUInt32 vtxId)
   }
 }
 
-void ezConvexHullGenerator::PatchHole(ezUInt32 vtxId)
+void WConvexHullGenerator::PatchHole(WUInt32 vtxId)
 {
-  EZ_ASSERT_DEBUG(vtxId < 0xFFFFu, "Vertex Id is larger than 16 bits can address.");
-  const ezUInt32 uiMaxVertices = m_Vertices.GetCount();
+  W_ASSERT_DEBUG(vtxId < 0xFFFFu, "Vertex Id is larger than 16 bits can address.");
+  const WUInt32 uiMaxVertices = m_Vertices.GetCount();
 
-  const ezUInt32 uiNumFaces = m_Triangles.GetCount();
-  for (ezUInt32 j = 0; j < uiNumFaces; j++)
+  const WUInt32 uiNumFaces = m_Triangles.GetCount();
+  for (WUInt32 j = 0; j < uiNumFaces; j++)
   {
     const auto& tri = m_Triangles[j];
 
-    for (ezInt32 a = 0; a < 3; a++)
+    for (WInt32 a = 0; a < 3; a++)
     {
-      for (ezInt32 b = a + 1; b < 3; b++)
+      for (WInt32 b = a + 1; b < 3; b++)
       {
-        const ezUInt16 vtxA = tri.m_uiVertexIdx[a];
-        const ezUInt16 vtxB = tri.m_uiVertexIdx[b];
+        const WUInt16 vtxA = tri.m_uiVertexIdx[a];
+        const WUInt16 vtxB = tri.m_uiVertexIdx[b];
 
         if (m_Edges[vtxA * uiMaxVertices + vtxB].GetSize() == 2)
           continue;
 
-        StoreTriangle(vtxA, vtxB, static_cast<ezUInt16>(vtxId));
+        StoreTriangle(vtxA, vtxB, static_cast<WUInt16>(vtxId));
       }
     }
   }
 }
 
-bool ezConvexHullGenerator::PruneFlatVertices(double fNormalThreshold)
+bool WConvexHullGenerator::PruneFlatVertices(double fNormalThreshold)
 {
   struct VertexNormals
   {
-    ezVec3d m_vNormals[2];
-    ezInt32 m_iDifferentNormals = 0;
+    WVec3d m_vNormals[2];
+    WInt32 m_iDifferentNormals = 0;
   };
 
-  ezDynamicArray<VertexNormals> VtxNorms;
+  WDynamicArray<VertexNormals> VtxNorms;
   VtxNorms.SetCount(m_Vertices.GetCount());
 
-  ezUInt32 uiNumVerticesRemaining = 0;
+  WUInt32 uiNumVerticesRemaining = 0;
 
   for (const auto& tri : m_Triangles)
   {
     if (tri.m_bIsDegenerate)
       continue;
 
-    const ezVec3d planeNorm = tri.m_vNormal;
+    const WVec3d planeNorm = tri.m_vNormal;
 
     for (int v = 0; v < 3; ++v)
     {
@@ -470,11 +470,11 @@ bool ezConvexHullGenerator::PruneFlatVertices(double fNormalThreshold)
   if (uiNumVerticesRemaining == m_Vertices.GetCount())
     return false;
 
-  ezDynamicArray<ezVec3d> remaining;
+  WDynamicArray<WVec3d> remaining;
   remaining.Reserve(uiNumVerticesRemaining);
 
   // now only keep the vertices that have at least 3 different normals
-  for (ezUInt32 v = 0; v < m_Vertices.GetCount(); ++v)
+  for (WUInt32 v = 0; v < m_Vertices.GetCount(); ++v)
   {
     if (VtxNorms[v].m_iDifferentNormals < 3)
       continue;
@@ -488,24 +488,24 @@ bool ezConvexHullGenerator::PruneFlatVertices(double fNormalThreshold)
 }
 
 
-bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxCosAngle)
+bool WConvexHullGenerator::PruneDegenerateTriangles(double fMaxCosAngle)
 {
   bool bChanged = false;
 
-  ezDynamicBitfield discardVtx;
+  WDynamicBitfield discardVtx;
   discardVtx.SetCount(m_Vertices.GetCount(), false);
 
   for (const auto& tri : m_Triangles)
   {
-    const ezUInt32 idx0 = tri.m_uiVertexIdx[0];
-    const ezUInt32 idx1 = tri.m_uiVertexIdx[1];
-    const ezUInt32 idx2 = tri.m_uiVertexIdx[2];
-    const ezVec3d v0 = m_Vertices[idx0];
-    const ezVec3d v1 = m_Vertices[idx1];
-    const ezVec3d v2 = m_Vertices[idx2];
-    const ezVec3d e0 = (v1 - v0).GetNormalized();
-    const ezVec3d e1 = (v2 - v1).GetNormalized();
-    const ezVec3d e2 = (v0 - v2).GetNormalized();
+    const WUInt32 idx0 = tri.m_uiVertexIdx[0];
+    const WUInt32 idx1 = tri.m_uiVertexIdx[1];
+    const WUInt32 idx2 = tri.m_uiVertexIdx[2];
+    const WVec3d v0 = m_Vertices[idx0];
+    const WVec3d v1 = m_Vertices[idx1];
+    const WVec3d v2 = m_Vertices[idx2];
+    const WVec3d e0 = (v1 - v0).GetNormalized();
+    const WVec3d e1 = (v2 - v1).GetNormalized();
+    const WVec3d e2 = (v0 - v2).GetNormalized();
 
     if (e0.Dot(e1) > fMaxCosAngle)
     {
@@ -528,7 +528,7 @@ bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxCosAngle)
 
   if (bChanged)
   {
-    for (ezUInt32 n = discardVtx.GetCount(); n > 0; --n)
+    for (WUInt32 n = discardVtx.GetCount(); n > 0; --n)
     {
       if (discardVtx.IsBitSet(n - 1))
       {
@@ -540,11 +540,11 @@ bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxCosAngle)
   return bChanged;
 }
 
-bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
+bool WConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
 {
   bool bChanged = false;
 
-  ezDynamicBitfield discardVtx;
+  WDynamicBitfield discardVtx;
   discardVtx.SetCount(m_Vertices.GetCount(), false);
 
   for (const auto& tri : m_Triangles)
@@ -552,12 +552,12 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
     if (tri.m_bIsDegenerate)
       continue;
 
-    const ezUInt32 idx0 = tri.m_uiVertexIdx[0];
-    const ezUInt32 idx1 = tri.m_uiVertexIdx[1];
-    const ezUInt32 idx2 = tri.m_uiVertexIdx[2];
-    const ezVec3d v0 = m_Vertices[idx0];
-    const ezVec3d v1 = m_Vertices[idx1];
-    const ezVec3d v2 = m_Vertices[idx2];
+    const WUInt32 idx0 = tri.m_uiVertexIdx[0];
+    const WUInt32 idx1 = tri.m_uiVertexIdx[1];
+    const WUInt32 idx2 = tri.m_uiVertexIdx[2];
+    const WVec3d v0 = m_Vertices[idx0];
+    const WVec3d v1 = m_Vertices[idx1];
+    const WVec3d v2 = m_Vertices[idx2];
     const double len0 = (v1 - v0).GetLength();
     const double len1 = (v2 - v1).GetLength();
     const double len2 = (v0 - v2).GetLength();
@@ -568,7 +568,7 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
       discardVtx.SetBit(idx1);
       discardVtx.SetBit(idx2);
 
-      const ezVec3d center = (v0 + v1 + v2) / 3.0;
+      const WVec3d center = (v0 + v1 + v2) / 3.0;
       m_Vertices.PushBack(center);
 
       bChanged = true;
@@ -581,7 +581,7 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
       discardVtx.SetBit(idx0);
       discardVtx.SetBit(idx1);
 
-      const ezVec3d center = (v0 + v1) / 2.0;
+      const WVec3d center = (v0 + v1) / 2.0;
       m_Vertices.PushBack(center);
 
       bChanged = true;
@@ -592,7 +592,7 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
       discardVtx.SetBit(idx2);
       discardVtx.SetBit(idx1);
 
-      const ezVec3d center = (v2 + v1) / 2.0;
+      const WVec3d center = (v2 + v1) / 2.0;
       m_Vertices.PushBack(center);
 
       bChanged = true;
@@ -603,7 +603,7 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
       discardVtx.SetBit(idx0);
       discardVtx.SetBit(idx2);
 
-      const ezVec3d center = (v0 + v2) / 2.0;
+      const WVec3d center = (v0 + v2) / 2.0;
       m_Vertices.PushBack(center);
 
       bChanged = true;
@@ -612,7 +612,7 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
 
   if (bChanged)
   {
-    for (ezUInt32 n = discardVtx.GetCount(); n > 0; --n)
+    for (WUInt32 n = discardVtx.GetCount(); n > 0; --n)
     {
       if (discardVtx.IsBitSet(n - 1))
       {
@@ -624,75 +624,75 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
   return bChanged;
 }
 
-ezResult ezConvexHullGenerator::ProcessVertices(const ezArrayPtr<const ezVec3> vertices)
+WResult WConvexHullGenerator::ProcessVertices(const WArrayPtr<const WVec3> vertices)
 {
-  ezUInt32 uiFirstVertex = 0;
-  ezUInt32 uiNumVerticesLeft = vertices.GetCount();
-  const ezUInt32 uiVerticesPerBatch = 1000;
+  WUInt32 uiFirstVertex = 0;
+  WUInt32 uiNumVerticesLeft = vertices.GetCount();
+  const WUInt32 uiVerticesPerBatch = 1000;
 
-  ezDynamicArray<ezVec3> workingSet;
+  WDynamicArray<WVec3> workingSet;
 
   while (uiNumVerticesLeft > 0)
   {
     RetrieveVertices(workingSet);
 
-    const ezUInt32 uiAdd = ezMath::Min(uiNumVerticesLeft, uiVerticesPerBatch);
-    const ezArrayPtr<const ezVec3> range = vertices.GetSubArray(uiFirstVertex, uiAdd);
+    const WUInt32 uiAdd = WMath::Min(uiNumVerticesLeft, uiVerticesPerBatch);
+    const WArrayPtr<const WVec3> range = vertices.GetSubArray(uiFirstVertex, uiAdd);
     workingSet.PushBackRange(range);
 
     uiFirstVertex += uiAdd;
     uiNumVerticesLeft -= uiAdd;
 
-    EZ_SUCCEED_OR_RETURN(StoreNormalizedVertices(workingSet));
+    W_SUCCEED_OR_RETURN(StoreNormalizedVertices(workingSet));
 
     if (m_Vertices.GetCount() >= 16384)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    EZ_SUCCEED_OR_RETURN(ComputeHull());
+    W_SUCCEED_OR_RETURN(ComputeHull());
   }
 
   if (m_Triangles.GetCount() < 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezConvexHullGenerator::Build(const ezArrayPtr<const ezVec3> vertices)
+WResult WConvexHullGenerator::Build(const WArrayPtr<const WVec3> vertices)
 {
   m_Vertices.Clear();
 
-  EZ_SUCCEED_OR_RETURN(ComputeCenterAndScale(vertices));
+  W_SUCCEED_OR_RETURN(ComputeCenterAndScale(vertices));
 
-  EZ_SUCCEED_OR_RETURN(ProcessVertices(vertices));
+  W_SUCCEED_OR_RETURN(ProcessVertices(vertices));
 
   bool prune = true;
   while (prune)
   {
     prune = false;
 
-    if (PruneDegenerateTriangles(ezMath::Cos(m_MinTriangleAngle)))
+    if (PruneDegenerateTriangles(WMath::Cos(m_MinTriangleAngle)))
     {
-      EZ_SUCCEED_OR_RETURN(ComputeHull());
+      W_SUCCEED_OR_RETURN(ComputeHull());
       prune = true;
     }
 
-    if (PruneFlatVertices(ezMath::Cos(m_FlatVertexNormalThreshold)))
+    if (PruneFlatVertices(WMath::Cos(m_FlatVertexNormalThreshold)))
     {
-      EZ_SUCCEED_OR_RETURN(ComputeHull());
+      W_SUCCEED_OR_RETURN(ComputeHull());
       prune = true;
     }
 
     if (PruneSmallTriangles(m_fMinTriangleEdgeLength))
     {
-      EZ_SUCCEED_OR_RETURN(ComputeHull());
+      W_SUCCEED_OR_RETURN(ComputeHull());
       prune = true;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_vertices, ezDynamicArray<Face>& out_faces)
+void WConvexHullGenerator::Retrieve(WDynamicArray<WVec3>& out_vertices, WDynamicArray<Face>& out_faces)
 {
   out_vertices.Clear();
   out_faces.Clear();
@@ -700,7 +700,7 @@ void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_vertices, ezDyn
   out_vertices.Reserve(m_Triangles.GetCount() * 2);
   out_faces.Reserve(m_Triangles.GetCount());
 
-  ezMap<ezUInt32, ezUInt32> vtxMap;
+  WMap<WUInt32, WUInt32> vtxMap;
 
   const double fScaleBack = 1.0 / m_fScale;
 
@@ -710,7 +710,7 @@ void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_vertices, ezDyn
 
     for (int v = 0; v < 3; ++v)
     {
-      const ezUInt32 orgIdx = tri.m_uiVertexIdx[v];
+      const WUInt32 orgIdx = tri.m_uiVertexIdx[v];
 
       bool bExisted = false;
       auto it = vtxMap.FindOrAdd(orgIdx, &bExisted);
@@ -718,28 +718,28 @@ void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_vertices, ezDyn
       {
         it.Value() = out_vertices.GetCount();
 
-        const ezVec3d pos = (m_Vertices[orgIdx] * fScaleBack) + m_vCenter;
+        const WVec3d pos = (m_Vertices[orgIdx] * fScaleBack) + m_vCenter;
 
-        ezVec3& vtx = out_vertices.ExpandAndGetRef();
+        WVec3& vtx = out_vertices.ExpandAndGetRef();
         vtx.Set((float)pos.x, (float)pos.y, (float)pos.z);
       }
 
-      face.m_uiVertexIdx[v] = static_cast<ezUInt16>(it.Value());
+      face.m_uiVertexIdx[v] = static_cast<WUInt16>(it.Value());
     }
 
     if (tri.m_bFlip)
     {
-      ezMath::Swap(face.m_uiVertexIdx[1], face.m_uiVertexIdx[2]);
+      WMath::Swap(face.m_uiVertexIdx[1], face.m_uiVertexIdx[2]);
     }
   }
 }
 
-void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_vertices)
+void WConvexHullGenerator::RetrieveVertices(WDynamicArray<WVec3>& out_vertices)
 {
   out_vertices.Clear();
   out_vertices.Reserve(m_Triangles.GetCount() * 2);
 
-  ezMap<ezUInt32, ezUInt32> vtxMap;
+  WMap<WUInt32, WUInt32> vtxMap;
 
   const double fScaleBack = 1.0 / m_fScale;
 
@@ -747,7 +747,7 @@ void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_vertice
   {
     for (int v = 0; v < 3; ++v)
     {
-      const ezUInt32 orgIdx = tri.m_uiVertexIdx[v];
+      const WUInt32 orgIdx = tri.m_uiVertexIdx[v];
 
       bool bExisted = false;
       auto it = vtxMap.FindOrAdd(orgIdx, &bExisted);
@@ -755,9 +755,9 @@ void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_vertice
       {
         it.Value() = out_vertices.GetCount();
 
-        const ezVec3d pos = (m_Vertices[orgIdx] * fScaleBack) + m_vCenter;
+        const WVec3d pos = (m_Vertices[orgIdx] * fScaleBack) + m_vCenter;
 
-        ezVec3& vtx = out_vertices.ExpandAndGetRef();
+        WVec3& vtx = out_vertices.ExpandAndGetRef();
         vtx.Set((float)pos.x, (float)pos.y, (float)pos.z);
       }
     }

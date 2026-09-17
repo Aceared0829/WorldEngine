@@ -2,32 +2,32 @@
 
 #include <Foundation/CodeUtils/Preprocessor.h>
 
-using namespace ezTokenParseUtils;
+using namespace WTokenParseUtils;
 
-void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezArrayPtr<ezString>& parameters)
+void WPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, WUInt32 uiFirstSourceToken, TokenStream& Destination, const WArrayPtr<WString>& parameters)
 {
   Destination.Clear();
   Destination.Reserve(Source.GetCount() - uiFirstSourceToken);
 
   {
     // skip all whitespace at the start of the replacement string
-    ezUInt32 i = uiFirstSourceToken;
+    WUInt32 i = uiFirstSourceToken;
     SkipWhitespace(Source, i);
 
     // add all the relevant tokens to the definition
     for (; i < Source.GetCount(); ++i)
     {
-      if (Source[i]->m_iType == ezTokenType::BlockComment || Source[i]->m_iType == ezTokenType::LineComment || Source[i]->m_iType == ezTokenType::EndOfFile || Source[i]->m_iType == ezTokenType::Newline)
+      if (Source[i]->m_iType == WTokenType::BlockComment || Source[i]->m_iType == WTokenType::LineComment || Source[i]->m_iType == WTokenType::EndOfFile || Source[i]->m_iType == WTokenType::Newline)
         continue;
 
-      if (Source[i]->m_iType == ezTokenType::Identifier)
+      if (Source[i]->m_iType == WTokenType::Identifier)
       {
-        for (ezUInt32 p = 0; p < parameters.GetCount(); ++p)
+        for (WUInt32 p = 0; p < parameters.GetCount(); ++p)
         {
           if (Source[i]->m_DataView == parameters[p])
           {
             // create a custom token for the parameter, for better error messages
-            ezToken* pParamToken = AddCustomToken(Source[i], parameters[p]);
+            WToken* pParamToken = AddCustomToken(Source[i], parameters[p]);
             pParamToken->m_iType = s_iMacroParameter0 + p;
 
             Destination.PushBack(pParamToken);
@@ -44,11 +44,11 @@ void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32
   }
 
   // remove whitespace at end of macro
-  while (!Destination.IsEmpty() && Destination.PeekBack()->m_iType == ezTokenType::Whitespace)
+  while (!Destination.IsEmpty() && Destination.PeekBack()->m_iType == WTokenType::Whitespace)
     Destination.PopBack();
 }
 
-ezResult ezPreprocessor::ExtractParameterName(const TokenStream& Tokens, ezUInt32& uiCurToken, ezString& sIdentifierName)
+WResult WPreprocessor::ExtractParameterName(const TokenStream& Tokens, WUInt32& uiCurToken, WString& sIdentifierName)
 {
   SkipWhitespace(Tokens, uiCurToken);
 
@@ -59,10 +59,10 @@ ezResult ezPreprocessor::ExtractParameterName(const TokenStream& Tokens, ezUInt3
   }
   else
   {
-    ezUInt32 uiParamToken = uiCurToken;
+    WUInt32 uiParamToken = uiCurToken;
 
-    if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiParamToken).Failed())
-      return EZ_FAILURE;
+    if (Expect(Tokens, uiCurToken, WTokenType::Identifier, &uiParamToken).Failed())
+      return W_FAILURE;
 
     sIdentifierName = Tokens[uiParamToken]->m_DataView;
   }
@@ -71,13 +71,13 @@ ezResult ezPreprocessor::ExtractParameterName(const TokenStream& Tokens, ezUInt3
   if (Accept(Tokens, uiCurToken, ","))
     SkipWhitespace(Tokens, uiCurToken);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, ezUInt32& uiCurToken, ezDeque<TokenStream>& AllParameters)
+WResult WPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, WUInt32& uiCurToken, WDeque<TokenStream>& AllParameters)
 {
   if (Expect(Tokens, uiCurToken, "(").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   do
   {
@@ -87,45 +87,45 @@ ezResult ezPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, ez
     AllParameters.SetCount(AllParameters.GetCount() + 1);
 
     if (ExtractParameterValue(Tokens, uiCurToken, AllParameters.PeekBack()).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     // reached the end of the parameter list
     if (Accept(Tokens, uiCurToken, ")"))
-      return EZ_SUCCESS;
+      return W_SUCCESS;
   } while (Accept(Tokens, uiCurToken, ",")); // continue with the next parameter
 
-  ezString s = Tokens[uiCurToken]->m_DataView;
+  WString s = Tokens[uiCurToken]->m_DataView;
   PP_LOG(Error, "',' or ')' expected, got '{0}' instead", Tokens[uiCurToken], s);
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt32& uiCurToken, TokenStream& ParamTokens)
+WResult WPreprocessor::ExtractParameterValue(const TokenStream& Tokens, WUInt32& uiCurToken, TokenStream& ParamTokens)
 {
   SkipWhitespaceAndNewline(Tokens, uiCurToken);
-  const ezUInt32 uiFirstToken = ezMath::Min(uiCurToken, Tokens.GetCount() - 1);
+  const WUInt32 uiFirstToken = WMath::Min(uiCurToken, Tokens.GetCount() - 1);
 
-  ezInt32 iParenthesis = 0;
+  WInt32 iParenthesis = 0;
 
   // get all tokens up until a comma or the last closing parenthesis
   // ignore commas etc. as long as they are surrounded with parenthesis
   for (; uiCurToken < Tokens.GetCount(); ++uiCurToken)
   {
-    if (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment || Tokens[uiCurToken]->m_iType == ezTokenType::LineComment || Tokens[uiCurToken]->m_iType == ezTokenType::Newline)
+    if (Tokens[uiCurToken]->m_iType == WTokenType::BlockComment || Tokens[uiCurToken]->m_iType == WTokenType::LineComment || Tokens[uiCurToken]->m_iType == WTokenType::Newline)
       continue;
 
-    if (Tokens[uiCurToken]->m_iType == ezTokenType::EndOfFile)
+    if (Tokens[uiCurToken]->m_iType == WTokenType::EndOfFile)
       break; // outputs an error
 
     if (iParenthesis == 0)
     {
       if (Tokens[uiCurToken]->m_DataView == "," || Tokens[uiCurToken]->m_DataView == ")")
       {
-        if (!ParamTokens.IsEmpty() && ParamTokens.PeekBack()->m_iType == ezTokenType::Whitespace)
+        if (!ParamTokens.IsEmpty() && ParamTokens.PeekBack()->m_iType == WTokenType::Whitespace)
         {
           ParamTokens.PopBack();
         }
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
     }
 
@@ -139,46 +139,46 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
 
   // reached the end of the stream without encountering the closing parenthesis first
   PP_LOG0(Error, "Unexpected end of file during macro parameter extraction", Tokens[uiFirstToken]);
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder& sResult, bool bSurroundWithQuotes)
+void WPreprocessor::StringifyTokens(const TokenStream& Tokens, WStringBuilder& sResult, bool bSurroundWithQuotes)
 {
-  ezUInt32 uiCurToken = 0;
+  WUInt32 uiCurToken = 0;
 
   sResult.Clear();
 
   if (bSurroundWithQuotes)
     sResult = "\"";
 
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
   SkipWhitespace(Tokens, uiCurToken);
 
-  ezUInt32 uiLastNonWhitespace = Tokens.GetCount();
+  WUInt32 uiLastNonWhitespace = Tokens.GetCount();
 
   while (uiLastNonWhitespace > 0)
   {
-    if (Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Whitespace && Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Newline && Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::BlockComment && Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::LineComment)
+    if (Tokens[uiLastNonWhitespace - 1]->m_iType != WTokenType::Whitespace && Tokens[uiLastNonWhitespace - 1]->m_iType != WTokenType::Newline && Tokens[uiLastNonWhitespace - 1]->m_iType != WTokenType::BlockComment && Tokens[uiLastNonWhitespace - 1]->m_iType != WTokenType::LineComment)
       break;
 
     --uiLastNonWhitespace;
   }
 
-  for (ezUInt32 t = uiCurToken; t < uiLastNonWhitespace; ++t)
+  for (WUInt32 t = uiCurToken; t < uiLastNonWhitespace; ++t)
   {
     // comments, newlines etc. are stripped out
-    if ((Tokens[t]->m_iType == ezTokenType::LineComment) || (Tokens[t]->m_iType == ezTokenType::BlockComment) || (Tokens[t]->m_iType == ezTokenType::Newline) || (Tokens[t]->m_iType == ezTokenType::EndOfFile))
+    if ((Tokens[t]->m_iType == WTokenType::LineComment) || (Tokens[t]->m_iType == WTokenType::BlockComment) || (Tokens[t]->m_iType == WTokenType::Newline) || (Tokens[t]->m_iType == WTokenType::EndOfFile))
       continue;
 
     sTemp = Tokens[t]->m_DataView;
 
     // all whitespace becomes a single white space
-    if (Tokens[t]->m_iType == ezTokenType::Whitespace)
+    if (Tokens[t]->m_iType == WTokenType::Whitespace)
       sTemp = " ";
 
     // inside strings, all backslashes and double quotes are escaped
-    if ((Tokens[t]->m_iType == ezTokenType::String1) || (Tokens[t]->m_iType == ezTokenType::String2))
+    if ((Tokens[t]->m_iType == WTokenType::String1) || (Tokens[t]->m_iType == WTokenType::String2))
     {
       sTemp.ReplaceAll("\\", "\\\\");
       sTemp.ReplaceAll("\"", "\\\"");

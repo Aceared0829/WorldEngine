@@ -4,72 +4,72 @@
 #include <Core/World/World.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WComponent, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsActive),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsActiveAndInitialized),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsActiveAndSimulating),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOwner),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetWorld),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetUniqueID),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetUniqueID, In, "UniqueID"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(DeleteComponent),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Initialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Initialize)),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Deinitialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Deinitialize)),
-    EZ_SCRIPT_FUNCTION_PROPERTY(OnActivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnActivated)),
-    EZ_SCRIPT_FUNCTION_PROPERTY(OnDeactivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnDeactivated)),
-    EZ_SCRIPT_FUNCTION_PROPERTY(OnSimulationStarted)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted)),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_Update, In, "DeltaTime")->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Update)),
+    W_SCRIPT_FUNCTION_PROPERTY(IsActive),
+    W_SCRIPT_FUNCTION_PROPERTY(IsActiveAndInitialized),
+    W_SCRIPT_FUNCTION_PROPERTY(IsActiveAndSimulating),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOwner),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_GetWorld),
+    W_SCRIPT_FUNCTION_PROPERTY(GetUniqueID),
+    W_SCRIPT_FUNCTION_PROPERTY(SetUniqueID, In, "UniqueID"),
+    W_SCRIPT_FUNCTION_PROPERTY(DeleteComponent),
+    W_SCRIPT_FUNCTION_PROPERTY(Initialize)->AddAttributes(new WScriptBaseClassFunctionAttribute(WComponent_ScriptBaseClassFunctions::Initialize)),
+    W_SCRIPT_FUNCTION_PROPERTY(Deinitialize)->AddAttributes(new WScriptBaseClassFunctionAttribute(WComponent_ScriptBaseClassFunctions::Deinitialize)),
+    W_SCRIPT_FUNCTION_PROPERTY(OnActivated)->AddAttributes(new WScriptBaseClassFunctionAttribute(WComponent_ScriptBaseClassFunctions::OnActivated)),
+    W_SCRIPT_FUNCTION_PROPERTY(OnDeactivated)->AddAttributes(new WScriptBaseClassFunctionAttribute(WComponent_ScriptBaseClassFunctions::OnDeactivated)),
+    W_SCRIPT_FUNCTION_PROPERTY(OnSimulationStarted)->AddAttributes(new WScriptBaseClassFunctionAttribute(WComponent_ScriptBaseClassFunctions::OnSimulationStarted)),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_Update, In, "DeltaTime")->AddAttributes(new WScriptBaseClassFunctionAttribute(WComponent_ScriptBaseClassFunctions::Update)),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezComponent::SetActiveFlag(bool bEnabled)
+void WComponent::SetActiveFlag(bool bEnabled)
 {
-  if (m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag) != bEnabled)
+  if (m_ComponentFlags.IsSet(WObjectFlags::ActiveFlag) != bEnabled)
   {
-    m_ComponentFlags.AddOrRemove(ezObjectFlags::ActiveFlag, bEnabled);
+    m_ComponentFlags.AddOrRemove(WObjectFlags::ActiveFlag, bEnabled);
 
     UpdateActiveState(GetOwner() == nullptr ? true : GetOwner()->IsActive());
   }
 }
 
-ezWorld* ezComponent::GetWorld()
+WWorld* WComponent::GetWorld()
 {
   return m_pManager->GetWorld();
 }
 
-const ezWorld* ezComponent::GetWorld() const
+const WWorld* WComponent::GetWorld() const
 {
   return m_pManager->GetWorld();
 }
 
-void ezComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
-  EZ_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(inout_stream);
 }
 
-void ezComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
-  EZ_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(inout_stream);
 }
 
-void ezComponent::EnsureInitialized()
+void WComponent::EnsureInitialized()
 {
-  EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must not be null");
+  W_ASSERT_DEV(m_pOwner != nullptr, "Owner must not be null");
 
   if (IsInitializing())
   {
-    ezLog::Error("Recursive initialize call is ignored.");
+    WLog::Error("Recursive initialize call is ignored.");
     return;
   }
 
@@ -77,107 +77,107 @@ void ezComponent::EnsureInitialized()
   {
     m_pMessageDispatchType = GetDynamicRTTI();
 
-    m_ComponentFlags.Add(ezObjectFlags::Initializing);
+    m_ComponentFlags.Add(WObjectFlags::Initializing);
 
     Initialize();
 
-    m_ComponentFlags.Remove(ezObjectFlags::Initializing);
-    m_ComponentFlags.Add(ezObjectFlags::Initialized);
+    m_ComponentFlags.Remove(WObjectFlags::Initializing);
+    m_ComponentFlags.Add(WObjectFlags::Initialized);
   }
 }
 
-void ezComponent::EnsureSimulationStarted()
+void WComponent::EnsureSimulationStarted()
 {
-  EZ_ASSERT_DEV(IsActiveAndInitialized(), "Must not be called on uninitialized or inactive components.");
-  EZ_ASSERT_DEV(GetWorld()->GetWorldSimulationEnabled(), "Must not be called when the world is not simulated.");
+  W_ASSERT_DEV(IsActiveAndInitialized(), "Must not be called on uninitialized or inactive components.");
+  W_ASSERT_DEV(GetWorld()->GetWorldSimulationEnabled(), "Must not be called when the world is not simulated.");
 
-  if (m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarting))
+  if (m_ComponentFlags.IsSet(WObjectFlags::SimulationStarting))
   {
-    ezLog::Error("Recursive simulation started call is ignored.");
+    WLog::Error("Recursive simulation started call is ignored.");
     return;
   }
 
   if (!IsSimulationStarted())
   {
-    m_ComponentFlags.Add(ezObjectFlags::SimulationStarting);
+    m_ComponentFlags.Add(WObjectFlags::SimulationStarting);
 
     OnSimulationStarted();
 
-    m_ComponentFlags.Remove(ezObjectFlags::SimulationStarting);
-    m_ComponentFlags.Add(ezObjectFlags::SimulationStarted);
+    m_ComponentFlags.Remove(WObjectFlags::SimulationStarting);
+    m_ComponentFlags.Add(WObjectFlags::SimulationStarted);
   }
 }
 
-void ezComponent::PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+void WComponent::PostMessage(const WMessage& msg, WTime delay, WObjectMsgQueueType::Enum queueType) const
 {
   GetWorld()->PostMessage(GetHandle(), msg, delay, queueType);
 }
 
-bool ezComponent::HandlesMessage(const ezMessage& msg) const
+bool WComponent::HandlesMessage(const WMessage& msg) const
 {
   return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
 }
 
-void ezComponent::SetUserFlag(ezUInt8 uiFlagIndex, bool bSet)
+void WComponent::SetUserFlag(WUInt8 uiFlagIndex, bool bSet)
 {
-  EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
+  W_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
 
-  m_ComponentFlags.AddOrRemove(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex), bSet);
+  m_ComponentFlags.AddOrRemove(static_cast<WObjectFlags::Enum>(WObjectFlags::UserFlag0 << uiFlagIndex), bSet);
 }
 
-bool ezComponent::GetUserFlag(ezUInt8 uiFlagIndex) const
+bool WComponent::GetUserFlag(WUInt8 uiFlagIndex) const
 {
-  EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
+  W_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
 
-  return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex));
+  return m_ComponentFlags.IsSet(static_cast<WObjectFlags::Enum>(WObjectFlags::UserFlag0 << uiFlagIndex));
 }
 
-void ezComponent::DeleteComponent()
+void WComponent::DeleteComponent()
 {
   GetOwningManager()->DeleteComponent(this);
 }
 
-void ezComponent::Initialize() {}
+void WComponent::Initialize() {}
 
-void ezComponent::Deinitialize()
+void WComponent::Deinitialize()
 {
-  EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must still be valid");
+  W_ASSERT_DEV(m_pOwner != nullptr, "Owner must still be valid");
 
   SetActiveFlag(false);
 }
 
-void ezComponent::OnActivated() {}
+void WComponent::OnActivated() {}
 
-void ezComponent::OnDeactivated() {}
+void WComponent::OnDeactivated() {}
 
-void ezComponent::OnSimulationStarted() {}
+void WComponent::OnSimulationStarted() {}
 
-void ezComponent::EnableUnhandledMessageHandler(bool enable)
+void WComponent::EnableUnhandledMessageHandler(bool enable)
 {
-  m_ComponentFlags.AddOrRemove(ezObjectFlags::UnhandledMessageHandler, enable);
+  m_ComponentFlags.AddOrRemove(WObjectFlags::UnhandledMessageHandler, enable);
 }
 
-bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
+bool WComponent::OnUnhandledMessage(WMessage& msg, bool bWasPostedMsg)
 {
-  EZ_IGNORE_UNUSED(msg);
-  EZ_IGNORE_UNUSED(bWasPostedMsg);
+  W_IGNORE_UNUSED(msg);
+  W_IGNORE_UNUSED(bWasPostedMsg);
   return false;
 }
 
-bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
+bool WComponent::OnUnhandledMessage(WMessage& msg, bool bWasPostedMsg) const
 {
-  EZ_IGNORE_UNUSED(msg);
-  EZ_IGNORE_UNUSED(bWasPostedMsg);
+  W_IGNORE_UNUSED(msg);
+  W_IGNORE_UNUSED(bWasPostedMsg);
   return false;
 }
 
-void ezComponent::UpdateActiveState(bool bOwnerActive)
+void WComponent::UpdateActiveState(bool bOwnerActive)
 {
-  const bool bSelfActive = bOwnerActive && m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag);
+  const bool bSelfActive = bOwnerActive && m_ComponentFlags.IsSet(WObjectFlags::ActiveFlag);
 
-  if (m_ComponentFlags.IsSet(ezObjectFlags::ActiveState) != bSelfActive)
+  if (m_ComponentFlags.IsSet(WObjectFlags::ActiveState) != bSelfActive)
   {
-    m_ComponentFlags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
+    m_ComponentFlags.AddOrRemove(WObjectFlags::ActiveState, bSelfActive);
 
     if (IsInitialized())
     {
@@ -193,35 +193,35 @@ void ezComponent::UpdateActiveState(bool bOwnerActive)
       {
         OnDeactivated();
 
-        m_ComponentFlags.Remove(ezObjectFlags::SimulationStarted);
+        m_ComponentFlags.Remove(WObjectFlags::SimulationStarted);
       }
     }
   }
 }
 
-ezGameObject* ezComponent::Reflection_GetOwner() const
+WGameObject* WComponent::Reflection_GetOwner() const
 {
   return m_pOwner;
 }
 
-ezWorld* ezComponent::Reflection_GetWorld() const
+WWorld* WComponent::Reflection_GetWorld() const
 {
   return m_pManager->GetWorld();
 }
 
-void ezComponent::Reflection_Update(ezTime deltaTime)
+void WComponent::Reflection_Update(WTime deltaTime)
 {
-  EZ_IGNORE_UNUSED(deltaTime);
+  W_IGNORE_UNUSED(deltaTime);
   // This is just a dummy function for the scripting reflection
 }
 
-bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
+bool WComponent::SendMessageInternal(WMessage& msg, bool bWasPostedMsg)
 {
   if (!IsActiveAndInitialized() && !IsInitializing())
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
-      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment", msg.GetId(),
+      WLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment", msg.GetId(),
         GetDynamicRTTI()->GetTypeName());
 #endif
 
@@ -231,24 +231,24 @@ bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
   if (m_pMessageDispatchType->DispatchMessage(this, msg))
     return true;
 
-  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg, bWasPostedMsg))
+  if (m_ComponentFlags.IsSet(WObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg, bWasPostedMsg))
     return true;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   if (msg.GetDebugMessageRouting())
-    ezLog::Warning("Component type '{0}' does not have a message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+    WLog::Warning("Component type '{0}' does not have a message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
 #endif
 
   return false;
 }
 
-bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
+bool WComponent::SendMessageInternal(WMessage& msg, bool bWasPostedMsg) const
 {
   if (!IsActiveAndInitialized() && !IsInitializing())
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
-      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment", msg.GetId(),
+      WLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment", msg.GetId(),
         GetDynamicRTTI()->GetTypeName());
 #endif
 
@@ -258,12 +258,12 @@ bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
   if (m_pMessageDispatchType->DispatchMessage(this, msg))
     return true;
 
-  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg, bWasPostedMsg))
+  if (m_ComponentFlags.IsSet(WObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg, bWasPostedMsg))
     return true;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   if (msg.GetDebugMessageRouting())
-    ezLog::Warning(
+    WLog::Warning(
       "(const) Component type '{0}' does not have a CONST message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
 #endif
 
@@ -271,4 +271,4 @@ bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
+W_STATICLINK_FILE(Core, Core_World_Implementation_Component);

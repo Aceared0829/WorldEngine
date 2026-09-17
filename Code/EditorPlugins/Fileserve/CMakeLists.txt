@@ -1,1 +1,1 @@
-ez_add_all_subdirs()
+W_add_all_subdirs()

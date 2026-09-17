@@ -9,7 +9,7 @@
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/IO/StreamUtils.h>
 #  include <Foundation/Profiling/Profiling.h>
@@ -17,9 +17,9 @@
 
 using namespace DirectX;
 
-EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
+W_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in W containers
 
-EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezWicFileFormat> g_wicFormat;
+W_STATICLINK_FORCE static WImageFileFormatRegistrator<WWicFileFormat> g_wicFormat;
 
 namespace
 {
@@ -47,9 +47,9 @@ namespace
 } // namespace
 
 
-ezWicFileFormat::ezWicFileFormat() = default;
+WWicFileFormat::WWicFileFormat() = default;
 
-ezWicFileFormat::~ezWicFileFormat()
+WWicFileFormat::~WWicFileFormat()
 {
   if (m_bCoUninitOnShutdown)
   {
@@ -58,7 +58,7 @@ ezWicFileFormat::~ezWicFileFormat()
   }
 }
 
-ezResult ezWicFileFormat::ReadFileData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& storage) const
+WResult WWicFileFormat::ReadFileData(WStreamReader& stream, WDynamicArray<WUInt8>& storage) const
 {
   if (m_bTryCoInit)
   {
@@ -66,36 +66,36 @@ ezResult ezWicFileFormat::ReadFileData(ezStreamReader& stream, ezDynamicArray<ez
     m_bTryCoInit = false;
   }
 
-  ezStreamUtils::ReadAllAndAppend(stream, storage);
+  WStreamUtils::ReadAllAndAppend(stream, storage);
 
   if (storage.IsEmpty())
   {
-    ezLog::Error("Failure to retrieve image data.");
-    return EZ_FAILURE;
+    WLog::Error("Failure to retrieve image data.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-static void SetHeader(ezImageHeader& ref_header, ezImageFormat::Enum imageFormat, const TexMetadata& metadata)
+static void SetHeader(WImageHeader& ref_header, WImageFormat::Enum imageFormat, const TexMetadata& metadata)
 {
   ref_header.SetImageFormat(imageFormat);
 
-  ref_header.SetWidth(ezUInt32(metadata.width));
-  ref_header.SetHeight(ezUInt32(metadata.height));
-  ref_header.SetDepth(ezUInt32(metadata.depth));
+  ref_header.SetWidth(WUInt32(metadata.width));
+  ref_header.SetHeight(WUInt32(metadata.height));
+  ref_header.SetDepth(WUInt32(metadata.depth));
 
   ref_header.SetNumMipLevels(1);
-  ref_header.SetNumArrayIndices(ezUInt32(metadata.IsCubemap() ? (metadata.arraySize / 6) : metadata.arraySize));
+  ref_header.SetNumArrayIndices(WUInt32(metadata.IsCubemap() ? (metadata.arraySize / 6) : metadata.arraySize));
   ref_header.SetNumFaces(metadata.IsCubemap() ? 6 : 1);
 }
 
-ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
+WResult WWicFileFormat::ReadImageHeader(WStreamReader& inout_stream, WImageHeader& ref_header, WStringView sFileExtension) const
 {
-  EZ_PROFILE_SCOPE("ezWicFileFormat::ReadImageHeader");
+  W_PROFILE_SCOPE("WWicFileFormat::ReadImageHeader");
 
-  ezDynamicArray<ezUInt8> storage;
-  EZ_SUCCEED_OR_RETURN(ReadFileData(inout_stream, storage));
+  WDynamicArray<WUInt8> storage;
+  W_SUCCEED_OR_RETURN(ReadFileData(inout_stream, storage));
 
   TexMetadata metadata;
   ScratchImage scratchImage;
@@ -104,41 +104,41 @@ ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
   HRESULT loadResult = GetMetadataFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, metadata);
   if (FAILED(loadResult))
   {
-    ezLog::Error("Failure to load image metadata. HRESULT:{}", ezArgErrorCode(loadResult));
-    return EZ_FAILURE;
+    WLog::Error("Failure to load image metadata. HRESULT:{}", WArgErrorCode(loadResult));
+    return W_FAILURE;
   }
 
-  ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
+  WImageFormat::Enum imageFormat = WImageFormatMappings::FromDxgiFormat(metadata.format);
 
-  if (imageFormat == ezImageFormat::UNKNOWN)
+  if (imageFormat == WImageFormat::UNKNOWN)
   {
-    ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", sFileExtension);
+    WLog::Warning("Unable to use image format from '{}' file - trying conversion.", sFileExtension);
     wicFlags |= WIC_FLAGS_FORCE_RGB;
     GetMetadataFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, metadata);
-    imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
+    imageFormat = WImageFormatMappings::FromDxgiFormat(metadata.format);
   }
 
-  if (imageFormat == ezImageFormat::UNKNOWN)
+  if (imageFormat == WImageFormat::UNKNOWN)
   {
-    ezLog::Error("Unable to use image format from '{}' file.", sFileExtension);
-    return EZ_FAILURE;
+    WLog::Error("Unable to use image format from '{}' file.", sFileExtension);
+    return W_FAILURE;
   }
 
   SetHeader(ref_header, imageFormat, metadata);
 
   // Expand grayscale to RGB so that imported grayscale textures don't turn red. See end of ReadImage below.
   if (metadata.format == DXGI_FORMAT_R8_UNORM)
-    ref_header.SetImageFormat(ezImageFormat::R8G8B8_UNORM);
+    ref_header.SetImageFormat(WImageFormat::R8G8B8_UNORM);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
+WResult WWicFileFormat::ReadImage(WStreamReader& inout_stream, WImage& ref_image, WStringView sFileExtension) const
 {
-  EZ_PROFILE_SCOPE("ezWicFileFormat::ReadImage");
+  W_PROFILE_SCOPE("WWicFileFormat::ReadImage");
 
-  ezDynamicArray<ezUInt8> storage;
-  EZ_SUCCEED_OR_RETURN(ReadFileData(inout_stream, storage));
+  WDynamicArray<WUInt8> storage;
+  W_SUCCEED_OR_RETURN(ReadFileData(inout_stream, storage));
 
   TexMetadata metadata;
   ScratchImage scratchImage;
@@ -148,63 +148,63 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
   HRESULT loadResult = LoadFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, nullptr, scratchImage);
   if (FAILED(loadResult))
   {
-    ezLog::Error("Failure to load image data. HRESULT:{}", ezArgErrorCode(loadResult));
-    return EZ_FAILURE;
+    WLog::Error("Failure to load image data. HRESULT:{}", WArgErrorCode(loadResult));
+    return W_FAILURE;
   }
 
   // Determine image format, re-reading image data if necessary
   metadata = scratchImage.GetMetadata();
 
-  ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
+  WImageFormat::Enum imageFormat = WImageFormatMappings::FromDxgiFormat(metadata.format);
 
-  if (imageFormat == ezImageFormat::UNKNOWN)
+  if (imageFormat == WImageFormat::UNKNOWN)
   {
-    ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", sFileExtension);
+    WLog::Warning("Unable to use image format from '{}' file - trying conversion.", sFileExtension);
     wicFlags |= WIC_FLAGS_FORCE_RGB;
     LoadFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, nullptr, scratchImage);
     metadata = scratchImage.GetMetadata();
-    imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
+    imageFormat = WImageFormatMappings::FromDxgiFormat(metadata.format);
   }
 
-  if (imageFormat == ezImageFormat::UNKNOWN)
+  if (imageFormat == WImageFormat::UNKNOWN)
   {
-    ezLog::Error("Unable to use image format from '{}' file.", sFileExtension);
-    return EZ_FAILURE;
+    WLog::Error("Unable to use image format from '{}' file.", sFileExtension);
+    return W_FAILURE;
   }
 
   // Prepare destination image header and allocate storage
-  ezImageHeader imageHeader;
+  WImageHeader imageHeader;
   SetHeader(imageHeader, imageFormat, metadata);
 
   ref_image.ResetAndAlloc(imageHeader);
 
   // Read image data into destination image
-  ezUInt64 destRowPitch = imageHeader.GetRowPitch();
-  ezUInt32 itemIdx = 0;
-  for (ezUInt32 arrayIdx = 0; arrayIdx < imageHeader.GetNumArrayIndices(); ++arrayIdx)
+  WUInt64 destRowPitch = imageHeader.GetRowPitch();
+  WUInt32 itemIdx = 0;
+  for (WUInt32 arrayIdx = 0; arrayIdx < imageHeader.GetNumArrayIndices(); ++arrayIdx)
   {
-    for (ezUInt32 faceIdx = 0; faceIdx < imageHeader.GetNumFaces(); ++faceIdx, ++itemIdx)
+    for (WUInt32 faceIdx = 0; faceIdx < imageHeader.GetNumFaces(); ++faceIdx, ++itemIdx)
     {
-      for (ezUInt32 sliceIdx = 0; sliceIdx < imageHeader.GetDepth(); ++sliceIdx)
+      for (WUInt32 sliceIdx = 0; sliceIdx < imageHeader.GetDepth(); ++sliceIdx)
       {
         const Image* sourceImage = scratchImage.GetImage(0, itemIdx, sliceIdx);
-        ezUInt8* destPixels = ref_image.GetPixelPointer<ezUInt8>(0, faceIdx, arrayIdx, 0, 0, sliceIdx);
+        WUInt8* destPixels = ref_image.GetPixelPointer<WUInt8>(0, faceIdx, arrayIdx, 0, 0, sliceIdx);
 
         if (sourceImage && destPixels && sourceImage->pixels)
         {
           if (destRowPitch == sourceImage->rowPitch)
           {
             // Fast path: Just copy the entire thing
-            ezMemoryUtils::Copy(destPixels, sourceImage->pixels, static_cast<size_t>(imageHeader.GetHeight() * destRowPitch));
+            WMemoryUtils::Copy(destPixels, sourceImage->pixels, static_cast<size_t>(imageHeader.GetHeight() * destRowPitch));
           }
           else
           {
             // Row pitches don't match - copy row by row
-            ezUInt64 bytesPerRow = ezMath::Min(destRowPitch, ezUInt64(sourceImage->rowPitch));
+            WUInt64 bytesPerRow = WMath::Min(destRowPitch, WUInt64(sourceImage->rowPitch));
             const uint8_t* sourcePixels = sourceImage->pixels;
-            for (ezUInt32 rowIdx = 0; rowIdx < imageHeader.GetHeight(); ++rowIdx)
+            for (WUInt32 rowIdx = 0; rowIdx < imageHeader.GetHeight(); ++rowIdx)
             {
-              ezMemoryUtils::Copy(destPixels, sourcePixels, static_cast<size_t>(bytesPerRow));
+              WMemoryUtils::Copy(destPixels, sourcePixels, static_cast<size_t>(bytesPerRow));
 
               destPixels += destRowPitch;
               sourcePixels += sourceImage->rowPitch;
@@ -218,15 +218,15 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
   // Expand grayscale to RGB so that imported grayscale textures don't turn red.
   if (metadata.format == DXGI_FORMAT_R8_UNORM)
   {
-    ref_image.Convert(ezImageFormat::R8G8B8_UNORM).AssertSuccess();
-    ezImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
-    ezImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
+    ref_image.Convert(WImageFormat::R8G8B8_UNORM).AssertSuccess();
+    WImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
+    WImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
+WResult WWicFileFormat::WriteImage(WStreamWriter& inout_stream, const WImageView& image, WStringView sFileExtension) const
 {
   if (m_bTryCoInit)
   {
@@ -237,47 +237,47 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
   using namespace DirectX;
 
   // Convert into suitable output format
-  ezImageFormat::Enum compatibleFormats[] = {
-    ezImageFormat::R8G8B8A8_UNORM,
-    ezImageFormat::R8G8B8A8_UNORM_SRGB,
-    ezImageFormat::R8_UNORM,
-    ezImageFormat::R16G16B16A16_UNORM,
-    ezImageFormat::R16_UNORM,
-    ezImageFormat::R32G32B32A32_FLOAT,
-    ezImageFormat::R32G32B32_FLOAT,
+  WImageFormat::Enum compatibleFormats[] = {
+    WImageFormat::R8G8B8A8_UNORM,
+    WImageFormat::R8G8B8A8_UNORM_SRGB,
+    WImageFormat::R8_UNORM,
+    WImageFormat::R16G16B16A16_UNORM,
+    WImageFormat::R16_UNORM,
+    WImageFormat::R32G32B32A32_FLOAT,
+    WImageFormat::R32G32B32_FLOAT,
   };
 
   // Find a compatible format closest to the one the image currently has
-  ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
+  WImageFormat::Enum format = WImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
 
-  if (format == ezImageFormat::UNKNOWN)
+  if (format == WImageFormat::UNKNOWN)
   {
-    ezLog::Error("No conversion from format '{0}' to a format suitable for '{}' files known.", ezImageFormat::GetName(image.GetImageFormat()), sFileExtension);
-    return EZ_FAILURE;
+    WLog::Error("No conversion from format '{0}' to a format suitable for '{}' files known.", WImageFormat::GetName(image.GetImageFormat()), sFileExtension);
+    return W_FAILURE;
   }
 
   // Convert if not already in a compatible format
   if (format != image.GetImageFormat())
   {
-    ezImage convertedImage;
-    if (ezImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
+    WImage convertedImage;
+    if (WImageConversion::Convert(image, convertedImage, format) != W_SUCCESS)
     {
       // This should never happen
-      EZ_ASSERT_DEV(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
-      return EZ_FAILURE;
+      W_ASSERT_DEV(false, "WImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
+      return W_FAILURE;
     }
 
     return WriteImage(inout_stream, convertedImage, sFileExtension);
   }
 
-  // Store ezImage data in DirectXTex images
-  ezDynamicArray<Image> outputImages;
-  DXGI_FORMAT imageFormat = DXGI_FORMAT(ezImageFormatMappings::ToDxgiFormat(image.GetImageFormat()));
-  for (ezUInt32 arrayIdx = 0; arrayIdx < image.GetNumArrayIndices(); ++arrayIdx)
+  // Store WImage data in DirectXTex images
+  WDynamicArray<Image> outputImages;
+  DXGI_FORMAT imageFormat = DXGI_FORMAT(WImageFormatMappings::ToDxgiFormat(image.GetImageFormat()));
+  for (WUInt32 arrayIdx = 0; arrayIdx < image.GetNumArrayIndices(); ++arrayIdx)
   {
-    for (ezUInt32 faceIdx = 0; faceIdx < image.GetNumFaces(); ++faceIdx)
+    for (WUInt32 faceIdx = 0; faceIdx < image.GetNumFaces(); ++faceIdx)
     {
-      for (ezUInt32 sliceIdx = 0; sliceIdx < image.GetDepth(); ++sliceIdx)
+      for (WUInt32 sliceIdx = 0; sliceIdx < image.GetDepth(); ++sliceIdx)
       {
         Image& currentImage = outputImages.ExpandAndGetRef();
         currentImage.width = image.GetWidth();
@@ -298,30 +298,30 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
     HRESULT res = SaveToWICMemory(outputImages.GetData(), outputImages.GetCount(), flags, GetWICCodec(WIC_CODEC_TIFF), targetBlob);
     if (FAILED(res))
     {
-      ezLog::Error("Failed to save image data to local memory blob - result: {}!", ezHRESULTtoString(res));
-      return EZ_FAILURE;
+      WLog::Error("Failed to save image data to local memory blob - result: {}!", WHRESULTtoString(res));
+      return W_FAILURE;
     }
 
     // Push blob into output stream
-    if (inout_stream.WriteBytes(targetBlob.GetBufferPointer(), targetBlob.GetBufferSize()) != EZ_SUCCESS)
+    if (inout_stream.WriteBytes(targetBlob.GetBufferPointer(), targetBlob.GetBufferSize()) != W_SUCCESS)
     {
-      ezLog::Error("Failed to write image data!");
-      return EZ_FAILURE;
+      WLog::Error("Failed to write image data!");
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezWicFileFormat::CanReadFileType(ezStringView sExtension) const
+bool WWicFileFormat::CanReadFileType(WStringView sExtension) const
 {
   return sExtension.IsEqual_NoCase("png") || sExtension.IsEqual_NoCase("jpg") || sExtension.IsEqual_NoCase("jpeg") ||
          sExtension.IsEqual_NoCase("tif") || sExtension.IsEqual_NoCase("tiff");
 }
 
-bool ezWicFileFormat::CanWriteFileType(ezStringView sExtension) const
+bool WWicFileFormat::CanWriteFileType(WStringView sExtension) const
 {
-  // png, jpg and jpeg are handled by STB (ezStbImageFileFormats)
+  // png, jpg and jpeg are handled by STB (WStbImageFileFormats)
   return sExtension.IsEqual_NoCase("tif") || sExtension.IsEqual_NoCase("tiff");
 }
 
@@ -329,4 +329,4 @@ bool ezWicFileFormat::CanWriteFileType(ezStringView sExtension) const
 
 
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_WicFileFormat);
+W_STATICLINK_FILE(Texture, Texture_Image_Formats_WicFileFormat);

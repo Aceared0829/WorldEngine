@@ -3,28 +3,28 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
-class ezPhantomRTTI : public ezRTTI
+class WPhantomRTTI : public WRTTI
 {
-  friend class ezPhantomRttiManager;
+  friend class WPhantomRttiManager;
 
 public:
-  ~ezPhantomRTTI();
+  ~WPhantomRTTI();
 
 private:
-  ezPhantomRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
-    ezBitflags<ezTypeFlags> flags, ezStringView sPluginName);
+  WPhantomRTTI(WStringView sName, const WRTTI* pParentType, WUInt32 uiTypeSize, WUInt32 uiTypeVersion, WUInt8 uiVariantType,
+    WBitflags<WTypeFlags> flags, WStringView sPluginName);
 
-  void SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>& properties);
-  void SetFunctions(ezDynamicArray<ezReflectedFunctionDescriptor>& functions);
-  void SetAttributes(ezDynamicArray<const ezPropertyAttribute*>& attributes);
-  bool IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc);
+  void SetProperties(WDynamicArray<WReflectedPropertyDescriptor>& properties);
+  void SetFunctions(WDynamicArray<WReflectedFunctionDescriptor>& functions);
+  void SetAttributes(WDynamicArray<const WPropertyAttribute*>& attributes);
+  bool IsEqualToDescriptor(const WReflectedTypeDescriptor& desc);
 
-  void UpdateType(ezReflectedTypeDescriptor& desc);
+  void UpdateType(WReflectedTypeDescriptor& desc);
 
 private:
-  ezString m_sTypeNameStorage;
-  ezString m_sPluginNameStorage;
-  ezDynamicArray<ezAbstractProperty*> m_PropertiesStorage;
-  ezDynamicArray<ezAbstractFunctionProperty*> m_FunctionsStorage;
-  ezDynamicArray<const ezPropertyAttribute*> m_AttributesStorage;
+  WString m_sTypeNameStorage;
+  WString m_sPluginNameStorage;
+  WDynamicArray<WAbstractProperty*> m_PropertiesStorage;
+  WDynamicArray<WAbstractFunctionProperty*> m_FunctionsStorage;
+  WDynamicArray<const WPropertyAttribute*> m_AttributesStorage;
 };

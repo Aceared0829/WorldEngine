@@ -2,8 +2,8 @@
 
 #include <Foundation/Memory/AllocatorWrapper.h>
 
-/// Base class for ezDelegate
-class ezDelegateBase
+/// Base class for WDelegate
+class WDelegateBase
 {
 public:
   union InstancePtr
@@ -12,7 +12,7 @@ public:
     const void* m_ConstPtr;
   };
 
-  EZ_ALWAYS_INLINE ezDelegateBase() { m_Instance.m_Ptr = nullptr; }
+  W_ALWAYS_INLINE WDelegateBase() { m_Instance.m_Ptr = nullptr; }
 
 protected:
   InstancePtr m_Instance;
@@ -38,17 +38,17 @@ protected:
 /// Delegates have a rather strange syntax:
 ///
 /// \code{.cpp}
-///   using SomeCallback = ezDelegate<void (ezUInt32, float)>;
+///   using SomeCallback = WDelegate<void (WUInt32, float)>;
 /// \endcode
 ///
 /// This defines a type 'SomeCallback' that can call any function that returns void and
-/// takes two parameters, the first being ezUInt32, the second being a float parameter.
+/// takes two parameters, the first being WUInt32, the second being a float parameter.
 /// Now you can use SomeCallback just like any other function pointer type.
 ///
 /// Assigning a C function as the value to the delegate is straight-forward:
 ///
 /// \code{.cpp}
-///   void SomeFunction(ezUInt32 i, float f);
+///   void SomeFunction(WUInt32 i, float f);
 ///   SomeCallback callback = SomeFunction;
 /// \endcode
 ///
@@ -56,10 +56,10 @@ protected:
 ///
 /// \code{.cpp}
 ///   class SomeClass {
-///     void SomeFunction(ezUInt32 i, float f);
+///     void SomeFunction(WUInt32 i, float f);
 ///   };
 ///   SomeClass instance;
-///   SomeCallback callback = ezDelegate<void (ezUInt32, float)>(&SomeClass::SomeFunction, &instance);
+///   SomeCallback callback = WDelegate<void (WUInt32, float)>(&SomeClass::SomeFunction, &instance);
 /// \endcode
 ///
 /// Here you have to construct a delegate of the proper type and pass along both the member function pointer
@@ -81,22 +81,22 @@ protected:
 ///
 /// \note If you are wondering where the code is, the delegate is implemented with macro and template magic in
 /// Delegate_inl.h and DelegateHelper_inl.h.
-template <typename T, ezUInt32 DataSize = 16, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-struct ezDelegate : public ezDelegateBase
+template <typename T, WUInt32 DataSize = 16, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+struct WDelegate : public WDelegateBase
 {
 };
 
 template <typename T>
-struct ezMakeDelegateHelper;
+struct WMakeDelegateHelper;
 
 /// A helper function to create delegates from function pointers.
 ///
 /// \code{.cpp}
 ///   void foo() { }
-///   auto delegate = ezMakeDelegate(&foo);
+///   auto delegate = WMakeDelegate(&foo);
 /// \endcode
 template <typename Function>
-ezDelegate<Function> ezMakeDelegate(Function* pFunction);
+WDelegate<Function> WMakeDelegate(Function* pFunction);
 
 /// A helper function to create delegates from methods.
 ///
@@ -107,9 +107,9 @@ ezDelegate<Function> ezMakeDelegate(Function* pFunction);
 ///     void foo() {}
 ///   };
 ///   Example instance;
-///   auto delegate = ezMakeDelegate(&Example::foo, &instance);
+///   auto delegate = WMakeDelegate(&Example::foo, &instance);
 /// \endcode
 template <typename Method, typename Class>
-typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method, Class* pClass);
+typename WMakeDelegateHelper<Method>::DelegateType WMakeDelegate(Method method, Class* pClass);
 
 #include <Foundation/Types/Implementation/Delegate_inl.h>

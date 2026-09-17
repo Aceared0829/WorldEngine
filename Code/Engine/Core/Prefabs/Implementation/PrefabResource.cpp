@@ -6,26 +6,26 @@
 #include <Foundation/Utilities/AssetFileHeader.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabResource, 1, ezRTTIDefaultAllocator<ezPrefabResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPrefabResource, 1, WRTTIDefaultAllocator<WPrefabResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPrefabResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WPrefabResource);
 // clang-format on
 
-ezPrefabResource::ezPrefabResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WPrefabResource::WPrefabResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-void ezPrefabResource::InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues)
+void WPrefabResource::InstantiatePrefab(WWorld& ref_world, const WTransform& rootTransform, WPrefabInstantiationOptions options, const WArrayMap<WHashedString, WVariant>* pExposedParamValues)
 {
-  if (GetLoadingState() != ezResourceState::Loaded)
+  if (GetLoadingState() != WResourceState::Loaded)
     return;
 
   if (pExposedParamValues != nullptr && !pExposedParamValues->IsEmpty())
   {
-    ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
-    ezTempHybridArray<ezGameObject*, 8> createdChildObjects;
+    WTempHybridArray<WGameObject*, 8> createdRootObjects;
+    WTempHybridArray<WGameObject*, 8> createdChildObjects;
 
     if (options.m_pCreatedRootObjectsOut == nullptr)
     {
@@ -39,7 +39,7 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& ref_world, const ezTransform& 
 
     m_WorldReader.InstantiatePrefab(ref_world, rootTransform, options);
 
-    EZ_ASSERT_DEBUG(options.m_pCreatedRootObjectsOut != options.m_pCreatedChildObjectsOut, "These pointers must point to different arrays, otherwise applying exposed properties doesn't work correctly.");
+    W_ASSERT_DEBUG(options.m_pCreatedRootObjectsOut != options.m_pCreatedChildObjectsOut, "These pointers must point to different arrays, otherwise applying exposed properties doesn't work correctly.");
 
     // It is ok to move static objects through exposed parameter, so we disable the error message here.
     const bool bReportErrorWhenStaticObjectMoves = ref_world.ReportErrorWhenStaticObjectMoves();
@@ -56,17 +56,17 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& ref_world, const ezTransform& 
   }
 }
 
-ezPrefabResource::InstantiateResult ezPrefabResource::InstantiatePrefab(const ezPrefabResourceHandle& hPrefab, bool bBlockTillLoaded, ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues /*= nullptr*/)
+WPrefabResource::InstantiateResult WPrefabResource::InstantiatePrefab(const WPrefabResourceHandle& hPrefab, bool bBlockTillLoaded, WWorld& ref_world, const WTransform& rootTransform, WPrefabInstantiationOptions options, const WArrayMap<WHashedString, WVariant>* pExposedParamValues /*= nullptr*/)
 {
-  ezResourceLock<ezPrefabResource> pPrefab(hPrefab, bBlockTillLoaded ? ezResourceAcquireMode::BlockTillLoaded_NeverFail : ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+  WResourceLock<WPrefabResource> pPrefab(hPrefab, bBlockTillLoaded ? WResourceAcquireMode::BlockTillLoaded_NeverFail : WResourceAcquireMode::AllowLoadingFallback_NeverFail);
 
   switch (pPrefab.GetAcquireResult())
   {
-    case ezResourceAcquireResult::Final:
+    case WResourceAcquireResult::Final:
       pPrefab->InstantiatePrefab(ref_world, rootTransform, options, pExposedParamValues);
       return InstantiateResult::Success;
 
-    case ezResourceAcquireResult::LoadingFallback:
+    case WResourceAcquireResult::LoadingFallback:
       return InstantiateResult::NotYetLoaded;
 
     default:
@@ -74,23 +74,23 @@ ezPrefabResource::InstantiateResult ezPrefabResource::InstantiatePrefab(const ez
   }
 }
 
-void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezDynamicArray<ezGameObject*>& createdChildObjects, const ezDynamicArray<ezGameObject*>& createdRootObjects) const
+void WPrefabResource::ApplyExposedParameterValues(const WArrayMap<WHashedString, WVariant>* pExposedParamValues, const WDynamicArray<WGameObject*>& createdChildObjects, const WDynamicArray<WGameObject*>& createdRootObjects) const
 {
-  const ezUInt32 uiNumParamDescs = m_PrefabParamDescs.GetCount();
+  const WUInt32 uiNumParamDescs = m_PrefabParamDescs.GetCount();
 
-  for (ezUInt32 i = 0; i < pExposedParamValues->GetCount(); ++i)
+  for (WUInt32 i = 0; i < pExposedParamValues->GetCount(); ++i)
   {
-    const ezHashedString& name = pExposedParamValues->GetKey(i);
-    const ezUInt64 uiNameHash = name.GetHash();
+    const WHashedString& name = pExposedParamValues->GetKey(i);
+    const WUInt64 uiNameHash = name.GetHash();
 
-    for (ezUInt32 uiCurParam = FindFirstParamWithName(uiNameHash); uiCurParam < uiNumParamDescs; ++uiCurParam)
+    for (WUInt32 uiCurParam = FindFirstParamWithName(uiNameHash); uiCurParam < uiNumParamDescs; ++uiCurParam)
     {
       const auto& ppd = m_PrefabParamDescs[uiCurParam];
 
       if (ppd.m_sExposeName.GetHash() != uiNameHash)
         break;
 
-      ezGameObject* pTarget = ppd.m_uiWorldReaderChildObject ? createdChildObjects[ppd.m_uiWorldReaderObjectIndex] : createdRootObjects[ppd.m_uiWorldReaderObjectIndex];
+      WGameObject* pTarget = ppd.m_uiWorldReaderChildObject ? createdChildObjects[ppd.m_uiWorldReaderObjectIndex] : createdRootObjects[ppd.m_uiWorldReaderObjectIndex];
 
       if (ppd.m_CachedPropertyPath.IsValid())
       {
@@ -100,9 +100,9 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
         }
         else
         {
-          for (ezComponent* pComp : pTarget->GetComponents())
+          for (WComponent* pComp : pTarget->GetComponents())
           {
-            const ezRTTI* pRtti = pComp->GetDynamicRTTI();
+            const WRTTI* pRtti = pComp->GetDynamicRTTI();
 
             // TODO: use component index instead
             // atm if the same component type is attached multiple times, they will all get the value applied
@@ -120,14 +120,14 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
   }
 }
 
-ezResourceLoadDesc ezPrefabResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WPrefabResource::UnloadData(Unload WhatToUnload)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
-  if (WhatToUnload == ezResource::Unload::AllQualityLevels)
+  if (WhatToUnload == WResource::Unload::AllQualityLevels)
   {
     m_WorldReader.ClearAndCompact();
   }
@@ -135,36 +135,36 @@ ezResourceLoadDesc ezPrefabResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WPrefabResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezPrefabResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WPrefabResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
-  ezStreamReader& s = *Stream;
+  WStreamReader& s = *Stream;
 
   // the standard file reader writes the absolute file path into the stream
-  ezString sAbsFilePath;
+  WString sAbsFilePath;
   s >> sAbsFilePath;
 
-  ezAssetFileHeader assetHeader;
+  WAssetFileHeader assetHeader;
   assetHeader.Read(s).IgnoreResult();
 
   char szSceneTag[16];
   s.ReadBytes(szSceneTag, sizeof(char) * 16);
-  EZ_ASSERT_DEV(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid prefab file");
+  W_ASSERT_DEV(WStringUtils::IsEqualN(szSceneTag, "[WEBinaryScene]", 16), "The given file is not a valid prefab file");
 
-  if (!ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16))
+  if (!WStringUtils::IsEqualN(szSceneTag, "[WEBinaryScene]", 16))
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
@@ -172,17 +172,17 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
 
   if (assetHeader.GetFileVersion() >= 4)
   {
-    ezUInt32 uiExposedParams = 0;
+    WUInt32 uiExposedParams = 0;
 
     s >> uiExposedParams;
 
     m_PrefabParamDescs.SetCount(uiExposedParams);
 
-    for (ezUInt32 i = 0; i < uiExposedParams; ++i)
+    for (WUInt32 i = 0; i < uiExposedParams; ++i)
     {
       auto& ppd = m_PrefabParamDescs[i];
 
-      EZ_ASSERT_DEV(assetHeader.GetFileVersion() >= 6, "Old resource version not supported anymore");
+      W_ASSERT_DEV(assetHeader.GetFileVersion() >= 6, "Old resource version not supported anymore");
       ppd.Load(s);
 
       // initialize the cached property path here once
@@ -190,11 +190,11 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
       {
         if (ppd.m_sComponentType.IsEmpty())
         {
-          ppd.m_CachedPropertyPath.InitializeFromPath(*ezGetStaticRTTI<ezGameObject>(), ppd.m_sProperty).IgnoreResult();
+          ppd.m_CachedPropertyPath.InitializeFromPath(*WGetStaticRTTI<WGameObject>(), ppd.m_sProperty).IgnoreResult();
         }
         else
         {
-          if (const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash(ppd.m_sComponentType.GetHash()))
+          if (const WRTTI* pRtti = WRTTI::FindTypeByNameHash(ppd.m_sComponentType.GetHash()))
           {
             ppd.m_CachedPropertyPath.InitializeFromPath(*pRtti, ppd.m_sProperty).IgnoreResult();
           }
@@ -203,39 +203,39 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     }
 
     // sort exposed parameter descriptions by name hash for quicker access
-    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+    m_PrefabParamDescs.Sort([](const WExposedPrefabParameterDesc& lhs, const WExposedPrefabParameterDesc& rhs) -> bool
       { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
   }
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezPrefabResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WPrefabResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
   out_NewMemoryUsage.m_uiMemoryCPU = m_WorldReader.GetHeapMemoryUsage() + sizeof(this);
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPrefabResource, ezPrefabResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WPrefabResource, WPrefabResourceDescriptor)
 {
-  EZ_IGNORE_UNUSED(descriptor);
+  W_IGNORE_UNUSED(descriptor);
 
-  ezResourceLoadDesc desc;
-  desc.m_State = ezResourceState::Loaded;
+  WResourceLoadDesc desc;
+  desc.m_State = WResourceState::Loaded;
   desc.m_uiQualityLevelsDiscardable = 0;
   desc.m_uiQualityLevelsLoadable = 0;
   return desc;
 }
 
-ezUInt32 ezPrefabResource::FindFirstParamWithName(ezUInt64 uiNameHash) const
+WUInt32 WPrefabResource::FindFirstParamWithName(WUInt64 uiNameHash) const
 {
-  ezUInt32 lb = 0;
-  ezUInt32 ub = m_PrefabParamDescs.GetCount();
+  WUInt32 lb = 0;
+  WUInt32 ub = m_PrefabParamDescs.GetCount();
 
   while (lb < ub)
   {
-    const ezUInt32 middle = lb + ((ub - lb) >> 1);
+    const WUInt32 middle = lb + ((ub - lb) >> 1);
 
     if (m_PrefabParamDescs[middle].m_sExposeName.GetHash() < uiNameHash)
     {
@@ -250,9 +250,9 @@ ezUInt32 ezPrefabResource::FindFirstParamWithName(ezUInt64 uiNameHash) const
   return lb;
 }
 
-void ezExposedPrefabParameterDesc::Save(ezStreamWriter& inout_stream) const
+void WExposedPrefabParameterDesc::Save(WStreamWriter& inout_stream) const
 {
-  ezUInt32 comb = m_uiWorldReaderObjectIndex | (m_uiWorldReaderChildObject << 31);
+  WUInt32 comb = m_uiWorldReaderObjectIndex | (m_uiWorldReaderChildObject << 31);
 
   inout_stream << m_sExposeName;
   inout_stream << comb;
@@ -260,9 +260,9 @@ void ezExposedPrefabParameterDesc::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sProperty;
 }
 
-void ezExposedPrefabParameterDesc::Load(ezStreamReader& inout_stream)
+void WExposedPrefabParameterDesc::Load(WStreamReader& inout_stream)
 {
-  ezUInt32 comb = 0;
+  WUInt32 comb = 0;
 
   inout_stream >> m_sExposeName;
   inout_stream >> comb;
@@ -273,4 +273,4 @@ void ezExposedPrefabParameterDesc::Load(ezStreamReader& inout_stream)
   m_uiWorldReaderChildObject = (comb >> 31);
 }
 
-EZ_STATICLINK_FILE(Core, Core_Prefabs_Implementation_PrefabResource);
+W_STATICLINK_FILE(Core, Core_Prefabs_Implementation_PrefabResource);

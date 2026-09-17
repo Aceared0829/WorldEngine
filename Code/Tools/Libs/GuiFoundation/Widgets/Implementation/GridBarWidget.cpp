@@ -9,7 +9,7 @@
 #include <QTextOption>
 #include <qevent.h>
 
-ezQGridBarWidget::ezQGridBarWidget(QWidget* pParent)
+WQGridBarWidget::WQGridBarWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   m_ViewportSceneRect.setRect(0, 1, 1, 1);
@@ -17,8 +17,8 @@ ezQGridBarWidget::ezQGridBarWidget(QWidget* pParent)
   m_fTextGridStops = 100;
 }
 
-void ezQGridBarWidget::SetConfig(
-  const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPointF(const QPointF&)> mapFromSceneFunc)
+void WQGridBarWidget::SetConfig(
+  const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, WDelegate<QPointF(const QPointF&)> mapFromSceneFunc)
 {
   m_MapFromSceneFunc = mapFromSceneFunc;
 
@@ -47,7 +47,7 @@ void ezQGridBarWidget::SetConfig(
   }
 }
 
-void ezQGridBarWidget::paintEvent(QPaintEvent* e)
+void WQGridBarWidget::paintEvent(QPaintEvent* e)
 {
   if (!m_MapFromSceneFunc.IsValid())
   {
@@ -69,12 +69,12 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   // render fine grid stop lines
   {
     double fSceneMinX, fSceneMaxX;
-    ezWidgetUtils::ComputeGridExtentsX(m_ViewportSceneRect, m_fFineGridStops, fSceneMinX, fSceneMaxX);
-    fSceneMinX = ezMath::Max(fSceneMinX, 0.0);
+    WWidgetUtils::ComputeGridExtentsX(m_ViewportSceneRect, m_fFineGridStops, fSceneMinX, fSceneMaxX);
+    fSceneMinX = WMath::Max(fSceneMinX, 0.0);
 
     painter->setPen(palette().buttonText().color());
 
-    ezTempHybridArray<QLine, 100> lines;
+    WTempHybridArray<QLine, 100> lines;
 
     // some overcompensation for the case that the GraphicsView displays a scrollbar at the side
     for (double x = fSceneMinX; x <= fSceneMaxX + m_fTextGridStops; x += m_fFineGridStops)
@@ -91,22 +91,22 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   // Grid Stop Value Text
   {
     double fSceneMinX, fSceneMaxX;
-    ezWidgetUtils::ComputeGridExtentsX(m_ViewportSceneRect, m_fTextGridStops, fSceneMinX, fSceneMaxX);
-    fSceneMinX = ezMath::Max(fSceneMinX, 0.0);
+    WWidgetUtils::ComputeGridExtentsX(m_ViewportSceneRect, m_fTextGridStops, fSceneMinX, fSceneMaxX);
+    fSceneMinX = WMath::Max(fSceneMinX, 0.0);
 
     QTextOption textOpt(Qt::AlignCenter);
     QRectF textRect;
 
     painter->setPen(palette().buttonText().color());
 
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
     for (double x = fSceneMinX; x <= fSceneMaxX; x += m_fTextGridStops)
     {
       const QPointF pos = m_MapFromSceneFunc(QPointF(x, 0));
 
       textRect.setRect(pos.x() - 50, areaRect.top(), 99, areaRect.height());
-      tmp.SetFormat("{0}", ezArgF(x));
+      tmp.SetFormat("{0}", WArgF(x));
 
       painter->drawText(textRect, tmp.GetData(), textOpt);
     }

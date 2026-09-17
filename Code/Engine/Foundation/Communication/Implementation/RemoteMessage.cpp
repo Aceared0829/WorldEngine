@@ -3,24 +3,24 @@
 #include <Foundation/Communication/RemoteMessage.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessMessage, 1, ezRTTIDefaultAllocator<ezProcessMessage>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcessMessage, 1, WRTTIDefaultAllocator<WProcessMessage>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MessageId", m_uiMessageId),
+    W_MEMBER_PROPERTY("MessageId", m_uiMessageId),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRemoteMessage::ezRemoteMessage()
+WRemoteMessage::WRemoteMessage()
   : m_Reader(&m_Storage)
   , m_Writer(&m_Storage)
 {
 }
 
-ezRemoteMessage::ezRemoteMessage(const ezRemoteMessage& rhs)
+WRemoteMessage::WRemoteMessage(const WRemoteMessage& rhs)
   : m_Storage(rhs.m_Storage)
   , m_Reader(&m_Storage)
   , m_Writer(&m_Storage)
@@ -30,7 +30,7 @@ ezRemoteMessage::ezRemoteMessage(const ezRemoteMessage& rhs)
 }
 
 
-ezRemoteMessage::ezRemoteMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
+WRemoteMessage::WRemoteMessage(WUInt32 uiSystemID, WUInt32 uiMessageID)
   : m_Reader(&m_Storage)
   , m_Writer(&m_Storage)
 {
@@ -38,7 +38,7 @@ ezRemoteMessage::ezRemoteMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
   m_uiMsgID = uiMessageID;
 }
 
-void ezRemoteMessage::operator=(const ezRemoteMessage& rhs)
+void WRemoteMessage::operator=(const WRemoteMessage& rhs)
 {
   m_Storage = rhs.m_Storage;
   m_uiApplicationID = rhs.m_uiApplicationID;
@@ -48,11 +48,11 @@ void ezRemoteMessage::operator=(const ezRemoteMessage& rhs)
   m_Writer.SetStorage(&m_Storage);
 }
 
-ezRemoteMessage::~ezRemoteMessage()
+WRemoteMessage::~WRemoteMessage()
 {
   m_Reader.SetStorage(nullptr);
   m_Writer.SetStorage(nullptr);
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteMessage);
+W_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteMessage);

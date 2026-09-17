@@ -4,9 +4,9 @@
 #include <Foundation/Communication/Message.h>
 
 /// Describes how a color should be applied to another color.
-struct ezSetColorMode
+struct WSetColorMode
 {
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
   enum Enum
   {
@@ -22,42 +22,42 @@ struct ezSetColorMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezSetColorMode);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WSetColorMode);
 
 /// A message to modify the main color of some thing.
 ///
 /// Components that handle this message use it to change their main color.
 /// For instance a light component may change its light color, a mesh component will change the main mesh color.
-struct EZ_CORE_DLL ezMsgSetColor : public ezMessage
+struct W_CORE_DLL WMsgSetColor : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetColor, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgSetColor, WMessage);
 
   /// The color to apply to the target.
-  ezColor m_Color;
+  WColor m_Color;
 
   /// The mode with which to apply the color to the target.
-  ezEnum<ezSetColorMode> m_Mode;
+  WEnum<WSetColorMode> m_Mode;
 
   /// Applies m_Color using m_Mode to the given color.
-  void ModifyColor(ezColor& ref_color) const;
+  void ModifyColor(WColor& ref_color) const;
 
   /// Applies m_Color using m_Mode to the given color.
-  void ModifyColor(ezColorGammaUB& ref_color) const;
+  void ModifyColor(WColorGammaUB& ref_color) const;
 
-  virtual void Serialize(ezStreamWriter& inout_stream) const override;
-  virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
+  virtual void Serialize(WStreamWriter& inout_stream) const override;
+  virtual void Deserialize(WStreamReader& inout_stream, WUInt8 uiTypeVersion) override;
 };
 
 /// Message to set custom float data on components.
 ///
 /// Provides four float values that can be used to pass arbitrary data to components.
 /// The interpretation of these values depends on the receiving component.
-struct EZ_CORE_DLL ezMsgSetCustomData : public ezMessage
+struct W_CORE_DLL WMsgSetCustomData : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetCustomData, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgSetCustomData, WMessage);
 
-  ezVec4 m_vData;
+  WVec4 m_vData;
 
-  virtual void Serialize(ezStreamWriter& inout_stream) const override;
-  virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
+  virtual void Serialize(WStreamWriter& inout_stream) const override;
+  virtual void Deserialize(WStreamReader& inout_stream, WUInt8 uiTypeVersion) override;
 };

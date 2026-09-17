@@ -20,27 +20,27 @@ using namespace VHACD;
 
 //////////////////////////////////////////////////////////////////////////
 
-static constexpr ezUInt8 uiColliderFileVersion = 4;
+static constexpr WUInt8 uiColliderFileVersion = 4;
 
 // static
-ezResult ezJoltMeshResourceWriter::WriteMeshResource(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, bool bWriteAssetHeader /*= true*/, ezUInt64 uiAssetHash /*= 0*/, ezJoltCookedMeshStats* out_pStats /*= nullptr*/)
+WResult WJoltMeshResourceWriter::WriteMeshResource(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream, bool bWriteAssetHeader /*= true*/, WUInt64 uiAssetHash /*= 0*/, WJoltCookedMeshStats* out_pStats /*= nullptr*/)
 {
-  ezJoltCookedMeshStats stats;
+  WJoltCookedMeshStats stats;
   if (bWriteAssetHeader)
   {
-    ezAssetFileHeader header;
-    header.SetFileHashAndVersion(uiAssetHash, 10); // ezGetStaticRTTI<ezJoltCollisionMeshAssetDocument>()->GetTypeVersion();
-    EZ_SUCCEED_OR_RETURN(header.Write(inout_stream));
+    WAssetFileHeader header;
+    header.SetFileHashAndVersion(uiAssetHash, 10); // WGetStaticRTTI<WJoltCollisionMeshAssetDocument>()->GetTypeVersion();
+    W_SUCCEED_OR_RETURN(header.Write(inout_stream));
   }
 
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd compressor(&inout_stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
-  ezChunkStreamWriter chunk(compressor);
+  WCompressedStreamWriterZstd compressor(&inout_stream, 0, WCompressedStreamWriterZstd::Compression::Average);
+  WChunkStreamWriter chunk(compressor);
 #else
-  ezChunkStreamWriter chunk(inout_stream);
+  WChunkStreamWriter chunk(inout_stream);
 #endif
 
   inout_stream << uiColliderFileVersion;
@@ -56,7 +56,7 @@ ezResult ezJoltMeshResourceWriter::WriteMeshResource(const ezJoltMeshDesc& meshD
 
       chunk << meshDesc.m_Surfaces.GetCount();
 
-      for (const ezString& sSurface : meshDesc.m_Surfaces)
+      for (const WString& sSurface : meshDesc.m_Surfaces)
       {
         chunk << sSurface;
       }
@@ -67,64 +67,64 @@ ezResult ezJoltMeshResourceWriter::WriteMeshResource(const ezJoltMeshDesc& meshD
     {
       chunk.BeginChunk("Details", 1);
 
-      ezBoundingBoxSphere aabb = ezBoundingBoxSphere::MakeFromPoints(meshDesc.m_Vertices.GetData(), meshDesc.m_Vertices.GetCount());
+      WBoundingBoxSphere aabb = WBoundingBoxSphere::MakeFromPoints(meshDesc.m_Vertices.GetData(), meshDesc.m_Vertices.GetCount());
 
       chunk << aabb;
 
       chunk.EndChunk();
     }
 
-    ezResult resCooking = EZ_FAILURE;
+    WResult resCooking = W_FAILURE;
 
-    if (meshDesc.m_Type == ezJoltMeshDesc::Type::Triangle)
+    if (meshDesc.m_Type == WJoltMeshDesc::Type::Triangle)
     {
       chunk.BeginChunk("TriangleMesh", 1);
 
-      ezStopwatch timer;
+      WStopwatch timer;
       resCooking = CookTriangleMesh(meshDesc, chunk);
 
       // A triangle mesh is cooked as it is, so the input counts are the output counts.
       stats.m_uiNumVertices = meshDesc.m_Vertices.GetCount();
       stats.m_uiNumTriangles = meshDesc.m_TriangleIndices.GetCount() / 3;
-      ezLog::Dev("Triangle Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+      WLog::Dev("Triangle Mesh Cooking time: {0}s", WArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
       chunk.EndChunk();
     }
-    else if (meshDesc.m_Type == ezJoltMeshDesc::Type::ConvexHull)
+    else if (meshDesc.m_Type == WJoltMeshDesc::Type::ConvexHull)
     {
       chunk.BeginChunk("ConvexMesh", 1);
 
-      ezStopwatch timer;
+      WStopwatch timer;
       resCooking = CookConvexMesh(meshDesc, chunk, stats);
-      ezLog::Dev("Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+      WLog::Dev("Convex Mesh Cooking time: {0}s", WArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
       chunk.EndChunk();
     }
-    else if (meshDesc.m_Type == ezJoltMeshDesc::Type::ConvexDecomposition)
+    else if (meshDesc.m_Type == WJoltMeshDesc::Type::ConvexDecomposition)
     {
       chunk.BeginChunk("ConvexDecompositionMesh", 1);
 
-      ezStopwatch timer;
+      WStopwatch timer;
       resCooking = CookDecomposedConvexMesh(meshDesc, chunk, stats);
-      ezLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+      WLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", WArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
       chunk.EndChunk();
     }
-    else if (meshDesc.m_Type == ezJoltMeshDesc::Type::ConvexHullGroup)
+    else if (meshDesc.m_Type == WJoltMeshDesc::Type::ConvexHullGroup)
     {
       chunk.BeginChunk("ConvexDecompositionMesh", 1);
 
-      ezStopwatch timer;
+      WStopwatch timer;
       resCooking = CookConvexHullGroup(meshDesc, chunk, stats);
-      ezLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+      WLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", WArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
       chunk.EndChunk();
     }
 
     if (resCooking.Failed())
     {
-      ezLog::Error("Cooking the collision mesh failed.");
-      return EZ_FAILURE;
+      WLog::Error("Cooking the collision mesh failed.");
+      return W_FAILURE;
     }
   }
 
@@ -138,52 +138,52 @@ ezResult ezJoltMeshResourceWriter::WriteMeshResource(const ezJoltMeshDesc& meshD
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   if (compressor.FinishCompressedStream().Failed())
   {
-    ezLog::Error("Failed to finish compressing stream.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to finish compressing stream.");
+    return W_FAILURE;
   }
 
-  ezLog::Dev("Compressed collision mesh data from {0} to {1} ({2}%%)", ezArgFileSize(compressor.GetUncompressedSize()), ezArgFileSize(compressor.GetCompressedSize()), ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
+  WLog::Dev("Compressed collision mesh data from {0} to {1} ({2}%%)", WArgFileSize(compressor.GetUncompressedSize()), WArgFileSize(compressor.GetCompressedSize()), WArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
 
 #endif
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezJoltMeshResourceWriter::ComputeConvexHull(const ezDynamicArray<ezVec3>& vertices, ezDynamicArray<ezVec3>& out_hullVertices)
+WResult WJoltMeshResourceWriter::ComputeConvexHull(const WDynamicArray<WVec3>& vertices, WDynamicArray<WVec3>& out_hullVertices)
 {
-  ezStopwatch timer;
+  WStopwatch timer;
 
-  ezConvexHullGenerator gen;
+  WConvexHullGenerator gen;
   if (gen.Build(vertices).Failed())
   {
-    ezLog::Error("Computing the convex hull failed.");
-    return EZ_FAILURE;
+    WLog::Error("Computing the convex hull failed.");
+    return W_FAILURE;
   }
 
-  ezDynamicArray<ezConvexHullGenerator::Face> faces;
+  WDynamicArray<WConvexHullGenerator::Face> faces;
   gen.Retrieve(out_hullVertices, faces);
 
   if (faces.GetCount() >= 255)
   {
-    ezConvexHullGenerator gen2;
-    gen2.SetSimplificationMinTriangleAngle(ezAngle::MakeFromDegree(30));
-    gen2.SetSimplificationFlatVertexNormalThreshold(ezAngle::MakeFromDegree(10));
+    WConvexHullGenerator gen2;
+    gen2.SetSimplificationMinTriangleAngle(WAngle::MakeFromDegree(30));
+    gen2.SetSimplificationFlatVertexNormalThreshold(WAngle::MakeFromDegree(10));
     gen2.SetSimplificationMinTriangleEdgeLength(0.08f);
 
     if (gen2.Build(out_hullVertices).Failed())
     {
-      ezLog::Error("Computing the convex hull failed (second try).");
-      return EZ_FAILURE;
+      WLog::Error("Computing the convex hull failed (second try).");
+      return W_FAILURE;
     }
 
     gen2.Retrieve(out_hullVertices, faces);
   }
 
-  ezLog::Dev("Computed the convex hull in {0} milliseconds", ezArgF(timer.GetRunningTotal().GetMilliseconds(), 1));
-  return EZ_SUCCESS;
+  WLog::Dev("Computed the convex hull in {0} milliseconds", WArgF(timer.GetRunningTotal().GetMilliseconds(), 1));
+  return W_SUCCESS;
 }
 
-ezResult ezJoltMeshResourceWriter::CookSingleConvexJoltMesh(const ezDynamicArray<ezVec3>& vertices, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats)
+WResult WJoltMeshResourceWriter::CookSingleConvexJoltMesh(const WDynamicArray<WVec3>& vertices, WStreamWriter& inout_stream, WJoltCookedMeshStats& ref_stats)
 {
   if (JPH::Allocate == nullptr)
   {
@@ -191,12 +191,12 @@ ezResult ezJoltMeshResourceWriter::CookSingleConvexJoltMesh(const ezDynamicArray
     JPH::RegisterDefaultAllocator();
   }
 
-  ezTempHybridArray<JPH::Vec3, 256> verts;
+  WTempHybridArray<JPH::Vec3, 256> verts;
   verts.SetCountUninitialized(vertices.GetCount());
 
-  for (ezUInt32 i = 0; i < verts.GetCount(); ++i)
+  for (WUInt32 i = 0; i < verts.GetCount(); ++i)
   {
-    verts[i] = ezJoltConversionUtils::ToVec3(vertices[i]);
+    verts[i] = WJoltConversionUtils::ToVec3(vertices[i]);
   }
 
   JPH::ConvexHullShapeSettings shapeSettings(verts.GetData(), (int)verts.GetCount());
@@ -205,23 +205,23 @@ ezResult ezJoltMeshResourceWriter::CookSingleConvexJoltMesh(const ezDynamicArray
 
   if (shapeRes.HasError())
   {
-    ezLog::Error("Cooking convex Jolt mesh failed: {}", shapeRes.GetError().c_str());
-    return EZ_FAILURE;
+    WLog::Error("Cooking convex Jolt mesh failed: {}", shapeRes.GetError().c_str());
+    return W_FAILURE;
   }
 
-  ezDefaultMemoryStreamStorage storage;
-  ezMemoryStreamWriter memWriter(&storage);
+  WDefaultMemoryStreamStorage storage;
+  WMemoryStreamWriter memWriter(&storage);
 
-  ezJoltStreamOut jOut(&memWriter);
+  WJoltStreamOut jOut(&memWriter);
   shapeRes.Get()->SaveBinaryState(jOut);
 
   inout_stream << storage.GetStorageSize32();
   storage.CopyToStream(inout_stream).AssertSuccess();
 
-  const ezUInt32 uiNumVertices = verts.GetCount();
+  const WUInt32 uiNumVertices = verts.GetCount();
   inout_stream << uiNumVertices;
 
-  const ezUInt32 uiNumTriangles = shapeRes.Get()->GetStats().mNumTriangles;
+  const WUInt32 uiNumTriangles = shapeRes.Get()->GetStats().mNumTriangles;
   inout_stream << uiNumTriangles;
 
   // Summed, because a decomposition or hull group cooks several shapes into one file.
@@ -229,10 +229,10 @@ ezResult ezJoltMeshResourceWriter::CookSingleConvexJoltMesh(const ezDynamicArray
   ref_stats.m_uiNumTriangles += uiNumTriangles;
   ref_stats.m_uiNumParts += 1;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezJoltMeshResourceWriter::CookTriangleMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream)
+WResult WJoltMeshResourceWriter::CookTriangleMesh(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream)
 {
   if (JPH::Allocate == nullptr)
   {
@@ -246,37 +246,37 @@ ezResult ezJoltMeshResourceWriter::CookTriangleMesh(const ezJoltMeshDesc& meshDe
   // copy vertices
   {
     vertexList.resize(meshDesc.m_Vertices.GetCount());
-    for (ezUInt32 i = 0; i < meshDesc.m_Vertices.GetCount(); ++i)
+    for (WUInt32 i = 0; i < meshDesc.m_Vertices.GetCount(); ++i)
     {
-      vertexList[i] = ezJoltConversionUtils::ToFloat3(meshDesc.m_Vertices[i]);
+      vertexList[i] = WJoltConversionUtils::ToFloat3(meshDesc.m_Vertices[i]);
     }
   }
 
-  ezUInt32 uiMaxMaterialIndex = 0;
+  WUInt32 uiMaxMaterialIndex = 0;
 
-  const ezUInt32 uiTriCount = meshDesc.m_TriangleIndices.GetCount() / 3;
+  const WUInt32 uiTriCount = meshDesc.m_TriangleIndices.GetCount() / 3;
 
   // copy triangles
   {
     const bool bNoSurfaceIDs = meshDesc.m_TriangleSurfaceID.IsEmpty();
     if (bNoSurfaceIDs && uiTriCount > 0)
     {
-      ezLog::Warning("CookTriangleMesh: no triangle surface IDs provided. Using surface 0 for all {} triangles.", uiTriCount);
+      WLog::Warning("CookTriangleMesh: no triangle surface IDs provided. Using surface 0 for all {} triangles.", uiTriCount);
     }
 
     triangleList.reserve(bNoSurfaceIDs ? uiTriCount : meshDesc.m_TriangleSurfaceID.GetCount());
-    const ezUInt32 uiLoopCount = bNoSurfaceIDs ? uiTriCount : meshDesc.m_TriangleSurfaceID.GetCount();
-    for (ezUInt32 i = 0; i < uiLoopCount; ++i)
+    const WUInt32 uiLoopCount = bNoSurfaceIDs ? uiTriCount : meshDesc.m_TriangleSurfaceID.GetCount();
+    for (WUInt32 i = 0; i < uiLoopCount; ++i)
     {
-      const ezUInt32 uiMaterialID = bNoSurfaceIDs ? 0 : meshDesc.m_TriangleSurfaceID[i];
+      const WUInt32 uiMaterialID = bNoSurfaceIDs ? 0 : meshDesc.m_TriangleSurfaceID[i];
       if (uiMaterialID == 0xFFFF)
         continue;
 
-      uiMaxMaterialIndex = ezMath::Max(uiMaxMaterialIndex, uiMaterialID);
+      uiMaxMaterialIndex = WMath::Max(uiMaxMaterialIndex, uiMaterialID);
 
-      const ezUInt32 idx0 = meshDesc.m_TriangleIndices[i * 3 + 0];
-      const ezUInt32 idx1 = meshDesc.m_TriangleIndices[i * 3 + 1];
-      const ezUInt32 idx2 = meshDesc.m_TriangleIndices[i * 3 + 2];
+      const WUInt32 idx0 = meshDesc.m_TriangleIndices[i * 3 + 0];
+      const WUInt32 idx1 = meshDesc.m_TriangleIndices[i * 3 + 1];
+      const WUInt32 idx2 = meshDesc.m_TriangleIndices[i * 3 + 2];
 
       if (idx0 == idx1 || idx0 == idx2 || idx1 == idx2)
       {
@@ -284,9 +284,9 @@ ezResult ezJoltMeshResourceWriter::CookTriangleMesh(const ezJoltMeshDesc& meshDe
         continue;
       }
 
-      const ezVec3 v0 = ezJoltConversionUtils::ToVec3(vertexList[idx0]);
-      const ezVec3 v1 = ezJoltConversionUtils::ToVec3(vertexList[idx1]);
-      const ezVec3 v2 = ezJoltConversionUtils::ToVec3(vertexList[idx2]);
+      const WVec3 v0 = WJoltConversionUtils::ToVec3(vertexList[idx0]);
+      const WVec3 v1 = WJoltConversionUtils::ToVec3(vertexList[idx1]);
+      const WVec3 v2 = WJoltConversionUtils::ToVec3(vertexList[idx2]);
 
       if (v0.IsEqual(v1, 0.001f) || v0.IsEqual(v2, 0.001f) || v1.IsEqual(v2, 0.001f))
       {
@@ -311,52 +311,52 @@ ezResult ezJoltMeshResourceWriter::CookTriangleMesh(const ezJoltMeshDesc& meshDe
 
     if (shapeRes.HasError())
     {
-      ezLog::Error("Cooking Jolt triangle mesh failed: {}", shapeRes.GetError().c_str());
-      return EZ_FAILURE;
+      WLog::Error("Cooking Jolt triangle mesh failed: {}", shapeRes.GetError().c_str());
+      return W_FAILURE;
     }
 
-    ezDefaultMemoryStreamStorage storage;
-    ezMemoryStreamWriter memWriter(&storage);
+    WDefaultMemoryStreamStorage storage;
+    WMemoryStreamWriter memWriter(&storage);
 
-    ezJoltStreamOut jOut(&memWriter);
+    WJoltStreamOut jOut(&memWriter);
     shapeRes.Get()->SaveBinaryState(jOut);
 
     inout_stream << storage.GetStorageSize32();
     storage.CopyToStream(inout_stream).AssertSuccess();
 
-    const ezUInt32 uiNumVertices = static_cast<ezUInt32>(vertexList.size());
+    const WUInt32 uiNumVertices = static_cast<WUInt32>(vertexList.size());
     inout_stream << uiNumVertices;
 
-    const ezUInt32 uiNumTriangles = shapeRes.Get()->GetStats().mNumTriangles;
+    const WUInt32 uiNumTriangles = shapeRes.Get()->GetStats().mNumTriangles;
     inout_stream << uiNumTriangles;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezJoltMeshResourceWriter::CookConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats)
+WResult WJoltMeshResourceWriter::CookConvexMesh(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream, WJoltCookedMeshStats& ref_stats)
 {
-  ezProgressRange range("Cooking Convex Mesh", 2, false);
+  WProgressRange range("Cooking Convex Mesh", 2, false);
 
   range.BeginNextStep("Computing Convex Hull");
 
-  ezTempHybridArray<ezVec3, 256> hullVertices;
-  EZ_SUCCEED_OR_RETURN(ComputeConvexHull(meshDesc.m_Vertices, hullVertices));
+  WTempHybridArray<WVec3, 256> hullVertices;
+  W_SUCCEED_OR_RETURN(ComputeConvexHull(meshDesc.m_Vertices, hullVertices));
 
   range.BeginNextStep("Cooking Convex Hull");
 
-  EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(hullVertices, inout_stream, ref_stats));
+  W_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(hullVertices, inout_stream, ref_stats));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezJoltMeshResourceWriter::CookDecomposedConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats)
+WResult WJoltMeshResourceWriter::CookDecomposedConvexMesh(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream, WJoltCookedMeshStats& ref_stats)
 {
-  EZ_LOG_BLOCK("Decomposing Mesh");
+  W_LOG_BLOCK("Decomposing Mesh");
 
   IVHACD* pConDec = CreateVHACD();
   IVHACD::Parameters params;
-  params.m_maxConvexHulls = ezMath::Max(1u, meshDesc.m_uiMaxConvexPieces);
+  params.m_maxConvexHulls = WMath::Max(1u, meshDesc.m_uiMaxConvexPieces);
 
   if (meshDesc.m_uiMaxConvexPieces <= 2)
   {
@@ -385,13 +385,13 @@ ezResult ezJoltMeshResourceWriter::CookDecomposedConvexMesh(const ezJoltMeshDesc
 
   if (!pConDec->Compute(meshDesc.m_Vertices.GetData()->GetData(), meshDesc.m_Vertices.GetCount(), meshDesc.m_TriangleIndices.GetData(), meshDesc.m_TriangleSurfaceID.GetCount(), params))
   {
-    ezLog::Error("Failed to compute convex decomposition");
-    return EZ_FAILURE;
+    WLog::Error("Failed to compute convex decomposition");
+    return W_FAILURE;
   }
 
-  ezUInt16 uiNumParts = 0;
+  WUInt16 uiNumParts = 0;
 
-  for (ezUInt32 i = 0; i < pConDec->GetNConvexHulls(); ++i)
+  for (WUInt32 i = 0; i < pConDec->GetNConvexHulls(); ++i)
   {
     IVHACD::ConvexHull ch;
     pConDec->GetConvexHull(i, ch);
@@ -402,12 +402,12 @@ ezResult ezJoltMeshResourceWriter::CookDecomposedConvexMesh(const ezJoltMeshDesc
     ++uiNumParts;
   }
 
-  ezLog::Dev("Convex mesh parts: {}", uiNumParts);
+  WLog::Dev("Convex mesh parts: {}", uiNumParts);
 
   inout_stream << uiNumParts;
 
-  ezTempHybridArray<ezVec3, 256> hullVertices;
-  for (ezUInt32 i = 0; i < pConDec->GetNConvexHulls(); ++i)
+  WTempHybridArray<WVec3, 256> hullVertices;
+  for (WUInt32 i = 0; i < pConDec->GetNConvexHulls(); ++i)
   {
     IVHACD::ConvexHull ch;
     pConDec->GetConvexHull(i, ch);
@@ -415,86 +415,86 @@ ezResult ezJoltMeshResourceWriter::CookDecomposedConvexMesh(const ezJoltMeshDesc
     if (ch.m_triangles.empty())
       continue;
 
-    hullVertices.SetCount((ezUInt32)ch.m_points.size());
+    hullVertices.SetCount((WUInt32)ch.m_points.size());
 
-    for (ezUInt32 v = 0; v < (ezUInt32)ch.m_points.size(); ++v)
+    for (WUInt32 v = 0; v < (WUInt32)ch.m_points.size(); ++v)
     {
       hullVertices[v].Set((float)ch.m_points[v].mX, (float)ch.m_points[v].mY, (float)ch.m_points[v].mZ);
     }
 
-    EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(hullVertices, inout_stream, ref_stats));
+    W_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(hullVertices, inout_stream, ref_stats));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezJoltMeshResourceWriter::CookConvexHullGroup(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats)
+WResult WJoltMeshResourceWriter::CookConvexHullGroup(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream, WJoltCookedMeshStats& ref_stats)
 {
-  ezMap<ezUInt16, ezDynamicArray<ezVec3>> parts;
+  WMap<WUInt16, WDynamicArray<WVec3>> parts;
 
-  ezUInt32 uiVertexIdx = 0;
-  for (ezUInt32 faceIdx = 0; faceIdx < meshDesc.m_TriangleSurfaceID.GetCount(); ++faceIdx)
+  WUInt32 uiVertexIdx = 0;
+  for (WUInt32 faceIdx = 0; faceIdx < meshDesc.m_TriangleSurfaceID.GetCount(); ++faceIdx)
   {
-    const ezUInt16 materialID = meshDesc.m_TriangleSurfaceID[faceIdx];
+    const WUInt16 materialID = meshDesc.m_TriangleSurfaceID[faceIdx];
 
     if (materialID == 0xFFFF)
       continue;
 
     auto& meshPartVertices = parts[materialID];
 
-    for (ezUInt8 v = 0; v < 3; ++v)
+    for (WUInt8 v = 0; v < 3; ++v)
     {
-      const ezUInt32 vtxIdx = meshDesc.m_TriangleIndices[uiVertexIdx++];
+      const WUInt32 vtxIdx = meshDesc.m_TriangleIndices[uiVertexIdx++];
 
       meshPartVertices.PushBack(meshDesc.m_Vertices[vtxIdx]);
     }
   }
 
-  ezUInt16 uiNumParts = parts.GetCount();
+  WUInt16 uiNumParts = parts.GetCount();
   inout_stream << uiNumParts;
 
   for (auto it : parts)
   {
     const auto& meshPartVertices = it.Value();
-    ezTempHybridArray<ezVec3, 256> hullVertices;
-    EZ_SUCCEED_OR_RETURN(ComputeConvexHull(meshPartVertices, hullVertices));
+    WTempHybridArray<WVec3, 256> hullVertices;
+    W_SUCCEED_OR_RETURN(ComputeConvexHull(meshPartVertices, hullVertices));
 
-    EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(hullVertices, inout_stream, ref_stats));
+    W_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(hullVertices, inout_stream, ref_stats));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // static
-ezResult ezJoltMeshResourceWriter::WriteHeightfieldResource(const ezJoltHeightfieldWriteDesc& desc, ezStreamWriter& inout_stream, bool bWriteAssetHeader /*= true*/, ezUInt64 uiAssetHash /*= 0*/)
+WResult WJoltMeshResourceWriter::WriteHeightfieldResource(const WJoltHeightfieldWriteDesc& desc, WStreamWriter& inout_stream, bool bWriteAssetHeader /*= true*/, WUInt64 uiAssetHash /*= 0*/)
 {
   if (JPH::Allocate == nullptr)
     JPH::RegisterDefaultAllocator();
 
-  const ezUInt32 N = desc.uiSizeX;
+  const WUInt32 N = desc.uiSizeX;
   if (N < 4 || (N % 2) != 0 || desc.uiSizeX != desc.uiSizeY || desc.heights.GetCount() != N * N)
   {
-    ezLog::Error("WriteHeightfieldResource: invalid grid dimensions (N={}, count={}).", N, desc.heights.GetCount());
-    return EZ_FAILURE;
+    WLog::Error("WriteHeightfieldResource: invalid grid dimensions (N={}, count={}).", N, desc.heights.GetCount());
+    return W_FAILURE;
   }
 
   const bool bHasMaterials = !desc.surfacePaths.IsEmpty() && !desc.matIndices.IsEmpty();
-  const ezUInt32 uiCellCount = (N - 1) * (N - 1);
+  const WUInt32 uiCellCount = (N - 1) * (N - 1);
 
   if (bHasMaterials && desc.matIndices.GetCount() != uiCellCount)
   {
-    ezLog::Error("WriteHeightfieldResource: matIndices count ({}) must be (N-1)^2 = {}.", desc.matIndices.GetCount(), uiCellCount);
-    return EZ_FAILURE;
+    WLog::Error("WriteHeightfieldResource: matIndices count ({}) must be (N-1)^2 = {}.", desc.matIndices.GetCount(), uiCellCount);
+    return W_FAILURE;
   }
 
-  // Row order must be flipped so that Jolt's row axis maps to +Y in ezEngine space after the
+  // Row order must be flipped so that Jolt's row axis maps to +Y in WorldEngine space after the
   // +90° X rotation applied at body-creation time.
-  ezDynamicArray<float> flippedHeights;
+  WDynamicArray<float> flippedHeights;
   flippedHeights.SetCountUninitialized(N * N);
-  for (ezUInt32 row = 0; row < N; ++row)
+  for (WUInt32 row = 0; row < N; ++row)
   {
-    const ezUInt32 srcRow = N - 1 - row;
-    for (ezUInt32 col = 0; col < N; ++col)
+    const WUInt32 srcRow = N - 1 - row;
+    for (WUInt32 col = 0; col < N; ++col)
       flippedHeights[row * N + col] = desc.heights[srcRow * N + col];
   }
 
@@ -515,37 +515,37 @@ ezResult ezJoltMeshResourceWriter::WriteHeightfieldResource(const ezJoltHeightfi
   JPH::ShapeSettings::ShapeResult result = settings.Create();
   if (result.HasError())
   {
-    ezLog::Error("WriteHeightfieldResource: Jolt cooking failed: {}", result.GetError().c_str());
-    return EZ_FAILURE;
+    WLog::Error("WriteHeightfieldResource: Jolt cooking failed: {}", result.GetError().c_str());
+    return W_FAILURE;
   }
 
-  ezDefaultMemoryStreamStorage shapeMem;
+  WDefaultMemoryStreamStorage shapeMem;
   {
-    ezMemoryStreamWriter memWriter(&shapeMem);
-    ezJoltStreamOut jOut(&memWriter);
+    WMemoryStreamWriter memWriter(&shapeMem);
+    WJoltStreamOut jOut(&memWriter);
     result.Get()->SaveBinaryState(jOut);
     if (jOut.IsFailed())
     {
-      ezLog::Error("WriteHeightfieldResource: failed to serialize Jolt shape.");
-      return EZ_FAILURE;
+      WLog::Error("WriteHeightfieldResource: failed to serialize Jolt shape.");
+      return W_FAILURE;
     }
   }
 
   if (bWriteAssetHeader)
   {
-    ezAssetFileHeader header;
+    WAssetFileHeader header;
     header.SetFileHashAndVersion(uiAssetHash, 1);
-    EZ_SUCCEED_OR_RETURN(header.Write(inout_stream));
+    W_SUCCEED_OR_RETURN(header.Write(inout_stream));
   }
 
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd compressor(&inout_stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
-  ezChunkStreamWriter chunk(compressor);
+  WCompressedStreamWriterZstd compressor(&inout_stream, 0, WCompressedStreamWriterZstd::Compression::Average);
+  WChunkStreamWriter chunk(compressor);
 #else
-  ezChunkStreamWriter chunk(inout_stream);
+  WChunkStreamWriter chunk(inout_stream);
 #endif
 
   inout_stream << uiColliderFileVersion;
@@ -555,15 +555,15 @@ ezResult ezJoltMeshResourceWriter::WriteHeightfieldResource(const ezJoltHeightfi
   chunk.BeginStream(1);
   {
     chunk.BeginChunk("Surfaces", 1);
-    const ezUInt32 uiNumSurfaces = bHasMaterials ? desc.surfacePaths.GetCount() : 0u;
+    const WUInt32 uiNumSurfaces = bHasMaterials ? desc.surfacePaths.GetCount() : 0u;
     chunk << uiNumSurfaces;
-    for (ezUInt32 i = 0; i < uiNumSurfaces; ++i)
+    for (WUInt32 i = 0; i < uiNumSurfaces; ++i)
       chunk << desc.surfacePaths[i];
     chunk.EndChunk();
 
     chunk.BeginChunk("Heightfield", 1);
     chunk << desc.uiCollisionLayer;
-    const ezUInt32 uiShapeDataSize = shapeMem.GetStorageSize32();
+    const WUInt32 uiShapeDataSize = shapeMem.GetStorageSize32();
     chunk << uiShapeDataSize;
     shapeMem.CopyToStream(chunk).AssertSuccess();
     chunk.EndChunk();
@@ -573,10 +573,10 @@ ezResult ezJoltMeshResourceWriter::WriteHeightfieldResource(const ezJoltHeightfi
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   if (compressor.FinishCompressedStream().Failed())
   {
-    ezLog::Error("WriteHeightfieldResource: failed to finish compression.");
-    return EZ_FAILURE;
+    WLog::Error("WriteHeightfieldResource: failed to finish compression.");
+    return W_FAILURE;
   }
 #endif
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

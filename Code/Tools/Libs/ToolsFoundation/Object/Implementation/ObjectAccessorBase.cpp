@@ -3,169 +3,169 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectAccessorBase, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WObjectAccessorBase, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezObjectAccessorBase::StartTransaction(ezStringView sDisplayString) {}
+void WObjectAccessorBase::StartTransaction(WStringView sDisplayString) {}
 
 
-void ezObjectAccessorBase::CancelTransaction() {}
+void WObjectAccessorBase::CancelTransaction() {}
 
 
-void ezObjectAccessorBase::FinishTransaction() {}
+void WObjectAccessorBase::FinishTransaction() {}
 
 
-void ezObjectAccessorBase::BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands /*= false*/) {}
+void WObjectAccessorBase::BeginTemporaryCommands(WStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands /*= false*/) {}
 
 
-void ezObjectAccessorBase::CancelTemporaryCommands() {}
+void WObjectAccessorBase::CancelTemporaryCommands() {}
 
 
-void ezObjectAccessorBase::FinishTemporaryCommands() {}
+void WObjectAccessorBase::FinishTemporaryCommands() {}
 
 
-ezStatus ezObjectAccessorBase::GetValueByName(const ezDocumentObject* pObject, ezStringView sProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
+WStatus WObjectAccessorBase::GetValueByName(const WDocumentObject* pObject, WStringView sProp, WVariant& out_value, WVariant index /*= WVariant()*/)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
   return GetValue(pObject, pProp, out_value, index);
 }
 
 
-ezStatus ezObjectAccessorBase::SetValueByName(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+WStatus WObjectAccessorBase::SetValueByName(const WDocumentObject* pObject, WStringView sProp, const WVariant& newValue, WVariant index /*= WVariant()*/)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
   return SetValue(pObject, pProp, newValue, index);
 }
 
 
-ezStatus ezObjectAccessorBase::InsertValueByName(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+WStatus WObjectAccessorBase::InsertValueByName(const WDocumentObject* pObject, WStringView sProp, const WVariant& newValue, WVariant index /*= WVariant()*/)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
   return InsertValue(pObject, pProp, newValue, index);
 }
 
 
-ezStatus ezObjectAccessorBase::RemoveValueByName(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index /*= ezVariant()*/)
+WStatus WObjectAccessorBase::RemoveValueByName(const WDocumentObject* pObject, WStringView sProp, WVariant index /*= WVariant()*/)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
   return RemoveValue(pObject, pProp, index);
 }
 
 
-ezStatus ezObjectAccessorBase::MoveValueByName(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+WStatus WObjectAccessorBase::MoveValueByName(const WDocumentObject* pObject, WStringView sProp, const WVariant& oldIndex, const WVariant& newIndex)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
   return MoveValue(pObject, pProp, oldIndex, newIndex);
 }
 
 
-ezStatus ezObjectAccessorBase::GetCountByName(const ezDocumentObject* pObject, ezStringView sProp, ezInt32& out_iCount)
+WStatus WObjectAccessorBase::GetCountByName(const WDocumentObject* pObject, WStringView sProp, WInt32& out_iCount)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
   return GetCount(pObject, pProp, out_iCount);
 }
 
 
-ezStatus ezObjectAccessorBase::AddObjectByName(const ezDocumentObject* pParent, ezStringView sParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+WStatus WObjectAccessorBase::AddObjectByName(const WDocumentObject* pParent, WStringView sParentProp, const WVariant& index, const WRTTI* pType, WUuid& inout_objectGuid)
 {
-  const ezAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(sParentProp);
+  const WAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(sParentProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sParentProp, pParent->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sParentProp, pParent->GetType()->GetTypeName()));
   return AddObject(pParent, pProp, index, pType, inout_objectGuid);
 }
 
-ezStatus ezObjectAccessorBase::MoveObjectByName(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProp, const ezVariant& index)
+WStatus WObjectAccessorBase::MoveObjectByName(const WDocumentObject* pObject, const WDocumentObject* pNewParent, WStringView sParentProp, const WVariant& index)
 {
-  const ezAbstractProperty* pProp = pNewParent->GetType()->FindPropertyByName(sParentProp);
+  const WAbstractProperty* pProp = pNewParent->GetType()->FindPropertyByName(sParentProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sParentProp, pNewParent->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sParentProp, pNewParent->GetType()->GetTypeName()));
   return MoveObject(pObject, pNewParent, pProp, index);
 }
 
 
-ezStatus ezObjectAccessorBase::GetKeysByName(const ezDocumentObject* pObject, ezStringView sProp, ezDynamicArray<ezVariant>& out_keys)
+WStatus WObjectAccessorBase::GetKeysByName(const WDocumentObject* pObject, WStringView sProp, WDynamicArray<WVariant>& out_keys)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
   return GetKeys(pObject, pProp, out_keys);
 }
 
 
-ezStatus ezObjectAccessorBase::GetValuesByName(const ezDocumentObject* pObject, ezStringView sProp, ezDynamicArray<ezVariant>& out_values)
+WStatus WObjectAccessorBase::GetValuesByName(const WDocumentObject* pObject, WStringView sProp, WDynamicArray<WVariant>& out_values)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
   return GetValues(pObject, pProp, out_values);
 }
 
-const ezDocumentObject* ezObjectAccessorBase::GetChildObjectByName(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index)
+const WDocumentObject* WObjectAccessorBase::GetChildObjectByName(const WDocumentObject* pObject, WStringView sProp, WVariant index)
 {
-  ezVariant value;
-  if (GetValueByName(pObject, sProp, value, index).Succeeded() && value.IsA<ezUuid>())
+  WVariant value;
+  if (GetValueByName(pObject, sProp, value, index).Succeeded() && value.IsA<WUuid>())
   {
-    return GetObject(value.Get<ezUuid>());
+    return GetObject(value.Get<WUuid>());
   }
   return nullptr;
 }
 
-ezStatus ezObjectAccessorBase::ClearByName(const ezDocumentObject* pObject, ezStringView sProp)
+WStatus WObjectAccessorBase::ClearByName(const WDocumentObject* pObject, WStringView sProp)
 {
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
-    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
+    return WStatus(WFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
 
-  ezTempHybridArray<ezVariant, 8> keys;
-  ezStatus res = GetKeys(pObject, pProp, keys);
+  WTempHybridArray<WVariant, 8> keys;
+  WStatus res = GetKeys(pObject, pProp, keys);
   if (res.Failed())
     return res;
 
-  for (ezInt32 i = keys.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = keys.GetCount() - 1; i >= 0; --i)
   {
     res = RemoveValue(pObject, pProp, keys[i]);
     if (res.Failed())
       return res;
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-const ezAbstractProperty* ezObjectAccessorBase::FindPropertyByName(const ezDocumentObject* pObject, ezStringView sProp)
+const WAbstractProperty* WObjectAccessorBase::FindPropertyByName(const WDocumentObject* pObject, WStringView sProp)
 {
   return pObject->GetType()->FindPropertyByName(sProp);
 }
 
-ezObjectAccessorBase::ezObjectAccessorBase(const ezDocumentObjectManager* pManager)
+WObjectAccessorBase::WObjectAccessorBase(const WDocumentObjectManager* pManager)
   : m_pConstManager(pManager)
 {
 }
 
-ezObjectAccessorBase::~ezObjectAccessorBase() = default;
+WObjectAccessorBase::~WObjectAccessorBase() = default;
 
-const ezDocumentObjectManager* ezObjectAccessorBase::GetObjectManager() const
+const WDocumentObjectManager* WObjectAccessorBase::GetObjectManager() const
 {
   return m_pConstManager;
 }
 
-void ezObjectAccessorBase::FireDocumentObjectStructureEvent(const ezDocumentObjectStructureEvent& e)
+void WObjectAccessorBase::FireDocumentObjectStructureEvent(const WDocumentObjectStructureEvent& e)
 {
   m_pConstManager->m_StructureEvents.Broadcast(e);
 }
 
-void ezObjectAccessorBase::FireDocumentObjectPropertyEvent(const ezDocumentObjectPropertyEvent& e)
+void WObjectAccessorBase::FireDocumentObjectPropertyEvent(const WDocumentObjectPropertyEvent& e)
 {
   m_pConstManager->m_PropertyEvents.Broadcast(e);
 }

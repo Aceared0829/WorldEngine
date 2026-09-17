@@ -10,22 +10,22 @@
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Time/Timestamp.h>
 
-/// This object caches files in a tokenized state. It can be shared among ezPreprocessor instances to improve performance when
+/// This object caches files in a tokenized state. It can be shared among WPreprocessor instances to improve performance when
 /// they access the same files.
-class EZ_FOUNDATION_DLL ezTokenizedFileCache
+class W_FOUNDATION_DLL WTokenizedFileCache
 {
 public:
   struct FileData
   {
-    ezTokenizer m_Tokens;
-    ezTimestamp m_Timestamp;
+    WTokenizer m_Tokens;
+    WTimestamp m_Timestamp;
   };
 
   /// Checks whether \a sFileName is already in the cache, returns an iterator to it. If the iterator is invalid, the file is not cached yet.
-  ezMap<ezString, FileData>::ConstIterator Lookup(const ezString& sFileName) const;
+  WMap<WString, FileData>::ConstIterator Lookup(const WString& sFileName) const;
 
   /// Removes the cached content for \a sFileName from the cache. Should be used when the file content has changed and needs to be re-read.
-  void Remove(const ezString& sFileName);
+  void Remove(const WString& sFileName);
 
   /// Removes all files from the cache to ensure that they will be re-read.
   void Clear();
@@ -34,16 +34,16 @@ public:
   ///
   //// The file content is tokenized first and all #line directives are evaluated, to update the line number and file origin for each token.
   /// Any errors are written to the given log.
-  const ezTokenizer* Tokenize(const ezString& sFileName, ezArrayPtr<const ezUInt8> fileContent, const ezTimestamp& fileTimeStamp, ezLogInterface* pLog);
+  const WTokenizer* Tokenize(const WString& sFileName, WArrayPtr<const WUInt8> fileContent, const WTimestamp& fileTimeStamp, WLogInterface* pLog);
 
 private:
-  void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken);
+  void SkipWhitespace(WDeque<WToken>& Tokens, WUInt32& uiCurToken);
 
-  mutable ezMutex m_Mutex;
-  ezMap<ezString, FileData> m_Cache;
+  mutable WMutex m_Mutex;
+  WMap<WString, FileData> m_Cache;
 };
 
-/// ezPreprocessor implements a standard C preprocessor. It can be used to pre-process files to get the output after macro expansion and #ifdef
+/// WPreprocessor implements a standard C preprocessor. It can be used to pre-process files to get the output after macro expansion and #ifdef
 /// handling.
 ///
 /// For a detailed documentation about the C preprocessor, see https://gcc.gnu.org/onlinedocs/cpp/
@@ -59,7 +59,7 @@ private:
 ///   * #include handling
 ///   * #pragma once
 ///   * #warning and #error for custom failure messages
-class EZ_FOUNDATION_DLL ezPreprocessor
+class W_FOUNDATION_DLL WPreprocessor
 {
 public:
   /// Describes the type of #include that was encountered during preprocessing
@@ -72,23 +72,23 @@ public:
 
   /// This type of callback is used to read an #include file. \a sAbsoluteFile is the path that the FileLocatorCB reported, the result needs
   /// to be stored in \a FileContent.
-  using FileOpenCB = ezDelegate<ezResult(ezStringView, ezDynamicArray<ezUInt8>&, ezTimestamp&)>;
+  using FileOpenCB = WDelegate<WResult(WStringView, WDynamicArray<WUInt8>&, WTimestamp&)>;
 
   /// This type of callback is used to retrieve the absolute path of the \a sIncludeFile when #included inside \a sCurAbsoluteFile.
   ///
   /// Note that you should ensure that \a out_sAbsoluteFilePath is always identical (including casing and path slashes) when it is supposed to point
   /// to the same file, as this exact name is used for file lookup (and therefore also file caching).
   /// If it is not identical, file caching will not work, and on different OSes the file may be found or not.
-  using FileLocatorCB = ezDelegate<ezResult(ezStringView, ezStringView, IncludeType, ezStringBuilder&)>;
+  using FileLocatorCB = WDelegate<WResult(WStringView, WStringView, IncludeType, WStringBuilder&)>;
 
   /// Every time an unknown command (e.g. '#version') is encountered, this callback is used to determine whether the command shall be passed
   /// through.
   ///
   /// If the callback returns false, an error is generated and parsing fails. The callback thus acts as a whitelist for all commands that shall be
   /// passed through.
-  using PassThroughUnknownCmdCB = ezDelegate<bool(ezStringView)>;
+  using PassThroughUnknownCmdCB = WDelegate<bool(WStringView)>;
 
-  using MacroParameters = ezDeque<ezTokenParseUtils::TokenStream>;
+  using MacroParameters = WDeque<WTokenParseUtils::TokenStream>;
 
   /// The event data that the processor broadcasts
   ///
@@ -113,30 +113,30 @@ public:
 
     EventType m_Type = EventType::Error;
 
-    const ezToken* m_pToken = nullptr;
-    ezStringView m_sInfo;
+    const WToken* m_pToken = nullptr;
+    WStringView m_sInfo;
   };
 
   /// Broadcasts events during the processing. This can be used to create detailed callstacks when an error is encountered.
   /// It also broadcasts errors and warnings with more detailed information than the log interface allows.
-  ezEvent<const ProcessingEvent&> m_ProcessingEvents;
+  WEvent<const ProcessingEvent&> m_ProcessingEvents;
 
-  ezPreprocessor();
+  WPreprocessor();
 
-  /// All error output is sent to the given ezLogInterface.
+  /// All error output is sent to the given WLogInterface.
   ///
   /// Note that when the preprocessor encounters any error, it will stop immediately and usually no output is generated.
   /// However, there are also a few cases where only a warning is generated, in this case preprocessing will continue without problems.
   ///
   /// Additionally errors and warnings are also broadcast through m_ProcessingEvents. So if you want to output more detailed information,
   /// that method should be preferred, because the events carry more information about the current file and line number etc.
-  void SetLogInterface(ezLogInterface* pLog);
+  void SetLogInterface(WLogInterface* pLog);
 
   /// Allows to specify a custom cache object that should be used for storing the tokenized result of files.
   ///
-  /// This allows to share one cache across multiple instances of ezPreprocessor and across time. E.g. it makes it possible
+  /// This allows to share one cache across multiple instances of WPreprocessor and across time. E.g. it makes it possible
   /// to prevent having to read and tokenize include files that are referenced often.
-  void SetCustomFileCache(ezTokenizedFileCache* pFileCache = nullptr);
+  void SetCustomFileCache(WTokenizedFileCache* pFileCache = nullptr);
 
   /// If set to true, all #pragma commands are passed through to the output, otherwise they are removed.
   void SetPassThroughPragma(bool bPassThrough) { m_bPassThroughPragma = bPassThrough; }
@@ -152,7 +152,7 @@ public:
 
   /// Sets the callback that is needed to read input data.
   ///
-  /// The default file open function will just try to open files via ezFileReader.
+  /// The default file open function will just try to open files via WFileReader.
   void SetFileOpenFunction(FileOpenCB openAbsFileCB);
 
   /// Sets the callback that is needed to locate an input file
@@ -167,20 +167,20 @@ public:
   /// \a sDefinition must be in the form of the text that follows a #define statement. So to define the macro "WIN32", just
   /// pass that string. You can define any macro that could also be defined in the source files.
   ///
-  /// If the definition is invalid, EZ_FAILURE is returned. Also the preprocessor might end up in an invalid state, so using it any
+  /// If the definition is invalid, W_FAILURE is returned. Also the preprocessor might end up in an invalid state, so using it any
   /// further might fail (including crashing).
-  ezResult AddCustomDefine(ezStringView sDefinition);
+  WResult AddCustomDefine(WStringView sDefinition);
 
   /// Processes the given file and returns the result as a stream of tokens.
   ///
   /// This function is useful when you want to further process the output afterwards and thus need it in a tokenized form anyway.
-  ezResult Process(ezStringView sMainFile, ezTokenParseUtils::TokenStream& ref_tokenOutput);
+  WResult Process(WStringView sMainFile, WTokenParseUtils::TokenStream& ref_tokenOutput);
 
   /// Processes the given file and returns the result as a string.
   ///
   /// This function creates a string from the tokenized result. If \a bKeepComments is true, all block and line comments
   /// are included in the output string, otherwise they are removed.
-  ezResult Process(ezStringView sMainFile, ezStringBuilder& ref_sOutput, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
+  WResult Process(WStringView sMainFile, WStringBuilder& ref_sOutput, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
 
 
 private:
@@ -192,10 +192,10 @@ private:
       m_iExpandDepth = 0;
     }
 
-    ezHashedString m_sVirtualFileName;
-    ezHashedString m_sFileName;
-    ezInt32 m_iCurrentLine;
-    ezInt32 m_iExpandDepth;
+    WHashedString m_sVirtualFileName;
+    WHashedString m_sFileName;
+    WInt32 m_iCurrentLine;
+    WInt32 m_iExpandDepth;
   };
 
   enum IfDefActivity
@@ -207,8 +207,8 @@ private:
 
   struct CustomDefine
   {
-    ezHybridArray<ezUInt8, 64> m_Content;
-    ezTokenizer m_Tokenized;
+    WHybridArray<WUInt8, 64> m_Content;
+    WTokenizer m_Tokenized;
   };
 
   // This class-local allocator is used to get rid of some of the memory allocation
@@ -216,7 +216,7 @@ private:
   // If changing its position in the class, make sure it always comes before all
   // other members that depend on it to ensure deallocations in those members
   // happen before the allocator get destroyed.
-  ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing> m_ClassAllocator;
+  WAllocatorWithPolicy<WAllocPolicyHeap, WAllocatorTrackingMode::Nothing> m_ClassAllocator;
 
   bool m_bPassThroughPragma = false;
   bool m_bPassThroughLine = false;
@@ -224,16 +224,16 @@ private:
   PassThroughUnknownCmdCB m_PassThroughUnknownCmdCB;
 
   // this file cache is used as long as the user does not provide his own
-  ezTokenizedFileCache m_InternalFileCache;
+  WTokenizedFileCache m_InternalFileCache;
 
   // pointer to the file cache that is in use
-  ezTokenizedFileCache* m_pUsedFileCache;
+  WTokenizedFileCache* m_pUsedFileCache;
 
-  ezDeque<FileData> m_CurrentFileStack;
+  WDeque<FileData> m_CurrentFileStack;
 
-  ezLogInterface* m_pLog;
+  WLogInterface* m_pLog;
 
-  ezDeque<CustomDefine> m_CustomDefines;
+  WDeque<CustomDefine> m_CustomDefines;
 
   struct IfDefState
   {
@@ -247,122 +247,122 @@ private:
     bool m_bIsInElseClause = false;
   };
 
-  ezDeque<IfDefState> m_IfdefActiveStack;
+  WDeque<IfDefState> m_IfdefActiveStack;
 
-  ezResult ProcessFile(ezStringView sFile, ezTokenParseUtils::TokenStream& TokenOutput, const ezToken* pCurParentToken);
-  ezResult ProcessCmd(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& TokenOutput);
+  WResult ProcessFile(WStringView sFile, WTokenParseUtils::TokenStream& TokenOutput, const WToken* pCurParentToken);
+  WResult ProcessCmd(const WTokenParseUtils::TokenStream& Tokens, WTokenParseUtils::TokenStream& TokenOutput);
 
 public:
-  static ezResult DefaultFileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
-  static ezResult DefaultFileOpen(ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification);
+  static WResult DefaultFileLocator(WStringView sCurAbsoluteFile, WStringView sIncludeFile, WPreprocessor::IncludeType incType, WStringBuilder& out_sAbsoluteFilePath);
+  static WResult DefaultFileOpen(WStringView sAbsoluteFile, WDynamicArray<WUInt8>& ref_fileContent, WTimestamp& out_fileModification);
 
 private: // *** File Handling ***
-  ezResult OpenFile(ezStringView sFile, const ezTokenizer** pTokenizer);
+  WResult OpenFile(WStringView sFile, const WTokenizer** pTokenizer);
 
   FileOpenCB m_FileOpenCallback;
   FileLocatorCB m_FileLocatorCallback;
-  ezSet<ezTempHashedString> m_PragmaOnce;
+  WSet<WTempHashedString> m_PragmaOnce;
 
 private: // *** Macro Definition ***
-  bool RemoveDefine(ezStringView sName);
-  ezResult HandleDefine(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken);
+  bool RemoveDefine(WStringView sName);
+  WResult HandleDefine(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken);
 
   struct MacroDefinition
   {
-    const ezToken* m_MacroIdentifier = nullptr;
+    const WToken* m_MacroIdentifier = nullptr;
     bool m_bIsFunction = false;
     bool m_bCurrentlyExpanding = false;
     bool m_bHasVarArgs = false;
-    ezUInt32 m_uiNumParameters = ezInvalidIndex;
-    ezTokenParseUtils::TokenStream m_Replacement;
+    WUInt32 m_uiNumParameters = WInvalidIndex;
+    WTokenParseUtils::TokenStream m_Replacement;
   };
 
-  ezResult StoreDefine(const ezToken* pMacroNameToken, const ezTokenParseUtils::TokenStream* pReplacementTokens, ezUInt32 uiFirstReplacementToken, ezInt32 iNumParameters, bool bUsesVarArgs);
-  ezResult ExtractParameterName(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezString& sIdentifierName);
+  WResult StoreDefine(const WToken* pMacroNameToken, const WTokenParseUtils::TokenStream* pReplacementTokens, WUInt32 uiFirstReplacementToken, WInt32 iNumParameters, bool bUsesVarArgs);
+  WResult ExtractParameterName(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WString& sIdentifierName);
 
-  ezMap<ezString256, MacroDefinition> m_Macros;
+  WMap<WString256, MacroDefinition> m_Macros;
 
-  static constexpr ezInt32 s_iMacroParameter0 = ezTokenType::ENUM_COUNT + 2;
-  static ezString s_ParamNames[32];
-  ezToken m_ParameterTokens[32];
+  static constexpr WInt32 s_iMacroParameter0 = WTokenType::ENUM_COUNT + 2;
+  static WString s_ParamNames[32];
+  WToken m_ParameterTokens[32];
 
 private: // *** #if condition parsing ***
-  ezResult EvaluateCondition(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseCondition(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseFactor(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionMul(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionOr(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionAnd(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionPlus(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionShift(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionBitOr(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionBitAnd(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionBitXor(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  WResult EvaluateCondition(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseCondition(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseFactor(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseExpressionMul(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseExpressionOr(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseExpressionAnd(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseExpressionPlus(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseExpressionShift(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseExpressionBitOr(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseExpressionBitAnd(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
+  WResult ParseExpressionBitXor(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult);
 
 
 private: // *** Parsing ***
-  ezResult CopyTokensAndEvaluateDefined(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination);
-  void CopyTokensReplaceParams(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination, const ezArrayPtr<ezString>& parameters);
+  WResult CopyTokensAndEvaluateDefined(const WTokenParseUtils::TokenStream& Source, WUInt32 uiFirstSourceToken, WTokenParseUtils::TokenStream& Destination);
+  void CopyTokensReplaceParams(const WTokenParseUtils::TokenStream& Source, WUInt32 uiFirstSourceToken, WTokenParseUtils::TokenStream& Destination, const WArrayPtr<WString>& parameters);
 
-  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken, ezUInt32* pAccepted = nullptr);
-  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenType::Enum Type, ezUInt32* pAccepted = nullptr);
-  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken1, ezStringView sToken2, ezUInt32* pAccepted = nullptr);
-  ezResult ExpectEndOfLine(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken);
+  WResult Expect(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WStringView sToken, WUInt32* pAccepted = nullptr);
+  WResult Expect(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WTokenType::Enum Type, WUInt32* pAccepted = nullptr);
+  WResult Expect(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WStringView sToken1, WStringView sToken2, WUInt32* pAccepted = nullptr);
+  WResult ExpectEndOfLine(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken);
 
 private: // *** Macro Expansion ***
-  ezResult Expand(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output);
-  ezResult ExpandOnce(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output);
-  ezResult ExpandObjectMacro(MacroDefinition& Macro, ezTokenParseUtils::TokenStream& Output, const ezToken* pMacroToken);
-  ezResult ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, ezTokenParseUtils::TokenStream& Output, const ezToken* pMacroToken);
-  ezResult ExpandMacroParam(const ezToken& MacroToken, ezUInt32 uiParam, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
-  void PassThroughFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, ezTokenParseUtils::TokenStream& Output);
-  ezToken* AddCustomToken(const ezToken* pPrevious, const ezStringView& sNewText);
-  void OutputNotExpandableMacro(MacroDefinition& Macro, ezTokenParseUtils::TokenStream& Output);
-  ezResult ExtractAllMacroParameters(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezDeque<ezTokenParseUtils::TokenStream>& AllParameters);
-  ezResult ExtractParameterValue(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenParseUtils::TokenStream& ParamTokens);
+  WResult Expand(const WTokenParseUtils::TokenStream& Tokens, WTokenParseUtils::TokenStream& Output);
+  WResult ExpandOnce(const WTokenParseUtils::TokenStream& Tokens, WTokenParseUtils::TokenStream& Output);
+  WResult ExpandObjectMacro(MacroDefinition& Macro, WTokenParseUtils::TokenStream& Output, const WToken* pMacroToken);
+  WResult ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, WTokenParseUtils::TokenStream& Output, const WToken* pMacroToken);
+  WResult ExpandMacroParam(const WToken& MacroToken, WUInt32 uiParam, WTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
+  void PassThroughFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, WTokenParseUtils::TokenStream& Output);
+  WToken* AddCustomToken(const WToken* pPrevious, const WStringView& sNewText);
+  void OutputNotExpandableMacro(MacroDefinition& Macro, WTokenParseUtils::TokenStream& Output);
+  WResult ExtractAllMacroParameters(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WDeque<WTokenParseUtils::TokenStream>& AllParameters);
+  WResult ExtractParameterValue(const WTokenParseUtils::TokenStream& Tokens, WUInt32& uiCurToken, WTokenParseUtils::TokenStream& ParamTokens);
 
-  ezResult InsertParameters(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
+  WResult InsertParameters(const WTokenParseUtils::TokenStream& Tokens, WTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
 
-  ezResult InsertStringifiedParameters(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
-  ezResult ConcatenateParameters(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
-  void MergeTokens(const ezToken* pFirst, const ezToken* pSecond, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
+  WResult InsertStringifiedParameters(const WTokenParseUtils::TokenStream& Tokens, WTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
+  WResult ConcatenateParameters(const WTokenParseUtils::TokenStream& Tokens, WTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
+  void MergeTokens(const WToken* pFirst, const WToken* pSecond, WTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
 
   struct CustomToken
   {
-    ezToken m_Token;
-    ezString m_sIdentifierString;
+    WToken m_Token;
+    WString m_sIdentifierString;
   };
 
-  enum TokenFlags : ezUInt32
+  enum TokenFlags : WUInt32
   {
-    NoFurtherExpansion = EZ_BIT(0),
+    NoFurtherExpansion = W_BIT(0),
   };
 
-  ezToken m_TokenFile;
-  ezToken m_TokenLine;
-  const ezToken* m_pTokenOpenParenthesis;
-  const ezToken* m_pTokenClosedParenthesis;
-  const ezToken* m_pTokenComma;
+  WToken m_TokenFile;
+  WToken m_TokenLine;
+  const WToken* m_pTokenOpenParenthesis;
+  const WToken* m_pTokenClosedParenthesis;
+  const WToken* m_pTokenComma;
 
-  ezDeque<const MacroParameters*> m_MacroParamStack;
-  ezDeque<const MacroParameters*> m_MacroParamStackExpanded;
-  ezDeque<CustomToken> m_CustomTokens;
+  WDeque<const MacroParameters*> m_MacroParamStack;
+  WDeque<const MacroParameters*> m_MacroParamStackExpanded;
+  WDeque<CustomToken> m_CustomTokens;
 
 private: // *** Other ***
-  static void StringifyTokens(const ezTokenParseUtils::TokenStream& Tokens, ezStringBuilder& sResult, bool bSurroundWithQuotes);
-  ezToken* CreateStringifiedParameter(ezUInt32 uiParam, const ezToken* pParamToken, const MacroDefinition& Macro);
+  static void StringifyTokens(const WTokenParseUtils::TokenStream& Tokens, WStringBuilder& sResult, bool bSurroundWithQuotes);
+  WToken* CreateStringifiedParameter(WUInt32 uiParam, const WToken* pParamToken, const MacroDefinition& Macro);
 
-  ezResult HandleErrorDirective(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleWarningDirective(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleUndef(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  WResult HandleErrorDirective(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken);
+  WResult HandleWarningDirective(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken);
+  WResult HandleUndef(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken);
 
-  ezResult HandleEndif(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleElif(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleIf(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleElse(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleIfdef(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef);
-  ezResult HandleInclude(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, ezTokenParseUtils::TokenStream& TokenOutput);
-  ezResult HandleLine(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, ezTokenParseUtils::TokenStream& TokenOutput);
+  WResult HandleEndif(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken);
+  WResult HandleElif(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken);
+  WResult HandleIf(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken);
+  WResult HandleElse(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken);
+  WResult HandleIfdef(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken, bool bIsIfdef);
+  WResult HandleInclude(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken, WTokenParseUtils::TokenStream& TokenOutput);
+  WResult HandleLine(const WTokenParseUtils::TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken, WTokenParseUtils::TokenStream& TokenOutput);
 };
 
 #define PP_LOG0(Type, FormatStr, ErrorToken)                                                                                                        \
@@ -373,11 +373,11 @@ private: // *** Other ***
     pe.m_sInfo = FormatStr;                                                                                                                         \
     if (pe.m_pToken->m_uiLine == 0 && pe.m_pToken->m_uiColumn == 0)                                                                                 \
     {                                                                                                                                               \
-      const_cast<ezToken*>(pe.m_pToken)->m_uiLine = m_CurrentFileStack.PeekBack().m_iCurrentLine;                                                   \
-      const_cast<ezToken*>(pe.m_pToken)->m_File = m_CurrentFileStack.PeekBack().m_sVirtualFileName;                                                 \
+      const_cast<WToken*>(pe.m_pToken)->m_uiLine = m_CurrentFileStack.PeekBack().m_iCurrentLine;                                                   \
+      const_cast<WToken*>(pe.m_pToken)->m_File = m_CurrentFileStack.PeekBack().m_sVirtualFileName;                                                 \
     }                                                                                                                                               \
     m_ProcessingEvents.Broadcast(pe);                                                                                                               \
-    ezLog::Type(m_pLog, "File '{0}', Line {1} ({2}): " FormatStr, pe.m_pToken->m_File.GetString(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn); \
+    WLog::Type(m_pLog, "File '{0}', Line {1} ({2}): " FormatStr, pe.m_pToken->m_File.GetString(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn); \
   }
 
 #define PP_LOG(Type, FormatStr, ErrorToken, ...)                                                                                                       \
@@ -387,12 +387,12 @@ private: // *** Other ***
     _pe.m_pToken = ErrorToken;                                                                                                                         \
     if (_pe.m_pToken->m_uiLine == 0 && _pe.m_pToken->m_uiColumn == 0)                                                                                  \
     {                                                                                                                                                  \
-      const_cast<ezToken*>(_pe.m_pToken)->m_uiLine = m_CurrentFileStack.PeekBack().m_iCurrentLine;                                                     \
-      const_cast<ezToken*>(_pe.m_pToken)->m_File = m_CurrentFileStack.PeekBack().m_sVirtualFileName;                                                   \
+      const_cast<WToken*>(_pe.m_pToken)->m_uiLine = m_CurrentFileStack.PeekBack().m_iCurrentLine;                                                     \
+      const_cast<WToken*>(_pe.m_pToken)->m_File = m_CurrentFileStack.PeekBack().m_sVirtualFileName;                                                   \
     }                                                                                                                                                  \
-    ezStringBuilder sInfo;                                                                                                                             \
+    WStringBuilder sInfo;                                                                                                                             \
     sInfo.SetFormat(FormatStr, ##__VA_ARGS__);                                                                                                         \
     _pe.m_sInfo = sInfo;                                                                                                                               \
     m_ProcessingEvents.Broadcast(_pe);                                                                                                                 \
-    ezLog::Type(m_pLog, "File '{0}', Line {1} ({2}): {3}", _pe.m_pToken->m_File.GetString(), _pe.m_pToken->m_uiLine, _pe.m_pToken->m_uiColumn, sInfo); \
+    WLog::Type(m_pLog, "File '{0}', Line {1} ({2}): {3}", _pe.m_pToken->m_File.GetString(), _pe.m_pToken->m_uiLine, _pe.m_pToken->m_uiColumn, sInfo); \
   }

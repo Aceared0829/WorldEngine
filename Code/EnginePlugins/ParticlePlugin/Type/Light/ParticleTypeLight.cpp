@@ -10,26 +10,26 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeLightFactory>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTypeLightFactory, 1, WRTTIDefaultAllocator<WParticleTypeLightFactory>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SizeFactor", m_fSizeFactor)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 100000.0f)),
-    EZ_MEMBER_PROPERTY("Percentage", m_uiPercentage)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
-    EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
-    EZ_MEMBER_PROPERTY("IntensityScaleParam", m_sIntensityParameter),
-    EZ_MEMBER_PROPERTY("SizeScaleParam", m_sSizeScaleParameter),
+    W_MEMBER_PROPERTY("SizeFactor", m_fSizeFactor)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.0f, 1000.0f)),
+    W_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, 100000.0f)),
+    W_MEMBER_PROPERTY("Percentage", m_uiPercentage)->AddAttributes(new WDefaultValueAttribute(50), new WClampValueAttribute(1, 100)),
+    W_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
+    W_MEMBER_PROPERTY("IntensityScaleParam", m_sIntensityParameter),
+    W_MEMBER_PROPERTY("SizeScaleParam", m_sSizeScaleParameter),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLight, 1, ezRTTIDefaultAllocator<ezParticleTypeLight>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTypeLight, 1, WRTTIDefaultAllocator<WParticleTypeLight>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleTypeLightFactory::ezParticleTypeLightFactory()
+WParticleTypeLightFactory::WParticleTypeLightFactory()
 {
   m_fSizeFactor = 5.0f;
   m_fIntensity = 10.0f;
@@ -37,21 +37,21 @@ ezParticleTypeLightFactory::ezParticleTypeLightFactory()
 }
 
 
-const ezRTTI* ezParticleTypeLightFactory::GetTypeType() const
+const WRTTI* WParticleTypeLightFactory::GetTypeType() const
 {
-  return ezGetStaticRTTI<ezParticleTypeLight>();
+  return WGetStaticRTTI<WParticleTypeLight>();
 }
 
-void ezParticleTypeLightFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
+void WParticleTypeLightFactory::CopyTypeProperties(WParticleType* pObject, bool bFirstTime) const
 {
-  ezParticleTypeLight* pType = static_cast<ezParticleTypeLight*>(pObject);
+  WParticleTypeLight* pType = static_cast<WParticleTypeLight*>(pObject);
 
   pType->m_fSizeFactor = m_fSizeFactor;
   pType->m_fIntensity = m_fIntensity;
   pType->m_uiPercentage = m_uiPercentage;
-  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
-  pType->m_sIntensityParameter = ezTempHashedString(m_sIntensityParameter.GetData());
-  pType->m_sSizeScaleParameter = ezTempHashedString(m_sSizeScaleParameter.GetData());
+  pType->m_sTintColorParameter = WTempHashedString(m_sTintColorParameter.GetData());
+  pType->m_sIntensityParameter = WTempHashedString(m_sIntensityParameter.GetData());
+  pType->m_sSizeScaleParameter = WTempHashedString(m_sSizeScaleParameter.GetData());
 }
 
 enum class TypeLightVersion
@@ -65,9 +65,9 @@ enum class TypeLightVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeLightFactory::Save(ezStreamWriter& inout_stream) const
+void WParticleTypeLightFactory::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)TypeLightVersion::Version_Current;
+  const WUInt8 uiVersion = (int)TypeLightVersion::Version_Current;
   inout_stream << uiVersion;
 
   inout_stream << m_fSizeFactor;
@@ -80,12 +80,12 @@ void ezParticleTypeLightFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sSizeScaleParameter;
 }
 
-void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleTypeLightFactory::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)TypeLightVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)TypeLightVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   inout_stream >> m_fSizeFactor;
   inout_stream >> m_fIntensity;
@@ -99,69 +99,69 @@ void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream, const ezPart
   }
 }
 
-void ezParticleTypeLight::CreateRequiredStreams()
+void WParticleTypeLight::CreateRequiredStreams()
 {
   m_pStreamOnOff = nullptr;
 
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("Size", WProcessingStream::DataType::Half, &m_pStreamSize, false);
+  CreateStream("Color", WProcessingStream::DataType::Half4, &m_pStreamColor, false);
 
   if (m_uiPercentage < 100)
   {
-    CreateStream("OnOff", ezProcessingStream::DataType::Byte, &m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
+    CreateStream("OnOff", WProcessingStream::DataType::Byte, &m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
   }
 }
 
 
-void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void WParticleTypeLight::ExtractTypeRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const
 {
-  EZ_PROFILE_SCOPE("PFX: Light");
+  W_PROFILE_SCOPE("PFX: Light");
 
-  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
-  const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
+  const WVec4* pPosition = m_pStreamPosition->GetData<WVec4>();
+  const WFloat16* pSize = m_pStreamSize->GetData<WFloat16>();
+  const WColorLinear16f* pColor = m_pStreamColor->GetData<WColorLinear16f>();
 
   if (pPosition == nullptr || pSize == nullptr || pColor == nullptr)
     return;
 
-  ezInt8* pOnOff = nullptr;
+  WInt8* pOnOff = nullptr;
 
   if (m_pStreamOnOff)
   {
-    pOnOff = m_pStreamOnOff->GetWritableData<ezInt8>();
+    pOnOff = m_pStreamOnOff->GetWritableData<WInt8>();
 
     if (pOnOff == nullptr)
       return;
   }
 
-  ezRandom& rng = GetRNG();
+  WRandom& rng = GetRNG();
 
-  const ezUInt32 uiNumParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const WUInt32 uiNumParticles = (WUInt32)GetOwnerSystem()->GetNumActiveParticles();
 
-  const ezUInt32 uiBatchId = 1; // no shadows
+  const WUInt32 uiBatchId = 1; // no shadows
 
-  const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+  const WColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, WColor::White);
   const float intensityScale = GetOwnerEffect()->GetFloatParameter(m_sIntensityParameter, 1.0f);
   const float sizeScale = GetOwnerEffect()->GetFloatParameter(m_sSizeScaleParameter, 1.0f);
 
   const float sizeFactor = m_fSizeFactor * sizeScale;
   const float intensity = intensityScale * m_fIntensity;
 
-  ezTransform transform;
+  WTransform transform;
 
   if (this->GetOwnerEffect()->IsSimulatedInLocalSpace())
     transform = instanceTransform;
   else
     transform.SetIdentity();
 
-  for (ezUInt32 i = 0; i < uiNumParticles; ++i)
+  for (WUInt32 i = 0; i < uiNumParticles; ++i)
   {
     if (pOnOff)
     {
       if (pOnOff[i] == 0)
       {
-        if ((ezUInt32)rng.IntMinMax(0, 100) <= m_uiPercentage)
+        if ((WUInt32)rng.IntMinMax(0, 100) <= m_uiPercentage)
           pOnOff[i] = 1;
         else
           pOnOff[i] = -1;
@@ -171,25 +171,25 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
         continue;
     }
 
-    auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr);
+    auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WPointLightRenderData>(nullptr);
 
     pRenderData->m_vGlobalPosition = transform * pPosition[i].GetAsVec3();
     pRenderData->m_LightColor = tintColor * pColor[i].ToLinearFloat();
     pRenderData->m_fIntensity = intensity;
     pRenderData->m_fSpecularMultiplier = 1.0f;
     pRenderData->m_fRadius = 0.0f;
-    pRenderData->m_fRange = ezMath::Max(0.01f, pSize[i] * sizeFactor);
+    pRenderData->m_fRange = WMath::Max(0.01f, pSize[i] * sizeFactor);
     pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
     pRenderData->m_qGlobalRotation.SetIdentity();
     pRenderData->m_fLength = 0.0f;
 
-    float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(pRenderData->m_vGlobalPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
+    float fScreenSpaceSize = WLightComponent::CalculateScreenSpaceSize(WBoundingSphere::MakeFromCenterAndRadius(pRenderData->m_vGlobalPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
     pRenderData->FillSortingKey(fScreenSpaceSize);
 
-    ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::Never);
+    ref_msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::Light, WRenderData::Caching::Never);
   }
 }
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Light_ParticleTypeLight);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Light_ParticleTypeLight);

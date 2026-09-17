@@ -6,16 +6,16 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <Texture/Utils/TextureAtlasDesc.h>
 
-using ezDecalAtlasResourceHandle = ezTypedResourceHandle<class ezDecalAtlasResource>;
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+using WDecalAtlasResourceHandle = WTypedResourceHandle<class WDecalAtlasResource>;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
 
-class ezImage;
+class WImage;
 
 /// Descriptor for creating a decal atlas resource.
 ///
 /// Currently empty as decal atlases are typically loaded from asset files rather than
 /// created from descriptors at runtime.
-struct ezDecalAtlasResourceDescriptor
+struct WDecalAtlasResourceDescriptor
 {
 };
 
@@ -24,40 +24,40 @@ struct ezDecalAtlasResourceDescriptor
 /// Contains three texture layers (base color, normal, ORM) combined into texture atlases.
 /// Each decal references a region within these atlases. ORM stands for Occlusion, Roughness,
 /// Metallic packed into RGB channels.
-class EZ_RENDERERCORE_DLL ezDecalAtlasResource : public ezResource
+class W_RENDERERCORE_DLL WDecalAtlasResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalAtlasResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezDecalAtlasResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezDecalAtlasResource, ezDecalAtlasResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WDecalAtlasResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WDecalAtlasResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WDecalAtlasResource, WDecalAtlasResourceDescriptor);
 
 public:
-  ezDecalAtlasResource();
+  WDecalAtlasResource();
 
-  const ezTexture2DResourceHandle& GetBaseColorTexture() const { return m_hBaseColor; }
-  const ezTexture2DResourceHandle& GetNormalTexture() const { return m_hNormal; }
-  const ezTexture2DResourceHandle& GetORMTexture() const { return m_hORM; }
-  const ezVec2U32& GetBaseColorTextureSize() const { return m_vBaseColorSize; }
-  const ezVec2U32& GetNormalTextureSize() const { return m_vNormalSize; }
-  const ezVec2U32& GetORMTextureSize() const { return m_vORMSize; }
-  const ezTextureAtlasRuntimeDesc& GetAtlas() const { return m_Atlas; }
+  const WTexture2DResourceHandle& GetBaseColorTexture() const { return m_hBaseColor; }
+  const WTexture2DResourceHandle& GetNormalTexture() const { return m_hNormal; }
+  const WTexture2DResourceHandle& GetORMTexture() const { return m_hORM; }
+  const WVec2U32& GetBaseColorTextureSize() const { return m_vBaseColorSize; }
+  const WVec2U32& GetNormalTextureSize() const { return m_vNormalSize; }
+  const WVec2U32& GetORMTextureSize() const { return m_vORMSize; }
+  const WTextureAtlasRuntimeDesc& GetAtlas() const { return m_Atlas; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void ReportResourceIsMissing() override;
 
-  void ReadDecalInfo(ezStreamReader* Stream);
+  void ReadDecalInfo(WStreamReader* Stream);
 
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  void CreateLayerTexture(const ezImage& img, bool bSRGB, ezTexture2DResourceHandle& out_hTexture);
+  void CreateLayerTexture(const WImage& img, bool bSRGB, WTexture2DResourceHandle& out_hTexture);
 
-  ezTextureAtlasRuntimeDesc m_Atlas;
-  static ezUInt32 s_uiDecalAtlasResources;
-  ezTexture2DResourceHandle m_hBaseColor;
-  ezTexture2DResourceHandle m_hNormal;
-  ezTexture2DResourceHandle m_hORM;
-  ezVec2U32 m_vBaseColorSize;
-  ezVec2U32 m_vNormalSize;
-  ezVec2U32 m_vORMSize;
+  WTextureAtlasRuntimeDesc m_Atlas;
+  static WUInt32 s_uiDecalAtlasResources;
+  WTexture2DResourceHandle m_hBaseColor;
+  WTexture2DResourceHandle m_hNormal;
+  WTexture2DResourceHandle m_hORM;
+  WVec2U32 m_vBaseColorSize;
+  WVec2U32 m_vNormalSize;
+  WVec2U32 m_vORMSize;
 };

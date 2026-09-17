@@ -2,9 +2,9 @@
 
 #include <Foundation/Basics.h>
 
-#define EZ_INCLUDED_WINDOWS_H 1
+#define W_INCLUDED_WINDOWS_H 1
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 // this is important for code that wants to include winsock2.h later on
 #  define _WINSOCKAPI_ /* Prevent inclusion of winsock.h in windows.h */
 
@@ -31,34 +31,34 @@
 
 #  include <Foundation/Platform/Win/Utils/MinWindows.h>
 
-namespace ezMinWindows
+namespace WMinWindows
 {
   template <>
   struct ToNativeImpl<HINSTANCE>
   {
     using type = ::HINSTANCE;
-    static EZ_ALWAYS_INLINE ::HINSTANCE ToNative(HINSTANCE hInstance) { return reinterpret_cast<::HINSTANCE>(hInstance); }
+    static W_ALWAYS_INLINE ::HINSTANCE ToNative(HINSTANCE hInstance) { return reinterpret_cast<::HINSTANCE>(hInstance); }
   };
 
   template <>
   struct ToNativeImpl<HWND>
   {
     using type = ::HWND;
-    static EZ_ALWAYS_INLINE ::HWND ToNative(HWND hWnd) { return reinterpret_cast<::HWND>(hWnd); }
+    static W_ALWAYS_INLINE ::HWND ToNative(HWND hWnd) { return reinterpret_cast<::HWND>(hWnd); }
   };
 
   template <>
   struct FromNativeImpl<::HWND>
   {
     using type = HWND;
-    static EZ_ALWAYS_INLINE HWND FromNative(::HWND hWnd) { return reinterpret_cast<HWND>(hWnd); }
+    static W_ALWAYS_INLINE HWND FromNative(::HWND hWnd) { return reinterpret_cast<HWND>(hWnd); }
   };
 
   template <>
   struct FromNativeImpl<::HINSTANCE>
   {
     using type = HINSTANCE;
-    static EZ_ALWAYS_INLINE HINSTANCE FromNative(::HINSTANCE hInstance) { return reinterpret_cast<HINSTANCE>(hInstance); }
+    static W_ALWAYS_INLINE HINSTANCE FromNative(::HINSTANCE hInstance) { return reinterpret_cast<HINSTANCE>(hInstance); }
   };
-} // namespace ezMinWindows
+} // namespace WMinWindows
 #endif

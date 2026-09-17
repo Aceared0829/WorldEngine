@@ -10,17 +10,17 @@
 #include <QListWidgetItem>
 #include <ads/DockWidget.h>
 
-class ezQtTimeWidget : public ads::CDockWidget, public Ui_TimeWidget
+class WQtTimeWidget : public ads::CDockWidget, public Ui_TimeWidget
 {
 public:
   Q_OBJECT
 
 public:
-  static const ezUInt8 s_uiMaxColors = 9;
+  static const WUInt8 s_uiMaxColors = 9;
 
-  ezQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtTimeWidget* s_pWidget;
+  static WQtTimeWidget* s_pWidget;
 
 private Q_SLOTS:
 
@@ -38,31 +38,31 @@ private:
   QGraphicsPathItem* m_pPathMax;
   QGraphicsScene m_Scene;
 
-  ezUInt32 m_uiMaxSamples;
+  WUInt32 m_uiMaxSamples;
 
-  ezUInt8 m_uiColorsUsed;
+  WUInt8 m_uiColorsUsed;
   bool m_bClocksChanged;
 
-  ezTime m_MaxGlobalTime;
-  ezTime m_DisplayInterval;
-  ezTime m_LastUpdatedClockList;
+  WTime m_MaxGlobalTime;
+  WTime m_DisplayInterval;
+  WTime m_LastUpdatedClockList;
 
   struct TimeSample
   {
-    ezTime m_AtGlobalTime;
-    ezTime m_Timestep;
+    WTime m_AtGlobalTime;
+    WTime m_Timestep;
   };
 
   struct ClockData
   {
-    ezDeque<TimeSample> m_TimeSamples;
+    WDeque<TimeSample> m_TimeSamples;
 
     bool m_bDisplay = true;
-    ezUInt8 m_uiColor = 0xFF;
-    ezTime m_MinTimestep = ezTime::MakeFromSeconds(60.0);
-    ezTime m_MaxTimestep;
+    WUInt8 m_uiColor = 0xFF;
+    WTime m_MinTimestep = WTime::MakeFromSeconds(60.0);
+    WTime m_MaxTimestep;
     QListWidgetItem* m_pListItem = nullptr;
   };
 
-  ezMap<ezString, ClockData> m_ClockData;
+  WMap<WString, ClockData> m_ClockData;
 };

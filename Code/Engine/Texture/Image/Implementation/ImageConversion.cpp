@@ -5,7 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageConversionStep);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WImageConversionStep);
 
 namespace
 {
@@ -13,15 +13,15 @@ namespace
   {
     TableEntry() = default;
 
-    TableEntry(const ezImageConversionStep* pStep, const ezImageConversionEntry& entry)
+    TableEntry(const WImageConversionStep* pStep, const WImageConversionEntry& entry)
     {
       m_step = pStep;
       m_sourceFormat = entry.m_sourceFormat;
       m_targetFormat = entry.m_targetFormat;
-      m_numChannels = ezMath::Min(ezImageFormat::GetNumChannels(entry.m_sourceFormat), ezImageFormat::GetNumChannels(entry.m_targetFormat));
+      m_numChannels = WMath::Min(WImageFormat::GetNumChannels(entry.m_sourceFormat), WImageFormat::GetNumChannels(entry.m_targetFormat));
 
-      float sourceBpp = ezImageFormat::GetExactBitsPerPixel(m_sourceFormat);
-      float targetBpp = ezImageFormat::GetExactBitsPerPixel(m_targetFormat);
+      float sourceBpp = WImageFormat::GetExactBitsPerPixel(m_sourceFormat);
+      float targetBpp = WImageFormat::GetExactBitsPerPixel(m_targetFormat);
 
       m_flags = entry.m_flags;
 
@@ -29,17 +29,17 @@ namespace
       m_cost = sourceBpp + targetBpp;
 
       // Penalty for non-inplace conversion
-      if ((m_flags & ezImageConversionFlags::InPlace) == 0)
+      if ((m_flags & WImageConversionFlags::InPlace) == 0)
       {
         m_cost *= 2;
       }
 
       // Penalize formats that aren't aligned to powers of two
-      if (!ezImageFormat::IsCompressed(m_sourceFormat) && !ezImageFormat::IsCompressed(m_targetFormat))
+      if (!WImageFormat::IsCompressed(m_sourceFormat) && !WImageFormat::IsCompressed(m_targetFormat))
       {
-        auto sourceBppInt = static_cast<ezUInt32>(sourceBpp);
-        auto targetBppInt = static_cast<ezUInt32>(targetBpp);
-        if (!ezMath::IsPowerOf2(sourceBppInt) || !ezMath::IsPowerOf2(targetBppInt))
+        auto sourceBppInt = static_cast<WUInt32>(sourceBpp);
+        auto targetBppInt = static_cast<WUInt32>(targetBpp);
+        if (!WMath::IsPowerOf2(sourceBppInt) || !WMath::IsPowerOf2(targetBppInt))
         {
           m_cost *= 2;
         }
@@ -48,17 +48,17 @@ namespace
       m_cost += entry.m_fAdditionalPenalty;
     }
 
-    const ezImageConversionStep* m_step = nullptr;
-    ezImageFormat::Enum m_sourceFormat = ezImageFormat::UNKNOWN;
-    ezImageFormat::Enum m_targetFormat = ezImageFormat::UNKNOWN;
-    ezBitflags<ezImageConversionFlags> m_flags;
-    float m_cost = ezMath::MaxValue<float>();
-    ezUInt32 m_numChannels = 0;
+    const WImageConversionStep* m_step = nullptr;
+    WImageFormat::Enum m_sourceFormat = WImageFormat::UNKNOWN;
+    WImageFormat::Enum m_targetFormat = WImageFormat::UNKNOWN;
+    WBitflags<WImageConversionFlags> m_flags;
+    float m_cost = WMath::MaxValue<float>();
+    WUInt32 m_numChannels = 0;
 
     static TableEntry chain(const TableEntry& a, const TableEntry& b)
     {
-      if (ezImageFormat::GetExactBitsPerPixel(a.m_sourceFormat) > ezImageFormat::GetExactBitsPerPixel(a.m_targetFormat) &&
-          ezImageFormat::GetExactBitsPerPixel(b.m_sourceFormat) < ezImageFormat::GetExactBitsPerPixel(b.m_targetFormat))
+      if (WImageFormat::GetExactBitsPerPixel(a.m_sourceFormat) > WImageFormat::GetExactBitsPerPixel(a.m_targetFormat) &&
+          WImageFormat::GetExactBitsPerPixel(b.m_sourceFormat) < WImageFormat::GetExactBitsPerPixel(b.m_targetFormat))
       {
         // Disallow chaining conversions which first reduce to a smaller intermediate and then go back to a larger one, since
         // we end up throwing away information.
@@ -71,7 +71,7 @@ namespace
       entry.m_sourceFormat = a.m_sourceFormat;
       entry.m_targetFormat = a.m_targetFormat;
       entry.m_flags = a.m_flags;
-      entry.m_numChannels = ezMath::Min(a.m_numChannels, b.m_numChannels);
+      entry.m_numChannels = WMath::Min(a.m_numChannels, b.m_numChannels);
       return entry;
     }
 
@@ -91,37 +91,37 @@ namespace
       if (m_numChannels == 0)
         return false;
 
-      return m_cost < ezMath::MaxValue<float>();
+      return m_cost < WMath::MaxValue<float>();
     }
   };
 
-  ezMutex s_conversionTableLock;
-  ezHashTable<ezUInt32, TableEntry> s_conversionTable;
+  WMutex s_conversionTableLock;
+  WHashTable<WUInt32, TableEntry> s_conversionTable;
   bool s_conversionTableValid = false;
 
-  constexpr ezUInt32 MakeKey(ezImageFormat::Enum a, ezImageFormat::Enum b)
+  constexpr WUInt32 MakeKey(WImageFormat::Enum a, WImageFormat::Enum b)
   {
-    return a * ezImageFormat::NUM_FORMATS + b;
+    return a * WImageFormat::NUM_FORMATS + b;
   }
-  constexpr ezUInt32 MakeTypeKey(ezImageFormatType::Enum a, ezImageFormatType::Enum b)
+  constexpr WUInt32 MakeTypeKey(WImageFormatType::Enum a, WImageFormatType::Enum b)
   {
     return (a << 16) + b;
   }
 
   struct IntermediateBuffer
   {
-    IntermediateBuffer(ezUInt32 uiBitsPerBlock)
+    IntermediateBuffer(WUInt32 uiBitsPerBlock)
       : m_bitsPerBlock(uiBitsPerBlock)
     {
     }
-    ezUInt32 m_bitsPerBlock;
+    WUInt32 m_bitsPerBlock;
   };
 
-  ezUInt32 allocateScratchBufferIndex(ezDynamicArray<IntermediateBuffer>& ref_scratchBuffers, ezUInt32 uiBitsPerBlock, ezUInt32 uiExcludedIndex)
+  WUInt32 allocateScratchBufferIndex(WDynamicArray<IntermediateBuffer>& ref_scratchBuffers, WUInt32 uiBitsPerBlock, WUInt32 uiExcludedIndex)
   {
     int foundIndex = -1;
 
-    for (ezUInt32 bufferIndex = 0; bufferIndex < ezUInt32(ref_scratchBuffers.GetCount()); ++bufferIndex)
+    for (WUInt32 bufferIndex = 0; bufferIndex < WUInt32(ref_scratchBuffers.GetCount()); ++bufferIndex)
     {
       if (bufferIndex == uiExcludedIndex)
       {
@@ -149,19 +149,19 @@ namespace
   }
 } // namespace
 
-ezImageConversionStep::ezImageConversionStep()
+WImageConversionStep::WImageConversionStep()
 {
   s_conversionTableValid = false;
 }
 
-ezImageConversionStep::~ezImageConversionStep()
+WImageConversionStep::~WImageConversionStep()
 {
   s_conversionTableValid = false;
 }
 
-ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget, ezDynamicArray<ezImageConversion::ConversionPathNode>& out_path, ezUInt32& out_uiNumScratchBuffers)
+WResult WImageConversion::BuildPath(WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat, bool bSourceEqualsTarget, WDynamicArray<WImageConversion::ConversionPathNode>& out_path, WUInt32& out_uiNumScratchBuffers)
 {
-  EZ_LOCK(s_conversionTableLock);
+  W_LOCK(s_conversionTableLock);
 
   out_path.Clear();
   out_uiNumScratchBuffers = 0;
@@ -176,7 +176,7 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
     node.m_targetBufferIndex = 0;
     node.m_step = nullptr;
     out_path.PushBack(node);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (!s_conversionTableValid)
@@ -184,21 +184,21 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
     RebuildConversionTable();
   }
 
-  for (ezImageFormat::Enum current = sourceFormat; current != targetFormat;)
+  for (WImageFormat::Enum current = sourceFormat; current != targetFormat;)
   {
-    ezUInt32 currentTableIndex = MakeKey(current, targetFormat);
+    WUInt32 currentTableIndex = MakeKey(current, targetFormat);
 
     TableEntry entry;
 
     if (!s_conversionTable.TryGetValue(currentTableIndex, entry))
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
-    ezImageConversion::ConversionPathNode step;
+    WImageConversion::ConversionPathNode step;
     step.m_sourceFormat = entry.m_sourceFormat;
     step.m_targetFormat = entry.m_targetFormat;
-    step.m_inPlace = entry.m_flags.IsAnySet(ezImageConversionFlags::InPlace);
+    step.m_inPlace = entry.m_flags.IsAnySet(WImageConversionFlags::InPlace);
     step.m_step = entry.m_step;
 
     current = entry.m_targetFormat;
@@ -206,8 +206,8 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
     out_path.PushBack(step);
   }
 
-  ezTempHybridArray<IntermediateBuffer, 16> scratchBuffers;
-  scratchBuffers.PushBack(IntermediateBuffer(ezImageFormat::GetBitsPerBlock(targetFormat)));
+  WTempHybridArray<IntermediateBuffer, 16> scratchBuffers;
+  scratchBuffers.PushBack(IntermediateBuffer(WImageFormat::GetBitsPerBlock(targetFormat)));
 
   const int iLastPathIndex = out_path.GetCount() - 1;
   for (int i = iLastPathIndex; i >= 0; --i)
@@ -225,7 +225,7 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
       }
       else
       {
-        ezUInt32 bitsPerBlock = ezImageFormat::GetBitsPerBlock(out_path[i].m_sourceFormat);
+        WUInt32 bitsPerBlock = WImageFormat::GetBitsPerBlock(out_path[i].m_sourceFormat);
 
         out_path[i].m_sourceBufferIndex = allocateScratchBufferIndex(scratchBuffers, bitsPerBlock, out_path[i].m_targetBufferIndex);
       }
@@ -243,13 +243,13 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
       if (out_path.GetCount() == 1)
       {
         // Only a single step, so we need to add a copy step
-        ezImageConversion::ConversionPathNode copy;
+        WImageConversion::ConversionPathNode copy;
         copy.m_inPlace = false;
         copy.m_sourceFormat = sourceFormat;
         copy.m_targetFormat = sourceFormat;
         copy.m_sourceBufferIndex = out_path[0].m_sourceBufferIndex;
         copy.m_targetBufferIndex =
-          allocateScratchBufferIndex(scratchBuffers, ezImageFormat::GetBitsPerBlock(out_path[0].m_sourceFormat), out_path[0].m_sourceBufferIndex);
+          allocateScratchBufferIndex(scratchBuffers, WImageFormat::GetBitsPerBlock(out_path[0].m_sourceFormat), out_path[0].m_sourceBufferIndex);
         out_path[0].m_sourceBufferIndex = copy.m_targetBufferIndex;
         copy.m_step = nullptr;
         out_path.InsertAt(0, copy);
@@ -259,7 +259,7 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
         // Turn second step to non-inplace
         out_path[1].m_inPlace = false;
         out_path[1].m_sourceBufferIndex =
-          allocateScratchBufferIndex(scratchBuffers, ezImageFormat::GetBitsPerBlock(out_path[1].m_sourceFormat), out_path[0].m_sourceBufferIndex);
+          allocateScratchBufferIndex(scratchBuffers, WImageFormat::GetBitsPerBlock(out_path[1].m_sourceFormat), out_path[0].m_sourceBufferIndex);
         out_path[0].m_targetBufferIndex = out_path[1].m_sourceBufferIndex;
       }
     }
@@ -271,41 +271,41 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
 
   out_uiNumScratchBuffers = scratchBuffers.GetCount() - 1;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezImageConversion::RebuildConversionTable()
+void WImageConversion::RebuildConversionTable()
 {
-  EZ_LOCK(s_conversionTableLock);
+  W_LOCK(s_conversionTableLock);
 
   s_conversionTable.Clear();
 
   // Prime conversion table with known conversions
-  for (ezImageConversionStep* conversion = ezImageConversionStep::GetFirstInstance(); conversion; conversion = conversion->GetNextInstance())
+  for (WImageConversionStep* conversion = WImageConversionStep::GetFirstInstance(); conversion; conversion = conversion->GetNextInstance())
   {
-    ezArrayPtr<const ezImageConversionEntry> entries = conversion->GetSupportedConversions();
+    WArrayPtr<const WImageConversionEntry> entries = conversion->GetSupportedConversions();
 
-    for (ezUInt32 subIndex = 0; subIndex < (ezUInt32)entries.GetCount(); subIndex++)
+    for (WUInt32 subIndex = 0; subIndex < (WUInt32)entries.GetCount(); subIndex++)
     {
-      const ezImageConversionEntry& subConversion = entries[subIndex];
+      const WImageConversionEntry& subConversion = entries[subIndex];
 
-      if (subConversion.m_flags.IsAnySet(ezImageConversionFlags::InPlace))
+      if (subConversion.m_flags.IsAnySet(WImageConversionFlags::InPlace))
       {
-        EZ_ASSERT_DEV(ezImageFormat::IsCompressed(subConversion.m_sourceFormat) == ezImageFormat::IsCompressed(subConversion.m_targetFormat) &&
-                        ezImageFormat::GetBitsPerBlock(subConversion.m_sourceFormat) == ezImageFormat::GetBitsPerBlock(subConversion.m_targetFormat),
+        W_ASSERT_DEV(WImageFormat::IsCompressed(subConversion.m_sourceFormat) == WImageFormat::IsCompressed(subConversion.m_targetFormat) &&
+                        WImageFormat::GetBitsPerBlock(subConversion.m_sourceFormat) == WImageFormat::GetBitsPerBlock(subConversion.m_targetFormat),
           "In-place conversions are only allowed between formats of the same number of bits per pixel and compressedness");
       }
 
-      if (ezImageFormat::GetType(subConversion.m_sourceFormat) == ezImageFormatType::PLANAR)
+      if (WImageFormat::GetType(subConversion.m_sourceFormat) == WImageFormatType::PLANAR)
       {
-        EZ_ASSERT_DEV(ezImageFormat::GetType(subConversion.m_targetFormat) == ezImageFormatType::LINEAR, "Conversions from planar formats must target linear formats");
+        W_ASSERT_DEV(WImageFormat::GetType(subConversion.m_targetFormat) == WImageFormatType::LINEAR, "Conversions from planar formats must target linear formats");
       }
-      else if (ezImageFormat::GetType(subConversion.m_targetFormat) == ezImageFormatType::PLANAR)
+      else if (WImageFormat::GetType(subConversion.m_targetFormat) == WImageFormatType::PLANAR)
       {
-        EZ_ASSERT_DEV(ezImageFormat::GetType(subConversion.m_sourceFormat) == ezImageFormatType::LINEAR, "Conversions to planar formats must sourced from linear formats");
+        W_ASSERT_DEV(WImageFormat::GetType(subConversion.m_sourceFormat) == WImageFormatType::LINEAR, "Conversions to planar formats must sourced from linear formats");
       }
 
-      ezUInt32 tableIndex = MakeKey(subConversion.m_sourceFormat, subConversion.m_targetFormat);
+      WUInt32 tableIndex = MakeKey(subConversion.m_sourceFormat, subConversion.m_targetFormat);
 
       // Use the cheapest known conversion for each combination in case there are multiple ones
       TableEntry candidate(conversion, subConversion);
@@ -319,25 +319,25 @@ void ezImageConversion::RebuildConversionTable()
     }
   }
 
-  for (ezUInt32 i = 0; i < ezImageFormat::NUM_FORMATS; i++)
+  for (WUInt32 i = 0; i < WImageFormat::NUM_FORMATS; i++)
   {
-    const ezImageFormat::Enum format = static_cast<ezImageFormat::Enum>(i);
+    const WImageFormat::Enum format = static_cast<WImageFormat::Enum>(i);
     // Add copy-conversion (from and to same format)
     s_conversionTable.Insert(
-      MakeKey(format, format), TableEntry(nullptr, ezImageConversionEntry(ezImageConversionEntry(format, format, ezImageConversionFlags::InPlace))));
+      MakeKey(format, format), TableEntry(nullptr, WImageConversionEntry(WImageConversionEntry(format, format, WImageConversionFlags::InPlace))));
   }
 
   // Straight from http://en.wikipedia.org/wiki/Floyd-Warshall_algorithm
-  for (ezUInt32 k = 1; k < ezImageFormat::NUM_FORMATS; k++)
+  for (WUInt32 k = 1; k < WImageFormat::NUM_FORMATS; k++)
   {
-    for (ezUInt32 i = 1; i < ezImageFormat::NUM_FORMATS; i++)
+    for (WUInt32 i = 1; i < WImageFormat::NUM_FORMATS; i++)
     {
       if (k == i)
       {
         continue;
       }
 
-      ezUInt32 tableIndexIK = MakeKey(static_cast<ezImageFormat::Enum>(i), static_cast<ezImageFormat::Enum>(k));
+      WUInt32 tableIndexIK = MakeKey(static_cast<WImageFormat::Enum>(i), static_cast<WImageFormat::Enum>(k));
 
       TableEntry entryIK;
       if (!s_conversionTable.TryGetValue(tableIndexIK, entryIK))
@@ -345,15 +345,15 @@ void ezImageConversion::RebuildConversionTable()
         continue;
       }
 
-      for (ezUInt32 j = 1; j < ezImageFormat::NUM_FORMATS; j++)
+      for (WUInt32 j = 1; j < WImageFormat::NUM_FORMATS; j++)
       {
         if (j == i || j == k)
         {
           continue;
         }
 
-        ezUInt32 tableIndexIJ = MakeKey(static_cast<ezImageFormat::Enum>(i), static_cast<ezImageFormat::Enum>(j));
-        ezUInt32 tableIndexKJ = MakeKey(static_cast<ezImageFormat::Enum>(k), static_cast<ezImageFormat::Enum>(j));
+        WUInt32 tableIndexIJ = MakeKey(static_cast<WImageFormat::Enum>(i), static_cast<WImageFormat::Enum>(j));
+        WUInt32 tableIndexKJ = MakeKey(static_cast<WImageFormat::Enum>(k), static_cast<WImageFormat::Enum>(j));
 
         TableEntry entryKJ;
         if (!s_conversionTable.TryGetValue(tableIndexKJ, entryKJ))
@@ -376,11 +376,11 @@ void ezImageConversion::RebuildConversionTable()
   s_conversionTableValid = true;
 }
 
-ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& ref_target, ezImageFormat::Enum targetFormat)
+WResult WImageConversion::Convert(const WImageView& source, WImage& ref_target, WImageFormat::Enum targetFormat)
 {
-  EZ_PROFILE_SCOPE("ezImageConversion::Convert");
+  W_PROFILE_SCOPE("WImageConversion::Convert");
 
-  ezImageFormat::Enum sourceFormat = source.GetImageFormat();
+  WImageFormat::Enum sourceFormat = source.GetImageFormat();
 
   // Trivial copy
   if (sourceFormat == targetFormat)
@@ -390,108 +390,108 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& ref_targ
       // copy if not already the same
       ref_target.ResetAndCopy(source);
     }
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezTempHybridArray<ConversionPathNode, 16> path;
-  ezUInt32 numScratchBuffers = 0;
+  WTempHybridArray<ConversionPathNode, 16> path;
+  WUInt32 numScratchBuffers = 0;
   if (BuildPath(sourceFormat, targetFormat, &source == &ref_target, path, numScratchBuffers).Failed())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   return Convert(source, ref_target, path, numScratchBuffers);
 }
 
-ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& ref_target, ezArrayPtr<ConversionPathNode> path, ezUInt32 uiNumScratchBuffers)
+WResult WImageConversion::Convert(const WImageView& source, WImage& ref_target, WArrayPtr<ConversionPathNode> path, WUInt32 uiNumScratchBuffers)
 {
-  EZ_ASSERT_DEV(path.GetCount() > 0, "Invalid conversion path");
-  EZ_ASSERT_DEV(path[0].m_sourceFormat == source.GetImageFormat(), "Invalid conversion path");
+  W_ASSERT_DEV(path.GetCount() > 0, "Invalid conversion path");
+  W_ASSERT_DEV(path[0].m_sourceFormat == source.GetImageFormat(), "Invalid conversion path");
 
-  ezTempHybridArray<ezImage, 16> intermediates;
+  WTempHybridArray<WImage, 16> intermediates;
   intermediates.SetCount(uiNumScratchBuffers);
 
-  const ezImageView* pSource = &source;
+  const WImageView* pSource = &source;
 
-  for (ezUInt32 i = 0; i < path.GetCount(); ++i)
+  for (WUInt32 i = 0; i < path.GetCount(); ++i)
   {
-    ezUInt32 targetIndex = path[i].m_targetBufferIndex;
+    WUInt32 targetIndex = path[i].m_targetBufferIndex;
 
-    ezImage* pTarget = targetIndex == 0 ? &ref_target : &intermediates[targetIndex - 1];
+    WImage* pTarget = targetIndex == 0 ? &ref_target : &intermediates[targetIndex - 1];
 
     if (ConvertSingleStep(path[i].m_step, *pSource, *pTarget, path[i].m_targetFormat).Failed())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     pSource = pTarget;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezImageConversion::ConvertRaw(
-  ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat)
+WResult WImageConversion::ConvertRaw(
+  WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat)
 {
   if (uiNumElements == 0)
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   // Trivial copy
   if (sourceFormat == targetFormat)
   {
     if (target.GetPtr() != source.GetPtr())
-      memcpy(target.GetPtr(), source.GetPtr(), uiNumElements * ezUInt64(ezImageFormat::GetBitsPerPixel(sourceFormat)) / 8);
-    return EZ_SUCCESS;
+      memcpy(target.GetPtr(), source.GetPtr(), uiNumElements * WUInt64(WImageFormat::GetBitsPerPixel(sourceFormat)) / 8);
+    return W_SUCCESS;
   }
 
-  if (ezImageFormat::IsCompressed(sourceFormat) || ezImageFormat::IsCompressed(targetFormat))
+  if (WImageFormat::IsCompressed(sourceFormat) || WImageFormat::IsCompressed(targetFormat))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezTempHybridArray<ConversionPathNode, 16> path;
-  ezUInt32 numScratchBuffers;
+  WTempHybridArray<ConversionPathNode, 16> path;
+  WUInt32 numScratchBuffers;
   if (BuildPath(sourceFormat, targetFormat, source.GetPtr() == target.GetPtr(), path, numScratchBuffers).Failed())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   return ConvertRaw(source, target, uiNumElements, path, numScratchBuffers);
 }
 
-ezResult ezImageConversion::ConvertRaw(
-  ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumElements, ezArrayPtr<ConversionPathNode> path, ezUInt32 uiNumScratchBuffers)
+WResult WImageConversion::ConvertRaw(
+  WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumElements, WArrayPtr<ConversionPathNode> path, WUInt32 uiNumScratchBuffers)
 {
-  EZ_ASSERT_DEV(path.GetCount() > 0, "Path of length 0 is invalid.");
+  W_ASSERT_DEV(path.GetCount() > 0, "Path of length 0 is invalid.");
 
   if (uiNumElements == 0)
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  if (ezImageFormat::IsCompressed(path.GetPtr()->m_sourceFormat) || ezImageFormat::IsCompressed((path.GetEndPtr() - 1)->m_targetFormat))
+  if (WImageFormat::IsCompressed(path.GetPtr()->m_sourceFormat) || WImageFormat::IsCompressed((path.GetEndPtr() - 1)->m_targetFormat))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezTempHybridArray<ezBlob, 16> intermediates;
+  WTempHybridArray<WBlob, 16> intermediates;
   intermediates.SetCount(uiNumScratchBuffers);
 
-  for (ezUInt32 i = 0; i < path.GetCount(); ++i)
+  for (WUInt32 i = 0; i < path.GetCount(); ++i)
   {
-    ezUInt32 targetIndex = path[i].m_targetBufferIndex;
-    ezUInt32 targetBpp = ezImageFormat::GetBitsPerPixel(path[i].m_targetFormat);
+    WUInt32 targetIndex = path[i].m_targetBufferIndex;
+    WUInt32 targetBpp = WImageFormat::GetBitsPerPixel(path[i].m_targetFormat);
 
-    ezByteBlobPtr stepTarget;
+    WByteBlobPtr stepTarget;
     if (targetIndex == 0)
     {
       stepTarget = target;
     }
     else
     {
-      ezUInt32 expectedSize = static_cast<ezUInt32>(targetBpp * uiNumElements / 8);
+      WUInt32 expectedSize = static_cast<WUInt32>(targetBpp * uiNumElements / 8);
       intermediates[targetIndex - 1].SetCountUninitialized(expectedSize);
       stepTarget = intermediates[targetIndex - 1].GetByteBlobPtr();
     }
@@ -502,114 +502,114 @@ ezResult ezImageConversion::ConvertRaw(
     }
     else
     {
-      if (static_cast<const ezImageConversionStepLinear*>(path[i].m_step)
+      if (static_cast<const WImageConversionStepLinear*>(path[i].m_step)
             ->ConvertPixels(source, stepTarget, uiNumElements, path[i].m_sourceFormat, path[i].m_targetFormat)
             .Failed())
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
 
     source = stepTarget;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezImageConversion::ConvertSingleStep(
-  const ezImageConversionStep* pStep, const ezImageView& source, ezImage& target, ezImageFormat::Enum targetFormat)
+WResult WImageConversion::ConvertSingleStep(
+  const WImageConversionStep* pStep, const WImageView& source, WImage& target, WImageFormat::Enum targetFormat)
 {
   if (!pStep)
   {
     target.ResetAndCopy(source);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezImageFormat::Enum sourceFormat = source.GetImageFormat();
+  WImageFormat::Enum sourceFormat = source.GetImageFormat();
 
-  ezImageHeader header = source.GetHeader();
+  WImageHeader header = source.GetHeader();
   header.SetImageFormat(targetFormat);
   target.ResetAndAlloc(header);
 
-  switch (MakeTypeKey(ezImageFormat::GetType(sourceFormat), ezImageFormat::GetType(targetFormat)))
+  switch (MakeTypeKey(WImageFormat::GetType(sourceFormat), WImageFormat::GetType(targetFormat)))
   {
-    case MakeTypeKey(ezImageFormatType::LINEAR, ezImageFormatType::LINEAR):
+    case MakeTypeKey(WImageFormatType::LINEAR, WImageFormatType::LINEAR):
     {
       // we have to do the computation in 64-bit otherwise it might overflow for very large textures (8k x 4k or bigger).
-      ezUInt64 numElements = ezUInt64(8) * target.GetByteBlobPtr().GetCount() / (ezUInt64)ezImageFormat::GetBitsPerPixel(targetFormat);
-      return static_cast<const ezImageConversionStepLinear*>(pStep)->ConvertPixels(
-        source.GetByteBlobPtr(), target.GetByteBlobPtr(), (ezUInt32)numElements, sourceFormat, targetFormat);
+      WUInt64 numElements = WUInt64(8) * target.GetByteBlobPtr().GetCount() / (WUInt64)WImageFormat::GetBitsPerPixel(targetFormat);
+      return static_cast<const WImageConversionStepLinear*>(pStep)->ConvertPixels(
+        source.GetByteBlobPtr(), target.GetByteBlobPtr(), (WUInt32)numElements, sourceFormat, targetFormat);
     }
 
-    case MakeTypeKey(ezImageFormatType::LINEAR, ezImageFormatType::BLOCK_COMPRESSED):
+    case MakeTypeKey(WImageFormatType::LINEAR, WImageFormatType::BLOCK_COMPRESSED):
       return ConvertSingleStepCompress(source, target, sourceFormat, targetFormat, pStep);
 
-    case MakeTypeKey(ezImageFormatType::LINEAR, ezImageFormatType::PLANAR):
+    case MakeTypeKey(WImageFormatType::LINEAR, WImageFormatType::PLANAR):
       return ConvertSingleStepPlanarize(source, target, sourceFormat, targetFormat, pStep);
 
-    case MakeTypeKey(ezImageFormatType::BLOCK_COMPRESSED, ezImageFormatType::LINEAR):
+    case MakeTypeKey(WImageFormatType::BLOCK_COMPRESSED, WImageFormatType::LINEAR):
       return ConvertSingleStepDecompress(source, target, sourceFormat, targetFormat, pStep);
 
-    case MakeTypeKey(ezImageFormatType::PLANAR, ezImageFormatType::LINEAR):
+    case MakeTypeKey(WImageFormatType::PLANAR, WImageFormatType::LINEAR):
       return ConvertSingleStepDeplanarize(source, target, sourceFormat, targetFormat, pStep);
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      return EZ_FAILURE;
+      W_ASSERT_NOT_IMPLEMENTED;
+      return W_FAILURE;
   }
 }
 
-ezResult ezImageConversion::ConvertSingleStepDecompress(
-  const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep)
+WResult WImageConversion::ConvertSingleStepDecompress(
+  const WImageView& source, WImage& target, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat, const WImageConversionStep* pStep)
 {
-  for (ezUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
+  for (WUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
   {
-    for (ezUInt32 face = 0; face < source.GetNumFaces(); face++)
+    for (WUInt32 face = 0; face < source.GetNumFaces(); face++)
     {
-      for (ezUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
+      for (WUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
       {
-        const ezUInt32 width = target.GetWidth(mipLevel);
-        const ezUInt32 height = target.GetHeight(mipLevel);
+        const WUInt32 width = target.GetWidth(mipLevel);
+        const WUInt32 height = target.GetHeight(mipLevel);
 
-        const ezUInt32 blockSizeX = ezImageFormat::GetBlockWidth(sourceFormat);
-        const ezUInt32 blockSizeY = ezImageFormat::GetBlockHeight(sourceFormat);
+        const WUInt32 blockSizeX = WImageFormat::GetBlockWidth(sourceFormat);
+        const WUInt32 blockSizeY = WImageFormat::GetBlockHeight(sourceFormat);
 
-        const ezUInt32 numBlocksX = source.GetNumBlocksX(mipLevel);
-        const ezUInt32 numBlocksY = source.GetNumBlocksY(mipLevel);
+        const WUInt32 numBlocksX = source.GetNumBlocksX(mipLevel);
+        const WUInt32 numBlocksY = source.GetNumBlocksY(mipLevel);
 
-        const ezUInt64 targetRowPitch = target.GetRowPitch(mipLevel);
-        const ezUInt32 targetBytesPerPixel = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+        const WUInt64 targetRowPitch = target.GetRowPitch(mipLevel);
+        const WUInt32 targetBytesPerPixel = WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
         // Decompress into a temp memory block so we don't have to explicitly handle the case where the image is not a multiple of the block
         // size
-        ezTempHybridArray<ezUInt8, 256> tempBuffer;
+        WTempHybridArray<WUInt8, 256> tempBuffer;
         tempBuffer.SetCount(numBlocksX * blockSizeX * blockSizeY * targetBytesPerPixel);
 
-        for (ezUInt32 slice = 0; slice < source.GetDepth(mipLevel); slice++)
+        for (WUInt32 slice = 0; slice < source.GetDepth(mipLevel); slice++)
         {
-          for (ezUInt32 blockY = 0; blockY < numBlocksY; blockY++)
+          for (WUInt32 blockY = 0; blockY < numBlocksY; blockY++)
           {
-            ezImageView sourceRowView = source.GetRowView(mipLevel, face, arrayIndex, blockY, slice);
+            WImageView sourceRowView = source.GetRowView(mipLevel, face, arrayIndex, blockY, slice);
 
-            if (static_cast<const ezImageConversionStepDecompressBlocks*>(pStep)
-                  ->DecompressBlocks(sourceRowView.GetByteBlobPtr(), ezByteBlobPtr(tempBuffer.GetData(), tempBuffer.GetCount()), numBlocksX,
+            if (static_cast<const WImageConversionStepDecompressBlocks*>(pStep)
+                  ->DecompressBlocks(sourceRowView.GetByteBlobPtr(), WByteBlobPtr(tempBuffer.GetData(), tempBuffer.GetCount()), numBlocksX,
                     sourceFormat, targetFormat)
                   .Failed())
             {
-              return EZ_FAILURE;
+              return W_FAILURE;
             }
 
-            for (ezUInt32 blockX = 0; blockX < numBlocksX; blockX++)
+            for (WUInt32 blockX = 0; blockX < numBlocksX; blockX++)
             {
-              ezUInt8* targetPointer = target.GetPixelPointer<ezUInt8>(mipLevel, face, arrayIndex, blockX * blockSizeX, blockY * blockSizeY, slice);
+              WUInt8* targetPointer = target.GetPixelPointer<WUInt8>(mipLevel, face, arrayIndex, blockX * blockSizeX, blockY * blockSizeY, slice);
 
               // Copy into actual target, clamping to image dimensions
-              ezUInt32 copyWidth = ezMath::Min(blockSizeX, width - blockX * blockSizeX);
-              ezUInt32 copyHeight = ezMath::Min(blockSizeY, height - blockY * blockSizeY);
-              for (ezUInt32 row = 0; row < copyHeight; row++)
+              WUInt32 copyWidth = WMath::Min(blockSizeX, width - blockX * blockSizeX);
+              WUInt32 copyHeight = WMath::Min(blockSizeY, height - blockY * blockSizeY);
+              for (WUInt32 row = 0; row < copyHeight; row++)
               {
                 memcpy(targetPointer, &tempBuffer[(blockX * blockSizeX + row) * blockSizeY * targetBytesPerPixel],
-                  ezMath::SafeMultiply32(copyWidth, targetBytesPerPixel));
+                  WMath::SafeMultiply32(copyWidth, targetBytesPerPixel));
                 targetPointer += targetRowPitch;
               }
             }
@@ -619,167 +619,167 @@ ezResult ezImageConversion::ConvertSingleStepDecompress(
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezImageConversion::ConvertSingleStepCompress(
-  const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep)
+WResult WImageConversion::ConvertSingleStepCompress(
+  const WImageView& source, WImage& target, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat, const WImageConversionStep* pStep)
 {
-  for (ezUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
+  for (WUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
   {
-    for (ezUInt32 face = 0; face < source.GetNumFaces(); face++)
+    for (WUInt32 face = 0; face < source.GetNumFaces(); face++)
     {
-      for (ezUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
+      for (WUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
       {
-        const ezUInt32 sourceWidth = source.GetWidth(mipLevel);
-        const ezUInt32 sourceHeight = source.GetHeight(mipLevel);
+        const WUInt32 sourceWidth = source.GetWidth(mipLevel);
+        const WUInt32 sourceHeight = source.GetHeight(mipLevel);
 
-        const ezUInt32 numBlocksX = target.GetNumBlocksX(mipLevel);
-        const ezUInt32 numBlocksY = target.GetNumBlocksY(mipLevel);
+        const WUInt32 numBlocksX = target.GetNumBlocksX(mipLevel);
+        const WUInt32 numBlocksY = target.GetNumBlocksY(mipLevel);
 
-        const ezUInt32 targetWidth = numBlocksX * ezImageFormat::GetBlockWidth(targetFormat);
-        const ezUInt32 targetHeight = numBlocksY * ezImageFormat::GetBlockHeight(targetFormat);
+        const WUInt32 targetWidth = numBlocksX * WImageFormat::GetBlockWidth(targetFormat);
+        const WUInt32 targetHeight = numBlocksY * WImageFormat::GetBlockHeight(targetFormat);
 
-        const ezUInt64 sourceRowPitch = source.GetRowPitch(mipLevel);
-        const ezUInt32 sourceBytesPerPixel = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+        const WUInt64 sourceRowPitch = source.GetRowPitch(mipLevel);
+        const WUInt32 sourceBytesPerPixel = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
 
         // Pad image to multiple of block size for compression
-        ezImageHeader paddedSliceHeader;
+        WImageHeader paddedSliceHeader;
         paddedSliceHeader.SetWidth(targetWidth);
         paddedSliceHeader.SetHeight(targetHeight);
         paddedSliceHeader.SetImageFormat(sourceFormat);
 
-        ezImage paddedSlice;
+        WImage paddedSlice;
         paddedSlice.ResetAndAlloc(paddedSliceHeader);
 
-        for (ezUInt32 slice = 0; slice < source.GetDepth(mipLevel); slice++)
+        for (WUInt32 slice = 0; slice < source.GetDepth(mipLevel); slice++)
         {
-          for (ezUInt32 y = 0; y < targetHeight; ++y)
+          for (WUInt32 y = 0; y < targetHeight; ++y)
           {
-            ezUInt32 sourceY = ezMath::Min(y, sourceHeight - 1);
+            WUInt32 sourceY = WMath::Min(y, sourceHeight - 1);
 
             memcpy(paddedSlice.GetPixelPointer<void>(0, 0, 0, 0, y), source.GetPixelPointer<void>(mipLevel, face, arrayIndex, 0, sourceY, slice),
               static_cast<size_t>(sourceRowPitch));
 
-            for (ezUInt32 x = sourceWidth; x < targetWidth; ++x)
+            for (WUInt32 x = sourceWidth; x < targetWidth; ++x)
             {
               memcpy(paddedSlice.GetPixelPointer<void>(0, 0, 0, x, y),
                 source.GetPixelPointer<void>(mipLevel, face, arrayIndex, sourceWidth - 1, sourceY, slice), sourceBytesPerPixel);
             }
           }
 
-          ezResult result = static_cast<const ezImageConversionStepCompressBlocks*>(pStep)->CompressBlocks(paddedSlice.GetByteBlobPtr(),
+          WResult result = static_cast<const WImageConversionStepCompressBlocks*>(pStep)->CompressBlocks(paddedSlice.GetByteBlobPtr(),
             target.GetSliceView(mipLevel, face, arrayIndex, slice).GetByteBlobPtr(), numBlocksX, numBlocksY, sourceFormat, targetFormat);
 
           if (result.Failed())
           {
-            return EZ_FAILURE;
+            return W_FAILURE;
           }
         }
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezImageConversion::ConvertSingleStepDeplanarize(
-  const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep)
+WResult WImageConversion::ConvertSingleStepDeplanarize(
+  const WImageView& source, WImage& target, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat, const WImageConversionStep* pStep)
 {
-  for (ezUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
+  for (WUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
   {
-    for (ezUInt32 face = 0; face < source.GetNumFaces(); face++)
+    for (WUInt32 face = 0; face < source.GetNumFaces(); face++)
     {
-      for (ezUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
+      for (WUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
       {
-        const ezUInt32 width = target.GetWidth(mipLevel);
-        const ezUInt32 height = target.GetHeight(mipLevel);
+        const WUInt32 width = target.GetWidth(mipLevel);
+        const WUInt32 height = target.GetHeight(mipLevel);
 
-        ezTempHybridArray<ezImageView, 2> sourcePlanes;
-        for (ezUInt32 planeIndex = 0; planeIndex < source.GetPlaneCount(); ++planeIndex)
+        WTempHybridArray<WImageView, 2> sourcePlanes;
+        for (WUInt32 planeIndex = 0; planeIndex < source.GetPlaneCount(); ++planeIndex)
         {
-          const ezUInt32 blockSizeX = ezImageFormat::GetBlockWidth(sourceFormat, planeIndex);
-          const ezUInt32 blockSizeY = ezImageFormat::GetBlockHeight(sourceFormat, planeIndex);
+          const WUInt32 blockSizeX = WImageFormat::GetBlockWidth(sourceFormat, planeIndex);
+          const WUInt32 blockSizeY = WImageFormat::GetBlockHeight(sourceFormat, planeIndex);
 
           if (width % blockSizeX != 0 || height % blockSizeY != 0)
           {
             // Input image must be aligned to block dimensions already.
-            return EZ_FAILURE;
+            return W_FAILURE;
           }
 
           sourcePlanes.PushBack(source.GetPlaneView(mipLevel, face, arrayIndex, planeIndex));
         }
 
-        if (static_cast<const ezImageConversionStepDeplanarize*>(pStep)
+        if (static_cast<const WImageConversionStepDeplanarize*>(pStep)
               ->ConvertPixels(sourcePlanes, target.GetSubImageView(mipLevel, face, arrayIndex), width, height, sourceFormat, targetFormat)
               .Failed())
         {
-          return EZ_FAILURE;
+          return W_FAILURE;
         }
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezImageConversion::ConvertSingleStepPlanarize(
-  const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep)
+WResult WImageConversion::ConvertSingleStepPlanarize(
+  const WImageView& source, WImage& target, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat, const WImageConversionStep* pStep)
 {
-  for (ezUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
+  for (WUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
   {
-    for (ezUInt32 face = 0; face < source.GetNumFaces(); face++)
+    for (WUInt32 face = 0; face < source.GetNumFaces(); face++)
     {
-      for (ezUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
+      for (WUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
       {
-        const ezUInt32 width = target.GetWidth(mipLevel);
-        const ezUInt32 height = target.GetHeight(mipLevel);
+        const WUInt32 width = target.GetWidth(mipLevel);
+        const WUInt32 height = target.GetHeight(mipLevel);
 
-        ezTempHybridArray<ezImage, 2> targetPlanes;
-        for (ezUInt32 planeIndex = 0; planeIndex < target.GetPlaneCount(); ++planeIndex)
+        WTempHybridArray<WImage, 2> targetPlanes;
+        for (WUInt32 planeIndex = 0; planeIndex < target.GetPlaneCount(); ++planeIndex)
         {
-          const ezUInt32 blockSizeX = ezImageFormat::GetBlockWidth(targetFormat, planeIndex);
-          const ezUInt32 blockSizeY = ezImageFormat::GetBlockHeight(targetFormat, planeIndex);
+          const WUInt32 blockSizeX = WImageFormat::GetBlockWidth(targetFormat, planeIndex);
+          const WUInt32 blockSizeY = WImageFormat::GetBlockHeight(targetFormat, planeIndex);
 
           if (width % blockSizeX != 0 || height % blockSizeY != 0)
           {
             // Input image must be aligned to block dimensions already.
-            return EZ_FAILURE;
+            return W_FAILURE;
           }
 
           targetPlanes.PushBack(target.GetPlaneView(mipLevel, face, arrayIndex, planeIndex));
         }
 
-        if (static_cast<const ezImageConversionStepPlanarize*>(pStep)
+        if (static_cast<const WImageConversionStepPlanarize*>(pStep)
               ->ConvertPixels(source.GetSubImageView(mipLevel, face, arrayIndex), targetPlanes, width, height, sourceFormat, targetFormat)
               .Failed())
         {
-          return EZ_FAILURE;
+          return W_FAILURE;
         }
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezImageConversion::IsConvertible(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat)
+bool WImageConversion::IsConvertible(WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat)
 {
-  EZ_LOCK(s_conversionTableLock);
+  W_LOCK(s_conversionTableLock);
 
   if (!s_conversionTableValid)
   {
     RebuildConversionTable();
   }
 
-  ezUInt32 tableIndex = MakeKey(sourceFormat, targetFormat);
+  WUInt32 tableIndex = MakeKey(sourceFormat, targetFormat);
   return s_conversionTable.Contains(tableIndex);
 }
 
-ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(
-  ezImageFormat::Enum format, ezArrayPtr<const ezImageFormat::Enum> compatibleFormats)
+WImageFormat::Enum WImageConversion::FindClosestCompatibleFormat(
+  WImageFormat::Enum format, WArrayPtr<const WImageFormat::Enum> compatibleFormats)
 {
-  EZ_LOCK(s_conversionTableLock);
+  W_LOCK(s_conversionTableLock);
 
   if (!s_conversionTableValid)
   {
@@ -787,11 +787,11 @@ ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(
   }
 
   TableEntry bestEntry;
-  ezImageFormat::Enum bestFormat = ezImageFormat::UNKNOWN;
+  WImageFormat::Enum bestFormat = WImageFormat::UNKNOWN;
 
-  for (ezUInt32 targetIndex = 0; targetIndex < ezUInt32(compatibleFormats.GetCount()); targetIndex++)
+  for (WUInt32 targetIndex = 0; targetIndex < WUInt32(compatibleFormats.GetCount()); targetIndex++)
   {
-    ezUInt32 tableIndex = MakeKey(format, compatibleFormats[targetIndex]);
+    WUInt32 tableIndex = MakeKey(format, compatibleFormats[targetIndex]);
     TableEntry candidate;
     if (s_conversionTable.TryGetValue(tableIndex, candidate) && candidate < bestEntry)
     {

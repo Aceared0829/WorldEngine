@@ -4,12 +4,12 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
-ezSkeletonBuilder::ezSkeletonBuilder() = default;
-ezSkeletonBuilder::~ezSkeletonBuilder() = default;
+WSkeletonBuilder::WSkeletonBuilder() = default;
+WSkeletonBuilder::~WSkeletonBuilder() = default;
 
-ezUInt16 ezSkeletonBuilder::AddJoint(ezStringView sName, const ezTransform& localRestPose, ezUInt16 uiParentIndex /*= ezInvalidJointIndex*/)
+WUInt16 WSkeletonBuilder::AddJoint(WStringView sName, const WTransform& localRestPose, WUInt16 uiParentIndex /*= WInvalidJointIndex*/)
 {
-  EZ_ASSERT_DEV(uiParentIndex == ezInvalidJointIndex || uiParentIndex < m_Joints.GetCount(), "Invalid parent index for joint");
+  W_ASSERT_DEV(uiParentIndex == WInvalidJointIndex || uiParentIndex < m_Joints.GetCount(), "Invalid parent index for joint");
 
   auto& joint = m_Joints.ExpandAndGetRef();
 
@@ -18,17 +18,17 @@ ezUInt16 ezSkeletonBuilder::AddJoint(ezStringView sName, const ezTransform& loca
   joint.m_sName.Assign(sName);
   joint.m_uiParentIndex = uiParentIndex;
 
-  if (uiParentIndex != ezInvalidJointIndex)
+  if (uiParentIndex != WInvalidJointIndex)
   {
     joint.m_RestPoseGlobal = m_Joints[joint.m_uiParentIndex].m_RestPoseGlobal * joint.m_RestPoseLocal;
   }
 
   joint.m_InverseRestPoseGlobal = joint.m_RestPoseGlobal.GetInverse();
 
-  return static_cast<ezUInt16>(m_Joints.GetCount() - 1);
+  return static_cast<WUInt16>(m_Joints.GetCount() - 1);
 }
 
-void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle, float fStiffness)
+void WSkeletonBuilder::SetJointLimit(WUInt16 uiJointIndex, const WQuat& qLocalOrientation, WSkeletonJointType::Enum jointType, WAngle halfSwingLimitY, WAngle halfSwingLimitZ, WAngle twistLimitHalfAngle, WAngle twistLimitCenterAngle, float fStiffness)
 {
   auto& j = m_Joints[uiJointIndex];
   j.m_qLocalJointOrientation = qLocalOrientation;
@@ -41,28 +41,28 @@ void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLoca
 }
 
 
-void ezSkeletonBuilder::SetJointSurface(ezUInt16 uiJointIndex, ezStringView sSurface)
+void WSkeletonBuilder::SetJointSurface(WUInt16 uiJointIndex, WStringView sSurface)
 {
   auto& j = m_Joints[uiJointIndex];
   j.m_sSurface = sSurface;
 }
 
-void ezSkeletonBuilder::SetJointCollisionLayer(ezUInt16 uiJointIndex, ezUInt8 uiCollsionLayer)
+void WSkeletonBuilder::SetJointCollisionLayer(WUInt16 uiJointIndex, WUInt8 uiCollsionLayer)
 {
   auto& j = m_Joints[uiJointIndex];
   j.m_uiCollisionLayer = uiCollsionLayer;
 }
 
-void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& ref_skeleton) const
+void WSkeletonBuilder::BuildSkeleton(WSkeleton& ref_skeleton) const
 {
-  // EZ_ASSERT_DEV(HasJoints(), "Can't build a skeleton with no joints!");
+  // W_ASSERT_DEV(HasJoints(), "Can't build a skeleton with no joints!");
 
-  const ezUInt32 numJoints = m_Joints.GetCount();
+  const WUInt32 numJoints = m_Joints.GetCount();
 
   // Copy joints to skeleton
   ref_skeleton.m_Joints.SetCount(numJoints);
 
-  for (ezUInt32 i = 0; i < numJoints; ++i)
+  for (WUInt32 i = 0; i < numJoints; ++i)
   {
     ref_skeleton.m_Joints[i].m_sName = m_Joints[i].m_sName;
     ref_skeleton.m_Joints[i].m_uiParentIndex = m_Joints[i].m_uiParentIndex;
@@ -76,12 +76,12 @@ void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& ref_skeleton) const
     ref_skeleton.m_Joints[i].m_TwistLimitCenterAngle = m_Joints[i].m_TwistLimitCenterAngle;
 
     ref_skeleton.m_Joints[i].m_uiCollisionLayer = m_Joints[i].m_uiCollisionLayer;
-    ref_skeleton.m_Joints[i].m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(m_Joints[i].m_sSurface);
+    ref_skeleton.m_Joints[i].m_hSurface = WResourceManager::LoadResource<WSurfaceResource>(m_Joints[i].m_sSurface);
     ref_skeleton.m_Joints[i].m_fStiffness = m_Joints[i].m_fStiffness;
   }
 }
 
-bool ezSkeletonBuilder::HasJoints() const
+bool WSkeletonBuilder::HasJoints() const
 {
   return !m_Joints.IsEmpty();
 }

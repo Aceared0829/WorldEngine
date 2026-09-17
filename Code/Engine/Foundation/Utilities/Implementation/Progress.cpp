@@ -2,11 +2,11 @@
 
 #include <Foundation/Utilities/Progress.h>
 
-static ezProgress* s_pGlobal = nullptr;
+static WProgress* s_pGlobal = nullptr;
 
-ezProgress::ezProgress() = default;
+WProgress::WProgress() = default;
 
-ezProgress::~ezProgress()
+WProgress::~WProgress()
 {
   if (s_pGlobal == this)
   {
@@ -14,14 +14,14 @@ ezProgress::~ezProgress()
   }
 }
 
-float ezProgress::GetCompletion() const
+float WProgress::GetCompletion() const
 {
   return m_fCurrentCompletion;
 }
 
-void ezProgress::SetCompletion(float fCompletion)
+void WProgress::SetCompletion(float fCompletion)
 {
-  EZ_ASSERT_DEV(fCompletion >= 0.0f && fCompletion <= 1.0f, "Completion value {0} is out of valid range", fCompletion);
+  W_ASSERT_DEV(fCompletion >= 0.0f && fCompletion <= 1.0f, "Completion value {0} is out of valid range", fCompletion);
 
   m_fCurrentCompletion = fCompletion;
 
@@ -29,27 +29,27 @@ void ezProgress::SetCompletion(float fCompletion)
   {
     m_fLastReportedCompletion = fCompletion;
 
-    ezProgressEvent e;
+    WProgressEvent e;
     e.m_pProgressbar = this;
-    e.m_Type = ezProgressEvent::Type::ProgressChanged;
+    e.m_Type = WProgressEvent::Type::ProgressChanged;
 
     m_Events.Broadcast(e, 1);
   }
 }
 
-void ezProgress::Reset()
+void WProgress::Reset()
 {
   m_fCurrentCompletion = 0.0f;
   m_fLastReportedCompletion = 0.0f;
 
-  ezProgressEvent e;
+  WProgressEvent e;
   e.m_pProgressbar = this;
-  e.m_Type = ezProgressEvent::Type::ProgressChanged;
+  e.m_Type = WProgressEvent::Type::ProgressChanged;
 
   m_Events.Broadcast(e, 1);
 }
 
-void ezProgress::SetActiveRange(ezProgressRange* pRange)
+void WProgress::SetActiveRange(WProgressRange* pRange)
 {
   if (m_pActiveRange == nullptr && pRange != nullptr)
   {
@@ -58,18 +58,18 @@ void ezProgress::SetActiveRange(ezProgressRange* pRange)
     m_bCancelClicked = false;
     m_bEnableCancel = pRange->m_bAllowCancel;
 
-    ezProgressEvent e;
+    WProgressEvent e;
     e.m_pProgressbar = this;
-    e.m_Type = ezProgressEvent::Type::ProgressStarted;
+    e.m_Type = WProgressEvent::Type::ProgressStarted;
 
     m_Events.Broadcast(e);
   }
 
   if (m_pActiveRange != nullptr && pRange == nullptr)
   {
-    ezProgressEvent e;
+    WProgressEvent e;
     e.m_pProgressbar = this;
-    e.m_Type = ezProgressEvent::Type::ProgressEnded;
+    e.m_Type = WProgressEvent::Type::ProgressEnded;
 
     m_Events.Broadcast(e);
   }
@@ -83,7 +83,7 @@ void ezProgress::SetActiveRange(ezProgressRange* pRange)
   }
 }
 
-ezStringView ezProgress::GetMainDisplayText() const
+WStringView WProgress::GetMainDisplayText() const
 {
   if (m_pRootRange == nullptr)
     return {};
@@ -91,7 +91,7 @@ ezStringView ezProgress::GetMainDisplayText() const
   return m_pRootRange->m_sDisplayText;
 }
 
-ezStringView ezProgress::GetStepDisplayText() const
+WStringView WProgress::GetStepDisplayText() const
 {
   if (m_pRootRange == nullptr)
     return {};
@@ -99,51 +99,51 @@ ezStringView ezProgress::GetStepDisplayText() const
   return m_pRootRange->m_sStepDisplayText;
 }
 
-void ezProgress::UserClickedCancel()
+void WProgress::UserClickedCancel()
 {
   if (m_bCancelClicked)
     return;
 
   m_bCancelClicked = true;
 
-  ezProgressEvent e;
-  e.m_Type = ezProgressEvent::Type::CancelClicked;
+  WProgressEvent e;
+  e.m_Type = WProgressEvent::Type::CancelClicked;
   e.m_pProgressbar = this;
 
   m_Events.Broadcast(e, 1);
 }
 
-bool ezProgress::WasCanceled() const
+bool WProgress::WasCanceled() const
 {
   return m_bCancelClicked;
 }
 
-bool ezProgress::AllowUserCancel() const
+bool WProgress::AllowUserCancel() const
 {
   return m_bEnableCancel;
 }
 
-ezProgress* ezProgress::GetGlobalProgressbar()
+WProgress* WProgress::GetGlobalProgressbar()
 {
   if (!s_pGlobal)
   {
-    static ezProgress s_Global;
+    static WProgress s_Global;
     return &s_Global;
   }
 
   return s_pGlobal;
 }
 
-void ezProgress::SetGlobalProgressbar(ezProgress* pProgress)
+void WProgress::SetGlobalProgressbar(WProgress* pProgress)
 {
   s_pGlobal = pProgress;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezProgressRange::ezProgressRange(ezStringView sDisplayText, ezUInt32 uiSteps, bool bAllowCancel, ezProgress* pProgressbar /*= nullptr*/)
+WProgressRange::WProgressRange(WStringView sDisplayText, WUInt32 uiSteps, bool bAllowCancel, WProgress* pProgressbar /*= nullptr*/)
 {
-  EZ_ASSERT_DEV(uiSteps > 0, "Every progress range must have at least one step to complete");
+  W_ASSERT_DEV(uiSteps > 0, "Every progress range must have at least one step to complete");
 
   m_iCurrentStep = -1;
   m_fWeightedCompletion = -1.0;
@@ -152,19 +152,19 @@ ezProgressRange::ezProgressRange(ezStringView sDisplayText, ezUInt32 uiSteps, bo
   Init(sDisplayText, bAllowCancel, pProgressbar);
 }
 
-ezProgressRange::ezProgressRange(ezStringView sDisplayText, bool bAllowCancel, ezProgress* pProgressbar /*= nullptr*/)
+WProgressRange::WProgressRange(WStringView sDisplayText, bool bAllowCancel, WProgress* pProgressbar /*= nullptr*/)
 {
   Init(sDisplayText, bAllowCancel, pProgressbar);
 }
 
-void ezProgressRange::Init(ezStringView sDisplayText, bool bAllowCancel, ezProgress* pProgressbar)
+void WProgressRange::Init(WStringView sDisplayText, bool bAllowCancel, WProgress* pProgressbar)
 {
   if (pProgressbar == nullptr)
-    m_pProgressbar = ezProgress::GetGlobalProgressbar();
+    m_pProgressbar = WProgress::GetGlobalProgressbar();
   else
     m_pProgressbar = pProgressbar;
 
-  EZ_ASSERT_DEV(m_pProgressbar != nullptr, "No global progress-bar context available.");
+  W_ASSERT_DEV(m_pProgressbar != nullptr, "No global progress-bar context available.");
 
   m_bAllowCancel = bAllowCancel;
   m_sDisplayText = sDisplayText;
@@ -184,52 +184,52 @@ void ezProgressRange::Init(ezStringView sDisplayText, bool bAllowCancel, ezProgr
   m_pProgressbar->SetActiveRange(this);
 }
 
-ezProgressRange::~ezProgressRange()
+WProgressRange::~WProgressRange()
 {
   m_pProgressbar->SetCompletion((float)(m_fPercentageBase + m_fPercentageRange));
   m_pProgressbar->SetActiveRange(m_pParentRange);
 }
 
-ezProgress* ezProgressRange::GetProgressbar() const
+WProgress* WProgressRange::GetProgressbar() const
 {
   return m_pProgressbar;
 }
 
-void ezProgressRange::SetStepWeighting(ezUInt32 uiStep, float fWeight)
+void WProgressRange::SetStepWeighting(WUInt32 uiStep, float fWeight)
 {
-  EZ_ASSERT_DEV(m_fSummedWeight > 0.0, "This function is only supported if ProgressRange was initialized with steps");
+  W_ASSERT_DEV(m_fSummedWeight > 0.0, "This function is only supported if ProgressRange was initialized with steps");
 
   m_fSummedWeight -= GetStepWeight(uiStep);
   m_fSummedWeight += fWeight;
   m_StepWeights[uiStep] = fWeight;
 }
 
-float ezProgressRange::GetStepWeight(ezUInt32 uiStep) const
+float WProgressRange::GetStepWeight(WUInt32 uiStep) const
 {
   const float* pOldWeight = m_StepWeights.GetValue(uiStep);
   return pOldWeight != nullptr ? *pOldWeight : 1.0f;
 }
 
-void ezProgressRange::ComputeCurStepBaseAndRange(double& out_base, double& out_range)
+void WProgressRange::ComputeCurStepBaseAndRange(double& out_base, double& out_range)
 {
-  const double internalBase = ezMath::Max(m_fWeightedCompletion, 0.0) / m_fSummedWeight;
-  const double internalRange = GetStepWeight(ezMath::Max(m_iCurrentStep, 0)) / m_fSummedWeight;
+  const double internalBase = WMath::Max(m_fWeightedCompletion, 0.0) / m_fSummedWeight;
+  const double internalRange = GetStepWeight(WMath::Max(m_iCurrentStep, 0)) / m_fSummedWeight;
 
   out_range = internalRange * m_fPercentageRange;
   out_base = m_fPercentageBase + (internalBase * m_fPercentageRange);
 
-  EZ_ASSERT_DEBUG(out_base <= 1.0f, "Invalid range");
-  EZ_ASSERT_DEBUG(out_range <= 1.0f, "Invalid range");
-  EZ_ASSERT_DEBUG(out_base + out_range <= 1.0f, "Invalid range");
+  W_ASSERT_DEBUG(out_base <= 1.0f, "Invalid range");
+  W_ASSERT_DEBUG(out_range <= 1.0f, "Invalid range");
+  W_ASSERT_DEBUG(out_base + out_range <= 1.0f, "Invalid range");
 }
 
-bool ezProgressRange::BeginNextStep(ezStringView sStepDisplayText, ezUInt32 uiNumSteps)
+bool WProgressRange::BeginNextStep(WStringView sStepDisplayText, WUInt32 uiNumSteps)
 {
-  EZ_ASSERT_DEV(m_fSummedWeight > 0.0, "This function is only supported if ProgressRange was initialized with steps");
+  W_ASSERT_DEV(m_fSummedWeight > 0.0, "This function is only supported if ProgressRange was initialized with steps");
 
   m_sStepDisplayText = sStepDisplayText;
 
-  for (ezUInt32 i = 0; i < uiNumSteps; ++i)
+  for (WUInt32 i = 0; i < uiNumSteps; ++i)
   {
     m_fWeightedCompletion += GetStepWeight(m_iCurrentStep + i);
   }
@@ -243,9 +243,9 @@ bool ezProgressRange::BeginNextStep(ezStringView sStepDisplayText, ezUInt32 uiNu
   return !m_pProgressbar->WasCanceled();
 }
 
-bool ezProgressRange::SetCompletion(double fCompletionFactor)
+bool WProgressRange::SetCompletion(double fCompletionFactor)
 {
-  EZ_ASSERT_DEV(m_fSummedWeight == 0.0, "This function is only supported if ProgressRange was initialized without steps");
+  W_ASSERT_DEV(m_fSummedWeight == 0.0, "This function is only supported if ProgressRange was initialized without steps");
 
   const double finalCompletion = m_fPercentageBase + fCompletionFactor * m_fPercentageRange;
 
@@ -254,12 +254,12 @@ bool ezProgressRange::SetCompletion(double fCompletionFactor)
   return !m_pProgressbar->WasCanceled();
 }
 
-bool ezProgressRange::WasCanceled() const
+bool WProgressRange::WasCanceled() const
 {
   if (!m_pProgressbar->m_bCancelClicked)
     return false;
 
-  const ezProgressRange* pCur = this;
+  const WProgressRange* pCur = this;
 
   // if there is any action in the stack above, that cannot be canceled
   // all sub actions should be fully executed, even if they could be canceled

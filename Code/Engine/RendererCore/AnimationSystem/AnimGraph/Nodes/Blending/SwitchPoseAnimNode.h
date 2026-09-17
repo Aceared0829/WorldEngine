@@ -6,34 +6,34 @@
 ///
 /// This node selects one pose from multiple inputs by index and smoothly fades to it over a configurable duration.
 /// Useful for state-based animations where you need instant transitions with blending (weapon switching, combat stances).
-class EZ_RENDERERCORE_DLL ezSwitchPoseAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WSwitchPoseAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSwitchPoseAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WSwitchPoseAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSelectPoseAnimNode
+  // WSelectPoseAnimNode
 
 private:
-  ezTime m_TransitionDuration = ezTime::MakeFromMilliseconds(200); // [ property ]
-  ezUInt8 m_uiPosesCount = 0;                                      // [ property ]
-  ezHybridArray<ezAnimGraphLocalPoseInputPin, 4> m_InPoses;        // [ property ]
-  ezAnimGraphNumberInputPin m_InIndex;                             // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;                         // [ property ]
+  WTime m_TransitionDuration = WTime::MakeFromMilliseconds(200); // [ property ]
+  WUInt8 m_uiPosesCount = 0;                                      // [ property ]
+  WHybridArray<WAnimGraphLocalPoseInputPin, 4> m_InPoses;        // [ property ]
+  WAnimGraphNumberInputPin m_InIndex;                             // [ property ]
+  WAnimGraphLocalPoseOutputPin m_OutPose;                         // [ property ]
 
   struct InstanceData
   {
-    ezTime m_TransitionTime;
-    ezInt8 m_iTransitionFromIndex = -1;
-    ezInt8 m_iTransitionToIndex = -1;
+    WTime m_TransitionTime;
+    WInt8 m_iTransitionFromIndex = -1;
+    WInt8 m_iTransitionToIndex = -1;
   };
 };

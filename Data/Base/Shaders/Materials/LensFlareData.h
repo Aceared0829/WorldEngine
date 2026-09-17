@@ -6,7 +6,7 @@
 #define LENS_FLARE_GREYSCALE_TEXTURE (1 << 1)
 #define LENS_FLARE_APPLY_FOG (1 << 3)
 
-struct EZ_SHADER_STRUCT ezPerLensFlareData
+struct W_SHADER_STRUCT WPerLensFlareData
 {
   FLOAT3(WorldSpacePosition);
   FLOAT1(Size);

@@ -4,32 +4,32 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
-ezActionDescriptorHandle ezViewActions::s_hRenderMode;
-ezActionDescriptorHandle ezViewActions::s_hPerspective;
-ezActionDescriptorHandle ezViewActions::s_hActivateRemoteProcess;
-ezActionDescriptorHandle ezViewActions::s_hLinkDeviceCamera;
+WActionDescriptorHandle WViewActions::s_hRenderMode;
+WActionDescriptorHandle WViewActions::s_hPerspective;
+WActionDescriptorHandle WViewActions::s_hActivateRemoteProcess;
+WActionDescriptorHandle WViewActions::s_hLinkDeviceCamera;
 
 
-void ezViewActions::RegisterActions()
+void WViewActions::RegisterActions()
 {
-  s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.svg");
-  s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.svg");
-  s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1("View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
-  s_hLinkDeviceCamera = EZ_REGISTER_ACTION_1("View.LinkDeviceCamera", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::LinkDeviceCamera);
+  s_hRenderMode = W_REGISTER_DYNAMIC_MENU("View.RenderMode", WRenderModeAction, ":/EditorFramework/Icons/RenderMode.svg");
+  s_hPerspective = W_REGISTER_DYNAMIC_MENU("View.RenderPerspective", WPerspectiveAction, ":/EditorFramework/Icons/Perspective.svg");
+  s_hActivateRemoteProcess = W_REGISTER_ACTION_1("View.ActivateRemoteProcess", WActionScope::Window, "View", "", WViewAction, WViewAction::ButtonType::ActivateRemoteProcess);
+  s_hLinkDeviceCamera = W_REGISTER_ACTION_1("View.LinkDeviceCamera", WActionScope::Window, "View", "", WViewAction, WViewAction::ButtonType::LinkDeviceCamera);
 }
 
-void ezViewActions::UnregisterActions()
+void WViewActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hRenderMode);
-  ezActionManager::UnregisterAction(s_hPerspective);
-  ezActionManager::UnregisterAction(s_hActivateRemoteProcess);
-  ezActionManager::UnregisterAction(s_hLinkDeviceCamera);
+  WActionManager::UnregisterAction(s_hRenderMode);
+  WActionManager::UnregisterAction(s_hPerspective);
+  WActionManager::UnregisterAction(s_hActivateRemoteProcess);
+  WActionManager::UnregisterAction(s_hLinkDeviceCamera);
 }
 
-void ezViewActions::MapToolbarActions(ezStringView sMapping, ezUInt32 uiFlags)
+void WViewActions::MapToolbarActions(WStringView sMapping, WUInt32 uiFlags)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   if (uiFlags & Flags::PerspectiveMode)
     pMap->MapAction(s_hPerspective, "", 1.0f);
@@ -45,59 +45,59 @@ void ezViewActions::MapToolbarActions(ezStringView sMapping, ezUInt32 uiFlags)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezRenderModeAction
+// WRenderModeAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderModeAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderModeAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezRenderModeAction::ezRenderModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezEnumerationMenuAction(context, szName, szIconPath)
+WRenderModeAction::WRenderModeAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WEnumerationMenuAction(context, szName, szIconPath)
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
-  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
-  InitEnumerationType(ezGetStaticRTTI<ezViewRenderMode>());
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(context.m_pWindow);
+  W_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'WQtEngineViewWidget'!");
+  InitEnumerationType(WGetStaticRTTI<WViewRenderMode>());
 }
 
-ezInt64 ezRenderModeAction::GetValue() const
+WInt64 WRenderModeAction::GetValue() const
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  return (ezInt64)pView->m_pViewConfig->m_RenderMode;
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
+  return (WInt64)pView->m_pViewConfig->m_RenderMode;
 }
 
-void ezRenderModeAction::Execute(const ezVariant& value)
+void WRenderModeAction::Execute(const WVariant& value)
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  pView->m_pViewConfig->m_RenderMode = (ezViewRenderMode::Enum)value.ConvertTo<ezInt64>();
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
+  pView->m_pViewConfig->m_RenderMode = (WViewRenderMode::Enum)value.ConvertTo<WInt64>();
   TriggerUpdate();
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezPerspectiveAction
+// WPerspectiveAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPerspectiveAction, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPerspectiveAction, 1, WRTTINoAllocator)
   ;
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezPerspectiveAction::ezPerspectiveAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezEnumerationMenuAction(context, szName, szIconPath)
+WPerspectiveAction::WPerspectiveAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WEnumerationMenuAction(context, szName, szIconPath)
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
-  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
-  InitEnumerationType(ezGetStaticRTTI<ezSceneViewPerspective>());
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(context.m_pWindow);
+  W_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'WQtEngineViewWidget'!");
+  InitEnumerationType(WGetStaticRTTI<WSceneViewPerspective>());
 }
 
-ezInt64 ezPerspectiveAction::GetValue() const
+WInt64 WPerspectiveAction::GetValue() const
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  return (ezInt64)pView->m_pViewConfig->m_Perspective;
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
+  return (WInt64)pView->m_pViewConfig->m_Perspective;
 }
 
-void ezPerspectiveAction::Execute(const ezVariant& value)
+void WPerspectiveAction::Execute(const WVariant& value)
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  auto newValue = (ezSceneViewPerspective::Enum)value.ConvertTo<ezInt64>();
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
+  auto newValue = (WSceneViewPerspective::Enum)value.ConvertTo<WInt64>();
 
   if (pView->m_pViewConfig->m_Perspective != newValue)
   {
@@ -109,22 +109,22 @@ void ezPerspectiveAction::Execute(const ezVariant& value)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewAction, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewAction, 1, WRTTINoAllocator)
   ;
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezViewAction::ezViewAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+WViewAction::WViewAction(const WActionContext& context, const char* szName, ButtonType button)
+  : WButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
 
   switch (m_ButtonType)
   {
-    case ezViewAction::ButtonType::ActivateRemoteProcess:
+    case WViewAction::ButtonType::ActivateRemoteProcess:
       SetIconPath(":/EditorFramework/Icons/SwitchToRemoteProcess.svg");
       break;
-    case ezViewAction::ButtonType::LinkDeviceCamera:
+    case WViewAction::ButtonType::LinkDeviceCamera:
       SetIconPath(":/EditorFramework/Icons/LinkDeviceCamera.svg");
       SetCheckable(true);
       SetChecked(pView->m_pViewConfig->m_bUseCameraTransformOnDevice);
@@ -132,25 +132,25 @@ ezViewAction::ezViewAction(const ezActionContext& context, const char* szName, B
   }
 }
 
-ezViewAction::~ezViewAction() = default;
+WViewAction::~WViewAction() = default;
 
-void ezViewAction::Execute(const ezVariant& value)
+void WViewAction::Execute(const WVariant& value)
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
 
   switch (m_ButtonType)
   {
-    case ezViewAction::ButtonType::ActivateRemoteProcess:
+    case WViewAction::ButtonType::ActivateRemoteProcess:
     {
-      ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(ezDynamicCast<ezAssetDocument*>(m_Context.m_pDocument), pView->GetViewID());
+      WEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(WDynamicCast<WAssetDocument*>(m_Context.m_pDocument), pView->GetViewID());
     }
     break;
 
-    case ezViewAction::ButtonType::LinkDeviceCamera:
+    case WViewAction::ButtonType::LinkDeviceCamera:
     {
       pView->m_pViewConfig->m_bUseCameraTransformOnDevice = !pView->m_pViewConfig->m_bUseCameraTransformOnDevice;
       SetChecked(pView->m_pViewConfig->m_bUseCameraTransformOnDevice);
-      ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(ezDynamicCast<ezAssetDocument*>(m_Context.m_pDocument), pView->GetViewID());
+      WEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(WDynamicCast<WAssetDocument*>(m_Context.m_pDocument), pView->GetViewID());
     }
     break;
   }

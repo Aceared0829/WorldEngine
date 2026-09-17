@@ -3,13 +3,13 @@
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <QWidget>
 
-ezQtTreeSearchFilterModel::ezQtTreeSearchFilterModel(QWidget* pParent)
+WQtTreeSearchFilterModel::WQtTreeSearchFilterModel(QWidget* pParent)
   : QSortFilterProxyModel(pParent)
 {
   m_bIncludeChildren = false;
 }
 
-void ezQtTreeSearchFilterModel::SetFilterText(const QString& sText)
+void WQtTreeSearchFilterModel::SetFilterText(const QString& sText)
 {
   // only clear the current visible state, if the new filter text got shorter
   // this way previous information stays valid and can be used to early out
@@ -33,7 +33,7 @@ void ezQtTreeSearchFilterModel::SetFilterText(const QString& sText)
 #endif
 }
 
-void ezQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
+void WQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
 {
   m_bIncludeChildren = true;
 
@@ -51,12 +51,12 @@ void ezQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
   }
 }
 
-void ezQtTreeSearchFilterModel::SetCustomFilterFunc(CustomFilterFunc func)
+void WQtTreeSearchFilterModel::SetCustomFilterFunc(CustomFilterFunc func)
 {
   m_CustomFilterFunc = func;
 }
 
-void ezQtTreeSearchFilterModel::RecomputeVisibleItems()
+void WQtTreeSearchFilterModel::RecomputeVisibleItems()
 {
   m_pSourceModel = sourceModel();
 
@@ -70,7 +70,7 @@ void ezQtTreeSearchFilterModel::RecomputeVisibleItems()
   }
 }
 
-bool ezQtTreeSearchFilterModel::UpdateVisibility(const QModelIndex& idx, bool bParentIsVisible)
+bool WQtTreeSearchFilterModel::UpdateVisibility(const QModelIndex& idx, bool bParentIsVisible)
 {
   bool bExisted = false;
   auto itVis = m_Visible.FindOrAdd(idx, &bExisted);
@@ -113,7 +113,7 @@ bool ezQtTreeSearchFilterModel::UpdateVisibility(const QModelIndex& idx, bool bP
   return bSubTreeAnyVisible;
 }
 
-bool ezQtTreeSearchFilterModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const
+bool WQtTreeSearchFilterModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const
 {
   QModelIndex idx = sourceModel()->index(source_row, 0, source_parent);
 

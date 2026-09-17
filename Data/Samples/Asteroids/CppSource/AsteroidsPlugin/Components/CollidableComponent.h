@@ -3,17 +3,17 @@
 #include <Core/World/World.h>
 
 class CollidableComponent;
-using CollidableComponentManager = ezComponentManager<CollidableComponent, ezBlockStorageType::FreeList>;
+using CollidableComponentManager = WComponentManager<CollidableComponent, WBlockStorageType::FreeList>;
 
-class CollidableComponent : public ezComponent
+class CollidableComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(CollidableComponent, ezComponent, CollidableComponentManager);
+  W_DECLARE_COMPONENT_TYPE(CollidableComponent, WComponent, CollidableComponentManager);
 
 public:
   CollidableComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override {}
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override {}
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override {}
 
   float m_fCollisionRadius;
 };

@@ -9,16 +9,16 @@
 class QWidget;
 class QHBoxLayout;
 class QPushButton;
-class ezQtEngineViewWidget;
-class ezAssetDocument;
-class ezEditorEngineDocumentMsg;
-class ezQtCuratorControl;
-struct ezObjectPickingResult;
-struct ezEngineViewConfig;
-struct ezCommonAssetUiState;
+class WQtEngineViewWidget;
+class WAssetDocument;
+class WEditorEngineDocumentMsg;
+class WQtCuratorControl;
+struct WObjectPickingResult;
+struct WEngineViewConfig;
+struct WCommonAssetUiState;
 
 
-struct EZ_EDITORFRAMEWORK_DLL ezEngineWindowEvent
+struct W_EDITORFRAMEWORK_DLL WEngineWindowEvent
 {
   enum class Type
   {
@@ -27,37 +27,37 @@ struct EZ_EDITORFRAMEWORK_DLL ezEngineWindowEvent
   };
 
   Type m_Type;
-  ezQtEngineViewWidget* m_pView = nullptr;
+  WQtEngineViewWidget* m_pView = nullptr;
 };
 
 /// Base class for all document windows that need a connection to the engine process, and might want to render 3D content.
 ///
-/// This class has an ezEditorEngineConnection object for sending messages between the editor and the engine process.
-/// It also allows to embed ezQtEngineViewWidget objects into the UI, which enable 3D rendering by the engine process.
-class EZ_EDITORFRAMEWORK_DLL ezQtEngineDocumentWindow : public ezQtDocumentWindow
+/// This class has an WEditorEngineConnection object for sending messages between the editor and the engine process.
+/// It also allows to embed WQtEngineViewWidget objects into the UI, which enable 3D rendering by the engine process.
+class W_EDITORFRAMEWORK_DLL WQtEngineDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtEngineDocumentWindow(ezAssetDocument* pDocument);
-  virtual ~ezQtEngineDocumentWindow();
+  WQtEngineDocumentWindow(WAssetDocument* pDocument);
+  virtual ~WQtEngineDocumentWindow();
 
-  ezEditorEngineConnection* GetEditorEngineConnection() const;
-  const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, ezQtEngineViewWidget* pView) const;
+  WEditorEngineConnection* GetEditorEngineConnection() const;
+  const WObjectPickingResult& PickObject(WUInt16 uiScreenPosX, WUInt16 uiScreenPosY, WQtEngineViewWidget* pView) const;
 
-  ezAssetDocument* GetDocument() const;
+  WAssetDocument* GetDocument() const;
 
-  /// Returns the ezQtEngineViewWidget over which the mouse currently hovers
-  ezQtEngineViewWidget* GetHoveredViewWidget() const;
+  /// Returns the WQtEngineViewWidget over which the mouse currently hovers
+  WQtEngineViewWidget* GetHoveredViewWidget() const;
 
-  /// Returns the ezQtEngineViewWidget that has the input focus
-  ezQtEngineViewWidget* GetFocusedViewWidget() const;
+  /// Returns the WQtEngineViewWidget that has the input focus
+  WQtEngineViewWidget* GetFocusedViewWidget() const;
 
-  ezQtEngineViewWidget* GetViewWidgetByID(ezUInt32 uiViewID) const;
+  WQtEngineViewWidget* GetViewWidgetByID(WUInt32 uiViewID) const;
 
-  ezArrayPtr<ezQtEngineViewWidget* const> GetViewWidgets() const;
+  WArrayPtr<WQtEngineViewWidget* const> GetViewWidgets() const;
 
-  void AddViewWidget(ezQtEngineViewWidget* pView);
+  void AddViewWidget(WQtEngineViewWidget* pView);
 
   virtual void CreateImageCapture(const char* szOutputPath) override;
 
@@ -68,24 +68,24 @@ public:
   virtual void SetCameraMode(int iMode) {}
 
   /// Returns the display names for each supported camera mode, in order matching the indices used by GetCameraMode() and SetCameraMode().
-  virtual void GetCameraModeNames(ezDynamicArray<ezString>& out_names) const
+  virtual void GetCameraModeNames(WDynamicArray<WString>& out_names) const
   {
     out_names.PushBack("Orbit Camera");
     out_names.PushBack("Free Camera");
   }
 
 public:
-  mutable ezEvent<const ezEngineWindowEvent&> m_EngineWindowEvent;
+  mutable WEvent<const WEngineWindowEvent&> m_EngineWindowEvent;
 
 protected:
-  friend class ezQtEngineViewWidget;
-  ezHybridArray<ezQtEngineViewWidget*, 4> m_ViewWidgets;
-  ezQtCuratorControl* m_pCuratorControl = nullptr;
+  friend class WQtEngineViewWidget;
+  WHybridArray<WQtEngineViewWidget*, 4> m_ViewWidgets;
+  WQtCuratorControl* m_pCuratorControl = nullptr;
 
-  virtual void CommonAssetUiEventHandler(const ezCommonAssetUiState& e);
+  virtual void CommonAssetUiEventHandler(const WCommonAssetUiState& e);
 
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg);
-  void RemoveViewWidget(ezQtEngineViewWidget* pView);
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg);
+  void RemoveViewWidget(WQtEngineViewWidget* pView);
   void DestroyAllViews();
   virtual void InternalRedraw() override;
 };

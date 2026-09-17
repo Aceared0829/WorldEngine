@@ -22,7 +22,7 @@ jobs:
     runs-on: windows-2025-vs2026
 
     steps:
-      - name: Checkout ezEngine repository
+      - name: Checkout WorldEngine repository
         uses: actions/checkout@v6
         with:
           path: repo
@@ -56,11 +56,11 @@ jobs:
 
       - name: Exclude Unwanted Files
         shell: pwsh
-        run: repo\Utilities\Scripts\exclude-unwanted-files.ps1 -marker platform-windows.ez-exclude
+        run: repo\Utilities\Scripts\exclude-unwanted-files.ps1 -marker platform-windows.W-exclude
 
       - name: Run CMake
         run: |
-          cmake.exe -S repo -B build -G "Visual Studio 18 2026" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
+          cmake.exe -S repo -B build -G "Visual Studio 18 2026" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DW_ENABLE_QT_SUPPORT:BOOL=ON -DW_BUILD_UNITTESTS:BOOL=OFF -DW_SOLUTION_NAME:string="solution"
 
       - name: Build Full Solution
         run:  msbuild build/solution.slnx /p:Configuration=Dev
@@ -85,7 +85,7 @@ jobs:
           mkdir _package\Data
           mkdir _package\Code
           copy repo\version.txt _package
-          copy repo\ezCMakeConfig.cmake _package
+          copy repo\WCMakeConfig.cmake _package
           xcopy repo\Output _package\Output /s
           xcopy repo\Data _package\Data /s
           xcopy repo\Code _package\Code /s
@@ -98,12 +98,12 @@ jobs:
 
       - name: Create Zip Archive
         run: |
-          repo\Data\Tools\Precompiled\7z.exe a ezEngine.Release.${{ steps.sdk-version.outputs.content }}.zip .\_package\* -mx9
+          repo\Data\Tools\Precompiled\7z.exe a WorldEngine.Release.${{ steps.sdk-version.outputs.content }}.zip .\_package\* -mx9
 
       - name: Artifact - Release Package
         if: github.event.inputs.release-artifact == 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: ezEngine.Release.${{ steps.sdk-version.outputs.content }}
-          path: ezEngine.Release.${{ steps.sdk-version.outputs.content }}.zip
+          name: WorldEngine.Release.${{ steps.sdk-version.outputs.content }}
+          path: WorldEngine.Release.${{ steps.sdk-version.outputs.content }}.zip
           retention-days: 3

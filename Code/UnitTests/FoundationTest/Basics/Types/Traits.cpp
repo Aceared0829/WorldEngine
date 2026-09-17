@@ -9,7 +9,7 @@ namespace
     int m_1;
     float m_2;
 
-    EZ_DETECT_TYPE_CLASS(int, float);
+    W_DETECT_TYPE_CLASS(int, float);
   };
 
   struct AggregatePod2
@@ -18,12 +18,12 @@ namespace
     float m_2;
     AggregatePod m_3;
 
-    EZ_DETECT_TYPE_CLASS(int, float, AggregatePod);
+    W_DETECT_TYPE_CLASS(int, float, AggregatePod);
   };
 
   struct MemRelocateable
   {
-    EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+    W_DECLARE_MEM_RELOCATABLE_TYPE();
   };
 
   struct AggregateMemRelocateable
@@ -33,7 +33,7 @@ namespace
     AggregatePod m_3;
     MemRelocateable m_4;
 
-    EZ_DETECT_TYPE_CLASS(int, float, AggregatePod, MemRelocateable);
+    W_DETECT_TYPE_CLASS(int, float, AggregatePod, MemRelocateable);
   };
 
   class ClassType
@@ -48,13 +48,13 @@ namespace
     MemRelocateable m_4;
     ClassType m_5;
 
-    EZ_DETECT_TYPE_CLASS(int, float, AggregatePod, MemRelocateable, ClassType);
+    W_DETECT_TYPE_CLASS(int, float, AggregatePod, MemRelocateable, ClassType);
   };
 
-  static_assert(ezGetTypeClass<AggregatePod>::value == ezTypeIsPod::value);
-  static_assert(ezGetTypeClass<AggregatePod2>::value == ezTypeIsPod::value);
-  static_assert(ezGetTypeClass<MemRelocateable>::value == ezTypeIsMemRelocatable::value);
-  static_assert(ezGetTypeClass<AggregateMemRelocateable>::value == ezTypeIsMemRelocatable::value);
-  static_assert(ezGetTypeClass<ClassType>::value == ezTypeIsClass::value);
-  static_assert(ezGetTypeClass<AggregateClass>::value == ezTypeIsClass::value);
+  static_assert(WGetTypeClass<AggregatePod>::value == WTypeIsPod::value);
+  static_assert(WGetTypeClass<AggregatePod2>::value == WTypeIsPod::value);
+  static_assert(WGetTypeClass<MemRelocateable>::value == WTypeIsMemRelocatable::value);
+  static_assert(WGetTypeClass<AggregateMemRelocateable>::value == WTypeIsMemRelocatable::value);
+  static_assert(WGetTypeClass<ClassType>::value == WTypeIsClass::value);
+  static_assert(WGetTypeClass<AggregateClass>::value == WTypeIsClass::value);
 } // namespace

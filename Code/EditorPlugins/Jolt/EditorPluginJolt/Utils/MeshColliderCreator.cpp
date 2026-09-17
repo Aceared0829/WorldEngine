@@ -9,171 +9,171 @@
 
 namespace
 {
-  constexpr ezStringView s_sTriangleExtension = "ezJoltCollisionMeshAsset"_ezsv;
-  constexpr ezStringView s_sConvexExtension = "ezJoltConvexCollisionMeshAsset"_ezsv;
+  constexpr WStringView s_sTriangleExtension = "WJoltCollisionMeshAsset"_wsv;
+  constexpr WStringView s_sConvexExtension = "WJoltConvexCollisionMeshAsset"_wsv;
 
   /// Read alongside the import properties, but not transferred: the collision mesh asset has no
   /// equivalent, it only tells us whether there is a source file at all.
-  constexpr ezStringView s_sPrimitiveType = "PrimitiveType"_ezsv;
+  constexpr WStringView s_sPrimitiveType = "PrimitiveType"_wsv;
 
 } // namespace
 
-ezUuid ezMeshColliderSource::GetExisting(ezEnum<ezMeshColliderKind> kind) const
+WUuid WMeshColliderSource::GetExisting(WEnum<WMeshColliderKind> kind) const
 {
-  return (kind == ezMeshColliderKind::ConvexHull) ? m_ExistingConvexColMesh : m_ExistingTriangleColMesh;
+  return (kind == WMeshColliderKind::ConvexHull) ? m_ExistingConvexColMesh : m_ExistingTriangleColMesh;
 }
 
-bool ezMeshColliderCreator::IsMeshAsset(const ezUuid& assetGuid)
+bool WMeshColliderCreator::IsMeshAsset(const WUuid& assetGuid)
 {
-  return ezMeshColliderUtils::IsMeshAsset(assetGuid);
+  return WMeshColliderUtils::IsMeshAsset(assetGuid);
 }
 
-ezResult ezMeshColliderCreator::GatherMeshColliderSource(const ezUuid& meshAssetGuid, ezMeshColliderSource& out_source)
+WResult WMeshColliderCreator::GatherMeshColliderSource(const WUuid& meshAssetGuid, WMeshColliderSource& out_source)
 {
-  out_source = ezMeshColliderSource();
+  out_source = WMeshColliderSource();
   out_source.m_MeshAssetGuid = meshAssetGuid;
 
-  ezStringBuilder sMeshAssetPath;
+  WStringBuilder sMeshAssetPath;
 
   // the curator lock must not be held while documents are opened further below
   {
-    auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(meshAssetGuid);
+    auto pSubAsset = WAssetCurator::GetSingleton()->GetSubAsset(meshAssetGuid);
     if (!pSubAsset.isValid() || pSubAsset->m_pAssetInfo == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
+    const WAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
     if (pAssetInfo->m_pDocumentTypeDescriptor == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezStringView sDocType = pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
-    if (sDocType != ezMeshColliderUtils::s_sMeshDocType && sDocType != ezMeshColliderUtils::s_sAnimatedMeshDocType)
-      return EZ_FAILURE;
+    const WStringView sDocType = pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
+    if (sDocType != WMeshColliderUtils::s_sMeshDocType && sDocType != WMeshColliderUtils::s_sAnimatedMeshDocType)
+      return W_FAILURE;
 
-    out_source.m_bAnimated = (sDocType == ezMeshColliderUtils::s_sAnimatedMeshDocType);
+    out_source.m_bAnimated = (sDocType == WMeshColliderUtils::s_sAnimatedMeshDocType);
     sMeshAssetPath = pAssetInfo->m_Path.GetAbsolutePath();
     out_source.m_sMeshAssetPath = sMeshAssetPath;
   }
 
-  ezHybridArray<ezStringView, 24> toRead;
-  toRead = ezMeshColliderUtils::GetImportPropertyNames();
-  toRead.PushBackRange(ezMeshColliderUtils::GetSimplificationPropertyNames());
+  WHybridArray<WStringView, 24> toRead;
+  toRead = WMeshColliderUtils::GetImportPropertyNames();
+  toRead.PushBackRange(WMeshColliderUtils::GetSimplificationPropertyNames());
   toRead.PushBack(s_sPrimitiveType);
 
   // failing to read the properties leaves the source without a mesh file, which the caller reports
-  ezMeshColliderUtils::ReadMeshProperties(sMeshAssetPath, toRead, out_source.m_ImportProperties).IgnoreResult();
+  WMeshColliderUtils::ReadMeshProperties(sMeshAssetPath, toRead, out_source.m_ImportProperties).IgnoreResult();
 
   // a primitive mesh is generated procedurally, there is no model file for the collision mesh asset
-  ezVariant primitiveType;
+  WVariant primitiveType;
   if (out_source.m_ImportProperties.TryGetValue(s_sPrimitiveType, primitiveType))
   {
-    out_source.m_bIsPrimitive = primitiveType.ConvertTo<ezInt64>() != 0; // 0 is ezMeshPrimitive::File
+    out_source.m_bIsPrimitive = primitiveType.ConvertTo<WInt64>() != 0; // 0 is WMeshPrimitive::File
     out_source.m_ImportProperties.Remove(s_sPrimitiveType);
   }
 
-  ezVariant meshFile;
-  if (!out_source.m_bIsPrimitive && out_source.m_ImportProperties.TryGetValue("MeshFile"_ezsv, meshFile) && meshFile.IsA<ezString>())
+  WVariant meshFile;
+  if (!out_source.m_bIsPrimitive && out_source.m_ImportProperties.TryGetValue("MeshFile"_wsv, meshFile) && meshFile.IsA<WString>())
   {
-    out_source.m_sMeshFile = meshFile.Get<ezString>();
+    out_source.m_sMeshFile = meshFile.Get<WString>();
   }
 
-  out_source.m_ExistingTriangleColMesh = ezMeshColliderUtils::FindExisting(ezCollisionMeshKind::TriangleMesh, out_source.m_sMeshFile, out_source.m_ImportProperties, out_source.m_sMeshAssetPath);
-  out_source.m_ExistingConvexColMesh = ezMeshColliderUtils::FindExisting(ezCollisionMeshKind::ConvexHull, out_source.m_sMeshFile, out_source.m_ImportProperties, out_source.m_sMeshAssetPath);
+  out_source.m_ExistingTriangleColMesh = WMeshColliderUtils::FindExisting(WCollisionMeshKind::TriangleMesh, out_source.m_sMeshFile, out_source.m_ImportProperties, out_source.m_sMeshAssetPath);
+  out_source.m_ExistingConvexColMesh = WMeshColliderUtils::FindExisting(WCollisionMeshKind::ConvexHull, out_source.m_sMeshFile, out_source.m_ImportProperties, out_source.m_sMeshAssetPath);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezString ezMeshColliderCreator::SuggestColliderPath(const ezMeshColliderSource& source, ezEnum<ezMeshColliderKind> kind, bool bAllowExisting)
+WString WMeshColliderCreator::SuggestColliderPath(const WMeshColliderSource& source, WEnum<WMeshColliderKind> kind, bool bAllowExisting)
 {
-  const ezStringView sExtension = (kind == ezMeshColliderKind::ConvexHull) ? s_sConvexExtension : s_sTriangleExtension;
+  const WStringView sExtension = (kind == WMeshColliderKind::ConvexHull) ? s_sConvexExtension : s_sTriangleExtension;
 
-  ezStringBuilder sPath = source.m_sMeshAssetPath;
+  WStringBuilder sPath = source.m_sMeshAssetPath;
   sPath.ChangeFileExtension(sExtension);
 
-  if (bAllowExisting || !ezOSFile::ExistsFile(sPath))
+  if (bAllowExisting || !WOSFile::ExistsFile(sPath))
     return sPath;
 
-  const ezString sBaseName = ezPathUtils::GetFileName(sPath);
+  const WString sBaseName = WPathUtils::GetFileName(sPath);
 
-  for (ezUInt32 i = 2; i < 100; ++i)
+  for (WUInt32 i = 2; i < 100; ++i)
   {
-    ezStringBuilder sCandidateName;
+    WStringBuilder sCandidateName;
     sCandidateName.SetFormat("{}{}", sBaseName, i);
 
-    ezStringBuilder sCandidate = sPath;
+    WStringBuilder sCandidate = sPath;
     sCandidate.ChangeFileName(sCandidateName);
 
-    if (!ezOSFile::ExistsFile(sCandidate))
+    if (!WOSFile::ExistsFile(sCandidate))
       return sCandidate;
   }
 
   return sPath;
 }
 
-ezString ezMeshColliderCreator::MakeDisplayPath(ezStringView sAbsolutePath)
+WString WMeshColliderCreator::MakeDisplayPath(WStringView sAbsolutePath)
 {
-  ezStringBuilder sPath = sAbsolutePath;
-  ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath);
+  WStringBuilder sPath = sAbsolutePath;
+  WQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath);
   return sPath;
 }
 
-ezResult ezMeshColliderCreator::ResolveDisplayPath(ezStringView sPath, ezStringBuilder& out_sAbsolutePath)
+WResult WMeshColliderCreator::ResolveDisplayPath(WStringView sPath, WStringBuilder& out_sAbsolutePath)
 {
   out_sAbsolutePath = sPath;
 
   if (out_sAbsolutePath.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // the file is about to be created, so it does not exist yet
-  return ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(out_sAbsolutePath, false) ? EZ_SUCCESS : EZ_FAILURE;
+  return WQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(out_sAbsolutePath, false) ? W_SUCCESS : W_FAILURE;
 }
 
-ezStatus ezMeshColliderCreator::CreateMeshCollider(const ezMeshColliderSource& source, const ezMeshColliderOptions& options)
+WStatus WMeshColliderCreator::CreateMeshCollider(const WMeshColliderSource& source, const WMeshColliderOptions& options)
 {
   // An empty path means "wherever this collider belongs", which is what creating several at once uses.
-  ezStringBuilder sColliderPath;
+  WStringBuilder sColliderPath;
   if (options.m_sColliderPath.IsEmpty())
   {
     sColliderPath = SuggestColliderPath(source, options.m_Kind);
   }
   else if (ResolveDisplayPath(options.m_sColliderPath, sColliderPath).Failed())
   {
-    return ezStatus(ezFmt("'{}' does not name a known data directory.", options.m_sColliderPath));
+    return WStatus(WFmt("'{}' does not name a known data directory.", options.m_sColliderPath));
   }
 
   if (sColliderPath.IsEmpty())
-    return ezStatus("No path for the collision mesh asset was given.");
+    return WStatus("No path for the collision mesh asset was given.");
 
   if (source.m_bIsPrimitive)
-    return ezStatus("This mesh asset uses a procedural primitive, not a model file, so no collision mesh can be generated from it.");
+    return WStatus("This mesh asset uses a procedural primitive, not a model file, so no collision mesh can be generated from it.");
 
   if (source.m_sMeshFile.IsEmpty())
-    return ezStatus("The source file of this mesh asset could not be read, so no collision mesh can be generated from it.");
+    return WStatus("The source file of this mesh asset could not be read, so no collision mesh can be generated from it.");
 
-  const ezEnum<ezCollisionMeshKind> kind = (options.m_Kind == ezMeshColliderKind::ConvexHull) ? ezCollisionMeshKind::ConvexHull : ezCollisionMeshKind::TriangleMesh;
+  const WEnum<WCollisionMeshKind> kind = (options.m_Kind == WMeshColliderKind::ConvexHull) ? WCollisionMeshKind::ConvexHull : WCollisionMeshKind::TriangleMesh;
 
-  ezUuid colliderGuid;
-  EZ_SUCCEED_OR_RETURN(ezMeshColliderUtils::CreateCollisionMesh(sColliderPath, kind, source.m_ImportProperties, options.m_sSurface, options.m_bOverwriteExisting, colliderGuid));
+  WUuid colliderGuid;
+  W_SUCCEED_OR_RETURN(WMeshColliderUtils::CreateCollisionMesh(sColliderPath, kind, source.m_ImportProperties, options.m_sSurface, options.m_bOverwriteExisting, colliderGuid));
 
   if (options.m_bOpenAfterCreate)
   {
-    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sColliderPath);
+    WQtEditorApp::GetSingleton()->OpenDocumentQueued(sColliderPath);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezMeshColliderCreator::CreateMeshColliders(ezArrayPtr<const ezUuid> meshAssetGuids, const ezMeshColliderOptions& options, ezUInt32& out_uiCreated, ezUInt32& out_uiSkipped)
+WStatus WMeshColliderCreator::CreateMeshColliders(WArrayPtr<const WUuid> meshAssetGuids, const WMeshColliderOptions& options, WUInt32& out_uiCreated, WUInt32& out_uiSkipped)
 {
   out_uiCreated = 0;
   out_uiSkipped = 0;
 
   // The path is decided per mesh below, so a path meant for a single collider must not leak in.
-  ezMeshColliderOptions perMesh = options;
+  WMeshColliderOptions perMesh = options;
   perMesh.m_sColliderPath.Clear();
 
-  for (const ezUuid& meshGuid : meshAssetGuids)
+  for (const WUuid& meshGuid : meshAssetGuids)
   {
-    ezMeshColliderSource source;
+    WMeshColliderSource source;
     if (GatherMeshColliderSource(meshGuid, source).Failed())
     {
       // not a mesh asset - with a mixed selection this is the normal case, not a problem
@@ -184,26 +184,26 @@ ezStatus ezMeshColliderCreator::CreateMeshColliders(ezArrayPtr<const ezUuid> mes
     // a collider built from the same model file counts wherever it sits, unlike the path check below
     if (!options.m_bOverwriteExisting && source.GetExisting(options.m_Kind).IsValid())
     {
-      ezLog::Info("Skipping '{}': a collision mesh built from the same model file already exists.", MakeDisplayPath(source.m_sMeshAssetPath));
+      WLog::Info("Skipping '{}': a collision mesh built from the same model file already exists.", MakeDisplayPath(source.m_sMeshAssetPath));
       ++out_uiSkipped;
       continue;
     }
 
     if (source.m_bIsPrimitive || source.m_sMeshFile.IsEmpty())
     {
-      ezLog::Info("Skipping '{}': it has no model file to build a collision mesh from.", MakeDisplayPath(source.m_sMeshAssetPath));
+      WLog::Info("Skipping '{}': it has no model file to build a collision mesh from.", MakeDisplayPath(source.m_sMeshAssetPath));
       ++out_uiSkipped;
       continue;
     }
 
     // SuggestColliderPath() dodges an existing file by appending a number, which is wrong here: a
     // mesh that already has a collider is done, it should not get a second, numbered one.
-    ezStringBuilder sPath = source.m_sMeshAssetPath;
-    sPath.ChangeFileExtension((options.m_Kind == ezMeshColliderKind::ConvexHull) ? s_sConvexExtension : s_sTriangleExtension);
+    WStringBuilder sPath = source.m_sMeshAssetPath;
+    sPath.ChangeFileExtension((options.m_Kind == WMeshColliderKind::ConvexHull) ? s_sConvexExtension : s_sTriangleExtension);
 
-    if (!options.m_bOverwriteExisting && ezOSFile::ExistsFile(sPath))
+    if (!options.m_bOverwriteExisting && WOSFile::ExistsFile(sPath))
     {
-      ezLog::Info("Skipping '{}': '{}' already exists.", MakeDisplayPath(source.m_sMeshAssetPath), MakeDisplayPath(sPath));
+      WLog::Info("Skipping '{}': '{}' already exists.", MakeDisplayPath(source.m_sMeshAssetPath), MakeDisplayPath(sPath));
       ++out_uiSkipped;
       continue;
     }
@@ -211,11 +211,11 @@ ezStatus ezMeshColliderCreator::CreateMeshColliders(ezArrayPtr<const ezUuid> mes
     perMesh.m_sColliderPath = sPath;
 
     // "nothing to do here" was handled above, so what is left is a real failure and stops the run
-    EZ_SUCCEED_OR_RETURN(CreateMeshCollider(source, perMesh));
+    W_SUCCEED_OR_RETURN(CreateMeshCollider(source, perMesh));
 
-    ezLog::Success("Created '{}'.", MakeDisplayPath(sPath));
+    WLog::Success("Created '{}'.", MakeDisplayPath(sPath));
     ++out_uiCreated;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

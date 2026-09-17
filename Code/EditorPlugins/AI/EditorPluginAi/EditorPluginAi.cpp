@@ -13,45 +13,45 @@
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
-static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+static void ToolsProjectEventHandler(const WToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
-  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
+  WToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
-  ezAiActions::RegisterActions();
-  ezAiActions::MapMenuActions();
+  WAiActions::RegisterActions();
+  WAiActions::MapMenuActions();
 }
 
 void OnUnloadPlugin()
 {
-  ezAiActions::UnregisterActions();
-  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
+  WAiActions::UnregisterActions();
+  WToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }
 
 void UpdateGroundTypeDynamicEnumValues()
 {
-  ezAiNavigationConfig cfg;
+  WAiNavigationConfig cfg;
   cfg.Load().IgnoreResult();
 
   {
-    auto& cfe = ezDynamicEnum::GetDynamicEnum("AiGroundType");
+    auto& cfe = WDynamicEnum::GetDynamicEnum("AiGroundType");
     cfe.Clear();
 
     cfe.SetValueAndName(-1, "<Undefined>");
 
     // add all names and values that are active
-    for (ezInt32 i = 0; i < ezAiNumGroundTypes; ++i)
+    for (WInt32 i = 0; i < WAiNumGroundTypes; ++i)
     {
       if (cfg.m_GroundTypes[i].m_bUsed)
       {
@@ -61,7 +61,7 @@ void UpdateGroundTypeDynamicEnumValues()
   }
 
   {
-    auto& de = ezDynamicStringEnum::CreateDynamicEnum("AiPathSearchConfig");
+    auto& de = WDynamicStringEnum::CreateDynamicEnum("AiPathSearchConfig");
     de.Clear();
 
     for (const auto& pc : cfg.m_PathSearchConfigs)
@@ -73,7 +73,7 @@ void UpdateGroundTypeDynamicEnumValues()
   }
 
   {
-    auto& de = ezDynamicStringEnum::CreateDynamicEnum("AiNavmeshConfig");
+    auto& de = WDynamicStringEnum::CreateDynamicEnum("AiNavmeshConfig");
     de.Clear();
 
     for (const auto& pc : cfg.m_NavmeshConfigs)
@@ -85,13 +85,13 @@ void UpdateGroundTypeDynamicEnumValues()
   }
 }
 
-static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+static void ToolsProjectEventHandler(const WToolsProjectEvent& e)
 {
-  if (e.m_Type == ezToolsProjectEvent::Type::ProjectSaveState)
+  if (e.m_Type == WToolsProjectEvent::Type::ProjectSaveState)
   {
   }
 
-  if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
+  if (e.m_Type == WToolsProjectEvent::Type::ProjectOpened)
   {
     UpdateGroundTypeDynamicEnumValues();
   }

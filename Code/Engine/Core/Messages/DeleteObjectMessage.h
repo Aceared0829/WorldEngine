@@ -8,13 +8,13 @@
 /// When sent to a game object, this message will cause it to be deleted. Can also clean up
 /// empty parent objects in the hierarchy and provides cancellation capability for components
 /// that need to orchestrate the deletion timing.
-struct EZ_CORE_DLL ezMsgDeleteGameObject : public ezMessage
+struct W_CORE_DLL WMsgDeleteGameObject : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgDeleteGameObject, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgDeleteGameObject, WMessage);
 
   /// If set to true, any parent/ancestor that has no other children or components will also be deleted.
   bool m_bDeleteEmptyParents = true;
 
-  /// This is used by ezOnComponentFinishedAction to orchestrate when an object shall really be deleted.
+  /// This is used by WOnComponentFinishedAction to orchestrate when an object shall really be deleted.
   bool m_bCancel = false;
 };

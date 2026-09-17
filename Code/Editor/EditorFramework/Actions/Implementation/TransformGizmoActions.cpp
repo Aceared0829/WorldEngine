@@ -5,20 +5,20 @@
 #include <EditorFramework/EditTools/StandardGizmoEditTools.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGizmoAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName, const ezRTTI* pGizmoType)
-  : ezButtonAction(context, szName, false, "")
+WGizmoAction::WGizmoAction(const WActionContext& context, const char* szName, const WRTTI* pGizmoType)
+  : WButtonAction(context, szName, false, "")
 {
   SetCheckable(true);
   m_pGizmoType = pGizmoType;
-  m_pGameObjectDocument = static_cast<ezGameObjectDocument*>(context.m_pDocument);
-  m_pGameObjectDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezGizmoAction::GameObjectEventHandler, this));
+  m_pGameObjectDocument = static_cast<WGameObjectDocument*>(context.m_pDocument);
+  m_pGameObjectDocument->m_GameObjectEvents.AddEventHandler(WMakeDelegate(&WGizmoAction::GameObjectEventHandler, this));
 
   if (m_pGizmoType)
   {
-    ezStringBuilder sIcon(":/TypeIcons/", m_pGizmoType->GetTypeName(), ".svg");
+    WStringBuilder sIcon(":/TypeIcons/", m_pGizmoType->GetTypeName(), ".svg");
     SetIconPath(sIcon);
   }
   else
@@ -29,36 +29,36 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
   UpdateState();
 }
 
-ezGizmoAction::~ezGizmoAction()
+WGizmoAction::~WGizmoAction()
 {
-  m_pGameObjectDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezGizmoAction::GameObjectEventHandler, this));
+  m_pGameObjectDocument->m_GameObjectEvents.RemoveEventHandler(WMakeDelegate(&WGizmoAction::GameObjectEventHandler, this));
 }
 
-void ezGizmoAction::Execute(const ezVariant& value)
+void WGizmoAction::Execute(const WVariant& value)
 {
   m_pGameObjectDocument->SetActiveEditTool(m_pGizmoType);
   UpdateState();
 }
 
-void ezGizmoAction::UpdateState()
+void WGizmoAction::UpdateState()
 {
   SetChecked(m_pGameObjectDocument->IsActiveEditTool(m_pGizmoType));
 }
 
-void ezGizmoAction::GameObjectEventHandler(const ezGameObjectEvent& e)
+void WGizmoAction::GameObjectEventHandler(const WGameObjectEvent& e)
 {
-  if (e.m_Type == ezGameObjectEvent::Type::ActiveEditToolChanged)
+  if (e.m_Type == WGameObjectEvent::Type::ActiveEditToolChanged)
     UpdateState();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezToggleWorldSpaceGizmo::ezToggleWorldSpaceGizmo(const ezActionContext& context, const char* szName, const ezRTTI* pGizmoType)
-  : ezGizmoAction(context, szName, pGizmoType)
+WToggleWorldSpaceGizmo::WToggleWorldSpaceGizmo(const WActionContext& context, const char* szName, const WRTTI* pGizmoType)
+  : WGizmoAction(context, szName, pGizmoType)
 {
 }
 
-void ezToggleWorldSpaceGizmo::Execute(const ezVariant& value)
+void WToggleWorldSpaceGizmo::Execute(const WVariant& value)
 {
   if (m_pGameObjectDocument->IsActiveEditTool(m_pGizmoType))
   {
@@ -67,129 +67,129 @@ void ezToggleWorldSpaceGizmo::Execute(const ezVariant& value)
   }
   else
   {
-    ezGizmoAction::Execute(value);
+    WGizmoAction::Execute(value);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezSnapTranslationMenuAction : public ezDynamicMenuAction
+class WSnapTranslationMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSnapTranslationMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WSnapTranslationMenuAction, WDynamicMenuAction);
 
 public:
-  ezSnapTranslationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  WSnapTranslationMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WDynamicMenuAction(context, szName, szIconPath)
   {
     UpdateIcon();
 
-    ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezSnapTranslationMenuAction::SnapEvent, this));
+    WSnapProvider::s_Events.AddEventHandler(WMakeDelegate(&WSnapTranslationMenuAction::SnapEvent, this));
   }
 
-  ~ezSnapTranslationMenuAction()
+  ~WSnapTranslationMenuAction()
   {
-    ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSnapTranslationMenuAction::SnapEvent, this));
+    WSnapProvider::s_Events.RemoveEventHandler(WMakeDelegate(&WSnapTranslationMenuAction::SnapEvent, this));
   }
 
-  void SnapEvent(const ezSnapProviderEvent& e)
+  void SnapEvent(const WSnapProviderEvent& e)
   {
     UpdateIcon();
   }
 
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override
   {
     out_entries.Clear();
 
-    const float fValue = ezSnapProvider::GetTranslationSnapValue();
+    const float fValue = WSnapProvider::GetTranslationSnapValue();
 
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 0.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0");
+      e.m_CheckState = (fValue == 0.0f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.0");
       e.m_UserValue = 0.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 0.01f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_01");
+      e.m_CheckState = (fValue == 0.01f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.0_01");
       e.m_UserValue = 0.01f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 0.05f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_05");
+      e.m_CheckState = (fValue == 0.05f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.0_05");
       e.m_UserValue = 0.05f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_1");
+      e.m_CheckState = (fValue == 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.0_1");
       e.m_UserValue = 0.1f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 0.2f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_2");
+      e.m_CheckState = (fValue == 0.2f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.0_2");
       e.m_UserValue = 0.2f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 0.25f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_25");
+      e.m_CheckState = (fValue == 0.25f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.0_25");
       e.m_UserValue = 0.25f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 0.5f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_5");
+      e.m_CheckState = (fValue == 0.5f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.0_5");
       e.m_UserValue = 0.5f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 1.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.1");
+      e.m_CheckState = (fValue == 1.0f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.1");
       e.m_UserValue = 1.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 2.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.2");
+      e.m_CheckState = (fValue == 2.0f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.2");
       e.m_UserValue = 2.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 4.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.4");
+      e.m_CheckState = (fValue == 4.0f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.4");
       e.m_UserValue = 4.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 5.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.5");
+      e.m_CheckState = (fValue == 5.0f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.5");
       e.m_UserValue = 5.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 8.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.8");
+      e.m_CheckState = (fValue == 8.0f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.8");
       e.m_UserValue = 8.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = (fValue == 10.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.10");
+      e.m_CheckState = (fValue == 10.0f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Translate.Snap.10");
       e.m_UserValue = 10.0f;
     }
   }
 
-  virtual void Execute(const ezVariant& value) override
+  virtual void Execute(const WVariant& value) override
   {
-    ezSnapProvider::SetTranslationSnapValue(value.Get<float>());
+    WSnapProvider::SetTranslationSnapValue(value.Get<float>());
   };
 
   void UpdateIcon()
   {
-    const float fValue = ezSnapProvider::GetTranslationSnapValue();
+    const float fValue = WSnapProvider::GetTranslationSnapValue();
 
     if (fValue == 0.0f)
       SetIconPath(":EditorFramework/Icons/Snap0cm.svg");
@@ -222,301 +222,301 @@ public:
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSnapTranslationMenuAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSnapTranslationMenuAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezSnapRotationMenuAction : public ezDynamicMenuAction
+class WSnapRotationMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSnapRotationMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WSnapRotationMenuAction, WDynamicMenuAction);
 
 public:
-  ezSnapRotationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  WSnapRotationMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WDynamicMenuAction(context, szName, szIconPath)
   {
     UpdateIcon();
 
-    ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezSnapRotationMenuAction::SnapEvent, this));
+    WSnapProvider::s_Events.AddEventHandler(WMakeDelegate(&WSnapRotationMenuAction::SnapEvent, this));
   }
 
-  ~ezSnapRotationMenuAction()
+  ~WSnapRotationMenuAction()
   {
-    ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSnapRotationMenuAction::SnapEvent, this));
+    WSnapProvider::s_Events.RemoveEventHandler(WMakeDelegate(&WSnapRotationMenuAction::SnapEvent, this));
   }
 
-  void SnapEvent(const ezSnapProviderEvent& e)
+  void SnapEvent(const WSnapProviderEvent& e)
   {
     UpdateIcon();
   }
 
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override
   {
     out_entries.Clear();
 
-    const float fValue = ezSnapProvider::GetRotationSnapValue().GetDegree();
+    const float fValue = WSnapProvider::GetRotationSnapValue().GetDegree();
 
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 0.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.0_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 0.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.0_Degree");
       e.m_UserValue = 0.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 1.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.1_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 1.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.1_Degree");
       e.m_UserValue = 1.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 5.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.5_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 5.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.5_Degree");
       e.m_UserValue = 5.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 10.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.10_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 10.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.10_Degree");
       e.m_UserValue = 10.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 15.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.15_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 15.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.15_Degree");
       e.m_UserValue = 15.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 22.5f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.22_5_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 22.5f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.22_5_Degree");
       e.m_UserValue = 22.5f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 30.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.30_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 30.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.30_Degree");
       e.m_UserValue = 30.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 45.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.45_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 45.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.45_Degree");
       e.m_UserValue = 45.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 90.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.90_Degree");
+      e.m_CheckState = WMath::IsEqual(fValue, 90.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Rotation.Snap.90_Degree");
       e.m_UserValue = 90.0f;
     }
   }
 
-  virtual void Execute(const ezVariant& value) override
+  virtual void Execute(const WVariant& value) override
   {
-    ezSnapProvider::SetRotationSnapValue(ezAngle::MakeFromDegree(value.Get<float>()));
+    WSnapProvider::SetRotationSnapValue(WAngle::MakeFromDegree(value.Get<float>()));
   };
 
   void UpdateIcon()
   {
-    const float fValue = ezSnapProvider::GetRotationSnapValue().GetDegree();
+    const float fValue = WSnapProvider::GetRotationSnapValue().GetDegree();
 
-    if (ezMath::IsEqual(fValue, 0.0f, 0.1f))
+    if (WMath::IsEqual(fValue, 0.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap0deg.svg");
-    else if (ezMath::IsEqual(fValue, 1.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 1.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap1deg.svg");
-    else if (ezMath::IsEqual(fValue, 5.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 5.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap5deg.svg");
-    else if (ezMath::IsEqual(fValue, 10.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 10.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap10deg.svg");
-    else if (ezMath::IsEqual(fValue, 15.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 15.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap15deg.svg");
-    else if (ezMath::IsEqual(fValue, 22.5f, 0.1f))
+    else if (WMath::IsEqual(fValue, 22.5f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap22deg.svg");
-    else if (ezMath::IsEqual(fValue, 30.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 30.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap30deg.svg");
-    else if (ezMath::IsEqual(fValue, 45.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 45.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap45deg.svg");
-    else if (ezMath::IsEqual(fValue, 90.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 90.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap90deg.svg");
 
     TriggerUpdate();
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSnapRotationMenuAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSnapRotationMenuAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezSnapScaleMenuAction : public ezDynamicMenuAction
+class WSnapScaleMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSnapScaleMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WSnapScaleMenuAction, WDynamicMenuAction);
 
 public:
-  ezSnapScaleMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  WSnapScaleMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WDynamicMenuAction(context, szName, szIconPath)
   {
     UpdateIcon();
 
-    ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezSnapScaleMenuAction::SnapEvent, this));
+    WSnapProvider::s_Events.AddEventHandler(WMakeDelegate(&WSnapScaleMenuAction::SnapEvent, this));
   }
 
-  ~ezSnapScaleMenuAction()
+  ~WSnapScaleMenuAction()
   {
-    ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSnapScaleMenuAction::SnapEvent, this));
+    WSnapProvider::s_Events.RemoveEventHandler(WMakeDelegate(&WSnapScaleMenuAction::SnapEvent, this));
   }
 
-  void SnapEvent(const ezSnapProviderEvent& e)
+  void SnapEvent(const WSnapProviderEvent& e)
   {
     UpdateIcon();
   }
 
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override
   {
     out_entries.Clear();
 
-    const float fValue = ezSnapProvider::GetScaleSnapValue();
+    const float fValue = WSnapProvider::GetScaleSnapValue();
 
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 0.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.0");
+      e.m_CheckState = WMath::IsEqual(fValue, 0.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Scale.Snap.0");
       e.m_UserValue = 0.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 0.125f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.0_125");
+      e.m_CheckState = WMath::IsEqual(fValue, 0.125f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Scale.Snap.0_125");
       e.m_UserValue = 0.125f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 0.25f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.0_25");
+      e.m_CheckState = WMath::IsEqual(fValue, 0.25f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Scale.Snap.0_25");
       e.m_UserValue = 0.25f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 0.5f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.0_5");
+      e.m_CheckState = WMath::IsEqual(fValue, 0.5f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Scale.Snap.0_5");
       e.m_UserValue = 0.5f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 1.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.1");
+      e.m_CheckState = WMath::IsEqual(fValue, 1.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Scale.Snap.1");
       e.m_UserValue = 1.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 2.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.2");
+      e.m_CheckState = WMath::IsEqual(fValue, 2.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Scale.Snap.2");
       e.m_UserValue = 2.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
-      e.m_CheckState = ezMath::IsEqual(fValue, 4.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.4");
+      e.m_CheckState = WMath::IsEqual(fValue, 4.0f, 0.1f) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = WTranslate("Gizmo.Scale.Snap.4");
       e.m_UserValue = 4.0f;
     }
   }
 
-  virtual void Execute(const ezVariant& value) override
+  virtual void Execute(const WVariant& value) override
   {
-    ezSnapProvider::SetScaleSnapValue(value.Get<float>());
+    WSnapProvider::SetScaleSnapValue(value.Get<float>());
   };
 
   void UpdateIcon()
   {
-    const float fValue = ezSnapProvider::GetScaleSnapValue();
+    const float fValue = WSnapProvider::GetScaleSnapValue();
 
-    if (ezMath::IsEqual(fValue, 0.0f, 0.1f))
+    if (WMath::IsEqual(fValue, 0.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap0x.svg");
-    else if (ezMath::IsEqual(fValue, 0.125f, 0.05f))
+    else if (WMath::IsEqual(fValue, 0.125f, 0.05f))
       SetIconPath(":EditorFramework/Icons/Snap0125x.svg");
-    else if (ezMath::IsEqual(fValue, 0.25f, 0.1f))
+    else if (WMath::IsEqual(fValue, 0.25f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap025x.svg");
-    else if (ezMath::IsEqual(fValue, 0.5f, 0.1f))
+    else if (WMath::IsEqual(fValue, 0.5f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap05x.svg");
-    else if (ezMath::IsEqual(fValue, 1.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 1.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap1x.svg");
-    else if (ezMath::IsEqual(fValue, 2.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 2.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap2x.svg");
-    else if (ezMath::IsEqual(fValue, 4.0f, 0.1f))
+    else if (WMath::IsEqual(fValue, 4.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap4x.svg");
 
     TriggerUpdate();
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSnapScaleMenuAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSnapScaleMenuAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezActionDescriptorHandle ezTransformGizmoActions::s_hGizmoCategory;
-ezActionDescriptorHandle ezTransformGizmoActions::s_hGizmoMenu;
-ezActionDescriptorHandle ezTransformGizmoActions::s_hNoGizmo;
-ezActionDescriptorHandle ezTransformGizmoActions::s_hTranslateGizmo;
-ezActionDescriptorHandle ezTransformGizmoActions::s_hRotateGizmo;
-ezActionDescriptorHandle ezTransformGizmoActions::s_hScaleGizmo;
-ezActionDescriptorHandle ezTransformGizmoActions::s_hDragToPositionGizmo;
-ezActionDescriptorHandle ezTransformGizmoActions::s_hWorldSpace;
-ezActionDescriptorHandle ezTransformGizmoActions::s_hMoveParentOnly;
-ezActionDescriptorHandle ezTransformGizmoActions::s_SnapSettings;
-ezActionDescriptorHandle ezTransformGizmoActions::s_SnapTranslationMenu;
-ezActionDescriptorHandle ezTransformGizmoActions::s_SnapRotationMenu;
-ezActionDescriptorHandle ezTransformGizmoActions::s_SnapScaleMenu;
+WActionDescriptorHandle WTransformGizmoActions::s_hGizmoCategory;
+WActionDescriptorHandle WTransformGizmoActions::s_hGizmoMenu;
+WActionDescriptorHandle WTransformGizmoActions::s_hNoGizmo;
+WActionDescriptorHandle WTransformGizmoActions::s_hTranslateGizmo;
+WActionDescriptorHandle WTransformGizmoActions::s_hRotateGizmo;
+WActionDescriptorHandle WTransformGizmoActions::s_hScaleGizmo;
+WActionDescriptorHandle WTransformGizmoActions::s_hDragToPositionGizmo;
+WActionDescriptorHandle WTransformGizmoActions::s_hWorldSpace;
+WActionDescriptorHandle WTransformGizmoActions::s_hMoveParentOnly;
+WActionDescriptorHandle WTransformGizmoActions::s_SnapSettings;
+WActionDescriptorHandle WTransformGizmoActions::s_SnapTranslationMenu;
+WActionDescriptorHandle WTransformGizmoActions::s_SnapRotationMenu;
+WActionDescriptorHandle WTransformGizmoActions::s_SnapScaleMenu;
 
-void ezTransformGizmoActions::RegisterActions()
+void WTransformGizmoActions::RegisterActions()
 {
-  s_hGizmoCategory = EZ_REGISTER_CATEGORY("GizmoCategory");
-  s_hGizmoMenu = EZ_REGISTER_MENU("G.Gizmos");
-  s_hNoGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Select", ezActionScope::Document, "Gizmo", "Q", ezGizmoAction, nullptr);
-  s_hTranslateGizmo = EZ_REGISTER_ACTION_1(
-    "Gizmo.Mode.Translate", ezActionScope::Document, "Gizmo", "W", ezToggleWorldSpaceGizmo, ezGetStaticRTTI<ezTranslateGizmoEditTool>());
-  s_hRotateGizmo = EZ_REGISTER_ACTION_1(
-    "Gizmo.Mode.Rotate", ezActionScope::Document, "Gizmo", "E", ezToggleWorldSpaceGizmo, ezGetStaticRTTI<ezRotateGizmoEditTool>());
+  s_hGizmoCategory = W_REGISTER_CATEGORY("GizmoCategory");
+  s_hGizmoMenu = W_REGISTER_MENU("G.Gizmos");
+  s_hNoGizmo = W_REGISTER_ACTION_1("Gizmo.Mode.Select", WActionScope::Document, "Gizmo", "Q", WGizmoAction, nullptr);
+  s_hTranslateGizmo = W_REGISTER_ACTION_1(
+    "Gizmo.Mode.Translate", WActionScope::Document, "Gizmo", "W", WToggleWorldSpaceGizmo, WGetStaticRTTI<WTranslateGizmoEditTool>());
+  s_hRotateGizmo = W_REGISTER_ACTION_1(
+    "Gizmo.Mode.Rotate", WActionScope::Document, "Gizmo", "E", WToggleWorldSpaceGizmo, WGetStaticRTTI<WRotateGizmoEditTool>());
   s_hScaleGizmo =
-    EZ_REGISTER_ACTION_1("Gizmo.Mode.Scale", ezActionScope::Document, "Gizmo", "R", ezGizmoAction, ezGetStaticRTTI<ezScaleGizmoEditTool>());
-  s_hDragToPositionGizmo = EZ_REGISTER_ACTION_1(
-    "Gizmo.Mode.DragToPosition", ezActionScope::Document, "Gizmo", "T", ezGizmoAction, ezGetStaticRTTI<ezDragToPositionGizmoEditTool>());
-  s_hWorldSpace = EZ_REGISTER_ACTION_1(
-    "Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "X", ezTransformGizmoAction, ezTransformGizmoAction::ActionType::GizmoToggleWorldSpace);
-  s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
-    ezTransformGizmoAction::ActionType::GizmoToggleMoveParentOnly);
-  s_SnapSettings = EZ_REGISTER_ACTION_1(
-    "Gizmo.SnapSettings", ezActionScope::Document, "Gizmo", "End", ezTransformGizmoAction, ezTransformGizmoAction::ActionType::GizmoSnapSettings);
+    W_REGISTER_ACTION_1("Gizmo.Mode.Scale", WActionScope::Document, "Gizmo", "R", WGizmoAction, WGetStaticRTTI<WScaleGizmoEditTool>());
+  s_hDragToPositionGizmo = W_REGISTER_ACTION_1(
+    "Gizmo.Mode.DragToPosition", WActionScope::Document, "Gizmo", "T", WGizmoAction, WGetStaticRTTI<WDragToPositionGizmoEditTool>());
+  s_hWorldSpace = W_REGISTER_ACTION_1(
+    "Gizmo.TransformSpace", WActionScope::Document, "Gizmo", "X", WTransformGizmoAction, WTransformGizmoAction::ActionType::GizmoToggleWorldSpace);
+  s_hMoveParentOnly = W_REGISTER_ACTION_1("Gizmo.MoveParentOnly", WActionScope::Document, "Gizmo", "", WTransformGizmoAction,
+    WTransformGizmoAction::ActionType::GizmoToggleMoveParentOnly);
+  s_SnapSettings = W_REGISTER_ACTION_1(
+    "Gizmo.SnapSettings", WActionScope::Document, "Gizmo", "End", WTransformGizmoAction, WTransformGizmoAction::ActionType::GizmoSnapSettings);
 
-  s_SnapTranslationMenu = EZ_REGISTER_DYNAMIC_MENU("Gizmo.Translation.Snap.Dropdown", ezSnapTranslationMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
-  s_SnapRotationMenu = EZ_REGISTER_DYNAMIC_MENU("Gizmo.Rotation.Snap.Dropdown", ezSnapRotationMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
-  s_SnapScaleMenu = EZ_REGISTER_DYNAMIC_MENU("Gizmo.Scale.Snap.Dropdown", ezSnapScaleMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
+  s_SnapTranslationMenu = W_REGISTER_DYNAMIC_MENU("Gizmo.Translation.Snap.Dropdown", WSnapTranslationMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
+  s_SnapRotationMenu = W_REGISTER_DYNAMIC_MENU("Gizmo.Rotation.Snap.Dropdown", WSnapRotationMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
+  s_SnapScaleMenu = W_REGISTER_DYNAMIC_MENU("Gizmo.Scale.Snap.Dropdown", WSnapScaleMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
 }
 
-void ezTransformGizmoActions::UnregisterActions()
+void WTransformGizmoActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hGizmoCategory);
-  ezActionManager::UnregisterAction(s_hGizmoMenu);
-  ezActionManager::UnregisterAction(s_hNoGizmo);
-  ezActionManager::UnregisterAction(s_hTranslateGizmo);
-  ezActionManager::UnregisterAction(s_hRotateGizmo);
-  ezActionManager::UnregisterAction(s_hScaleGizmo);
-  ezActionManager::UnregisterAction(s_hDragToPositionGizmo);
-  ezActionManager::UnregisterAction(s_hWorldSpace);
-  ezActionManager::UnregisterAction(s_hMoveParentOnly);
-  ezActionManager::UnregisterAction(s_SnapSettings);
-  ezActionManager::UnregisterAction(s_SnapTranslationMenu);
-  ezActionManager::UnregisterAction(s_SnapRotationMenu);
-  ezActionManager::UnregisterAction(s_SnapScaleMenu);
+  WActionManager::UnregisterAction(s_hGizmoCategory);
+  WActionManager::UnregisterAction(s_hGizmoMenu);
+  WActionManager::UnregisterAction(s_hNoGizmo);
+  WActionManager::UnregisterAction(s_hTranslateGizmo);
+  WActionManager::UnregisterAction(s_hRotateGizmo);
+  WActionManager::UnregisterAction(s_hScaleGizmo);
+  WActionManager::UnregisterAction(s_hDragToPositionGizmo);
+  WActionManager::UnregisterAction(s_hWorldSpace);
+  WActionManager::UnregisterAction(s_hMoveParentOnly);
+  WActionManager::UnregisterAction(s_SnapSettings);
+  WActionManager::UnregisterAction(s_SnapTranslationMenu);
+  WActionManager::UnregisterAction(s_SnapRotationMenu);
+  WActionManager::UnregisterAction(s_SnapScaleMenu);
 }
 
-void ezTransformGizmoActions::MapMenuActions(ezStringView sMapping)
+void WTransformGizmoActions::MapMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  const ezStringView sTarget = "G.Gizmos";
+  const WStringView sTarget = "G.Gizmos";
 
   pMap->MapAction(s_hGizmoMenu, "G.Edit", 4.0f);
   pMap->MapAction(s_hNoGizmo, sTarget, 0.0f);
@@ -529,12 +529,12 @@ void ezTransformGizmoActions::MapMenuActions(ezStringView sMapping)
   pMap->MapAction(s_SnapSettings, sTarget, 8.0f);
 }
 
-void ezTransformGizmoActions::MapToolbarActions(ezStringView sMapping)
+void WTransformGizmoActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  const ezStringView sSubPath = "GizmoCategory";
+  const WStringView sSubPath = "GizmoCategory";
 
   pMap->MapAction(s_hGizmoCategory, "", 4.0f);
   pMap->MapAction(s_hNoGizmo, sSubPath, 0.0f);
@@ -550,16 +550,16 @@ void ezTransformGizmoActions::MapToolbarActions(ezStringView sMapping)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformGizmoAction, 0, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTransformGizmoAction, 0, WRTTINoAllocator)
   ;
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WTransformGizmoAction::WTransformGizmoAction(const WActionContext& context, const char* szName, ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   SetCheckable(true);
   m_Type = type;
-  m_pGameObjectDocument = static_cast<ezGameObjectDocument*>(context.m_pDocument);
+  m_pGameObjectDocument = static_cast<WGameObjectDocument*>(context.m_pDocument);
 
   switch (m_Type)
   {
@@ -575,16 +575,16 @@ ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, c
       break;
   }
 
-  m_pGameObjectDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezTransformGizmoAction::GameObjectEventHandler, this));
+  m_pGameObjectDocument->m_GameObjectEvents.AddEventHandler(WMakeDelegate(&WTransformGizmoAction::GameObjectEventHandler, this));
   UpdateState();
 }
 
-ezTransformGizmoAction::~ezTransformGizmoAction()
+WTransformGizmoAction::~WTransformGizmoAction()
 {
-  m_pGameObjectDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezTransformGizmoAction::GameObjectEventHandler, this));
+  m_pGameObjectDocument->m_GameObjectEvents.RemoveEventHandler(WMakeDelegate(&WTransformGizmoAction::GameObjectEventHandler, this));
 }
 
-void ezTransformGizmoAction::Execute(const ezVariant& value)
+void WTransformGizmoAction::Execute(const WVariant& value)
 {
   if (m_Type == ActionType::GizmoToggleWorldSpace)
   {
@@ -596,37 +596,37 @@ void ezTransformGizmoAction::Execute(const ezVariant& value)
   }
   else if (m_Type == ActionType::GizmoSnapSettings)
   {
-    ezQtSnapSettingsDlg dlg(nullptr);
+    WQtSnapSettingsDlg dlg(nullptr);
     dlg.exec();
   }
 
   UpdateState();
 }
 
-void ezTransformGizmoAction::GameObjectEventHandler(const ezGameObjectEvent& e)
+void WTransformGizmoAction::GameObjectEventHandler(const WGameObjectEvent& e)
 {
-  if (e.m_Type == ezGameObjectEvent::Type::ActiveEditToolChanged)
+  if (e.m_Type == WGameObjectEvent::Type::ActiveEditToolChanged)
     UpdateState();
 }
 
-void ezTransformGizmoAction::UpdateState()
+void WTransformGizmoAction::UpdateState()
 {
   if (m_Type == ActionType::GizmoToggleWorldSpace)
   {
-    ezGameObjectEditTool* pTool = m_pGameObjectDocument->GetActiveEditTool();
-    SetEnabled(pTool != nullptr && pTool->GetSupportedSpaces() == ezEditToolSupportedSpaces::LocalAndWorldSpace);
+    WGameObjectEditTool* pTool = m_pGameObjectDocument->GetActiveEditTool();
+    SetEnabled(pTool != nullptr && pTool->GetSupportedSpaces() == WEditToolSupportedSpaces::LocalAndWorldSpace);
 
     if (pTool != nullptr)
     {
       switch (pTool->GetSupportedSpaces())
       {
-        case ezEditToolSupportedSpaces::LocalSpaceOnly:
+        case WEditToolSupportedSpaces::LocalSpaceOnly:
           SetChecked(false);
           break;
-        case ezEditToolSupportedSpaces::WorldSpaceOnly:
+        case WEditToolSupportedSpaces::WorldSpaceOnly:
           SetChecked(true);
           break;
-        case ezEditToolSupportedSpaces::LocalAndWorldSpace:
+        case WEditToolSupportedSpaces::LocalAndWorldSpace:
           SetChecked(m_pGameObjectDocument->GetGizmoWorldSpace());
           break;
       }
@@ -634,7 +634,7 @@ void ezTransformGizmoAction::UpdateState()
   }
   else if (m_Type == ActionType::GizmoToggleMoveParentOnly)
   {
-    ezGameObjectEditTool* pTool = m_pGameObjectDocument->GetActiveEditTool();
+    WGameObjectEditTool* pTool = m_pGameObjectDocument->GetActiveEditTool();
     const bool bSupported = pTool != nullptr && pTool->GetSupportsMoveParentOnly();
 
     SetEnabled(bSupported);
@@ -644,31 +644,31 @@ void ezTransformGizmoAction::UpdateState()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTranslateGizmoAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValueMenu;
-ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapPivotToGrid;
-ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapObjectsToGrid;
+WActionDescriptorHandle WTranslateGizmoAction::s_hSnappingValueMenu;
+WActionDescriptorHandle WTranslateGizmoAction::s_hSnapPivotToGrid;
+WActionDescriptorHandle WTranslateGizmoAction::s_hSnapObjectsToGrid;
 
-void ezTranslateGizmoAction::RegisterActions()
+void WTranslateGizmoAction::RegisterActions()
 {
-  s_hSnappingValueMenu = EZ_REGISTER_CATEGORY("Gizmo.Translate.Snap.Menu");
-  s_hSnapPivotToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.PivotToGrid", ezActionScope::Document, "Gizmo - Position Snap", "Ctrl+End", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapSelectionPivotToGrid);
-  s_hSnapObjectsToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.ObjectsToGrid", ezActionScope::Document, "Gizmo - Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapEachSelectedObjectToGrid);
+  s_hSnappingValueMenu = W_REGISTER_CATEGORY("Gizmo.Translate.Snap.Menu");
+  s_hSnapPivotToGrid = W_REGISTER_ACTION_1("Gizmo.Translate.Snap.PivotToGrid", WActionScope::Document, "Gizmo - Position Snap", "Ctrl+End", WTranslateGizmoAction, WTranslateGizmoAction::ActionType::SnapSelectionPivotToGrid);
+  s_hSnapObjectsToGrid = W_REGISTER_ACTION_1("Gizmo.Translate.Snap.ObjectsToGrid", WActionScope::Document, "Gizmo - Position Snap", "", WTranslateGizmoAction, WTranslateGizmoAction::ActionType::SnapEachSelectedObjectToGrid);
 }
 
-void ezTranslateGizmoAction::UnregisterActions()
+void WTranslateGizmoAction::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hSnappingValueMenu);
-  ezActionManager::UnregisterAction(s_hSnapPivotToGrid);
-  ezActionManager::UnregisterAction(s_hSnapObjectsToGrid);
+  WActionManager::UnregisterAction(s_hSnappingValueMenu);
+  WActionManager::UnregisterAction(s_hSnapPivotToGrid);
+  WActionManager::UnregisterAction(s_hSnapObjectsToGrid);
 }
 
-void ezTranslateGizmoAction::MapActions(ezStringView sMapping)
+void WTranslateGizmoAction::MapActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hSnappingValueMenu, "G.Gizmos", 8.0f);
 
@@ -676,14 +676,14 @@ void ezTranslateGizmoAction::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hSnapObjectsToGrid, "G.Gizmos", "Gizmo.Translate.Snap.Menu", 1.0f);
 }
 
-ezTranslateGizmoAction::ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WTranslateGizmoAction::WTranslateGizmoAction(const WActionContext& context, const char* szName, ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
-  m_pSceneDocument = static_cast<const ezGameObjectDocument*>(context.m_pDocument);
+  m_pSceneDocument = static_cast<const WGameObjectDocument*>(context.m_pDocument);
   m_Type = type;
 }
 
-void ezTranslateGizmoAction::Execute(const ezVariant& value)
+void WTranslateGizmoAction::Execute(const WVariant& value)
 {
   if (m_Type == ActionType::SnapSelectionPivotToGrid)
     m_pSceneDocument->TriggerSnapPivotToGrid();

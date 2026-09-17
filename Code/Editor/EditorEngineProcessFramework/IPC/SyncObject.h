@@ -5,37 +5,37 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezWorld;
+class WWorld;
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineSyncObject : public ezReflectedClass
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEditorEngineSyncObject : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObject, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WEditorEngineSyncObject, WReflectedClass);
 
 public:
-  ezEditorEngineSyncObject();
-  ~ezEditorEngineSyncObject();
+  WEditorEngineSyncObject();
+  ~WEditorEngineSyncObject();
 
-  void Configure(ezUuid ownerGuid, ezDelegate<void(ezEditorEngineSyncObject*)> onDestruction);
+  void Configure(WUuid ownerGuid, WDelegate<void(WEditorEngineSyncObject*)> onDestruction);
 
-  ezUuid GetDocumentGuid() const;
+  WUuid GetDocumentGuid() const;
   void SetModified(bool b = true) { m_bModified = b; }
   bool GetModified() const { return m_bModified; }
 
-  ezUuid GetGuid() const { return m_SyncObjectGuid; }
+  WUuid GetGuid() const { return m_SyncObjectGuid; }
 
   // One-time setup on the engine side.
   // \returns Whether the sync object is pickable via uiNextComponentPickingID.
-  virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) { return false; }
-  virtual void UpdateForEngine(ezWorld* pWorld) {}
+  virtual bool SetupForEngine(WWorld* pWorld, WUInt32 uiNextComponentPickingID) { return false; }
+  virtual void UpdateForEngine(WWorld* pWorld) {}
 
 private:
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezEditorEngineSyncObject);
+  W_ALLOW_PRIVATE_PROPERTIES(WEditorEngineSyncObject);
 
-  friend class ezAssetDocument;
+  friend class WAssetDocument;
 
   bool m_bModified;
-  ezUuid m_SyncObjectGuid;
-  ezUuid m_OwnerGuid;
+  WUuid m_SyncObjectGuid;
+  WUuid m_OwnerGuid;
 
-  ezDelegate<void(ezEditorEngineSyncObject*)> m_OnDestruction;
+  WDelegate<void(WEditorEngineSyncObject*)> m_OnDestruction;
 };

@@ -5,18 +5,18 @@
 #include <Core/World/World.h>
 #include <PacManPlugin/PacManPluginDLL.h>
 
-using GhostComponentManager = ezComponentManagerSimple<class GhostComponent, ezComponentUpdateType::WhenSimulating>;
+using GhostComponentManager = WComponentManagerSimple<class GhostComponent, WComponentUpdateType::WhenSimulating>;
 
-class GhostComponent : public ezComponent
+class GhostComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(GhostComponent, ezComponent, GhostComponentManager);
+  W_DECLARE_COMPONENT_TYPE(GhostComponent, WComponent, GhostComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(WWorldWriter& stream) const override;
+  virtual void DeserializeComponent(WWorldReader& stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -33,9 +33,9 @@ private:
 
   WalkDirection m_Direction = WalkDirection::Up;
 
-  ezPrefabResourceHandle m_hDisappear;
+  WPrefabResourceHandle m_hDisappear;
 
-  ezSharedPtr<ezBlackboard> m_pStateBlackboard;
+  WSharedPtr<WBlackboard> m_pStateBlackboard;
 
   float m_fSpeed = 2.0f;
 };

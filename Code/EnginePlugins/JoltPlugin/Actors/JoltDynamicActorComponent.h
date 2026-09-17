@@ -3,24 +3,24 @@
 #include <Foundation/Math/Float16.h>
 #include <JoltPlugin/Actors/JoltActorComponent.h>
 
-struct ezMsgPhysicsMakeTemporarilyDynamic;
+struct WMsgPhysicsMakeTemporarilyDynamic;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_JOLTPLUGIN_DLL ezJoltDynamicActorComponentManager : public ezComponentManager<class ezJoltDynamicActorComponent, ezBlockStorageType::FreeList>
+class W_JOLTPLUGIN_DLL WJoltDynamicActorComponentManager : public WComponentManager<class WJoltDynamicActorComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezJoltDynamicActorComponentManager(ezWorld* pWorld);
-  ~ezJoltDynamicActorComponentManager();
+  WJoltDynamicActorComponentManager(WWorld* pWorld);
+  ~WJoltDynamicActorComponentManager();
 
 private:
-  friend class ezJoltWorldModule;
-  friend class ezJoltDynamicActorComponent;
+  friend class WJoltWorldModule;
+  friend class WJoltDynamicActorComponent;
 
-  void UpdateKinematicActors(ezTime deltaTime);
+  void UpdateKinematicActors(WTime deltaTime);
   void UpdateDynamicActors();
 
-  ezDynamicArray<ezJoltDynamicActorComponent*> m_KinematicActorComponents;
+  WDynamicArray<WJoltDynamicActorComponent*> m_KinematicActorComponents;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,27 +34,27 @@ private:
 /// Dynamic actors can also be moved through forces and impulses.
 ///
 /// Dynamic actors must be made up of convex collision meshes. They cannot use concave meshes.
-class EZ_JOLTPLUGIN_DLL ezJoltDynamicActorComponent : public ezJoltActorComponent
+class W_JOLTPLUGIN_DLL WJoltDynamicActorComponent : public WJoltActorComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltDynamicActorComponent, ezJoltActorComponent, ezJoltDynamicActorComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltDynamicActorComponent, WJoltActorComponent, WJoltDynamicActorComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltDynamicActorComponent
+  // WJoltDynamicActorComponent
 
 public:
-  ezJoltDynamicActorComponent();
-  ~ezJoltDynamicActorComponent();
+  WJoltDynamicActorComponent();
+  ~WJoltDynamicActorComponent();
 
   /// Turns the actor into a 'kinematic' actor.
   ///
@@ -75,8 +75,8 @@ public:
   void SetGravityFactor(float fFactor);                       // [ property ]
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
-  void SetSurfaceFile(ezStringView sFile);                    // [ property ]
-  ezStringView GetSurfaceFile() const;                        // [ property ]
+  void SetSurfaceFile(WStringView sFile);                    // [ property ]
+  WStringView GetSurfaceFile() const;                        // [ property ]
 
   /// If enabled, a more precise simulation method is used, preventing fast moving actors from tunneling through walls.
   /// This comes at an extra performance cost.
@@ -90,13 +90,13 @@ public:
   /// should only be done in very rare cases.
   bool m_bAllowSleeping = true;        // [ property ]
 
-  ezUInt8 m_uiWeightCategory = 0;      // [ property ]
-  ezFloat16 m_fWeightMass = 10.0f;     // [ property ]
-  ezFloat16 m_fWeightDensity = 100.0f; // [ property ]
-  ezFloat16 m_fWeightScale = 1.0f;     // [ property ]
+  WUInt8 m_uiWeightCategory = 0;      // [ property ]
+  WFloat16 m_fWeightMass = 10.0f;     // [ property ]
+  WFloat16 m_fWeightDensity = 100.0f; // [ property ]
+  WFloat16 m_fWeightScale = 1.0f;     // [ property ]
 
   /// How much buoyancy to apply when the actor is submerged in a fluid. 1.0 means neutral buoyancy, <1.0 sinks, >1.0 floats.
-  ezFloat16 m_fBuoyancyFactor = 1.1f; // [ property ]
+  WFloat16 m_fBuoyancyFactor = 1.1f; // [ property ]
 
   /// How much to dampen linear motion. The higher the value, the quicker a moving object comes to rest.
   float m_fLinearDamping = 0.1f; // [ property ]
@@ -105,13 +105,13 @@ public:
   float m_fAngularDamping = 0.05f; // [ property ]
 
   /// Which surface to use for all shapes. The surface defines various physical properties and interactions.
-  ezSurfaceResourceHandle m_hSurface; // [ property ]
+  WSurfaceResourceHandle m_hSurface; // [ property ]
 
   /// What reactions should be triggered when an actor gets into contact with another.
-  ezBitflags<ezOnJoltContact> m_OnContact; // [ property ]
+  WBitflags<WOnJoltContact> m_OnContact; // [ property ]
 
   /// A local offset for the center of mass. \see SetUseCustomCoM()
-  ezVec3 m_vCenterOfMass = ezVec3::MakeZero(); // [ property ]
+  WVec3 m_vCenterOfMass = WVec3::MakeZero(); // [ property ]
 
   /// Whether a custom center-of-mass shall be used.
   void SetUseCustomCoM(bool b) { SetUserFlag(0, b); }     // [ property ]
@@ -120,26 +120,26 @@ public:
   /// Adds a physics impulse to this body at the given location.
   ///
   /// An impulse is a force that is applied only once, e.g. a sudden push.
-  void AddLinearImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
+  void AddLinearImpulseAtPos(WMsgPhysicsAddImpulse& ref_msg); // [ message ]
 
   /// Adds a linear impulse to the center-of-mass of this actor. Unless there are other constraints, this would push the object, but not introduce any rotation.
   ///
-  /// For uiImpulseType see ezImpulseTypeConfig. Use 0 to use vImpulse without modification.
-  void AddLinearImpulse(const ezVec3& vImpulse, ezUInt8 uiImpulseType = 0); // [ scriptable ]
+  /// For uiImpulseType see WImpulseTypeConfig. Use 0 to use vImpulse without modification.
+  void AddLinearImpulse(const WVec3& vImpulse, WUInt8 uiImpulseType = 0); // [ scriptable ]
 
   /// Adds an angular impulse to the center-of-mass of this actor. Unless there are other constraints, this would make the object rotate, but not move away.
   ///
-  /// For uiImpulseType see ezImpulseTypeConfig. Use 0 to use vImpulse without modification.
-  void AddAngularImpulse(const ezVec3& vImpulse, ezUInt8 uiImpulseType = 0); // [ scriptable ]
+  /// For uiImpulseType see WImpulseTypeConfig. Use 0 to use vImpulse without modification.
+  void AddAngularImpulse(const WVec3& vImpulse, WUInt8 uiImpulseType = 0); // [ scriptable ]
 
   /// Should be called by components that add Jolt constraints to this body.
   ///
-  /// All registered components receive ezJoltMsgDisconnectConstraints in case the body is deleted.
+  /// All registered components receive WJoltMsgDisconnectConstraints in case the body is deleted.
   /// It is necessary to react to that by removing the Jolt constraint, otherwise Jolt will crash during the next update.
-  void AddConstraint(ezComponentHandle hComponent);
+  void AddConstraint(WComponentHandle hComponent);
 
   /// Should be called when a constraint is removed (though not strictly required) to prevent unnecessary message sending.
-  void RemoveConstraint(ezComponentHandle hComponent);
+  void RemoveConstraint(WComponentHandle hComponent);
 
   /// Returns the actual mass of this actor which is either the user defined mass or has been calculated from density.
   /// For kinematic actors this function will return 0.
@@ -155,15 +155,15 @@ public:
   /// so just always store the returned ID, to replaced force IDs that became invalid.
   ///
   /// If this is called multiple times with invalid force IDs, multiple forces are created to act on the body.
-  ezUInt32 AddOrUpdateForce(ezUInt32 uiForceID, ezTime duration, const ezVec3& vForce);
+  WUInt32 AddOrUpdateForce(WUInt32 uiForceID, WTime duration, const WVec3& vForce);
 
   /// Removes the force with the given ID. Does nothing, if the ID is invalid.
-  void ClearForce(ezUInt32 uiForceID);
+  void ClearForce(WUInt32 uiForceID);
 
 protected:
-  void OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysicsMakeTemporarilyDynamic& msg);
+  void OnMsgPhysicsMakeTemporarilyDynamic(WMsgPhysicsMakeTemporarilyDynamic& msg);
 
-  const ezJoltMaterial* GetJoltMaterial() const;
+  const WJoltMaterial* GetJoltMaterial() const;
 
   float GetWeight_Scale() const { return m_fWeightScale; }
   float GetWeight_Mass() const { return m_fWeightMass; }
@@ -178,5 +178,5 @@ protected:
   bool m_bKinematic = false;
   float m_fGravityFactor = 1.0f; // [ property ]
 
-  ezSmallArray<ezComponentHandle, 1> m_Constraints;
+  WSmallArray<WComponentHandle, 1> m_Constraints;
 };

@@ -12,7 +12,7 @@ namespace
 {
   enum constants
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     NUM_SAMPLES = 128,
     NUM_APPENDS = 1024 * 32,
     NUM_RECUSRIVE_APPENDS = 128
@@ -25,13 +25,13 @@ namespace
 
   struct SomeBigObject
   {
-    EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+    W_DECLARE_MEM_RELOCATABLE_TYPE();
 
-    static ezUInt32 constructionCount;
-    static ezUInt32 destructionCount;
-    ezUInt64 i1, i2, i3, i4, i5, i6, i7, i8;
+    static WUInt32 constructionCount;
+    static WUInt32 destructionCount;
+    WUInt64 i1, i2, i3, i4, i5, i6, i7, i8;
 
-    SomeBigObject(ezUInt64 uiInit)
+    SomeBigObject(WUInt64 uiInit)
       : i1(uiInit)
       , i2(uiInit)
       , i3(uiInit)
@@ -73,278 +73,278 @@ namespace
     }
   };
 
-  ezUInt32 SomeBigObject::constructionCount = 0;
-  ezUInt32 SomeBigObject::destructionCount = 0;
+  WUInt32 SomeBigObject::constructionCount = 0;
+  WUInt32 SomeBigObject::destructionCount = 0;
 } // namespace
 
 // Enable when needed
-#define EZ_PERFORMANCE_TESTS_STATE ezTestBlock::DisabledNoWarning
+#define W_PERFORMANCE_TESTS_STATE WTestBlock::DisabledNoWarning
 
-EZ_CREATE_SIMPLE_TEST(Performance, Container)
+W_CREATE_SIMPLE_TEST(Performance, Container)
 {
   const char* TestString = "There are 10 types of people in the world. Those who understand binary and those who don't.";
-  const ezUInt32 TestStringLength = (ezUInt32)strlen(TestString);
+  const WUInt32 TestStringLength = (WUInt32)strlen(TestString);
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "POD Dynamic Array Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "POD Dynamic Array Appending")
   {
-    ezTime t0 = ezTime::Now();
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WTime t0 = WTime::Now();
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
-      ezDynamicArray<int> a;
-      for (ezUInt32 i = 0; i < NUM_APPENDS; i++)
+      WDynamicArray<int> a;
+      for (WUInt32 i = 0; i < NUM_APPENDS; i++)
       {
         a.PushBack(i);
       }
 
-      for (ezUInt32 i = 0; i < NUM_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_APPENDS; i++)
       {
         sum += a[i];
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info("[test]POD Dynamic Array Appending {0}ms", ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info("[test]POD Dynamic Array Appending {0}ms", WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "POD std::vector Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "POD std::vector Appending")
   {
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
       std::vector<int> a;
-      for (ezUInt32 i = 0; i < NUM_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_APPENDS; i++)
       {
         a.push_back(i);
       }
 
-      for (ezUInt32 i = 0; i < NUM_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_APPENDS; i++)
       {
         sum += a[i];
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info("[test]POD std::vector Appending {0}ms", ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info("[test]POD std::vector Appending {0}ms", WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "ezDynamicArray<ezDynamicArray<char>> Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "WDynamicArray<WDynamicArray<char>> Appending")
   {
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
-      ezDynamicArray<ezDynamicArray<char>> a;
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      WDynamicArray<WDynamicArray<char>> a;
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
-        ezUInt32 count = a.GetCount();
+        WUInt32 count = a.GetCount();
         a.SetCount(count + 1);
-        ezDynamicArray<char>& cur = a[count];
-        for (ezUInt32 j = 0; j < TestStringLength; j++)
+        WDynamicArray<char>& cur = a[count];
+        for (WUInt32 j = 0; j < TestStringLength; j++)
         {
           cur.PushBack(TestString[j]);
         }
       }
 
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
         sum += a[i].GetCount();
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info(
-      "[test]ezDynamicArray<ezDynamicArray<char>> Appending {0}ms", ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info(
+      "[test]WDynamicArray<WDynamicArray<char>> Appending {0}ms", WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "ezDynamicArray<ezHybridArray<char, 64>> Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "WDynamicArray<WHybridArray<char, 64>> Appending")
   {
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
-      ezDynamicArray<ezHybridArray<char, 64>> a;
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      WDynamicArray<WHybridArray<char, 64>> a;
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
-        ezUInt32 count = a.GetCount();
+        WUInt32 count = a.GetCount();
         a.SetCount(count + 1);
-        ezHybridArray<char, 64>& cur = a[count];
-        for (ezUInt32 j = 0; j < TestStringLength; j++)
+        WHybridArray<char, 64>& cur = a[count];
+        for (WUInt32 j = 0; j < TestStringLength; j++)
         {
           cur.PushBack(TestString[j]);
         }
       }
 
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
         sum += a[i].GetCount();
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info("[test]ezDynamicArray<ezHybridArray<char, 64>> Appending {0}ms",
-      ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info("[test]WDynamicArray<WHybridArray<char, 64>> Appending {0}ms",
+      WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "std::vector<std::vector<char>> Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "std::vector<std::vector<char>> Appending")
   {
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
       std::vector<std::vector<char>> a;
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
-        ezUInt32 count = (ezUInt32)a.size();
+        WUInt32 count = (WUInt32)a.size();
         a.resize(count + 1);
         std::vector<char>& cur = a[count];
-        for (ezUInt32 j = 0; j < TestStringLength; j++)
+        for (WUInt32 j = 0; j < TestStringLength; j++)
         {
           cur.push_back(TestString[j]);
         }
       }
 
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
-        sum += (ezUInt32)a[i].size();
+        sum += (WUInt32)a[i].size();
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info(
-      "[test]std::vector<std::vector<char>> Appending {0}ms", ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info(
+      "[test]std::vector<std::vector<char>> Appending {0}ms", WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "ezDynamicArray<ezString> Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "WDynamicArray<WString> Appending")
   {
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
-      ezDynamicArray<ezString> a;
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      WDynamicArray<WString> a;
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
-        ezUInt32 count = a.GetCount();
+        WUInt32 count = a.GetCount();
         a.SetCount(count + 1);
-        ezString& cur = a[count];
-        ezStringBuilder b;
-        for (ezUInt32 j = 0; j < TestStringLength; j++)
+        WString& cur = a[count];
+        WStringBuilder b;
+        for (WUInt32 j = 0; j < TestStringLength; j++)
         {
           b.Append(TestString[i]);
         }
         cur = std::move(b);
       }
 
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
         sum += a[i].GetElementCount();
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info("[test]ezDynamicArray<ezString> Appending {0}ms", ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info("[test]WDynamicArray<WString> Appending {0}ms", WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "std::vector<std::string> Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "std::vector<std::string> Appending")
   {
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
       std::vector<std::string> a;
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
         std::string cur;
-        for (ezUInt32 j = 0; j < TestStringLength; j++)
+        for (WUInt32 j = 0; j < TestStringLength; j++)
         {
           cur += TestString[i];
         }
         a.push_back(std::move(cur));
       }
 
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
-        sum += (ezUInt32)a[i].length();
+        sum += (WUInt32)a[i].length();
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info("[test]std::vector<std::string> Appending {0}ms", ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info("[test]std::vector<std::string> Appending {0}ms", WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "ezDynamicArray<SomeBigObject> Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "WDynamicArray<SomeBigObject> Appending")
   {
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
-      ezDynamicArray<SomeBigObject> a;
-      for (ezUInt32 i = 0; i < NUM_APPENDS; i++)
+      WDynamicArray<SomeBigObject> a;
+      for (WUInt32 i = 0; i < NUM_APPENDS; i++)
       {
         a.PushBack(SomeBigObject(i));
       }
 
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
-        sum += (ezUInt32)a[i].i1;
+        sum += (WUInt32)a[i].i1;
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info(
-      "[test]ezDynamicArray<SomeBigObject> Appending {0}ms", ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info(
+      "[test]WDynamicArray<SomeBigObject> Appending {0}ms", WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "std::vector<SomeBigObject> Appending")
+  W_TEST_BLOCK(W_PERFORMANCE_TESTS_STATE, "std::vector<SomeBigObject> Appending")
   {
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezUInt32 sum = 0;
-    for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+    WUInt32 sum = 0;
+    for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
     {
       std::vector<SomeBigObject> a;
-      for (ezUInt32 i = 0; i < NUM_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_APPENDS; i++)
       {
         a.push_back(SomeBigObject(i));
       }
 
-      for (ezUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
+      for (WUInt32 i = 0; i < NUM_RECUSRIVE_APPENDS; i++)
       {
-        sum += (ezUInt32)a[i].i1;
+        sum += (WUInt32)a[i].i1;
       }
     }
 
-    ezTime t1 = ezTime::Now();
-    ezLog::Info("[test]std::vector<SomeBigObject> Appending {0}ms", ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+    WTime t1 = WTime::Now();
+    WLog::Info("[test]std::vector<SomeBigObject> Appending {0}ms", WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "ezMap<void*, ezUInt32>")
+  W_TEST_BLOCK(WTestBlock::DisabledNoWarning, "WMap<void*, WUInt32>")
   {
-    ezUInt32 sum = 0;
+    WUInt32 sum = 0;
 
-    for (ezUInt32 size = 1024; size < 4096 * 32; size += 1024)
+    for (WUInt32 size = 1024; size < 4096 * 32; size += 1024)
     {
-      ezMap<void*, ezUInt32> map;
+      WMap<void*, WUInt32> map;
 
-      for (ezUInt32 i = 0; i < size; i++)
+      for (WUInt32 i = 0; i < size; i++)
       {
         map.Insert(malloc(64), 64);
       }
 
       void* ptrs[1024];
 
-      ezTime t0 = ezTime::Now();
-      for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+      WTime t0 = WTime::Now();
+      for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
       {
-        for (ezUInt32 i = 0; i < 1024; i++)
+        for (WUInt32 i = 0; i < 1024; i++)
         {
           void* mem = malloc(64);
           map.Insert(mem, 64);
@@ -352,7 +352,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
           ptrs[i] = mem;
         }
 
-        for (ezUInt32 i = 0; i < 1024; i++)
+        for (WUInt32 i = 0; i < 1024; i++)
           free(ptrs[i]);
 
         for (auto it = map.GetIterator(); it.IsValid(); ++it)
@@ -360,39 +360,39 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
           sum += it.Value();
         }
       }
-      ezTime t1 = ezTime::Now();
+      WTime t1 = WTime::Now();
 
       for (auto it = map.GetIterator(); it.IsValid(); ++it)
       {
         free(it.Key());
       }
 
-      ezLog::Info("[test]ezMap<void*, ezUInt32> size = {0} => {1}ms", size, ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+      WLog::Info("[test]WMap<void*, WUInt32> size = {0} => {1}ms", size, WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "ezHashTable<void*, ezUInt32>")
+  W_TEST_BLOCK(WTestBlock::DisabledNoWarning, "WHashTable<void*, WUInt32>")
   {
-    ezUInt32 sum = 0;
+    WUInt32 sum = 0;
 
 
 
-    for (ezUInt32 size = 1024; size < 4096 * 32; size += 1024)
+    for (WUInt32 size = 1024; size < 4096 * 32; size += 1024)
     {
-      ezHashTable<void*, ezUInt32> map;
+      WHashTable<void*, WUInt32> map;
 
-      for (ezUInt32 i = 0; i < size; i++)
+      for (WUInt32 i = 0; i < size; i++)
       {
         map.Insert(malloc(64), 64);
       }
 
       void* ptrs[1024];
 
-      ezTime t0 = ezTime::Now();
-      for (ezUInt32 n = 0; n < NUM_SAMPLES; n++)
+      WTime t0 = WTime::Now();
+      for (WUInt32 n = 0; n < NUM_SAMPLES; n++)
       {
 
-        for (ezUInt32 i = 0; i < 1024; i++)
+        for (WUInt32 i = 0; i < 1024; i++)
         {
           void* mem = malloc(64);
           map.Insert(mem, 64);
@@ -400,7 +400,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
           ptrs[i] = mem;
         }
 
-        for (ezUInt32 i = 0; i < 1024; i++)
+        for (WUInt32 i = 0; i < 1024; i++)
           free(ptrs[i]);
 
         for (auto it = map.GetIterator(); it.IsValid(); it.Next())
@@ -408,15 +408,15 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
           sum += it.Value();
         }
       }
-      ezTime t1 = ezTime::Now();
+      WTime t1 = WTime::Now();
 
       for (auto it = map.GetIterator(); it.IsValid(); it.Next())
       {
         free(it.Key());
       }
 
-      ezLog::Info("[test]ezHashTable<void*, ezUInt32> size = {0} => {1}ms", size,
-        ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+      WLog::Info("[test]WHashTable<void*, WUInt32> size = {0} => {1}ms", size,
+        WArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
     }
   }
 }

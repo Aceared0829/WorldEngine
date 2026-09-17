@@ -7,60 +7,60 @@
 #include <Foundation/IO/SerializationContext.h>
 #include <Foundation/Strings/String.h>
 
-class ezStreamWriter;
-class ezStreamReader;
+class WStreamWriter;
+class WStreamReader;
 
 /// This class allows for automatic deduplication of strings written to a stream.
 /// To use, create an object of this type on the stack, call Begin() and use the returned
-/// ezStreamWriter for subsequent serialization operations. Call End() once you want to finish writing
+/// WStreamWriter for subsequent serialization operations. Call End() once you want to finish writing
 /// deduplicated strings. For a sample see StreamOperationsTest.cpp
-class EZ_FOUNDATION_DLL ezStringDeduplicationWriteContext : public ezSerializationContext<ezStringDeduplicationWriteContext>
+class W_FOUNDATION_DLL WStringDeduplicationWriteContext : public WSerializationContext<WStringDeduplicationWriteContext>
 {
-  EZ_DECLARE_SERIALIZATION_CONTEXT(ezStringDeduplicationWriteContext);
+  W_DECLARE_SERIALIZATION_CONTEXT(WStringDeduplicationWriteContext);
 
 public:
   /// Setup the write context to perform string deduplication.
-  ezStringDeduplicationWriteContext(ezStreamWriter& ref_originalStream);
-  ~ezStringDeduplicationWriteContext();
+  WStringDeduplicationWriteContext(WStreamWriter& ref_originalStream);
+  ~WStringDeduplicationWriteContext();
 
   /// Call this method to begin string deduplicaton. You need to use the returned stream writer for subsequent serialization operations until
   /// End() is called.
-  ezStreamWriter& Begin();
+  WStreamWriter& Begin();
 
   /// Ends the string deduplication and writes the string table to the original stream
-  ezResult End();
+  WResult End();
 
   /// Internal method to serialize a string.
-  void SerializeString(const ezStringView& sString, ezStreamWriter& ref_writer);
+  void SerializeString(const WStringView& sString, WStreamWriter& ref_writer);
 
   /// Returns the number of unique strings which were serialized with this instance.
-  ezUInt32 GetUniqueStringCount() const;
+  WUInt32 GetUniqueStringCount() const;
 
   /// Returns the original stream that was passed to the constructor.
-  ezStreamWriter& GetOriginalStream() { return m_OriginalStream; }
+  WStreamWriter& GetOriginalStream() { return m_OriginalStream; }
 
 protected:
-  ezStreamWriter& m_OriginalStream;
+  WStreamWriter& m_OriginalStream;
 
-  ezDefaultMemoryStreamStorage m_TempStreamStorage;
-  ezMemoryStreamWriter m_TempStreamWriter;
+  WDefaultMemoryStreamStorage m_TempStreamStorage;
+  WMemoryStreamWriter m_TempStreamWriter;
 
-  ezMap<ezHybridString<64>, ezUInt32> m_DeduplicatedStrings;
+  WMap<WHybridString<64>, WUInt32> m_DeduplicatedStrings;
 };
 
-/// This class to restore strings written to a stream using a ezStringDeduplicationWriteContext.
-class EZ_FOUNDATION_DLL ezStringDeduplicationReadContext : public ezSerializationContext<ezStringDeduplicationReadContext>
+/// This class to restore strings written to a stream using a WStringDeduplicationWriteContext.
+class W_FOUNDATION_DLL WStringDeduplicationReadContext : public WSerializationContext<WStringDeduplicationReadContext>
 {
-  EZ_DECLARE_SERIALIZATION_CONTEXT(ezStringDeduplicationReadContext);
+  W_DECLARE_SERIALIZATION_CONTEXT(WStringDeduplicationReadContext);
 
 public:
   /// Setup the string table used internally.
-  ezStringDeduplicationReadContext(ezStreamReader& inout_stream);
-  ~ezStringDeduplicationReadContext();
+  WStringDeduplicationReadContext(WStreamReader& inout_stream);
+  ~WStringDeduplicationReadContext();
 
   /// Internal method to deserialize a string.
-  ezStringView DeserializeString(ezStreamReader& ref_reader);
+  WStringView DeserializeString(WStreamReader& ref_reader);
 
 protected:
-  ezDynamicArray<ezHybridString<64>> m_DeduplicatedStrings;
+  WDynamicArray<WHybridString<64>> m_DeduplicatedStrings;
 };

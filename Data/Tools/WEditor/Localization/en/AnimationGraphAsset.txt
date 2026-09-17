@@ -1,0 +1,54 @@
+# Asset Types
+
+Animation Graph;Animation Graph;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-graphs/animation-graph-asset.html
+
+# Component Types
+
+WAnimationControllerComponent;Animation Controller;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-graphs/animation-controller-component.html
+
+# Properties
+
+WBoneWeightsAnimNode;Bone Weights
+
+WControllerInputAnimNode;Controller Input
+
+WCompareNumberAnimNode;Compare Number
+
+WLogicNotAnimNode;NOT
+WLogicAndAnimNode;AND
+WLogicOrAnimNode;OR
+WLogicEventAndAnimNode;Event AND
+
+WAnimClip2D;Clip 2D
+
+WGetBlackboardNumberAnimNode;Blackboard: Get Number
+WSetBlackboardNumberAnimNode;Blackboard: Set Number
+WCompareBlackboardNumberAnimNode;Blackboard: Check Number
+WCheckBlackboardBoolAnimNode;Blackboard: Check Bool
+WGetBlackboardBoolAnimNode;Blackboard: Get Bool
+WSetBlackboardBoolAnimNode;Blackboard: Set Bool
+WOnBlackboardValueChangedAnimNode;Blackboard: On Value Changed
+
+WLogInfoAnimNode;Log Info
+WLogErrorAnimNode;Log Error
+
+WSendEventAnimNode;Send Event
+
+WMathExpressionAnimNode;Expression
+
+WLerpPosesAnimNode;Lerp Poses
+
+WSampleFrameAnimNode;Sample Frame
+WSampleAnimClipAnimNode; Sample Clip
+WPoseResultAnimNode; Pose Result
+WSwitchPoseAnimNode; Switch Pose
+WSampleBlendSpace1DAnimNode;Sample BlendSpace 1D
+WSampleBlendSpace2DAnimNode;Sample BlendSpace 2D
+WSwitchBoneWeightsAnimNode;Bone Weights Switch
+WSampleAnimClipSequenceAnimNode;Sample Clip Sequence
+WRestPoseAnimNode;Rest Pose
+
+WBoolToNumberAnimNode;Bool To Number
+WBoolToTriggerAnimNode;Bool To Trigger
+
+WRootRotationAnimNode;Root Rotation

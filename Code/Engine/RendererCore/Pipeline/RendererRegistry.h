@@ -3,17 +3,17 @@
 #include <RendererCore/Pipeline/Renderer.h>
 
 /// Registry to get a renderer for a specific render data type. Instances of all renderers are automatically created and registered.
-class EZ_RENDERERCORE_DLL ezRendererRegistry
+class W_RENDERERCORE_DLL WRendererRegistry
 {
 public:
-  EZ_FORCE_INLINE static const ezRenderer* GetRenderer(const ezRTTI* pRenderDataType)
+  W_FORCE_INLINE static const WRenderer* GetRenderer(const WRTTI* pRenderDataType)
   {
     if (s_bRendererInstancesDirty)
     {
       CreateRendererInstances();
     }
 
-    ezUInt32 uiIndex = 0;
+    WUInt32 uiIndex = 0;
     if (s_RenderDataTypeToRendererIndex.TryGetValue(pRenderDataType, uiIndex))
     {
       return s_RendererInstances[uiIndex].Borrow();
@@ -23,16 +23,16 @@ public:
   }
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererRegistry);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererRegistry);
 
-  static void PluginEventHandler(const ezPluginEvent& e);
+  static void PluginEventHandler(const WPluginEvent& e);
   static void UpdateRendererTypes();
 
   static void CreateRendererInstances();
   static void ClearRendererInstances();
 
-  static ezHybridArray<const ezRTTI*, 16> s_RendererTypes;
-  static ezDynamicArray<ezUniquePtr<ezRenderer>> s_RendererInstances;
-  static ezHashTable<const ezRTTI*, ezUInt32> s_RenderDataTypeToRendererIndex;
+  static WHybridArray<const WRTTI*, 16> s_RendererTypes;
+  static WDynamicArray<WUniquePtr<WRenderer>> s_RendererInstances;
+  static WHashTable<const WRTTI*, WUInt32> s_RenderDataTypeToRendererIndex;
   static bool s_bRendererInstancesDirty;
 };

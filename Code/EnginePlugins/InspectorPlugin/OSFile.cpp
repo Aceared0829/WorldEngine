@@ -5,33 +5,33 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
-static void OSFileEventHandler(const ezOSFile::EventData& e)
+static void OSFileEventHandler(const WOSFile::EventData& e)
 {
-  if (!ezTelemetry::IsConnectedToClient())
+  if (!WTelemetry::IsConnectedToClient())
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
   Msg.GetWriter() << e.m_iFileID;
 
   switch (e.m_EventType)
   {
-    case ezOSFile::EventType::FileOpen:
+    case WOSFile::EventType::FileOpen:
     {
       Msg.SetMessageID('FILE', 'OPEN');
       Msg.GetWriter() << e.m_sFile;
-      Msg.GetWriter() << (ezUInt8)e.m_FileMode;
+      Msg.GetWriter() << (WUInt8)e.m_FileMode;
       Msg.GetWriter() << e.m_bSuccess;
     }
     break;
 
-    case ezOSFile::EventType::FileRead:
+    case WOSFile::EventType::FileRead:
     {
       Msg.SetMessageID('FILE', 'READ');
       Msg.GetWriter() << e.m_uiBytesAccessed;
     }
     break;
 
-    case ezOSFile::EventType::FileWrite:
+    case WOSFile::EventType::FileWrite:
     {
       Msg.SetMessageID('FILE', 'WRIT');
       Msg.GetWriter() << e.m_uiBytesAccessed;
@@ -39,14 +39,14 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-    case ezOSFile::EventType::FileClose:
+    case WOSFile::EventType::FileClose:
     {
       Msg.SetMessageID('FILE', 'CLOS');
     }
     break;
 
-    case ezOSFile::EventType::FileExists:
-    case ezOSFile::EventType::DirectoryExists:
+    case WOSFile::EventType::FileExists:
+    case WOSFile::EventType::DirectoryExists:
     {
       Msg.SetMessageID('FILE', 'EXST');
       Msg.GetWriter() << e.m_sFile;
@@ -54,7 +54,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-    case ezOSFile::EventType::FileDelete:
+    case WOSFile::EventType::FileDelete:
     {
       Msg.SetMessageID('FILE', ' DEL');
       Msg.GetWriter() << e.m_sFile;
@@ -62,7 +62,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-    case ezOSFile::EventType::MakeDir:
+    case WOSFile::EventType::MakeDir:
     {
       Msg.SetMessageID('FILE', 'CDIR');
       Msg.GetWriter() << e.m_sFile;
@@ -70,7 +70,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-    case ezOSFile::EventType::FileCopy:
+    case WOSFile::EventType::FileCopy:
     {
       Msg.SetMessageID('FILE', 'COPY');
       Msg.GetWriter() << e.m_sFile;
@@ -79,7 +79,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-    case ezOSFile::EventType::FileStat:
+    case WOSFile::EventType::FileStat:
     {
       Msg.SetMessageID('FILE', 'STAT');
       Msg.GetWriter() << e.m_sFile;
@@ -87,7 +87,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-    case ezOSFile::EventType::FileCasing:
+    case WOSFile::EventType::FileCasing:
     {
       Msg.SetMessageID('FILE', 'CASE');
       Msg.GetWriter() << e.m_sFile;
@@ -95,15 +95,15 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-    case ezOSFile::EventType::None:
+    case WOSFile::EventType::None:
       break;
   }
 
-  ezUInt8 uiThreadType = 0;
+  WUInt8 uiThreadType = 0;
 
-  if (ezThreadUtils::IsMainThread())
+  if (WThreadUtils::IsMainThread())
     uiThreadType = 1 << 0;
-  else if (ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
+  else if (WTaskSystem::GetCurrentThreadWorkerType() == WWorkerThreadType::FileAccess)
     uiThreadType = 1 << 1;
   else
     uiThreadType = 1 << 2;
@@ -111,17 +111,17 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
   Msg.GetWriter() << e.m_Duration.GetSeconds();
   Msg.GetWriter() << uiThreadType;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  WTelemetry::Broadcast(WTelemetry::Reliable, Msg);
 }
 
 void AddOSFileEventHandler()
 {
-  ezOSFile::AddEventHandler(OSFileEventHandler);
+  WOSFile::AddEventHandler(OSFileEventHandler);
 }
 
 void RemoveOSFileEventHandler()
 {
-  ezOSFile::RemoveEventHandler(OSFileEventHandler);
+  WOSFile::RemoveEventHandler(OSFileEventHandler);
 }
 
 

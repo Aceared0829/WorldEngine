@@ -13,41 +13,41 @@
 
 void OnLoadPlugin()
 {
-  ezAngelScriptActions::RegisterActions();
+  WAngelScriptActions::RegisterActions();
 
   // AngelScript
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("AngelScriptAssetMenuBar", "AssetMenuBar");
+      WActionMapManager::RegisterActionMap("AngelScriptAssetMenuBar", "AssetMenuBar");
 
-      ezEditActions::MapActions("AngelScriptAssetMenuBar", false, false);
-      ezAngelScriptActions::MapActionsMenu("AngelScriptAssetMenuBar");
+      WEditActions::MapActions("AngelScriptAssetMenuBar", false, false);
+      WAngelScriptActions::MapActionsMenu("AngelScriptAssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("AngelScriptAssetToolBar", "AssetToolbar");
-      ezAngelScriptActions::MapActionsToolbar("AngelScriptAssetToolBar");
+      WActionMapManager::RegisterActionMap("AngelScriptAssetToolBar", "AssetToolbar");
+      WAngelScriptActions::MapActionsToolbar("AngelScriptAssetToolBar");
     }
 
-    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAngelScriptAssetDocument::PropertyMetaStateEventHandler);
+    WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WAngelScriptAssetDocument::PropertyMetaStateEventHandler);
   }
 }
 
 void OnUnloadPlugin()
 {
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAngelScriptAssetDocument::PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WAngelScriptAssetDocument::PropertyMetaStateEventHandler);
 
-  ezAngelScriptActions::UnregisterActions();
+  WAngelScriptActions::UnregisterActions();
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }

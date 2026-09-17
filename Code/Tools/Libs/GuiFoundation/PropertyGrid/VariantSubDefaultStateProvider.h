@@ -4,31 +4,31 @@
 
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 
-class ezVariantSubAccessor;
+class WVariantSubAccessor;
 
-// Default value provider for ezVariantSubAccessor.
-class EZ_GUIFOUNDATION_DLL ezVariantSubDefaultStateProvider : public ezDefaultStateProvider
+// Default value provider for WVariantSubAccessor.
+class W_GUIFOUNDATION_DLL WVariantSubDefaultStateProvider : public WDefaultStateProvider
 {
 public:
-  static ezSharedPtr<ezDefaultStateProvider> CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
+  static WSharedPtr<WDefaultStateProvider> CreateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp);
 
-  ezVariantSubDefaultStateProvider(ezVariantSubAccessor* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
+  WVariantSubDefaultStateProvider(WVariantSubAccessor* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp);
 
-  virtual ezInt32 GetRootDepth() const override;
-  virtual ezColorGammaUB GetBackgroundColor() const override;
-  virtual ezString GetStateProviderName() const override { return "Variant"; }
+  virtual WInt32 GetRootDepth() const override;
+  virtual WColorGammaUB GetBackgroundColor() const override;
+  virtual WString GetStateProviderName() const override { return "Variant"; }
 
-  virtual ezVariant GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff) override;
-  virtual bool IsDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus RevertProperty(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-
-private:
-  ezResult GetDefaultValueInternal(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezVariant& out_DefaultValue);
+  virtual WVariant GetDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus CreateRevertContainerDiff(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDeque<WAbstractGraphDiffOperation>& out_diff) override;
+  virtual bool IsDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus RevertProperty(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
 
 private:
-  ezVariantSubAccessor* m_pAccessor = nullptr;
-  const ezDocumentObject* m_pObject = nullptr;
-  const ezAbstractProperty* m_pProp = nullptr;
-  ezObjectAccessorBase* m_pRootAccessor = nullptr;
+  WResult GetDefaultValueInternal(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WVariant& out_DefaultValue);
+
+private:
+  WVariantSubAccessor* m_pAccessor = nullptr;
+  const WDocumentObject* m_pObject = nullptr;
+  const WAbstractProperty* m_pProp = nullptr;
+  WObjectAccessorBase* m_pRootAccessor = nullptr;
 };

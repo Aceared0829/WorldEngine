@@ -9,20 +9,20 @@
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
 
-static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+static void ToolsProjectEventHandler(const WToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
-  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
+  WToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
   // Mesh
   {
     // Menu Bar
-    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar", "AssetMenuBar");
+    WActionMapManager::RegisterActionMap("SoundBankAssetMenuBar", "AssetMenuBar");
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar", "AssetToolbar");
+      WActionMapManager::RegisterActionMap("SoundBankAssetToolBar", "AssetToolbar");
     }
   }
 
@@ -30,37 +30,37 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezFmodActions::RegisterActions();
-      ezFmodActions::MapPluginMenuActions("AssetMenuBar");
-      ezFmodActions::MapMenuActions("EditorPluginScene_DocumentMenuBar");
-      ezFmodActions::MapMenuActions("EditorPluginScene_Scene2MenuBar");
-      ezFmodActions::MapToolbarActions("EditorPluginScene_DocumentToolBar");
-      ezFmodActions::MapToolbarActions("EditorPluginScene_Scene2ToolBar");
+      WFmodActions::RegisterActions();
+      WFmodActions::MapPluginMenuActions("AssetMenuBar");
+      WFmodActions::MapMenuActions("EditorPluginScene_DocumentMenuBar");
+      WFmodActions::MapMenuActions("EditorPluginScene_Scene2MenuBar");
+      WFmodActions::MapToolbarActions("EditorPluginScene_DocumentToolBar");
+      WFmodActions::MapToolbarActions("EditorPluginScene_Scene2ToolBar");
     }
   }
 }
 
 void OnUnloadPlugin()
 {
-  ezFmodActions::UnregisterActions();
-  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
+  WFmodActions::UnregisterActions();
+  WToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
 }
 
-static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+static void ToolsProjectEventHandler(const WToolsProjectEvent& e)
 {
-  if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
+  if (e.m_Type == WToolsProjectEvent::Type::ProjectOpened)
   {
-    ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+    WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
     pPreferences->SyncCVars();
   }
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }

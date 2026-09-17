@@ -3,13 +3,13 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 
-class EZ_GUIFOUNDATION_DLL ezQtInlinedGroupBox : public ezQtGroupBoxBase
+class W_GUIFOUNDATION_DLL WQtInlinedGroupBox : public WQtGroupBoxBase
 {
   Q_OBJECT
 public:
-  explicit ezQtInlinedGroupBox(QWidget* pParent);
+  explicit WQtInlinedGroupBox(QWidget* pParent);
 
-  virtual void SetTitle(ezStringView sTitle) override;
+  virtual void SetTitle(WStringView sTitle) override;
   virtual void SetIcon(const QIcon& icon) override;
   virtual void SetFillColor(const QColor& color) override;
 

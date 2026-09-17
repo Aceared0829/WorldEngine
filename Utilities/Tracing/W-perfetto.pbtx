@@ -1,0 +1,56 @@
+# Perfetto trace configuration for capturing WorldEngine events on Android.
+#
+# This captures WorldEngine track events (category "W") only.
+# To also capture kernel scheduling data, uncomment the ftrace and
+# process_stats sections at the bottom.
+#
+# Usage:
+#   adb push W-perfetto.pbtx /data/local/tmp/
+#   adb shell perfetto --txt -c /data/local/tmp/W-perfetto.pbtx -o /data/misc/perfetto-traces/W.perfetto-trace
+#   adb pull /data/misc/perfetto-traces/W.perfetto-trace .
+#
+# Then open W.perfetto-trace in the Perfetto UI: https://ui.perfetto.dev
+#
+
+buffers {
+  size_kb: 65536
+  fill_policy: RING_BUFFER
+}
+
+# Flush in-memory buffers every 2 seconds so short-lived apps don't lose data.
+flush_period_ms: 2000
+
+# WorldEngine track events (category "W").
+data_sources {
+  config {
+    name: "track_event"
+    track_event_config {
+      enabled_categories: "W"
+    }
+  }
+}
+
+# ── Optional: uncomment for full-stack analysis ──────────────────────────
+#
+# # Kernel scheduling events — shows thread wakeups, context switches, CPU usage.
+# data_sources {
+#   config {
+#     name: "linux.ftrace"
+#     ftrace_config {
+#       ftrace_events: "sched/sched_switch"
+#       ftrace_events: "sched/sched_waking"
+#       ftrace_events: "power/cpu_frequency"
+#     }
+#   }
+# }
+#
+# # Process and thread names — labels tracks in the Perfetto UI.
+# data_sources {
+#   config {
+#     name: "linux.process_stats"
+#     process_stats_config {
+#       scan_all_processes_on_start: true
+#       proc_stats_poll_ms: 1000
+#     }
+#   }
+# }

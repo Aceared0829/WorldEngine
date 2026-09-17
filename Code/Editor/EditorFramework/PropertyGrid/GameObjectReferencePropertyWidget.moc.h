@@ -6,15 +6,15 @@
 #include <QLineEdit>
 #include <QModelIndex>
 
-class ezSelectionContext;
-struct ezSelectionManagerEvent;
+class WSelectionContext;
+struct WSelectionManagerEvent;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectReferencePropertyWidget : public ezQtStandardPropertyWidget
+class W_EDITORFRAMEWORK_DLL WQtGameObjectReferencePropertyWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtGameObjectReferencePropertyWidget();
+  WQtGameObjectReferencePropertyWidget();
 
 private Q_SLOTS:
   void on_PickObject_clicked();
@@ -28,12 +28,12 @@ protected slots:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
   void FillContextMenu(QMenu& menu);
-  void PickObjectOverride(const ezDocumentObject* pObject);
+  void PickObjectOverride(const WDocumentObject* pObject);
   void SetValue(const QString& sText);
   void ClearPicking();
-  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
+  void SelectionManagerEventHandler(const WSelectionManagerEvent& e);
   virtual void showEvent(QShowEvent* event) override;
 
 protected:
@@ -42,5 +42,5 @@ protected:
   QLabel* m_pWidget = nullptr;
   QString m_sInternalValue;
   QToolButton* m_pButton = nullptr;
-  ezHybridArray<ezSelectionContext*, 8> m_SelectionContextsToUnsubscribe;
+  WHybridArray<WSelectionContext*, 8> m_SelectionContextsToUnsubscribe;
 };

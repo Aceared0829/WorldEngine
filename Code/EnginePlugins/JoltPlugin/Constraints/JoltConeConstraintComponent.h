@@ -2,24 +2,24 @@
 
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 
-using ezJoltConeConstraintComponentManager = ezComponentManager<class ezJoltConeConstraintComponent, ezBlockStorageType::Compact>;
+using WJoltConeConstraintComponentManager = WComponentManager<class WJoltConeConstraintComponent, WBlockStorageType::Compact>;
 
 /// Implements a conical physics constraint.
 ///
 /// The child actor can swing in a cone with a given angle around the anchor point on the parent actor.
-class EZ_JOLTPLUGIN_DLL ezJoltConeConstraintComponent : public ezJoltConstraintComponent
+class W_JOLTPLUGIN_DLL WJoltConeConstraintComponent : public WJoltConstraintComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltConeConstraintComponent, ezJoltConstraintComponent, ezJoltConeConstraintComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltConeConstraintComponent, WJoltConstraintComponent, WJoltConeConstraintComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltConstraintComponent
+  // WJoltConstraintComponent
 
 protected:
   virtual void CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1) override;
@@ -27,15 +27,15 @@ protected:
   virtual bool ExceededBreakingPoint() final override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltConeConstraintComponent
+  // WJoltConeConstraintComponent
 
 public:
-  ezJoltConeConstraintComponent();
-  ~ezJoltConeConstraintComponent();
+  WJoltConeConstraintComponent();
+  ~WJoltConeConstraintComponent();
 
-  void SetConeAngle(ezAngle f);                        // [ property ]
-  ezAngle GetConeAngle() const { return m_ConeAngle; } // [ property ]
+  void SetConeAngle(WAngle f);                        // [ property ]
+  WAngle GetConeAngle() const { return m_ConeAngle; } // [ property ]
 
 protected:
-  ezAngle m_ConeAngle;
+  WAngle m_ConeAngle;
 };

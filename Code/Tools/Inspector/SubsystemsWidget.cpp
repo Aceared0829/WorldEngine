@@ -6,9 +6,9 @@
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 
-ezQtSubsystemsWidget* ezQtSubsystemsWidget::s_pWidget = nullptr;
+WQtSubsystemsWidget* WQtSubsystemsWidget::s_pWidget = nullptr;
 
-ezQtSubsystemsWidget::ezQtSubsystemsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtSubsystemsWidget::WQtSubsystemsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Subsystem Widget", pParent)
 {
   s_pWidget = this;
@@ -21,26 +21,26 @@ ezQtSubsystemsWidget::ezQtSubsystemsWidget(ads::CDockManager* pDockManager, QWid
   ResetStats();
 }
 
-void ezQtSubsystemsWidget::ResetStats()
+void WQtSubsystemsWidget::ResetStats()
 {
   m_bUpdateSubsystems = true;
   m_Subsystems.Clear();
 }
 
 
-void ezQtSubsystemsWidget::UpdateStats()
+void WQtSubsystemsWidget::UpdateStats()
 {
   UpdateSubSystems();
 }
 
-void ezQtSubsystemsWidget::UpdateSubSystems()
+void WQtSubsystemsWidget::UpdateSubSystems()
 {
   if (!m_bUpdateSubsystems)
     return;
 
   m_bUpdateSubsystems = false;
 
-  ezQtScopedUpdatesDisabled _1(TableSubsystems);
+  WQtScopedUpdatesDisabled _1(TableSubsystems);
 
   TableSubsystems->clear();
 
@@ -58,15 +58,15 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
   TableSubsystems->setHorizontalHeaderLabels(Headers);
 
   {
-    ezStringBuilder sTemp;
-    ezInt32 iRow = 0;
+    WStringBuilder sTemp;
+    WInt32 iRow = 0;
 
-    for (ezMap<ezString, SubsystemData>::Iterator it = m_Subsystems.GetIterator(); it.IsValid(); ++it)
+    for (WMap<WString, SubsystemData>::Iterator it = m_Subsystems.GetIterator(); it.IsValid(); ++it)
     {
       const SubsystemData& ssd = it.Value();
 
       QLabel* pIcon = new QLabel();
-      QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/Subsystem.svg");
+      QIcon icon = WQtUiServices::GetCachedIconResource(":/Icons/Icons/Subsystem.svg");
       pIcon->setPixmap(icon.pixmap(QSize(24, 24)));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableSubsystems->setCellWidget(iRow, 0, pIcon);
@@ -77,11 +77,11 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
       sTemp.SetFormat("  {0}  ", ssd.m_sPlugin);
       TableSubsystems->setCellWidget(iRow, 2, new QLabel(sTemp.GetData()));
 
-      if (ssd.m_bStartupDone[ezStartupStage::HighLevelSystems])
+      if (ssd.m_bStartupDone[WStartupStage::HighLevelSystems])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#00aa00;\">  Engine  </span></p>"));
-      else if (ssd.m_bStartupDone[ezStartupStage::CoreSystems])
+      else if (ssd.m_bStartupDone[WStartupStage::CoreSystems])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#5555ff;\">  Core  </span></p>"));
-      else if (ssd.m_bStartupDone[ezStartupStage::BaseSystems])
+      else if (ssd.m_bStartupDone[WStartupStage::BaseSystems])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#cece00;\">  Base  </span></p>"));
       else
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
@@ -98,14 +98,14 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
   TableSubsystems->resizeColumnsToContents();
 }
 
-void ezQtSubsystemsWidget::ProcessTelemetry(void* pUnuseed)
+void WQtSubsystemsWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage('STRT', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('STRT', Msg) == W_SUCCESS)
   {
     switch (Msg.GetMessageID())
     {
@@ -118,12 +118,12 @@ void ezQtSubsystemsWidget::ProcessTelemetry(void* pUnuseed)
 
       case 'SYST':
       {
-        ezString sGroup, sSystem;
+        WString sGroup, sSystem;
 
         Msg.GetReader() >> sGroup;
         Msg.GetReader() >> sSystem;
 
-        ezStringBuilder sFinalName = sGroup.GetData();
+        WStringBuilder sFinalName = sGroup.GetData();
         sFinalName.Append("::");
         sFinalName.Append(sSystem.GetData());
 
@@ -131,16 +131,16 @@ void ezQtSubsystemsWidget::ProcessTelemetry(void* pUnuseed)
 
         Msg.GetReader() >> ssd.m_sPlugin;
 
-        for (ezUInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
+        for (WUInt32 i = 0; i < WStartupStage::ENUM_COUNT; ++i)
           Msg.GetReader() >> ssd.m_bStartupDone[i];
 
-        ezUInt8 uiDependencies = 0;
+        WUInt8 uiDependencies = 0;
         Msg.GetReader() >> uiDependencies;
 
-        ezStringBuilder sAllDeps;
+        WStringBuilder sAllDeps;
 
-        ezString sDep;
-        for (ezUInt8 i = 0; i < uiDependencies; ++i)
+        WString sDep;
+        for (WUInt8 i = 0; i < uiDependencies; ++i)
         {
           Msg.GetReader() >> sDep;
 

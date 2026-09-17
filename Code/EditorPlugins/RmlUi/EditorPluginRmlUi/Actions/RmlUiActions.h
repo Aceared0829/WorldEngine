@@ -5,25 +5,25 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezRmlUiAssetDocument;
-struct ezRmlUiAssetEvent;
+class WRmlUiAssetDocument;
+struct WRmlUiAssetEvent;
 
-class ezRmlUiActions
+class WRmlUiActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActionsMenu(ezStringView sMapping);
-  static void MapActionsToolbar(ezStringView sMapping);
+  static void MapActionsMenu(WStringView sMapping);
+  static void MapActionsToolbar(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hOpenInVSC;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hOpenInVSC;
 };
 
-class ezRmlUiAction : public ezButtonAction
+class WRmlUiAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WRmlUiAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -31,11 +31,11 @@ public:
     OpenInVSC,
   };
 
-  ezRmlUiAction(const ezActionContext& context, const char* szName, ActionType type);
+  WRmlUiAction(const WActionContext& context, const char* szName, ActionType type);
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  ezRmlUiAssetDocument* m_pDocument = nullptr;
+  WRmlUiAssetDocument* m_pDocument = nullptr;
   ActionType m_Type;
 };

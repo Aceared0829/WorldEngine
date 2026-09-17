@@ -5,26 +5,26 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezAngelScriptAssetDocument;
-struct ezAngelScriptAssetEvent;
+class WAngelScriptAssetDocument;
+struct WAngelScriptAssetEvent;
 
-class ezAngelScriptActions
+class WAngelScriptActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActionsMenu(ezStringView sMapping);
-  static void MapActionsToolbar(ezStringView sMapping);
+  static void MapActionsMenu(WStringView sMapping);
+  static void MapActionsToolbar(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hOpenInVSC;
-  static ezActionDescriptorHandle s_hSyncExposedParams;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hOpenInVSC;
+  static WActionDescriptorHandle s_hSyncExposedParams;
 };
 
-class ezAngelScriptAction : public ezButtonAction
+class WAngelScriptAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAngelScriptAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WAngelScriptAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -33,11 +33,11 @@ public:
     SyncExposedParameters,
   };
 
-  ezAngelScriptAction(const ezActionContext& context, const char* szName, ActionType type);
+  WAngelScriptAction(const WActionContext& context, const char* szName, ActionType type);
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  ezAngelScriptAssetDocument* m_pDocument = nullptr;
+  WAngelScriptAssetDocument* m_pDocument = nullptr;
   ActionType m_Type;
 };

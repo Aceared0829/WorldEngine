@@ -6,15 +6,15 @@
 #include <ParticlePlugin/ParticlePluginDLL.h>
 #include <RendererCore/Components/RenderComponent.h>
 
-struct ezMsgExtractRenderData;
-struct ezMsgInterruptPlaying;
+struct WMsgExtractRenderData;
+struct WMsgInterruptPlaying;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponentManager final : public ezComponentManager<class ezParticleFinisherComponent, ezBlockStorageType::Compact>
+class W_PARTICLEPLUGIN_DLL WParticleFinisherComponentManager final : public WComponentManager<class WParticleFinisherComponent, WBlockStorageType::Compact>
 {
-  using SUPER = ezComponentManager<class ezParticleFinisherComponent, ezBlockStorageType::Compact>;
+  using SUPER = WComponentManager<class WParticleFinisherComponent, WBlockStorageType::Compact>;
 
 public:
-  ezParticleFinisherComponentManager(ezWorld* pWorld);
+  WParticleFinisherComponentManager(WWorld* pWorld);
 
   void UpdateBounds();
 };
@@ -23,36 +23,36 @@ public:
 ///
 /// This is needed to play a particle effect to the end, when a game object with a particle effect on it gets deleted.
 /// This component should never be instantiated manually.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponent final : public ezRenderComponent
+class W_PARTICLEPLUGIN_DLL WParticleFinisherComponent final : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezParticleFinisherComponent, ezRenderComponent, ezParticleFinisherComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WParticleFinisherComponent, WRenderComponent, WParticleFinisherComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezParticleFinisherComponent
+  // WParticleFinisherComponent
 
 public:
-  ezParticleFinisherComponent();
-  ~ezParticleFinisherComponent();
+  WParticleFinisherComponent();
+  ~WParticleFinisherComponent();
 
   /// Forwards to InterruptEffect().
-  void OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg); // [ msg handler ]
+  void OnMsgInterruptPlaying(WMsgInterruptPlaying& ref_msg); // [ msg handler ]
 
-  ezParticleEffectController m_EffectController;
+  WParticleEffectController m_EffectController;
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   void UpdateBounds();
 };

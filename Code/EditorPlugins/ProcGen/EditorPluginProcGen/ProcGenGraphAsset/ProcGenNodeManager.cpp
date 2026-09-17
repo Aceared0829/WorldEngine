@@ -6,10 +6,10 @@
 #include <Foundation/Configuration/Startup.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPin, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcGenPin, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginProcGen, ProcGen)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginProcGen, ProcGen)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ReflectedTypeManager"
@@ -17,79 +17,79 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginProcGen, ProcGen)
 
   ON_CORESYSTEMS_STARTUP
   {
-    const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
+    const WRTTI* pBaseType = WGetStaticRTTI<WProcGenNodeBase>();
 
-    ezQtVisualGraphScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezProcGenPin>(), [](const ezRTTI* pRtti)->ezQtVisualGraphPin* { return new ezQtProcGenPin(); });
-    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtVisualGraphNode* { return new ezQtProcGenNode(); });
+    WQtVisualGraphScene::GetPinFactory().RegisterCreator(WGetStaticRTTI<WProcGenPin>(), [](const WRTTI* pRtti)->WQtVisualGraphPin* { return new WQtProcGenPin(); });
+    WQtVisualGraphScene::GetNodeFactory().RegisterCreator(pBaseType, [](const WRTTI* pRtti)->WQtVisualGraphNode* { return new WQtProcGenNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
+    const WRTTI* pBaseType = WGetStaticRTTI<WProcGenNodeBase>();
 
-    ezQtVisualGraphScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezProcGenPin>());
-    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(pBaseType);
+    WQtVisualGraphScene::GetPinFactory().UnregisterCreator(WGetStaticRTTI<WProcGenPin>());
+    WQtVisualGraphScene::GetNodeFactory().UnregisterCreator(pBaseType);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ezProcGenNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
+bool WProcGenNodeManager::InternalIsNode(const WDocumentObject* pObject) const
 {
-  return pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezProcGenNodeBase>());
+  return pObject->GetType()->IsDerivedFrom(WGetStaticRTTI<WProcGenNodeBase>());
 }
 
-void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
+void WProcGenNodeManager::InternalCreatePins(const WDocumentObject* pObject, NodeInternal& ref_node)
 {
-  const ezRTTI* pNodeBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
+  const WRTTI* pNodeBaseType = WGetStaticRTTI<WProcGenNodeBase>();
 
   auto pType = pObject->GetTypeAccessor().GetType();
   if (!pType->IsDerivedFrom(pNodeBaseType))
     return;
 
-  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+  WTempHybridArray<const WAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   for (auto pProp : properties)
   {
-    if (pProp->GetCategory() != ezPropertyCategory::Member)
+    if (pProp->GetCategory() != WPropertyCategory::Member)
       continue;
 
-    const ezRTTI* pPropType = pProp->GetSpecificType();
-    if (!pPropType->IsDerivedFrom<ezProcGenNodePin>())
+    const WRTTI* pPropType = pProp->GetSpecificType();
+    if (!pPropType->IsDerivedFrom<WProcGenNodePin>())
       continue;
 
-    ezColor pinColor = ezColorScheme::DarkUI(ezColorScheme::Gray);
-    if (const ezColorAttribute* pAttr = pProp->GetAttributeByType<ezColorAttribute>())
+    WColor pinColor = WColorScheme::DarkUI(WColorScheme::Gray);
+    if (const WColorAttribute* pAttr = pProp->GetAttributeByType<WColorAttribute>())
     {
       pinColor = pAttr->GetColor();
     }
 
-    if (pPropType->IsDerivedFrom<ezProcGenNodeInputPin>())
+    if (pPropType->IsDerivedFrom<WProcGenNodeInputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = W_DEFAULT_NEW(WProcGenPin, WVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Inputs.PushBack(pPin);
     }
-    else if (pPropType->IsDerivedFrom<ezProcGenNodeOutputPin>())
+    else if (pPropType->IsDerivedFrom<WProcGenNodeOutputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = W_DEFAULT_NEW(WProcGenPin, WVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Outputs.PushBack(pPin);
     }
   }
 }
 
-void ezProcGenNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WProcGenNodeManager::GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  ezRTTI::ForEachDerivedType<ezProcGenNodeBase>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WProcGenNodeBase>(
+    [&](const WRTTI* pRtti)
     { out_types.PushBack(pRtti); },
-    ezRTTI::ForEachOptions::ExcludeAbstract);
+    WRTTI::ForEachOptions::ExcludeAbstract);
 }
 
-ezStatus ezProcGenNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
+WStatus WProcGenNodeManager::InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const
 {
   out_result = CanConnectResult::ConnectNto1;
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

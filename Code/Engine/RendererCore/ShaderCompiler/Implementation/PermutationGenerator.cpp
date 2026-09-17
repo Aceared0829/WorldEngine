@@ -2,28 +2,28 @@
 
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
-void ezPermutationGenerator::Clear()
+void WPermutationGenerator::Clear()
 {
   m_Permutations.Clear();
 }
 
 
-void ezPermutationGenerator::RemovePermutations(const ezHashedString& sPermVarName)
+void WPermutationGenerator::RemovePermutations(const WHashedString& sPermVarName)
 {
   m_Permutations.Remove(sPermVarName);
 }
 
-void ezPermutationGenerator::AddPermutation(const ezHashedString& sName, const ezHashedString& sValue)
+void WPermutationGenerator::AddPermutation(const WHashedString& sName, const WHashedString& sValue)
 {
-  EZ_ASSERT_DEV(!sName.IsEmpty(), "");
-  EZ_ASSERT_DEV(!sValue.IsEmpty(), "");
+  W_ASSERT_DEV(!sName.IsEmpty(), "");
+  W_ASSERT_DEV(!sValue.IsEmpty(), "");
 
   m_Permutations[sName].Insert(sValue);
 }
 
-ezUInt32 ezPermutationGenerator::GetPermutationCount() const
+WUInt32 WPermutationGenerator::GetPermutationCount() const
 {
-  ezUInt32 uiPermutations = 1;
+  WUInt32 uiPermutations = 1;
 
   for (auto it = m_Permutations.GetIterator(); it.IsValid(); ++it)
   {
@@ -33,14 +33,14 @@ ezUInt32 ezPermutationGenerator::GetPermutationCount() const
   return uiPermutations;
 }
 
-void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezDynamicArray<ezPermutationVar>& out_permVars) const
+void WPermutationGenerator::GetPermutation(WUInt32 uiPerm, WDynamicArray<WPermutationVar>& out_permVars) const
 {
   out_permVars.Clear();
 
   for (auto itVariable = m_Permutations.GetIterator(); itVariable.IsValid(); ++itVariable)
   {
-    const ezUInt32 uiValues = itVariable.Value().GetCount();
-    ezUInt32 uiUseValue = uiPerm % uiValues;
+    const WUInt32 uiValues = itVariable.Value().GetCount();
+    WUInt32 uiUseValue = uiPerm % uiValues;
 
     uiPerm /= uiValues;
 
@@ -51,7 +51,7 @@ void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezDynamicArray<ezPe
       ++itValue;
     }
 
-    ezPermutationVar& pv = out_permVars.ExpandAndGetRef();
+    WPermutationVar& pv = out_permVars.ExpandAndGetRef();
     pv.m_sName = itVariable.Key();
     pv.m_sValue = itValue.Key();
   }

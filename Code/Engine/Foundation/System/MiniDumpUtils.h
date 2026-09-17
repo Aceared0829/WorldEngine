@@ -5,10 +5,10 @@
 #include <Foundation/Types/Status.h>
 
 /// Functionality for writing process mini-dumps (callstacks, memory snapshots, etc)
-namespace ezMiniDumpUtils
+namespace WMiniDumpUtils
 {
   /// Specifies the dump mode that is written.
-  enum class ezDumpType
+  enum class WDumpType
   {
     Auto,                  ///< Uses the setting specified globally through the command line.
     MiniDump,              ///< Saves a mini-dump without full memory, regardless of this application's command line flag '-fullcrashdumps'.
@@ -18,17 +18,17 @@ namespace ezMiniDumpUtils
   /// Tries to write a mini-dump for the external process with the given process ID.
   ///
   /// \sa WriteProcessMiniDump()
-  EZ_FOUNDATION_DLL ezStatus WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezDumpType dumpTypeOverride = ezDumpType::Auto);
+  W_FOUNDATION_DLL WStatus WriteExternalProcessMiniDump(WStringView sDumpFile, WUInt32 uiProcessID, WDumpType dumpTypeOverride = WDumpType::Auto);
 
-  /// Tries to launch ez's 'MiniDumpTool' to write a mini-dump for THIS process (the recommended way when an application is crashing).
+  /// Tries to launch W's 'MiniDumpTool' to write a mini-dump for THIS process (the recommended way when an application is crashing).
   ///
-  /// \note On Windows: The command line option '-fullcrashdumps' is passed if either set in this application's command line or if overridden through dumpTypeOverride = ezDumpType::MiniDumpWithFullMemory.
-  EZ_FOUNDATION_DLL ezStatus LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType dumpTypeOverride = ezDumpType::Auto);
+  /// \note On Windows: The command line option '-fullcrashdumps' is passed if either set in this application's command line or if overridden through dumpTypeOverride = WDumpType::MiniDumpWithFullMemory.
+  W_FOUNDATION_DLL WStatus LaunchMiniDumpTool(WStringView sDumpFile, WDumpType dumpTypeOverride = WDumpType::Auto);
 
-}; // namespace ezMiniDumpUtils
+}; // namespace WMiniDumpUtils
 
 
-#if EZ_ENABLED(EZ_SUPPORTS_CRASH_DUMPS)
+#if W_ENABLED(W_SUPPORTS_CRASH_DUMPS)
 
 #  include <MiniDumpUtils_Platform.h>
 

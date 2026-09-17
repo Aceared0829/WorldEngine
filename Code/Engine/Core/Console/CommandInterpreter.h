@@ -5,9 +5,9 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/RefCounted.h>
 
-struct EZ_CORE_DLL ezConsoleString
+struct W_CORE_DLL WConsoleString
 {
-  enum class Type : ezUInt8
+  enum class Type : WUInt8
   {
     Default,
     Error,
@@ -23,44 +23,44 @@ struct EZ_CORE_DLL ezConsoleString
   };
 
   Type m_Type = Type::Default;
-  ezString m_sText;
-  ezColor GetColor() const;
+  WString m_sText;
+  WColor GetColor() const;
 
-  bool operator<(const ezConsoleString& rhs) const { return m_sText < rhs.m_sText; }
+  bool operator<(const WConsoleString& rhs) const { return m_sText < rhs.m_sText; }
 };
 
-struct EZ_CORE_DLL ezCommandInterpreterState
+struct W_CORE_DLL WCommandInterpreterState
 {
-  ezStringBuilder m_sInput;
-  ezHybridArray<ezConsoleString, 16> m_sOutput;
+  WStringBuilder m_sInput;
+  WHybridArray<WConsoleString, 16> m_sOutput;
 
-  void AddOutputLine(const ezFormatString& text, ezConsoleString::Type type = ezConsoleString::Type::Default);
+  void AddOutputLine(const WFormatString& text, WConsoleString::Type type = WConsoleString::Type::Default);
 };
 
-class EZ_CORE_DLL ezCommandInterpreter : public ezRefCounted
+class W_CORE_DLL WCommandInterpreter : public WRefCounted
 {
 public:
-  virtual void Interpret(ezCommandInterpreterState& inout_state) = 0;
+  virtual void Interpret(WCommandInterpreterState& inout_state) = 0;
 
-  virtual void AutoComplete(ezCommandInterpreterState& inout_state);
+  virtual void AutoComplete(WCommandInterpreterState& inout_state);
 
   /// Iterates over all cvars and finds all that start with the string \a szVariable.
-  static void FindPossibleCVars(ezStringView sVariable, ezDeque<ezString>& ref_commonStrings, ezDeque<ezConsoleString>& ref_consoleStrings);
+  static void FindPossibleCVars(WStringView sVariable, WDeque<WString>& ref_commonStrings, WDeque<WConsoleString>& ref_consoleStrings);
 
   /// Iterates over all console functions and finds all that start with the string \a szVariable.
-  static void FindPossibleFunctions(ezStringView sVariable, ezDeque<ezString>& ref_commonStrings, ezDeque<ezConsoleString>& ref_consoleStrings);
+  static void FindPossibleFunctions(WStringView sVariable, WDeque<WString>& ref_commonStrings, WDeque<WConsoleString>& ref_consoleStrings);
 
   /// Returns the prefix string that is common to all strings in the \a vStrings array.
-  static const ezString FindCommonString(const ezDeque<ezString>& strings);
+  static const WString FindCommonString(const WDeque<WString>& strings);
 
   /// \name Helpers
   /// @{
 
   /// Returns a nice string containing all the important information about the cvar.
-  static ezString GetFullInfoAsString(ezCVar* pCVar);
+  static WString GetFullInfoAsString(WCVar* pCVar);
 
   /// Returns the value of the cvar as a string.
-  static const ezString GetValueAsString(ezCVar* pCVar);
+  static const WString GetValueAsString(WCVar* pCVar);
 
   /// @}
 };

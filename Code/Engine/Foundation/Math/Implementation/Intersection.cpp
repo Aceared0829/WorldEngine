@@ -4,11 +4,11 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Plane.h>
 
-bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, float* out_pIntersectionTime /*= nullptr*/, ezVec3* out_pIntersectionPoint /*= nullptr*/)
+bool WIntersectionUtils::RayTriangleIntersection(const WVec3& vRayStartPos, const WVec3& vRayDir, const WVec3& vVertex0, const WVec3& vVertex1, const WVec3& vVertex2, float* out_pIntersectionTime /*= nullptr*/, WVec3* out_pIntersectionPoint /*= nullptr*/)
 {
-  const ezPlane plane = ezPlane::MakeFromPoints(vVertex0, vVertex1, vVertex2);
+  const WPlane plane = WPlane::MakeFromPoints(vVertex0, vVertex1, vVertex2);
 
-  ezVec3 vIntersection;
+  WVec3 vIntersection;
 
   if (!plane.GetRayIntersection(vRayStartPos, vRayDir, out_pIntersectionTime, &vIntersection))
     return false;
@@ -17,8 +17,8 @@ bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayStartPos, co
     *out_pIntersectionPoint = vIntersection;
 
   {
-    const ezVec3 edge = vVertex1 - vVertex0;
-    const ezVec3 vp = vIntersection - vVertex0;
+    const WVec3 edge = vVertex1 - vVertex0;
+    const WVec3 vp = vIntersection - vVertex0;
     if (plane.m_vNormal.Dot(edge.CrossRH(vp)) < 0)
     {
       return false;
@@ -26,8 +26,8 @@ bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayStartPos, co
   }
 
   {
-    const ezVec3 edge = vVertex2 - vVertex1;
-    const ezVec3 vp = vIntersection - vVertex1;
+    const WVec3 edge = vVertex2 - vVertex1;
+    const WVec3 vp = vIntersection - vVertex1;
     if (plane.m_vNormal.Dot(edge.CrossRH(vp)) < 0)
     {
       return false;
@@ -35,8 +35,8 @@ bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayStartPos, co
   }
 
   {
-    const ezVec3 edge = vVertex0 - vVertex2;
-    const ezVec3 vp = vIntersection - vVertex2;
+    const WVec3 edge = vVertex0 - vVertex2;
+    const WVec3 vp = vIntersection - vVertex2;
     if (plane.m_vNormal.Dot(edge.CrossRH(vp)) < 0)
     {
       return false;
@@ -46,16 +46,16 @@ bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayStartPos, co
   return true;
 }
 
-bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, ezVec3& out_vBarycentricCoords, float* out_pIntersectionTime, ezVec3* out_pIntersectionPoint)
+bool WIntersectionUtils::RayTriangleIntersection(const WVec3& vRayOrigin, const WVec3& vRayDir, const WVec3& vVertex0, const WVec3& vVertex1, const WVec3& vVertex2, WVec3& out_vBarycentricCoords, float* out_pIntersectionTime, WVec3* out_pIntersectionPoint)
 {
   // source: https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
 
   constexpr float fEpsilon = 0.00001f;
 
-  ezVec3 edge1 = vVertex1 - vVertex0;
-  ezVec3 edge2 = vVertex2 - vVertex0;
+  WVec3 edge1 = vVertex1 - vVertex0;
+  WVec3 edge2 = vVertex2 - vVertex0;
 
-  ezVec3 pvec = vRayDir.CrossRH(edge2);
+  WVec3 pvec = vRayDir.CrossRH(edge2);
 
   float det = edge1.Dot(pvec);
   if (det > -fEpsilon && det < fEpsilon)
@@ -63,19 +63,19 @@ bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayOrigin, cons
 
   float inv_det = 1.0f / det;
 
-  ezVec3 tvec = vRayOrigin - vVertex0;
+  WVec3 tvec = vRayOrigin - vVertex0;
 
   float u = tvec.Dot(pvec) * inv_det;
   if (u < 0.0f || u > 1.0f)
     return false;
 
-  ezVec3 qvec = tvec.CrossRH(edge1);
+  WVec3 qvec = tvec.CrossRH(edge1);
 
   float v = vRayDir.Dot(qvec) * inv_det;
   if (v < 0.0f || v > 1.0f)
     return false;
 
-  out_vBarycentricCoords = ezVec3(1.0f - u - v, u, v);
+  out_vBarycentricCoords = WVec3(1.0f - u - v, u, v);
 
   if (out_pIntersectionTime)
     *out_pIntersectionTime = edge2.Dot(qvec) * inv_det;
@@ -86,28 +86,28 @@ bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayOrigin, cons
   return true;
 }
 
-bool ezIntersectionUtils::RayTriangleIntersectionCullBackface(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, ezVec3& out_vBarycentricCoords, float* out_pIntersectionTime, ezVec3* out_pIntersectionPoint)
+bool WIntersectionUtils::RayTriangleIntersectionCullBackface(const WVec3& vRayOrigin, const WVec3& vRayDir, const WVec3& vVertex0, const WVec3& vVertex1, const WVec3& vVertex2, WVec3& out_vBarycentricCoords, float* out_pIntersectionTime, WVec3* out_pIntersectionPoint)
 {
   // source: https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
 
   constexpr float fEpsilon = 0.00001f;
 
-  ezVec3 edge1 = vVertex1 - vVertex0;
-  ezVec3 edge2 = vVertex2 - vVertex0;
+  WVec3 edge1 = vVertex1 - vVertex0;
+  WVec3 edge2 = vVertex2 - vVertex0;
 
-  ezVec3 pvec = vRayDir.CrossRH(edge2);
+  WVec3 pvec = vRayDir.CrossRH(edge2);
 
   float det = edge1.Dot(pvec);
   if (det < fEpsilon)
     return false;
 
-  ezVec3 tvec = vRayOrigin - vVertex0;
+  WVec3 tvec = vRayOrigin - vVertex0;
 
   float u = tvec.Dot(pvec);
   if (u < 0 || u > det)
     return false;
 
-  ezVec3 qvec = tvec.CrossRH(edge1);
+  WVec3 qvec = tvec.CrossRH(edge1);
 
   float v = qvec.Dot(vRayDir);
   if (v < 0 || u + v > det)
@@ -117,7 +117,7 @@ bool ezIntersectionUtils::RayTriangleIntersectionCullBackface(const ezVec3& vRay
   u *= inv_det;
   v *= inv_det;
 
-  out_vBarycentricCoords = ezVec3(1.0f - u - v, u, v);
+  out_vBarycentricCoords = WVec3(1.0f - u - v, u, v);
 
   if (out_pIntersectionTime)
     *out_pIntersectionTime = edge2.Dot(qvec) * inv_det;
@@ -128,17 +128,17 @@ bool ezIntersectionUtils::RayTriangleIntersectionCullBackface(const ezVec3& vRay
   return true;
 }
 
-bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3* pPolygonVertices,
-  ezUInt32 uiNumVertices, float* out_pIntersectionTime, ezVec3* out_pIntersectionPoint, ezUInt32 uiVertexStride)
+bool WIntersectionUtils::RayPolygonIntersection(const WVec3& vRayStartPos, const WVec3& vRayDir, const WVec3* pPolygonVertices,
+  WUInt32 uiNumVertices, float* out_pIntersectionTime, WVec3* out_pIntersectionPoint, WUInt32 uiVertexStride)
 {
-  EZ_ASSERT_DEBUG(uiNumVertices >= 3, "A polygon must have at least three vertices.");
-  EZ_ASSERT_DEBUG(uiVertexStride >= sizeof(ezVec3), "The vertex stride is invalid.");
+  W_ASSERT_DEBUG(uiNumVertices >= 3, "A polygon must have at least three vertices.");
+  W_ASSERT_DEBUG(uiVertexStride >= sizeof(WVec3), "The vertex stride is invalid.");
 
-  ezPlane plane = ezPlane::MakeFromPoints(*pPolygonVertices, *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride), *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * 2));
+  WPlane plane = WPlane::MakeFromPoints(*pPolygonVertices, *WMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride), *WMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * 2));
 
-  EZ_ASSERT_DEBUG(plane.IsValid(), "The given polygon's plane is invalid (computed from the first three vertices only).");
+  W_ASSERT_DEBUG(plane.IsValid(), "The given polygon's plane is invalid (computed from the first three vertices only).");
 
-  ezVec3 vIntersection;
+  WVec3 vIntersection;
 
   if (!plane.GetRayIntersection(vRayStartPos, vRayDir, out_pIntersectionTime, &vIntersection))
     return false;
@@ -147,15 +147,15 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
     *out_pIntersectionPoint = vIntersection;
 
   // start with the last point as the 'wrap around' position
-  ezVec3 vPrevPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, ezMath::SafeMultiply32(uiVertexStride, (uiNumVertices - 1)));
+  WVec3 vPrevPoint = *WMemoryUtils::AddByteOffset(pPolygonVertices, WMath::SafeMultiply32(uiVertexStride, (uiNumVertices - 1)));
 
   // for each polygon edge
-  for (ezUInt32 i = 0; i < uiNumVertices; ++i)
+  for (WUInt32 i = 0; i < uiNumVertices; ++i)
   {
-    const ezVec3 vThisPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, ezMath::SafeMultiply32(uiVertexStride, i));
+    const WVec3 vThisPoint = *WMemoryUtils::AddByteOffset(pPolygonVertices, WMath::SafeMultiply32(uiVertexStride, i));
 
-    const ezVec3 edge = vThisPoint - vPrevPoint;
-    const ezVec3 vp = vIntersection - vPrevPoint;
+    const WVec3 edge = vThisPoint - vPrevPoint;
+    const WVec3 vp = vIntersection - vPrevPoint;
     if (plane.m_vNormal.Dot(edge.CrossRH(vp)) < 0)
     {
       return false;
@@ -168,11 +168,11 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
   return true;
 }
 
-ezVec3 ezIntersectionUtils::ClosestPoint_PointLineSegment(
-  const ezVec3& vStartPoint, const ezVec3& vLineSegmentPos0, const ezVec3& vLineSegmentPos1, float* out_pFractionAlongSegment)
+WVec3 WIntersectionUtils::ClosestPoint_PointLineSegment(
+  const WVec3& vStartPoint, const WVec3& vLineSegmentPos0, const WVec3& vLineSegmentPos1, float* out_pFractionAlongSegment)
 {
-  const ezVec3 vLineDir = vLineSegmentPos1 - vLineSegmentPos0;
-  const ezVec3 vToStartPoint = vStartPoint - vLineSegmentPos0;
+  const WVec3 vLineDir = vLineSegmentPos1 - vLineSegmentPos0;
+  const WVec3 vToStartPoint = vStartPoint - vLineSegmentPos0;
 
   const float fProjected = vToStartPoint.Dot(vLineDir);
 
@@ -203,16 +203,16 @@ ezVec3 ezIntersectionUtils::ClosestPoint_PointLineSegment(
   return vLineSegmentPos0 + fPosAlongSegment * vLineDir;
 }
 
-bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& vRayDir, const ezVec2& vLineSegmentPos0,
-  const ezVec2& vLineSegmentPos1, float* out_pIntersectionTime, ezVec2* out_pIntersectionPoint)
+bool WIntersectionUtils::Ray2DLine2D(const WVec2& vRayStartPos, const WVec2& vRayDir, const WVec2& vLineSegmentPos0,
+  const WVec2& vLineSegmentPos1, float* out_pIntersectionTime, WVec2* out_pIntersectionPoint)
 {
-  const ezVec2 vLineDir = vLineSegmentPos1 - vLineSegmentPos0;
+  const WVec2 vLineDir = vLineSegmentPos1 - vLineSegmentPos0;
 
   // 2D Plane
-  const ezVec2 vPlaneNormal = vLineDir.GetOrthogonalVector();
+  const WVec2 vPlaneNormal = vLineDir.GetOrthogonalVector();
   const float fPlaneNegDist = -vPlaneNormal.Dot(vLineSegmentPos0);
 
-  ezVec2 vIntersection;
+  WVec2 vIntersection;
   float fIntersectionTime;
 
   // 2D Plane ray intersection test
@@ -223,7 +223,7 @@ bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& 
     if (fCosAlpha == 0)                                      // ray is orthogonal to plane
       return false;
 
-    if (ezMath::Sign(fPlaneSide) == ezMath::Sign(fCosAlpha)) // ray points away from the plane
+    if (WMath::Sign(fPlaneSide) == WMath::Sign(fCosAlpha)) // ray points away from the plane
       return false;
 
     fIntersectionTime = -fPlaneSide / fCosAlpha;
@@ -231,7 +231,7 @@ bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& 
     vIntersection = vRayStartPos + fIntersectionTime * vRayDir;
   }
 
-  const ezVec2 vToIntersection = vIntersection - vLineSegmentPos0;
+  const WVec2 vToIntersection = vIntersection - vLineSegmentPos0;
 
   const float fProjected = vLineDir.Dot(vToIntersection);
 
@@ -250,9 +250,9 @@ bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& 
   return true;
 }
 
-bool ezIntersectionUtils::IsPointOnLine(const ezVec3& vLineStart, const ezVec3& vLineEnd, const ezVec3& vPoint, float fMaxDist /*= 0.01f*/)
+bool WIntersectionUtils::IsPointOnLine(const WVec3& vLineStart, const WVec3& vLineEnd, const WVec3& vPoint, float fMaxDist /*= 0.01f*/)
 {
-  const ezVec3 vClosest = ClosestPoint_PointLineSegment(vPoint, vLineStart, vLineEnd);
+  const WVec3 vClosest = ClosestPoint_PointLineSegment(vPoint, vLineStart, vLineEnd);
   const float fClosestDistSqr = (vClosest - vPoint).GetLengthSquared();
 
   return (fClosestDistSqr <= fMaxDist * fMaxDist);

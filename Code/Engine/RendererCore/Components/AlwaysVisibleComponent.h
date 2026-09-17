@@ -2,23 +2,23 @@
 
 #include <RendererCore/Components/RenderComponent.h>
 
-using ezAlwaysVisibleComponentManager = ezComponentManager<class ezAlwaysVisibleComponent, ezBlockStorageType::Compact>;
+using WAlwaysVisibleComponentManager = WComponentManager<class WAlwaysVisibleComponent, WBlockStorageType::Compact>;
 
 /// Attaching this component to a game object makes the renderer consider it always visible, ie. disables culling
-class EZ_RENDERERCORE_DLL ezAlwaysVisibleComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WAlwaysVisibleComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAlwaysVisibleComponent, ezRenderComponent, ezAlwaysVisibleComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WAlwaysVisibleComponent, WRenderComponent, WAlwaysVisibleComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAlwaysVisibleComponent
+  // WAlwaysVisibleComponent
 
 public:
-  ezAlwaysVisibleComponent();
-  ~ezAlwaysVisibleComponent();
+  WAlwaysVisibleComponent();
+  ~WAlwaysVisibleComponent();
 };

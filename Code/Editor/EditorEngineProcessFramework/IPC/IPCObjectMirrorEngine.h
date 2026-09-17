@@ -7,11 +7,11 @@
 ///
 /// One instance on the editor side needs to be initialized as sender and another
 /// one on the engine side as receiver.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezIPCObjectMirrorEngine : public ezDocumentObjectMirror
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WIPCObjectMirrorEngine : public WDocumentObjectMirror
 {
 public:
-  ezIPCObjectMirrorEngine();
-  ~ezIPCObjectMirrorEngine();
+  WIPCObjectMirrorEngine();
+  ~WIPCObjectMirrorEngine();
 
-  virtual void ApplyOp(ezObjectChange& inout_change) override;
+  virtual void ApplyOp(WObjectChange& inout_change) override;
 };

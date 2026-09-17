@@ -9,16 +9,16 @@
 ///
 /// The values name Jolt document types, but nothing here links against the Jolt plugin: the asset is
 /// built by document type name and by writing properties by name.
-struct ezCollisionMeshKind
+struct WCollisionMeshKind
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
-    /// ezJoltCollisionMeshAsset. Concave, but only usable for static geometry.
+    /// WJoltCollisionMeshAsset. Concave, but only usable for static geometry.
     TriangleMesh,
 
-    /// ezJoltConvexCollisionMeshAsset. Required for dynamic actors.
+    /// WJoltConvexCollisionMeshAsset. Required for dynamic actors.
     ConvexHull,
 
     Default = TriangleMesh
@@ -32,34 +32,34 @@ struct ezCollisionMeshKind
 ///
 /// The Jolt plugin does not have to be loaded to find or read collision mesh assets, but it does have
 /// to be loaded to create one, as it registers the document type.
-struct EZ_EDITORPLUGINASSETS_DLL ezMeshColliderUtils
+struct W_EDITORPLUGINASSETS_DLL WMeshColliderUtils
 {
   /// The document types that a mesh asset can have.
-  static constexpr ezStringView s_sMeshDocType = "Mesh"_ezsv;
-  static constexpr ezStringView s_sAnimatedMeshDocType = "Animated Mesh"_ezsv;
+  static constexpr WStringView s_sMeshDocType = "Mesh"_wsv;
+  static constexpr WStringView s_sAnimatedMeshDocType = "Animated Mesh"_wsv;
 
   /// Whether the given guid refers to a mesh or animated mesh asset.
-  static bool IsMeshAsset(const ezUuid& assetGuid);
+  static bool IsMeshAsset(const WUuid& assetGuid);
 
   /// The mesh asset properties that a collision mesh asset has as well, under the same name.
   ///
   /// Pass these to ReadMeshProperties(). An animated mesh asset only has some of them; the rest come
   /// back as invalid variants and are then not written.
-  static ezArrayPtr<const ezStringView> GetImportPropertyNames();
+  static WArrayPtr<const WStringView> GetImportPropertyNames();
 
   /// Written on top of GetImportPropertyNames(), but only to a triangle mesh: a convex hull is built
   /// from the hull of the vertices, so simplifying the source geometry first changes nothing about it.
-  static ezArrayPtr<const ezStringView> GetSimplificationPropertyNames();
+  static WArrayPtr<const WStringView> GetSimplificationPropertyNames();
 
   /// The subset of GetImportPropertyNames() that selects which part of the model file is used.
   /// FindExisting() needs at least these in the dictionary it is given.
-  static ezArrayPtr<const ezStringView> GetSubMeshPropertyNames();
+  static WArrayPtr<const WStringView> GetSubMeshPropertyNames();
 
   /// The document type name of a collision mesh asset of that kind, e.g. for FindExisting().
-  static ezStringView GetDocumentType(ezEnum<ezCollisionMeshKind> kind);
+  static WStringView GetDocumentType(WEnum<WCollisionMeshKind> kind);
 
   /// The file extension of a collision mesh asset of that kind, without a dot.
-  static ezStringView GetExtension(ezEnum<ezCollisionMeshKind> kind);
+  static WStringView GetExtension(WEnum<WCollisionMeshKind> kind);
 
   /// Finds the collision mesh asset of that kind that belongs to a specific mesh asset, wherever it
   /// sits in the project. A collider inside a mesh's "_data" folder is found just as one next to it.
@@ -79,13 +79,13 @@ struct EZ_EDITORPLUGINASSETS_DLL ezMeshColliderUtils
   ///   colliders select the same sub-mesh. May be empty.
   ///
   /// Returns an invalid uuid if there is no match, or if sMeshFile is empty.
-  static ezUuid FindExisting(ezEnum<ezCollisionMeshKind> kind, ezStringView sMeshFile, const ezVariantDictionary& meshImportProperties, ezStringView sMeshAssetPath = {});
+  static WUuid FindExisting(WEnum<WCollisionMeshKind> kind, WStringView sMeshFile, const WVariantDictionary& meshImportProperties, WStringView sMeshAssetPath = {});
 
   /// Reads the given properties from a mesh asset document, for passing to CreateCollisionMesh().
   ///
   /// Opens the document if it is not open already, and closes it again unless someone else was
   /// working with it. Properties the document does not have are not added to the dictionary.
-  static ezResult ReadMeshProperties(ezStringView sAbsMeshAssetPath, ezArrayPtr<const ezStringView> properties, ezVariantDictionary& out_values);
+  static WResult ReadMeshProperties(WStringView sAbsMeshAssetPath, WArrayPtr<const WStringView> properties, WVariantDictionary& out_values);
 
   /// Creates or rewrites the collision mesh asset at that path and saves it.
   ///
@@ -99,5 +99,5 @@ struct EZ_EDITORPLUGINASSETS_DLL ezMeshColliderUtils
   /// place, so it keeps its guid and references to it still resolve.
   ///
   /// The document is closed again afterwards; opening it is left to the caller.
-  static ezStatus CreateCollisionMesh(ezStringView sAbsColliderPath, ezEnum<ezCollisionMeshKind> kind, const ezVariantDictionary& importProperties, ezStringView sSurface, bool bOverwriteExisting, ezUuid& out_guid);
+  static WStatus CreateCollisionMesh(WStringView sAbsColliderPath, WEnum<WCollisionMeshKind> kind, const WVariantDictionary& importProperties, WStringView sSurface, bool bOverwriteExisting, WUuid& out_guid);
 };

@@ -1,10 +1,10 @@
 # Runtime smoke test for the sample projects of a packaged SDK.
 #
-# Starts every sample through ezPlayer, lets it render a number of frames, takes a screenshot
+# Starts every sample through WPlayer, lets it render a number of frames, takes a screenshot
 # and checks that the process exited cleanly, logged no errors and rendered something.
 #
 # Example:
-#   Test-Samples.ps1 -SdkDir "D:\ez-test\ezEngine.Release.26.9.0" -OutputDir "D:\ez-test\results"
+#   Test-Samples.ps1 -SdkDir "D:\W-test\WorldEngine.Release.26.9.0" -OutputDir "D:\W-test\results"
 
 [CmdletBinding()]
 param(
@@ -17,7 +17,7 @@ param(
 	[string]$Only = "",
 	# test the local sample projects; only useful to turn off when isolating another switch below
 	[switch]$IncludeLocal = $true,
-	# also download, transform and run the samples that ship as 'ezRemoteProject' stubs
+	# also download, transform and run the samples that ship as 'WRemoteProject' stubs
 	[switch]$IncludeRemote,
 	# run every scene of a project, not only its main scene
 	[switch]$AllScenes,
@@ -38,7 +38,7 @@ $ErrorActionPreference = "Stop"
 
 $SdkDir = (Resolve-Path $SdkDir).Path
 $binDir = Get-EzBinDir -SdkDir $SdkDir -BinDir $BinDir
-$player = Get-EzExe -BinDir $binDir -ExeName "ezPlayer.exe"
+$player = Get-EzExe -BinDir $binDir -ExeName "WPlayer.exe"
 
 Initialize-TestGroup -Group "Samples" -OutputDir $OutputDir
 
@@ -56,7 +56,7 @@ function Get-ProjectScenes
 	$searchDir = if (Test-Path $sceneDir) { $sceneDir } else { $ProjectDir }
 
 	# only the top level, the '<scene>_data' subfolders contain prefabs and layers, not startable scenes
-	$scenes = @(Get-ChildItem -Path $searchDir -Filter "*.ezScene" -File | Sort-Object Name)
+	$scenes = @(Get-ChildItem -Path $searchDir -Filter "*.WScene" -File | Sort-Object Name)
 
 	if (-not $All)
 	{
@@ -190,7 +190,7 @@ function Initialize-RemoteProject
 {
 	param([string]$Name, [string]$StubDir)
 
-	$processor = Get-EzExe -BinDir $binDir -ExeName "ezEditorProcessor.exe"
+	$processor = Get-EzExe -BinDir $binDir -ExeName "WEditorProcessor.exe"
 	$checkoutRoot = Join-Path $OutputDir "RemoteProjects"
 	New-Item -ItemType Directory -Force -Path $checkoutRoot | Out-Null
 
@@ -199,7 +199,7 @@ function Initialize-RemoteProject
 
 	# the stub file itself, not its folder - that is what the editor recognizes as a remote project
 	$result = Invoke-EzProcess -Exe $processor -TimeoutSeconds 3600 -Arguments @(
-		"-project", (Join-Path $StubDir "ezRemoteProject")
+		"-project", (Join-Path $StubDir "WRemoteProject")
 		"-remoteProjectDir", $checkoutRoot
 		"-transform", "Default"
 		"-outputDir", (Join-Path $OutputDir "EditorProcessor/$Name")
@@ -212,12 +212,12 @@ function Initialize-RemoteProject
 		throw "Checkout and transform failed with exit code $($result.ExitCode), see '$transformLog'."
 	}
 
-	# not every remote repo puts 'ezProject' at its root - e.g. the Monster Attack repo nests the
-	# actual project one folder deeper (it also carries an 'ezEngine' submodule at its root). Check
+	# not every remote repo puts 'WProject' at its root - e.g. the Monster Attack repo nests the
+	# actual project one folder deeper (it also carries an 'WorldEngine' submodule at its root). Check
 	# the common flat case first, only fall back to a recursive search (which would otherwise also
 	# scan straight through that submodule) if that comes up empty.
-	$flatProjectFile = Join-Path $projectDir "ezProject"
-	$projectFile = if (Test-Path $flatProjectFile) { Get-Item $flatProjectFile } else { Get-ChildItem -Path $projectDir -Filter "ezProject" -Recurse -File -ErrorAction SilentlyContinue | Select-Object -First 1 }
+	$flatProjectFile = Join-Path $projectDir "WProject"
+	$projectFile = if (Test-Path $flatProjectFile) { Get-Item $flatProjectFile } else { Get-ChildItem -Path $projectDir -Filter "WProject" -Recurse -File -ErrorAction SilentlyContinue | Select-Object -First 1 }
 
 	if (-not $projectFile)
 	{
@@ -232,11 +232,11 @@ function Initialize-RemoteProject
 $samplesDir = Join-Path $SdkDir "Data/Samples"
 
 $localProjects = @(Get-ChildItem -Path $samplesDir -Directory | Where-Object {
-	Test-Path (Join-Path $_.FullName "ezProject")
+	Test-Path (Join-Path $_.FullName "WProject")
 })
 
 $remoteProjects = @(Get-ChildItem -Path $samplesDir -Directory | Where-Object {
-	Test-Path (Join-Path $_.FullName "ezRemoteProject")
+	Test-Path (Join-Path $_.FullName "WRemoteProject")
 })
 
 if ($Only)
@@ -287,7 +287,7 @@ foreach ($project in $remoteProjects)
 # A6: the standalone sample applications have no project and no scene, they only need to start and
 # not crash.
 #
-# These four derive from ezApplication directly, not from ezGameApplication, so they do not have
+# These four derive from WApplication directly, not from WGameApplication, so they do not have
 # the unattended options ('-runframes', '-screenshot', '-timeout', ...) - passing those is pointless,
 # and worse, waiting out Invoke-EzProcess's own timeout for a process that never reacts to '-timeout'
 # takes up to $TimeoutSeconds+30s per app with a GUI window sitting on screen the whole time, which

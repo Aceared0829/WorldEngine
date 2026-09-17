@@ -8,17 +8,17 @@
 #include <Foundation/System/ProcessGroup.h>
 #include <Texture/Image/Image.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES) && (EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)) && defined(BUILDSYSTEM_TEXCONV_PRESENT)
+#if W_ENABLED(W_SUPPORTS_PROCESSES) && (W_ENABLED(W_PLATFORM_WINDOWS) || W_ENABLED(W_PLATFORM_LINUX)) && defined(BUILDSYSTEM_TEXCONV_PRESENT)
 
-class ezTexConvTest : public ezTestBaseClass
+class WTexConvTest : public WTestBaseClass
 {
 public:
   virtual const char* GetTestName() const override { return "TexConvTool"; }
 
-  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override
+  virtual WResult GetImage(WImage& ref_img, const WSubTestEntry& subTest, WUInt32 uiImageNumber) override
   {
     ref_img.ResetAndMove(std::move(m_pState->m_image));
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
 private:
@@ -33,89 +33,89 @@ private:
 
   virtual void SetupSubTests() override;
 
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
-  virtual ezResult InitializeTest() override
+  virtual WResult InitializeTest() override
   {
-    ezStartup::StartupCoreSystems();
+    WStartup::StartupCoreSystems();
 
-    m_pState = EZ_DEFAULT_NEW(State);
+    m_pState = W_DEFAULT_NEW(State);
 
-    const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
+    const WStringBuilder sReadDir(">sdk/", WTestFramework::GetInstance()->GetRelTestDataPath());
 
-    if (ezFileSystem::AddDataDirectory(sReadDir.GetData(), "TexConvTest", "testdata").Failed())
+    if (WFileSystem::AddDataDirectory(sReadDir.GetData(), "TexConvTest", "testdata").Failed())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
+    WFileSystem::AddDataDirectory(">Wtest/", "TexConvDataDir", "imgout", WDataDirUsage::AllowWrites).IgnoreResult();
 
-    ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, {}, {});
+    WTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(W_PLATFORM_NAME, {}, {});
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  virtual ezResult DeInitializeTest() override
+  virtual WResult DeInitializeTest() override
   {
     m_pState.Clear();
 
-    ezFileSystem::RemoveDataDirectoryGroup("TexConvTest");
-    ezFileSystem::RemoveDataDirectoryGroup("TexConvDataDir");
+    WFileSystem::RemoveDataDirectoryGroup("TexConvTest");
+    WFileSystem::RemoveDataDirectoryGroup("TexConvDataDir");
 
-    ezStartup::ShutdownCoreSystems();
+    WStartup::ShutdownCoreSystems();
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  void RunTexConv(ezProcessOptions& options, const char* szOutName)
+  void RunTexConv(WProcessOptions& options, const char* szOutName)
   {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    const char* szTexConvExecutableName = "ezTexConv.exe";
+#  if W_ENABLED(W_PLATFORM_WINDOWS)
+    const char* szTexConvExecutableName = "WTexConv.exe";
 #  else
-    const char* szTexConvExecutableName = "ezTexConv";
+    const char* szTexConvExecutableName = "WTexConv";
 #  endif
-    ezStringBuilder sTexConvExe = ezOSFile::GetApplicationDirectory();
+    WStringBuilder sTexConvExe = WOSFile::GetApplicationDirectory();
     sTexConvExe.AppendPath(szTexConvExecutableName);
     sTexConvExe.MakeCleanPath();
 
-    if (!EZ_TEST_BOOL_MSG(ezOSFile::ExistsFile(sTexConvExe), "%s does not exist", szTexConvExecutableName))
+    if (!W_TEST_BOOL_MSG(WOSFile::ExistsFile(sTexConvExe), "%s does not exist", szTexConvExecutableName))
       return;
 
     options.m_sProcess = sTexConvExe;
 
-    ezStringBuilder sOut = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    WStringBuilder sOut = WTestFramework::GetInstance()->GetAbsOutputPath();
     sOut.AppendPath("Temp", szOutName);
 
     options.AddArgument("-out");
     options.AddArgument(sOut);
 
-    if (!EZ_TEST_BOOL(m_pState->m_TexConvGroup.Launch(options).Succeeded()))
+    if (!W_TEST_BOOL(m_pState->m_TexConvGroup.Launch(options).Succeeded()))
       return;
 
-    if (!EZ_TEST_BOOL_MSG(m_pState->m_TexConvGroup.WaitToFinish(ezTime::MakeFromMinutes(1.0)).Succeeded(), "TexConv did not finish in time."))
+    if (!W_TEST_BOOL_MSG(m_pState->m_TexConvGroup.WaitToFinish(WTime::MakeFromMinutes(1.0)).Succeeded(), "TexConv did not finish in time."))
       return;
 
-    EZ_TEST_INT_MSG(m_pState->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");
+    W_TEST_INT_MSG(m_pState->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");
 
-    if (!EZ_TEST_BOOL_MSG(m_pState->m_image.LoadFrom(sOut).Succeeded(), "Failed to load converted image"))
+    if (!W_TEST_BOOL_MSG(m_pState->m_image.LoadFrom(sOut).Succeeded(), "Failed to load converted image"))
       return;
 
-    ezByteBlobPtr rawImgData = m_pState->m_image.GetByteBlobPtr();
-    ezUInt64 rawDataHash = ezHashingUtils::xxHash64(rawImgData.GetPtr(), rawImgData.GetCount(), 1234);
+    WByteBlobPtr rawImgData = m_pState->m_image.GetByteBlobPtr();
+    WUInt64 rawDataHash = WHashingUtils::xxHash64(rawImgData.GetPtr(), rawImgData.GetCount(), 1234);
     // The [test] tag tells the UnitTest to actually output this:
-    ezLog::Info("[test]Converted file '{0}' has raw data hash: 0x{1}", szOutName, ezArgU(rawDataHash, 16, true, 16, false));
+    WLog::Info("[test]Converted file '{0}' has raw data hash: 0x{1}", szOutName, WArgU(rawDataHash, 16, true, 16, false));
   }
 
   struct State
   {
-    ezProcessGroup m_TexConvGroup;
-    ezImage m_image;
+    WProcessGroup m_TexConvGroup;
+    WImage m_image;
   };
 
-  ezUniquePtr<State> m_pState;
+  WUniquePtr<State> m_pState;
 };
 
-void ezTexConvTest::SetupSubTests()
+void WTexConvTest::SetupSubTests()
 {
   AddSubTest("RGBA to RGB - PNG", SubTest::RgbaToRgbPNG);
   AddSubTest("Combine4 - DDS", SubTest::Combine4);
@@ -124,22 +124,22 @@ void ezTexConvTest::SetupSubTests()
   AddSubTest("TGA loading", SubTest::TGA);
 }
 
-ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WTexConvTest::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
-  ezStringBuilder sImageData;
-  ezFileSystem::ResolvePath(":testdata/TexConv", &sImageData, nullptr).IgnoreResult();
+  WStringBuilder sImageData;
+  WFileSystem::ResolvePath(":testdata/TexConv", &sImageData, nullptr).IgnoreResult();
 
-  const ezStringBuilder sPathEZ(sImageData, "/EZ.png");
-  const ezStringBuilder sPathE(sImageData, "/E.png");
-  const ezStringBuilder sPathZ(sImageData, "/Z.png");
-  const ezStringBuilder sPathShape(sImageData, "/Shape.png");
-  const ezStringBuilder sPathTGAv(sImageData, "/EZ_flipped_v.tga");
-  const ezStringBuilder sPathTGAh(sImageData, "/EZ_flipped_h.tga");
-  const ezStringBuilder sPathTGAvhCompressed(sImageData, "/EZ_flipped_vh.tga");
+  const WStringBuilder sPathEZ(sImageData, "/W.png");
+  const WStringBuilder sPathE(sImageData, "/E.png");
+  const WStringBuilder sPathZ(sImageData, "/Z.png");
+  const WStringBuilder sPathShape(sImageData, "/Shape.png");
+  const WStringBuilder sPathTGAv(sImageData, "/W_flipped_v.tga");
+  const WStringBuilder sPathTGAh(sImageData, "/W_flipped_h.tga");
+  const WStringBuilder sPathTGAvhCompressed(sImageData, "/W_flipped_vh.tga");
 
   if (iIdentifier == SubTest::RgbaToRgbPNG)
   {
-    ezProcessOptions opt;
+    WProcessOptions opt;
     opt.AddArgument("-rgb");
     opt.AddArgument("in0");
 
@@ -148,12 +148,12 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
 
     RunTexConv(opt, "RgbaToRgbPNG.png");
 
-    EZ_TEST_IMAGE(0, 10);
+    W_TEST_IMAGE(0, 10);
   }
 
   if (iIdentifier == SubTest::Combine4)
   {
-    ezProcessOptions opt;
+    WProcessOptions opt;
     opt.AddArgument("-in0");
     opt.AddArgument(sPathE);
 
@@ -194,12 +194,12 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
 
     // Threshold needs to be higher here since we might fall back to software dxt compression
     // which results in slightly different results than GPU dxt compression.
-    EZ_TEST_IMAGE(1, 100);
+    W_TEST_IMAGE(1, 100);
   }
 
   if (iIdentifier == SubTest::LinearUsage)
   {
-    ezProcessOptions opt;
+    WProcessOptions opt;
     opt.AddArgument("-in0");
     opt.AddArgument(sPathE);
 
@@ -235,12 +235,12 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
 
     RunTexConv(opt, "Linear.dds");
 
-    EZ_TEST_IMAGE(2, 10);
+    W_TEST_IMAGE(2, 10);
   }
 
   if (iIdentifier == SubTest::ExtractChannel)
   {
-    ezProcessOptions opt;
+    WProcessOptions opt;
     opt.AddArgument("-in0");
     opt.AddArgument(sPathEZ);
 
@@ -261,13 +261,13 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
 
     RunTexConv(opt, "ExtractChannel.dds");
 
-    EZ_TEST_IMAGE(3, 10);
+    W_TEST_IMAGE(3, 10);
   }
 
   if (iIdentifier == SubTest::TGA)
   {
     {
-      ezProcessOptions opt;
+      WProcessOptions opt;
       opt.AddArgument("-in0");
       opt.AddArgument(sPathTGAv);
 
@@ -277,13 +277,13 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
       opt.AddArgument("-usage");
       opt.AddArgument("linear");
 
-      RunTexConv(opt, "EZ_flipped_v.dds");
+      RunTexConv(opt, "W_flipped_v.dds");
 
-      EZ_TEST_IMAGE(3, 10);
+      W_TEST_IMAGE(3, 10);
     }
 
     {
-      ezProcessOptions opt;
+      WProcessOptions opt;
       opt.AddArgument("-in0");
       opt.AddArgument(sPathTGAh);
 
@@ -293,13 +293,13 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
       opt.AddArgument("-usage");
       opt.AddArgument("linear");
 
-      RunTexConv(opt, "EZ_flipped_h.dds");
+      RunTexConv(opt, "W_flipped_h.dds");
 
-      EZ_TEST_IMAGE(4, 10);
+      W_TEST_IMAGE(4, 10);
     }
 
     {
-      ezProcessOptions opt;
+      WProcessOptions opt;
       opt.AddArgument("-in0");
       opt.AddArgument(sPathTGAvhCompressed);
 
@@ -309,17 +309,17 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
       opt.AddArgument("-usage");
       opt.AddArgument("linear");
 
-      RunTexConv(opt, "EZ_flipped_vh.dds");
+      RunTexConv(opt, "W_flipped_vh.dds");
 
-      EZ_TEST_IMAGE(5, 10);
+      W_TEST_IMAGE(5, 10);
     }
   }
 
-  return ezTestAppRun::Quit;
+  return WTestAppRun::Quit;
 }
 
 
 
-static ezTexConvTest s_ezTexConvTest;
+static WTexConvTest s_WTexConvTest;
 
 #endif

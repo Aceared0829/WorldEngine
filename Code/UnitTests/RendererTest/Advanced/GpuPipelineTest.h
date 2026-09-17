@@ -3,7 +3,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererTest/TestClass/TestClass.h>
 
-class ezGpuPipelineTest : public ezGraphicsTest
+class WGpuPipelineTest : public WGraphicsTest
 {
 public:
   virtual const char* GetTestName() const override { return "GpuPipeline"; }
@@ -29,9 +29,9 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
   void DeadPassCulling();
   void DependencySorting();
@@ -49,5 +49,5 @@ private:
   void IncompatiblePinConnection();
   void SharedSourceSwitch();
 
-  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+  WSharedPtr<WRenderGraph> m_pRenderGraph;
 };

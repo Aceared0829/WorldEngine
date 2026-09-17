@@ -9,47 +9,47 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRestPoseAnimNode, 1, ezRTTIDefaultAllocator<ezRestPoseAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRestPoseAnimNode, 1, WRTTIDefaultAllocator<WRestPoseAnimNode>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new ezHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new WHiddenAttribute()),
     }
-    EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+    W_END_PROPERTIES;
+    W_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Pose Generation"),
-      new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
-      new ezTitleAttribute("Rest Pose"),
+      new WCategoryAttribute("Pose Generation"),
+      new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Blue)),
+      new WTitleAttribute("Rest Pose"),
     }
-    EZ_END_ATTRIBUTES;
+    W_END_ATTRIBUTES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezRestPoseAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WRestPoseAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRestPoseAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WRestPoseAnimNode::DeserializeNode(WStreamReader& stream)
 {
   const auto version = stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WRestPoseAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected())
     return;
@@ -58,7 +58,7 @@ void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInsta
   auto& cmd = ref_controller.GetPoseGenerator().AllocCommandRestPose();
 
   {
-    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
+    WAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
     pLocalTransforms->m_pWeights = nullptr;
     pLocalTransforms->m_bUseRootMotion = false;
@@ -70,4 +70,4 @@ void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInsta
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Pose_RestPoseAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Pose_RestPoseAnimNode);

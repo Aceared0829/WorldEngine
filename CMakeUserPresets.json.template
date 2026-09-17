@@ -10,12 +10,12 @@
       "name": "user-specific",
       "hidden": true,
       "cacheVariables": {
-        "EZ_QT_DIR" : "directory to qt6 install location",
+        "W_QT_DIR" : "directory to qt6 install location",
         "CMAKE_C_COMPILER" : "clang-14",
         "CMAKE_CXX_COMPILER" : "clang++-14"
       },
       "environment": {
-        "EZ_STEAMRT_SDK_ROOT" : "Directory to SteamRT Sniper SDK root"
+        "W_STEAMRT_SDK_ROOT" : "Directory to SteamRT Sniper SDK root"
       }
     },
     {

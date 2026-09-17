@@ -6,13 +6,13 @@
 #include <Foundation/Containers/IdTable.h>
 #include <RmlUi/Core/FileInterface.h>
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
-  struct FileId : public ezGenericId<24, 8>
+  struct FileId : public WGenericId<24, 8>
   {
-    using ezGenericId::ezGenericId;
+    using WGenericId::WGenericId;
 
-    static FileId FromRml(Rml::FileHandle hFile) { return FileId(static_cast<ezUInt32>(hFile)); }
+    static FileId FromRml(Rml::FileHandle hFile) { return FileId(static_cast<WUInt32>(hFile)); }
 
     Rml::FileHandle ToRml() const { return m_Data; }
   };
@@ -38,10 +38,10 @@ namespace ezRmlUiInternal
   private:
     struct OpenFile
     {
-      ezDefaultMemoryStreamStorage m_Storage;
-      ezMemoryStreamReader m_Reader;
+      WDefaultMemoryStreamStorage m_Storage;
+      WMemoryStreamReader m_Reader;
     };
 
-    ezIdTable<FileId, ezUniquePtr<OpenFile>> m_OpenFiles;
+    WIdTable<FileId, WUniquePtr<OpenFile>> m_OpenFiles;
   };
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

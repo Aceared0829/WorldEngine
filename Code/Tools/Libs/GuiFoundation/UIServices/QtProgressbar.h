@@ -8,33 +8,33 @@
 class QProgressDialog;
 class QWinTaskbarProgress;
 class QWinTaskbarButton;
-class ezProgress;
-struct ezProgressEvent;
+class WProgress;
+struct WProgressEvent;
 
-/// A Qt implementation to display the state of an ezProgress instance.
+/// A Qt implementation to display the state of an WProgress instance.
 ///
-/// Create a single instance of this at application startup and link it to an ezProgress instance.
+/// Create a single instance of this at application startup and link it to an WProgress instance.
 /// Whenever the instance's progress state changes, this class will display a simple progress bar.
-class EZ_GUIFOUNDATION_DLL ezQtProgressbar
+class W_GUIFOUNDATION_DLL WQtProgressbar
 {
 public:
-  ezQtProgressbar();
-  ~ezQtProgressbar();
+  WQtProgressbar();
+  ~WQtProgressbar();
 
-  /// Sets the ezProgress instance that should be visualized.
-  void SetProgressbar(ezProgress* pProgress);
+  /// Sets the WProgress instance that should be visualized.
+  void SetProgressbar(WProgress* pProgress);
 
   bool IsProcessingEvents() const { return m_iNestedProcessEvents > 0; }
 
 private:
-  void ProgressbarEventHandler(const ezProgressEvent& e);
+  void ProgressbarEventHandler(const WProgressEvent& e);
 
   void EnsureCreated();
   void EnsureDestroyed();
 
   QProgressDialog* m_pDialog = nullptr;
-  ezProgress* m_pProgress = nullptr;
-  ezInt32 m_iNestedProcessEvents = 0;
+  WProgress* m_pProgress = nullptr;
+  WInt32 m_iNestedProcessEvents = 0;
 
   QMetaObject::Connection m_OnDialogDestroyed;
 };

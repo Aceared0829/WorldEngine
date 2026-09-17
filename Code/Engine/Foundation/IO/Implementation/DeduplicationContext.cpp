@@ -3,14 +3,14 @@
 #include <Foundation/IO/DeduplicationReadContext.h>
 #include <Foundation/IO/DeduplicationWriteContext.h>
 
-EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezDeduplicationReadContext);
+W_IMPLEMENT_SERIALIZATION_CONTEXT(WDeduplicationReadContext);
 
-ezDeduplicationReadContext::ezDeduplicationReadContext() = default;
-ezDeduplicationReadContext::~ezDeduplicationReadContext() = default;
+WDeduplicationReadContext::WDeduplicationReadContext() = default;
+WDeduplicationReadContext::~WDeduplicationReadContext() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezDeduplicationWriteContext);
+W_IMPLEMENT_SERIALIZATION_CONTEXT(WDeduplicationWriteContext);
 
-ezDeduplicationWriteContext::ezDeduplicationWriteContext() = default;
-ezDeduplicationWriteContext::~ezDeduplicationWriteContext() = default;
+WDeduplicationWriteContext::WDeduplicationWriteContext() = default;
+WDeduplicationWriteContext::~WDeduplicationWriteContext() = default;

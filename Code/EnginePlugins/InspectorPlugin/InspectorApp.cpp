@@ -5,13 +5,13 @@
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Utilities/Stats.h>
 
-static ezAssertHandler g_PreviousAssertHandler = nullptr;
+static WAssertHandler g_PreviousAssertHandler = nullptr;
 
-static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool TelemetryAssertHandler(const char* szSourceFile, WUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
-  if (ezTelemetry::IsConnectedToClient())
+  if (WTelemetry::IsConnectedToClient())
   {
-    ezTelemetryMessage msg;
+    WTelemetryMessage msg;
     msg.SetMessageID(' APP', 'ASRT');
     msg.GetWriter() << szSourceFile;
     msg.GetWriter() << uiLine;
@@ -19,14 +19,14 @@ static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, co
     msg.GetWriter() << szExpression;
     msg.GetWriter() << szAssertMsg;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+    WTelemetry::Broadcast(WTelemetry::Reliable, msg);
 
     // messages might not arrive, if the network does not get enough time to transmit them
     // since we are crashing the application in (half) 'a second', we need to make sure the network traffic has indeed been sent
-    for (ezUInt32 i = 0; i < 5; ++i)
+    for (WUInt32 i = 0; i < 5; ++i)
     {
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
-      ezTelemetry::UpdateNetwork();
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(100));
+      WTelemetry::UpdateNetwork();
     }
   }
 
@@ -38,66 +38,66 @@ static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, co
 
 void AddTelemetryAssertHandler()
 {
-  g_PreviousAssertHandler = ezGetAssertHandler();
-  ezSetAssertHandler(TelemetryAssertHandler);
+  g_PreviousAssertHandler = WGetAssertHandler();
+  WSetAssertHandler(TelemetryAssertHandler);
 }
 
 void RemoveTelemetryAssertHandler()
 {
-  ezSetAssertHandler(g_PreviousAssertHandler);
+  WSetAssertHandler(g_PreviousAssertHandler);
   g_PreviousAssertHandler = nullptr;
 }
 
 void SetAppStats()
 {
-  ezStringBuilder sOut;
-  const ezSystemInformation info = ezSystemInformation::Get();
+  WStringBuilder sOut;
+  const WSystemInformation info = WSystemInformation::Get();
 
-  ezStats::SetStat("Platform/Name", info.GetPlatformName());
+  WStats::SetStat("Platform/Name", info.GetPlatformName());
 
-  ezStats::SetStat("Hardware/CPU Cores", info.GetCPUCoreCount());
+  WStats::SetStat("Hardware/CPU Cores", info.GetCPUCoreCount());
 
-  ezStats::SetStat("Hardware/RAM[GB]", info.GetInstalledMainMemory() / 1024.0f / 1024.0f / 1024.0f);
+  WStats::SetStat("Hardware/RAM[GB]", info.GetInstalledMainMemory() / 1024.0f / 1024.0f / 1024.0f);
 
   sOut = info.Is64BitOS() ? "64 Bit" : "32 Bit";
-  ezStats::SetStat("Platform/Architecture", sOut.GetData());
+  WStats::SetStat("Platform/Architecture", sOut.GetData());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   sOut = "Debug";
-#elif EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#elif W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   sOut = "Dev";
 #else
   sOut = "Release";
 #endif
-  ezStats::SetStat("Platform/Build", sOut.GetData());
+  WStats::SetStat("Platform/Build", sOut.GetData());
 
-#if EZ_ENABLED(EZ_USE_PROFILING)
+#if W_ENABLED(W_USE_PROFILING)
   sOut = "Enabled";
 #else
   sOut = "Disabled";
 #endif
-  ezStats::SetStat("Features/Profiling", sOut.GetData());
+  WStats::SetStat("Features/Profiling", sOut.GetData());
 
-  if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::AllocationStats)
+  if constexpr (WAllocatorTrackingMode::Default >= WAllocatorTrackingMode::AllocationStats)
     sOut = "Enabled";
   else
     sOut = "Disabled";
 
-  ezStats::SetStat("Features/Allocation Tracking", sOut.GetData());
+  WStats::SetStat("Features/Allocation Tracking", sOut.GetData());
 
-  if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
+  if constexpr (WAllocatorTrackingMode::Default >= WAllocatorTrackingMode::AllocationStatsAndStacktraces)
     sOut = "Enabled";
   else
     sOut = "Disabled";
 
-  ezStats::SetStat("Features/Allocation Stack Tracing", sOut.GetData());
+  WStats::SetStat("Features/Allocation Stack Tracing", sOut.GetData());
 
-#if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+#if W_ENABLED(W_PLATFORM_LITTLE_ENDIAN)
   sOut = "Little";
 #else
   sOut = "Big";
 #endif
-  ezStats::SetStat("Platform/Endianess", sOut.GetData());
+  WStats::SetStat("Platform/Endianess", sOut.GetData());
 }
 
 

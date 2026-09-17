@@ -6,7 +6,7 @@ index 7e1905aa897b..b2fb1291ef52 100644
  add_subdirectory(llvm)
  add_subdirectory(llvmlibc)
  add_subdirectory(misc)
-+add_subdirectory(ez)
++add_subdirectory(W)
  add_subdirectory(modernize)
  if(CLANG_TIDY_ENABLE_STATIC_ANALYZER)
    add_subdirectory(mpi)
@@ -82,7 +82,7 @@ index adde9136ff1d..4c8eef0533c2 100644
  static int LLVM_ATTRIBUTE_UNUSED MiscModuleAnchorDestination =
      MiscModuleAnchorSource;
  
-+// This anchor is used to force the linker to link the ezModule.
++// This anchor is used to force the linker to link the WModule.
 +extern volatile int EzModuleAnchorSource;
 +static int LLVM_ATTRIBUTE_UNUSED EzModuleAnchorDestination =
 +    EzModuleAnchorSource;

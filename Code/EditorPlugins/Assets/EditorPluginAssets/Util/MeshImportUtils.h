@@ -4,30 +4,30 @@
 #include <EditorPluginAssets/Util/AssetUtils.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
-class ezMeshResourceDescriptor;
-class ezAssetInfoFile;
+class WMeshResourceDescriptor;
+class WAssetInfoFile;
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
   class Importer;
-  enum class TextureSemantic : ezInt8;
-} // namespace ezModelImporter2
+  enum class TextureSemantic : WInt8;
+} // namespace WModelImporter2
 
-namespace ezMeshImportUtils
+namespace WMeshImportUtils
 {
-  EZ_EDITORPLUGINASSETS_DLL ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, ezStringView sTexturePath, ezModelImporter2::TextureSemantic hint, bool bTextureClamp, const ezModelImporter2::Importer* pImporter);
+  W_EDITORPLUGINASSETS_DLL WString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, WStringView sTexturePath, WModelImporter2::TextureSemantic hint, bool bTextureClamp, const WModelImporter2::Importer* pImporter);
 
-  EZ_EDITORPLUGINASSETS_DLL void SetMeshAssetMaterialSlots(ezDynamicArray<ezMaterialResourceSlot>& inout_materialSlots, const ezModelImporter2::Importer* pImporter);
-  EZ_EDITORPLUGINASSETS_DLL void CopyMeshAssetMaterialSlotToResource(ezMeshResourceDescriptor& ref_desc, const ezArrayPtr<ezMaterialResourceSlot>& materialSlots);
-  EZ_EDITORPLUGINASSETS_DLL void ImportMeshAssetMaterials(ezDynamicArray<ezMaterialResourceSlot>& inout_materialSlots, ezStringView sDocumentDirectory, const ezModelImporter2::Importer* pImporter);
+  W_EDITORPLUGINASSETS_DLL void SetMeshAssetMaterialSlots(WDynamicArray<WMaterialResourceSlot>& inout_materialSlots, const WModelImporter2::Importer* pImporter);
+  W_EDITORPLUGINASSETS_DLL void CopyMeshAssetMaterialSlotToResource(WMeshResourceDescriptor& ref_desc, const WArrayPtr<WMaterialResourceSlot>& materialSlots);
+  W_EDITORPLUGINASSETS_DLL void ImportMeshAssetMaterials(WDynamicArray<WMaterialResourceSlot>& inout_materialSlots, WStringView sDocumentDirectory, const WModelImporter2::Importer* pImporter);
 
   /// Records vertex and triangle counts, sub-mesh count and the bounding box of a transformed mesh.
   ///
   /// Call this after the descriptor has been saved, because saving computes the bounds if they were not set explicitly.
-  EZ_EDITORPLUGINASSETS_DLL void RecordMeshTransformInfo(ezAssetInfoFile& ref_info, const ezMeshResourceDescriptor& desc);
+  W_EDITORPLUGINASSETS_DLL void RecordMeshTransformInfo(WAssetInfoFile& ref_info, const WMeshResourceDescriptor& desc);
 
   /// Records the names of the meshes that the source file contains.
-  EZ_EDITORPLUGINASSETS_DLL void RecordAvailableMeshes(ezAssetInfoFile& ref_info, const ezModelImporter2::Importer* pImporter);
+  W_EDITORPLUGINASSETS_DLL void RecordAvailableMeshes(WAssetInfoFile& ref_info, const WModelImporter2::Importer* pImporter);
 
   /// Extracts external buffer file dependencies from a glTF file and adds them to the transform dependencies set.
   ///
@@ -37,5 +37,5 @@ namespace ezMeshImportUtils
   ///
   /// \param sMeshFile Data directory relative path to the glTF file
   /// \param inout_dependencies Set to add the buffer file dependencies to
-  EZ_EDITORPLUGINASSETS_DLL void AddGltfBufferDependencies(ezStringView sMeshFile, ezSet<ezString>& inout_dependencies);
-} // namespace ezMeshImportUtils
+  W_EDITORPLUGINASSETS_DLL void AddGltfBufferDependencies(WStringView sMeshFile, WSet<WString>& inout_dependencies);
+} // namespace WMeshImportUtils

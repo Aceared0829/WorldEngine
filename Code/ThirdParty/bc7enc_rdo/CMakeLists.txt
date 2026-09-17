@@ -1,24 +1,24 @@
 ###################
-## ezEngine specific additions
+## WorldEngine specific additions
 ###################
 
-ez_requires_bc7enc_rdo()
+W_requires_bc7enc_rdo()
 
-if(EZ_CMAKE_PLATFORM_LINUX)
+if(W_CMAKE_PLATFORM_LINUX)
 	get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-	ez_create_target(STATIC_LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+	W_create_target(STATIC_LIBRARY ${PROJECT_NAME} NO_W_PREFIX)
 
 	find_package(OpenMP REQUIRED)
 	if(OpenMP_CXX_FOUND)
 		target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
 	endif()
-	target_compile_definitions(${PROJECT_NAME} PUBLIC EZ_USE_BC7ENC)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC W_USE_BC7ENC)
 endif()
 
 return()
 ###################
-## ezEngine specific additions end
+## WorldEngine specific additions end
 ###################
 
 project(bc7enc)

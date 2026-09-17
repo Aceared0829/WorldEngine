@@ -2,16 +2,16 @@
 
 #include <Foundation/CodeUtils/Preprocessor.h>
 
-ezString ezPreprocessor::s_ParamNames[32];
+WString WPreprocessor::s_ParamNames[32];
 
-using namespace ezTokenParseUtils;
+using namespace WTokenParseUtils;
 
-ezPreprocessor::ezPreprocessor()
-  : m_ClassAllocator("ezPreprocessor", ezFoundation::GetDefaultAllocator())
+WPreprocessor::WPreprocessor()
+  : m_ClassAllocator("WPreprocessor", WFoundation::GetDefaultAllocator())
   , m_CurrentFileStack(&m_ClassAllocator)
   , m_CustomDefines(&m_ClassAllocator)
   , m_IfdefActiveStack(&m_ClassAllocator)
-  , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
+  , m_Macros(WCompareHelper<WString256>(), &m_ClassAllocator)
   , m_MacroParamStack(&m_ClassAllocator)
   , m_MacroParamStackExpanded(&m_ClassAllocator)
   , m_CustomTokens(&m_ClassAllocator)
@@ -22,8 +22,8 @@ ezPreprocessor::ezPreprocessor()
   m_FileLocatorCallback = DefaultFileLocator;
   m_FileOpenCallback = DefaultFileOpen;
 
-  ezStringBuilder s;
-  for (ezUInt32 i = 0; i < 32; ++i)
+  WStringBuilder s;
+  for (WUInt32 i = 0; i < 32; ++i)
   {
     s.SetFormat("__Param{0}__", i);
     s_ParamNames[i] = s;
@@ -32,15 +32,15 @@ ezPreprocessor::ezPreprocessor()
     m_ParameterTokens[i].m_DataView = s_ParamNames[i].GetView();
   }
 
-  ezToken dummy;
-  dummy.m_iType = ezTokenType::NonIdentifier;
+  WToken dummy;
+  dummy.m_iType = WTokenType::NonIdentifier;
 
   m_pTokenOpenParenthesis = AddCustomToken(&dummy, "(");
   m_pTokenClosedParenthesis = AddCustomToken(&dummy, ")");
   m_pTokenComma = AddCustomToken(&dummy, ",");
 }
 
-void ezPreprocessor::SetCustomFileCache(ezTokenizedFileCache* pFileCache)
+void WPreprocessor::SetCustomFileCache(WTokenizedFileCache* pFileCache)
 {
   m_pUsedFileCache = &m_InternalFileCache;
 
@@ -48,7 +48,7 @@ void ezPreprocessor::SetCustomFileCache(ezTokenizedFileCache* pFileCache)
     m_pUsedFileCache = pFileCache;
 }
 
-ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const ezStringView& sNewText)
+WToken* WPreprocessor::AddCustomToken(const WToken* pPrevious, const WStringView& sNewText)
 {
   CustomToken* pToken = &m_CustomTokens.ExpandAndGetRef();
 
@@ -59,9 +59,9 @@ ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const ezString
   return &pToken->m_Token;
 }
 
-ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutput, const ezToken* pCurParentToken)
+WResult WPreprocessor::ProcessFile(WStringView sFile, TokenStream& TokenOutput, const WToken* pCurParentToken)
 {
-  const ezTokenizer* pTokenizer = nullptr;
+  const WTokenizer* pTokenizer = nullptr;
 
   if (OpenFile(sFile, &pTokenizer).Failed())
   {
@@ -70,7 +70,7 @@ ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutpu
       PP_LOG(Error, "Invalid #include '{}'", pCurParentToken, sFile);
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   FileData fd;
@@ -79,13 +79,13 @@ ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutpu
 
   m_CurrentFileStack.PushBack(fd);
 
-  ezUInt32 uiNextToken = 0;
+  WUInt32 uiNextToken = 0;
   TokenStream TokensLine(&m_ClassAllocator);
   TokenStream TokensCode(&m_ClassAllocator);
 
   while (pTokenizer->GetNextLine(uiNextToken, TokensLine).Succeeded())
   {
-    ezUInt32 uiCurToken = 0;
+    WUInt32 uiCurToken = 0;
 
     // if the line starts with a # it is a preprocessor command
     if (Accept(TokensLine, uiCurToken, "#"))
@@ -94,14 +94,14 @@ ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutpu
       if (!TokensCode.IsEmpty())
       {
         if (Expand(TokensCode, TokenOutput).Failed())
-          return EZ_FAILURE;
+          return W_FAILURE;
 
         TokensCode.Clear();
       }
 
       // process the command
       if (ProcessCmd(TokensLine, TokenOutput).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
     }
     else
     {
@@ -118,26 +118,26 @@ ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutpu
   if (!TokensCode.IsEmpty())
   {
     if (Expand(TokensCode, TokenOutput).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     TokensCode.Clear();
   }
 
   m_CurrentFileStack.PopBack();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenOutput)
+WResult WPreprocessor::Process(WStringView sMainFile, TokenStream& ref_tokenOutput)
 {
-  EZ_ASSERT_DEV(m_FileLocatorCallback.IsValid(), "No file locator callback has been set.");
+  W_ASSERT_DEV(m_FileLocatorCallback.IsValid(), "No file locator callback has been set.");
 
   ref_tokenOutput.Clear();
 
   // Add a custom define for the __FILE__ macro
   {
-    m_TokenFile.m_DataView = ezStringView("__FILE__");
-    m_TokenFile.m_iType = ezTokenType::Identifier;
+    m_TokenFile.m_DataView = WStringView("__FILE__");
+    m_TokenFile.m_iType = WTokenType::Identifier;
 
     MacroDefinition md;
     md.m_MacroIdentifier = &m_TokenFile;
@@ -150,8 +150,8 @@ ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenO
 
   // Add a custom define for the __LINE__ macro
   {
-    m_TokenLine.m_DataView = ezStringView("__LINE__");
-    m_TokenLine.m_iType = ezTokenType::Identifier;
+    m_TokenLine.m_DataView = WStringView("__LINE__");
+    m_TokenLine.m_iType = WTokenType::Identifier;
 
     MacroDefinition md;
     md.m_MacroIdentifier = &m_TokenLine;
@@ -165,67 +165,67 @@ ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenO
   m_IfdefActiveStack.Clear();
   m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
 
-  ezStringBuilder sFileToOpen;
+  WStringBuilder sFileToOpen;
   if (m_FileLocatorCallback("", sMainFile, IncludeType::MainFile, sFileToOpen).Failed())
   {
-    ezLog::Error(m_pLog, "Could not locate file '{0}'", sMainFile);
-    return EZ_FAILURE;
+    WLog::Error(m_pLog, "Could not locate file '{0}'", sMainFile);
+    return W_FAILURE;
   }
 
   if (ProcessFile(sFileToOpen, ref_tokenOutput, nullptr).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_IfdefActiveStack.PopBack();
 
   if (!m_IfdefActiveStack.IsEmpty())
   {
-    ezLog::Error(m_pLog, "Incomplete nesting of #if / #else / #endif");
-    return EZ_FAILURE;
+    WLog::Error(m_pLog, "Incomplete nesting of #if / #else / #endif");
+    return W_FAILURE;
   }
 
   if (!m_CurrentFileStack.IsEmpty())
   {
-    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. {0} elements, top stack item: '{1}'", m_CurrentFileStack.GetCount(), m_CurrentFileStack.PeekBack().m_sFileName);
-    return EZ_FAILURE;
+    WLog::Error(m_pLog, "Internal error, file stack is not empty after processing. {0} elements, top stack item: '{1}'", m_CurrentFileStack.GetCount(), m_CurrentFileStack.PeekBack().m_sFileName);
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::Process(ezStringView sMainFile, ezStringBuilder& ref_sOutput, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
+WResult WPreprocessor::Process(WStringView sMainFile, WStringBuilder& ref_sOutput, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
 {
   ref_sOutput.Clear();
 
   TokenStream TokenOutput;
   if (Process(sMainFile, TokenOutput).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // generate the final text output
   CombineTokensToString(TokenOutput, 0, ref_sOutput, bKeepComments, bRemoveRedundantWhitespace, bInsertLine);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& TokenOutput)
+WResult WPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& TokenOutput)
 {
-  ezUInt32 uiCurToken = 0;
+  WUInt32 uiCurToken = 0;
 
-  ezUInt32 uiHashToken = 0;
+  WUInt32 uiHashToken = 0;
 
   if (Expect(Tokens, uiCurToken, "#", &uiHashToken).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // just a single hash sign is a valid preprocessor line
   if (IsEndOfLine(Tokens, uiCurToken, true))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  ezUInt32 uiAccepted = uiCurToken;
+  WUInt32 uiAccepted = uiCurToken;
 
   // if there is a #pragma once anywhere in the file (not only the active part), it will be flagged to not be included again
   // this is actually more efficient than include guards, because the file is never even looked at again, thus macro expansion
   // does not take place each and every time (which is unfortunately necessary with include guards)
   {
-    ezUInt32 uiTempPos = uiCurToken;
+    WUInt32 uiTempPos = uiCurToken;
     if (Accept(Tokens, uiTempPos, "pragma") && Accept(Tokens, uiTempPos, "once"))
     {
       uiCurToken = uiTempPos;
@@ -263,18 +263,18 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     // check that the following command is valid, even if it is ignored
     if (Accept(Tokens, uiCurToken, "line", &uiAccepted) || Accept(Tokens, uiCurToken, "include", &uiAccepted) || Accept(Tokens, uiCurToken, "define") || Accept(Tokens, uiCurToken, "undef", &uiAccepted) || Accept(Tokens, uiCurToken, "error", &uiAccepted) ||
         Accept(Tokens, uiCurToken, "warning", &uiAccepted) || Accept(Tokens, uiCurToken, "pragma"))
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
     if (m_PassThroughUnknownCmdCB.IsValid())
     {
-      ezString sCmd = Tokens[uiCurToken]->m_DataView;
+      WString sCmd = Tokens[uiCurToken]->m_DataView;
 
       if (m_PassThroughUnknownCmdCB(sCmd))
-        return EZ_SUCCESS;
+        return W_SUCCESS;
     }
 
     PP_LOG0(Error, "Expected a preprocessor command", Tokens[0]);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (Accept(Tokens, uiCurToken, "line", &uiAccepted))
@@ -301,25 +301,25 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     if (m_bPassThroughPragma)
       CopyRelevantTokens(Tokens, uiHashToken, TokenOutput, true);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (m_PassThroughUnknownCmdCB.IsValid())
   {
-    ezString sCmd = Tokens[uiCurToken]->m_DataView;
+    WString sCmd = Tokens[uiCurToken]->m_DataView;
 
     if (m_PassThroughUnknownCmdCB(sCmd))
     {
       TokenOutput.PushBackRange(Tokens);
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
   PP_LOG0(Error, "Expected a preprocessor command", Tokens[0]);
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiHashToken, TokenStream& TokenOutput)
+WResult WPreprocessor::HandleLine(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiHashToken, TokenStream& TokenOutput)
 {
   // #line directives are just passed through, the actual #line detection is already done by the tokenizer
   // however we check them for validity here
@@ -327,30 +327,30 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
   if (m_bPassThroughLine)
     CopyRelevantTokens(Tokens, uiHashToken, TokenOutput, true);
 
-  ezUInt32 uiNumberToken = 0;
-  if (Expect(Tokens, uiCurToken, ezTokenType::Integer, &uiNumberToken).Failed())
-    return EZ_FAILURE;
+  WUInt32 uiNumberToken = 0;
+  if (Expect(Tokens, uiCurToken, WTokenType::Integer, &uiNumberToken).Failed())
+    return W_FAILURE;
 
-  ezInt32 iNextLine = 0;
+  WInt32 iNextLine = 0;
 
-  const ezString sNumber = Tokens[uiNumberToken]->m_DataView;
-  if (ezConversionUtils::StringToInt(sNumber, iNextLine).Failed())
+  const WString sNumber = Tokens[uiNumberToken]->m_DataView;
+  if (WConversionUtils::StringToInt(sNumber, iNextLine).Failed())
   {
     PP_LOG(Error, "Could not parse '{0}' as a line number", Tokens[uiNumberToken], sNumber);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezUInt32 uiFileNameToken = 0;
-  if (Accept(Tokens, uiCurToken, ezTokenType::String1, &uiFileNameToken))
+  WUInt32 uiFileNameToken = 0;
+  if (Accept(Tokens, uiCurToken, WTokenType::String1, &uiFileNameToken))
   {
-    // ezStringBuilder sFileName = Tokens[uiFileNameToken]->m_DataView;
+    // WStringBuilder sFileName = Tokens[uiFileNameToken]->m_DataView;
     // sFileName.Shrink(1, 1); // remove surrounding "
     // m_CurrentFileStack.PeekBack().m_sVirtualFileName = sFileName;
   }
   else
   {
     if (ExpectEndOfLine(Tokens, uiCurToken).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 
   // there is one case that is not handled here:
@@ -358,22 +358,22 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
   // and then checked again for the above form
   // since this is probably not in common use, we ignore this case
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef)
+WResult WPreprocessor::HandleIfdef(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken, bool bIsIfdef)
 {
-  EZ_IGNORE_UNUSED(uiDirectiveToken);
+  W_IGNORE_UNUSED(uiDirectiveToken);
 
   if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezUInt32 uiIdentifier = uiCurToken;
-  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifier).Failed())
-    return EZ_FAILURE;
+  WUInt32 uiIdentifier = uiCurToken;
+  if (Expect(Tokens, uiCurToken, WTokenType::Identifier, &uiIdentifier).Failed())
+    return W_FAILURE;
 
   const bool bDefined = m_Macros.Find(Tokens[uiIdentifier]->m_DataView).IsValid();
 
@@ -388,12 +388,12 @@ ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurTo
 
   m_IfdefActiveStack.PushBack(bIsIfdef == bDefined ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+WResult WPreprocessor::HandleElse(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken)
 {
-  EZ_IGNORE_UNUSED(uiCurToken);
+  W_IGNORE_UNUSED(uiCurToken);
 
   const IfDefActivity bCur = m_IfdefActiveStack.PeekBack().m_ActiveState;
   m_IfdefActiveStack.PopBack();
@@ -401,13 +401,13 @@ ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurTok
   if (m_IfdefActiveStack.IsEmpty())
   {
     PP_LOG0(Error, "Unexpected '#else'", Tokens[uiDirectiveToken]);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (m_IfdefActiveStack.PeekBack().m_bIsInElseClause)
   {
     PP_LOG0(Error, "Unexpected '#else'", Tokens[uiDirectiveToken]);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_IfdefActiveStack.PeekBack().m_bIsInElseClause = true;
@@ -415,7 +415,7 @@ ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurTok
   if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (bCur == IfDefActivity::WasActive || bCur == IfDefActivity::IsActive)
@@ -423,29 +423,29 @@ ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurTok
   else
     m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::HandleIf(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+WResult WPreprocessor::HandleIf(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken)
 {
-  EZ_IGNORE_UNUSED(uiDirectiveToken);
+  W_IGNORE_UNUSED(uiDirectiveToken);
 
   if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezInt64 iResult = 0;
+  WInt64 iResult = 0;
 
   if (EvaluateCondition(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::HandleElif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+WResult WPreprocessor::HandleElif(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken)
 {
   const IfDefActivity Cur = m_IfdefActiveStack.PeekBack().m_ActiveState;
   m_IfdefActiveStack.PopBack();
@@ -453,83 +453,83 @@ ezResult ezPreprocessor::HandleElif(const TokenStream& Tokens, ezUInt32 uiCurTok
   if (m_IfdefActiveStack.IsEmpty())
   {
     PP_LOG0(Error, "Unexpected '#elif'", Tokens[uiDirectiveToken]);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (m_IfdefActiveStack.PeekBack().m_bIsInElseClause)
   {
     PP_LOG0(Error, "Unexpected '#elif'", Tokens[uiDirectiveToken]);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezInt64 iResult = 0;
+  WInt64 iResult = 0;
   if (EvaluateCondition(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (Cur != IfDefActivity::IsInactive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::WasActive);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+WResult WPreprocessor::HandleEndif(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken)
 {
   SkipWhitespace(Tokens, uiCurToken);
 
-  EZ_SUCCEED_OR_RETURN(ExpectEndOfLine(Tokens, uiCurToken));
+  W_SUCCEED_OR_RETURN(ExpectEndOfLine(Tokens, uiCurToken));
 
   m_IfdefActiveStack.PopBack();
 
   if (m_IfdefActiveStack.IsEmpty())
   {
     PP_LOG0(Error, "Unexpected '#endif'", Tokens[uiDirectiveToken]);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   else
   {
     m_IfdefActiveStack.PeekBack().m_bIsInElseClause = false;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+WResult WPreprocessor::HandleUndef(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken)
 {
-  EZ_IGNORE_UNUSED(uiDirectiveToken);
+  W_IGNORE_UNUSED(uiDirectiveToken);
 
-  ezUInt32 uiIdentifierToken = uiCurToken;
+  WUInt32 uiIdentifierToken = uiCurToken;
 
-  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifierToken).Failed())
-    return EZ_FAILURE;
+  if (Expect(Tokens, uiCurToken, WTokenType::Identifier, &uiIdentifierToken).Failed())
+    return W_FAILURE;
 
-  const ezString sUndef = Tokens[uiIdentifierToken]->m_DataView;
+  const WString sUndef = Tokens[uiIdentifierToken]->m_DataView;
   if (!RemoveDefine(sUndef))
   {
     PP_LOG(Warning, "'#undef' of undefined macro '{0}'", Tokens[uiIdentifierToken], sUndef);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   // this is an error, but not one that will cause it to fail
   ExpectEndOfLine(Tokens, uiCurToken).IgnoreResult();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::HandleErrorDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+WResult WPreprocessor::HandleErrorDirective(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken)
 {
   SkipWhitespace(Tokens, uiCurToken);
 
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
   CombineTokensToString(Tokens, uiCurToken, sTemp);
 
   while (sTemp.EndsWith("\n") || sTemp.EndsWith("\r"))
@@ -537,14 +537,14 @@ ezResult ezPreprocessor::HandleErrorDirective(const TokenStream& Tokens, ezUInt3
 
   PP_LOG(Error, "#error '{0}'", Tokens[uiDirectiveToken], sTemp);
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+WResult WPreprocessor::HandleWarningDirective(const TokenStream& Tokens, WUInt32 uiCurToken, WUInt32 uiDirectiveToken)
 {
   SkipWhitespace(Tokens, uiCurToken);
 
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
   CombineTokensToString(Tokens, uiCurToken, sTemp);
 
   while (sTemp.EndsWith("\n") || sTemp.EndsWith("\r"))
@@ -552,5 +552,5 @@ ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUIn
 
   PP_LOG(Warning, "#warning '{0}'", Tokens[uiDirectiveToken], sTemp);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

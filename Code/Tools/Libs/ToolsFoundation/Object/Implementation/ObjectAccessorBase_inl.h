@@ -1,39 +1,39 @@
 #include <Foundation/Logging/Log.h>
 
 template <typename T>
-T ezObjectAccessorBase::Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
+T WObjectAccessorBase::Get(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index /*= WVariant()*/)
 {
-  ezVariant value;
-  ezStatus res = GetValue(pObject, pProp, value, index);
+  WVariant value;
+  WStatus res = GetValue(pObject, pProp, value, index);
   if (res.Failed())
-    ezLog::Error("GetValue failed: {0}", res.GetMessageString());
+    WLog::Error("GetValue failed: {0}", res.GetMessageString());
   return value.ConvertTo<T>();
 }
 
 template <typename T>
-T ezObjectAccessorBase::GetByName(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index /*= ezVariant()*/)
+T WObjectAccessorBase::GetByName(const WDocumentObject* pObject, WStringView sProp, WVariant index /*= WVariant()*/)
 {
-  ezVariant value;
-  ezStatus res = GetValueByName(pObject, sProp, value, index);
+  WVariant value;
+  WStatus res = GetValueByName(pObject, sProp, value, index);
   if (res.Failed())
-    ezLog::Error("GetValue failed: {0}", res.GetMessageString());
+    WLog::Error("GetValue failed: {0}", res.GetMessageString());
   return value.ConvertTo<T>();
 }
 
-inline ezInt32 ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+inline WInt32 WObjectAccessorBase::GetCount(const WDocumentObject* pObject, const WAbstractProperty* pProp)
 {
-  ezInt32 iCount = 0;
-  ezStatus res = GetCount(pObject, pProp, iCount);
+  WInt32 iCount = 0;
+  WStatus res = GetCount(pObject, pProp, iCount);
   if (res.Failed())
-    ezLog::Error("GetCount failed: {0}", res.GetMessageString());
+    WLog::Error("GetCount failed: {0}", res.GetMessageString());
   return iCount;
 }
 
-inline ezInt32 ezObjectAccessorBase::GetCountByName(const ezDocumentObject* pObject, ezStringView sProp)
+inline WInt32 WObjectAccessorBase::GetCountByName(const WDocumentObject* pObject, WStringView sProp)
 {
-  ezInt32 iCount = 0;
-  ezStatus res = GetCountByName(pObject, sProp, iCount);
+  WInt32 iCount = 0;
+  WStatus res = GetCountByName(pObject, sProp, iCount);
   if (res.Failed())
-    ezLog::Error("GetCount failed: {0}", res.GetMessageString());
+    WLog::Error("GetCount failed: {0}", res.GetMessageString());
   return iCount;
 }

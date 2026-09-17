@@ -4,38 +4,38 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezProcessingStreamGroup;
+class WProcessingStreamGroup;
 
 /// Base class for all stream processor implementations.
-class EZ_FOUNDATION_DLL ezProcessingStreamProcessor : public ezReflectedClass
+class W_FOUNDATION_DLL WProcessingStreamProcessor : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessingStreamProcessor, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WProcessingStreamProcessor, WReflectedClass);
 
 public:
   /// Base constructor
-  ezProcessingStreamProcessor();
+  WProcessingStreamProcessor();
 
   /// Base destructor.
-  virtual ~ezProcessingStreamProcessor();
+  virtual ~WProcessingStreamProcessor();
 
   /// Used for sorting processors, to ensure a certain order. Lower priority == executed first.
   float m_fPriority = 0.0f;
 
 protected:
-  friend class ezProcessingStreamGroup;
+  friend class WProcessingStreamGroup;
 
   /// Internal method which needs to be implemented, gets the concrete stream bindings.
   /// This is called every time the streams are resized. Implementations should check that their required streams exist and are of the correct data
   /// types.
-  virtual ezResult UpdateStreamBindings() = 0;
+  virtual WResult UpdateStreamBindings() = 0;
 
   /// This method needs to be implemented in order to initialize new elements to specific values.
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) = 0;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) = 0;
 
   /// The actual method which processes the data, will be called with the number of elements to process.
-  virtual void Process(ezUInt64 uiNumElements) = 0;
+  virtual void Process(WUInt64 uiNumElements) = 0;
 
   /// Back pointer to the stream group - will be set to the owner stream group when adding the stream processor to the group.
   /// Can be used to get stream pointers in UpdateStreamBindings();
-  ezProcessingStreamGroup* m_pStreamGroup = nullptr;
+  WProcessingStreamGroup* m_pStreamGroup = nullptr;
 };

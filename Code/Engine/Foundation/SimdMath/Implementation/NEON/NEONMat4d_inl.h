@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE void ezSimdMat4d::Transpose()
+W_ALWAYS_INLINE void WSimdMat4d::Transpose()
 {
   // Transpose a 4x4 double matrix stored in four float64x2_t pairs
   // Input: col0 = (x0, y0, z0, w0), col1 = (x1, y1, z1, w1), etc.

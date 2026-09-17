@@ -5,54 +5,54 @@
 #include <EditorPluginAssets/BlackboardTemplateAsset/BlackboardTemplateAsset.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlackboardTemplateAssetObject, 1, ezRTTIDefaultAllocator<ezBlackboardTemplateAssetObject>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBlackboardTemplateAssetObject, 1, WRTTIDefaultAllocator<WBlackboardTemplateAssetObject>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("BaseTemplates", m_BaseTemplates)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate", ezDependencyFlags::Transform)),
-    EZ_ARRAY_MEMBER_PROPERTY("Entries", m_Entries),
+    W_ARRAY_MEMBER_PROPERTY("BaseTemplates", m_BaseTemplates)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate", WDependencyFlags::Transform)),
+    W_ARRAY_MEMBER_PROPERTY("Entries", m_Entries),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlackboardTemplateAssetDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBlackboardTemplateAssetDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBlackboardTemplateAssetDocument::ezBlackboardTemplateAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezBlackboardTemplateAssetObject>(sDocumentPath, ezAssetDocEngineConnection::None)
+WBlackboardTemplateAssetDocument::WBlackboardTemplateAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WBlackboardTemplateAssetObject>(sDocumentPath, WAssetDocEngineConnection::None)
 {
 }
 
-ezStatus ezBlackboardTemplateAssetDocument::WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile) const
+WStatus WBlackboardTemplateAssetDocument::WriteAsset(WStreamWriter& inout_stream, const WPlatformProfile* pAssetProfile) const
 {
-  ezBlackboardTemplateResourceDescriptor desc;
-  EZ_SUCCEED_OR_RETURN(RetrieveState(GetProperties(), desc));
-  EZ_SUCCEED_OR_RETURN(desc.Serialize(inout_stream));
+  WBlackboardTemplateResourceDescriptor desc;
+  W_SUCCEED_OR_RETURN(RetrieveState(GetProperties(), desc));
+  W_SUCCEED_OR_RETURN(desc.Serialize(inout_stream));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezBlackboardTemplateAssetDocument::RetrieveState(const ezBlackboardTemplateAssetObject* pProp, ezBlackboardTemplateResourceDescriptor& inout_Desc) const
+WStatus WBlackboardTemplateAssetDocument::RetrieveState(const WBlackboardTemplateAssetObject* pProp, WBlackboardTemplateResourceDescriptor& inout_Desc) const
 {
-  for (const ezString& sTempl : pProp->m_BaseTemplates)
+  for (const WString& sTempl : pProp->m_BaseTemplates)
   {
     if (sTempl.IsEmpty())
       continue;
 
-    auto pOther = ezAssetCurator::GetSingleton()->FindSubAsset(sTempl);
+    auto pOther = WAssetCurator::GetSingleton()->FindSubAsset(sTempl);
     if (!pOther.isValid())
     {
-      return ezStatus(ezFmt("Base template '{}' not found.", sTempl));
+      return WStatus(WFmt("Base template '{}' not found.", sTempl));
     }
 
-    ezDocument* pDoc;
-    EZ_SUCCEED_OR_RETURN(pOther->m_pAssetInfo->GetManager()->OpenDocument(pOther->m_Data.m_sSubAssetsDocumentTypeName, pOther->m_pAssetInfo->m_Path, pDoc, ezDocumentFlags::None, nullptr));
+    WDocument* pDoc;
+    W_SUCCEED_OR_RETURN(pOther->m_pAssetInfo->GetManager()->OpenDocument(pOther->m_Data.m_sSubAssetsDocumentTypeName, pOther->m_pAssetInfo->m_Path, pDoc, WDocumentFlags::None, nullptr));
 
-    if (ezBlackboardTemplateAssetDocument* pTmpDoc = ezDynamicCast<ezBlackboardTemplateAssetDocument*>(pDoc))
+    if (WBlackboardTemplateAssetDocument* pTmpDoc = WDynamicCast<WBlackboardTemplateAssetDocument*>(pDoc))
     {
-      EZ_SUCCEED_OR_RETURN(RetrieveState(pTmpDoc->GetProperties(), inout_Desc));
+      W_SUCCEED_OR_RETURN(RetrieveState(pTmpDoc->GetProperties(), inout_Desc));
     }
 
     pOther->m_pAssetInfo->GetManager()->CloseDocument(pDoc);
@@ -74,10 +74,10 @@ ezStatus ezBlackboardTemplateAssetDocument::RetrieveState(const ezBlackboardTemp
   next:;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezBlackboardTemplateAssetDocument::InternalTransformAsset(ezStreamWriter& inout_stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WBlackboardTemplateAssetDocument::InternalTransformAsset(WStreamWriter& inout_stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
   return WriteAsset(inout_stream, pAssetProfile);
 }

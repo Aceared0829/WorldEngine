@@ -3,33 +3,33 @@
 #include <EditorFramework/Preferences/ScenePreferences.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScenePreferencesUser, 1, ezRTTIDefaultAllocator<ezScenePreferencesUser>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WScenePreferencesUser, 1, WRTTIDefaultAllocator<WScenePreferencesUser>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ShowGrid", m_bShowGrid),
-    EZ_MEMBER_PROPERTY("CameraSpeed", m_iCameraSpeed)->AddAttributes(new ezDefaultValueAttribute(10), new ezClampValueAttribute(1, 30)),
+    W_MEMBER_PROPERTY("ShowGrid", m_bShowGrid),
+    W_MEMBER_PROPERTY("CameraSpeed", m_iCameraSpeed)->AddAttributes(new WDefaultValueAttribute(10), new WClampValueAttribute(1, 30)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezScenePreferencesUser::ezScenePreferencesUser()
-  : ezPreferences(Domain::Document, "Scene")
+WScenePreferencesUser::WScenePreferencesUser()
+  : WPreferences(Domain::Document, "Scene")
 {
   m_iCameraSpeed = 9;
 }
 
-void ezScenePreferencesUser::SetCameraSpeed(ezInt32 value)
+void WScenePreferencesUser::SetCameraSpeed(WInt32 value)
 {
-  m_iCameraSpeed = ezMath::Clamp(value, 0, 24);
+  m_iCameraSpeed = WMath::Clamp(value, 0, 24);
 
   // Kiff, inform the men!
   TriggerPreferencesChangedEvent();
 }
 
-void ezScenePreferencesUser::SetShowGrid(bool bShow)
+void WScenePreferencesUser::SetShowGrid(bool bShow)
 {
   m_bShowGrid = bShow;
 

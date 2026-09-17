@@ -1,93 +1,93 @@
 
-template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray()
-  : ezDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, AllocatorWrapper::GetAllocator())
+template <typename T, WUInt32 Size, typename AllocatorWrapper /*= WDefaultAllocatorWrapper*/>
+WHybridArray<T, Size, AllocatorWrapper>::WHybridArray()
+  : WDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, AllocatorWrapper::GetAllocator())
 {
 }
 
-template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(ezAllocator* pAllocator)
-  : ezDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, pAllocator)
+template <typename T, WUInt32 Size, typename AllocatorWrapper /*= WDefaultAllocatorWrapper*/>
+WHybridArray<T, Size, AllocatorWrapper>::WHybridArray(WAllocator* pAllocator)
+  : WDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, pAllocator)
 {
 }
 
-template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other)
-  : ezDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, AllocatorWrapper::GetAllocator())
-{
-  *this = other;
-}
-
-template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(const ezArrayPtr<const T>& other)
-  : ezDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, AllocatorWrapper::GetAllocator())
+template <typename T, WUInt32 Size, typename AllocatorWrapper /*= WDefaultAllocatorWrapper*/>
+WHybridArray<T, Size, AllocatorWrapper>::WHybridArray(const WHybridArray<T, Size, AllocatorWrapper>& other)
+  : WDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, AllocatorWrapper::GetAllocator())
 {
   *this = other;
 }
 
-template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other) noexcept
-  : ezDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, other.GetAllocator())
+template <typename T, WUInt32 Size, typename AllocatorWrapper /*= WDefaultAllocatorWrapper*/>
+WHybridArray<T, Size, AllocatorWrapper>::WHybridArray(const WArrayPtr<const T>& other)
+  : WDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, AllocatorWrapper::GetAllocator())
+{
+  *this = other;
+}
+
+template <typename T, WUInt32 Size, typename AllocatorWrapper /*= WDefaultAllocatorWrapper*/>
+WHybridArray<T, Size, AllocatorWrapper>::WHybridArray(WHybridArray<T, Size, AllocatorWrapper>&& other) noexcept
+  : WDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, other.GetAllocator())
 {
   *this = std::move(other);
 }
 
-template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-void ezHybridArray<T, Size, AllocatorWrapper>::operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs)
+template <typename T, WUInt32 Size, typename AllocatorWrapper /*= WDefaultAllocatorWrapper*/>
+void WHybridArray<T, Size, AllocatorWrapper>::operator=(const WHybridArray<T, Size, AllocatorWrapper>& rhs)
 {
-  ezDynamicArray<T, AllocatorWrapper>::operator=(rhs);
+  WDynamicArray<T, AllocatorWrapper>::operator=(rhs);
 }
 
-template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-void ezHybridArray<T, Size, AllocatorWrapper>::operator=(const ezArrayPtr<const T>& rhs)
+template <typename T, WUInt32 Size, typename AllocatorWrapper /*= WDefaultAllocatorWrapper*/>
+void WHybridArray<T, Size, AllocatorWrapper>::operator=(const WArrayPtr<const T>& rhs)
 {
-  ezDynamicArray<T, AllocatorWrapper>::operator=(rhs);
+  WDynamicArray<T, AllocatorWrapper>::operator=(rhs);
 }
 
-template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-void ezHybridArray<T, Size, AllocatorWrapper>::operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs) noexcept
+template <typename T, WUInt32 Size, typename AllocatorWrapper /*= WDefaultAllocatorWrapper*/>
+void WHybridArray<T, Size, AllocatorWrapper>::operator=(WHybridArray<T, Size, AllocatorWrapper>&& rhs) noexcept
 {
-  ezDynamicArray<T, AllocatorWrapper>::operator=(std::move(rhs));
+  WDynamicArray<T, AllocatorWrapper>::operator=(std::move(rhs));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-template <typename T, ezUInt32 Size>
-ezTempHybridArray<T, Size>::ezTempHybridArray()
-  : ezHybridArray<T, Size>(ezTempAllocator::Get())
+template <typename T, WUInt32 Size>
+WTempHybridArray<T, Size>::WTempHybridArray()
+  : WHybridArray<T, Size>(WTempAllocator::Get())
 {
 }
 
-template <typename T, ezUInt32 Size>
+template <typename T, WUInt32 Size>
 template <typename AllocatorWrapper>
-ezTempHybridArray<T, Size>::ezTempHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other)
-  : ezHybridArray<T, Size>(ezTempAllocator::Get())
+WTempHybridArray<T, Size>::WTempHybridArray(const WHybridArray<T, Size, AllocatorWrapper>& other)
+  : WHybridArray<T, Size>(WTempAllocator::Get())
 {
   *this = other;
 }
 
-template <typename T, ezUInt32 Size>
-ezTempHybridArray<T, Size>::ezTempHybridArray(const ezArrayPtr<const T>& other)
-  : ezHybridArray<T, Size>(ezTempAllocator::Get())
+template <typename T, WUInt32 Size>
+WTempHybridArray<T, Size>::WTempHybridArray(const WArrayPtr<const T>& other)
+  : WHybridArray<T, Size>(WTempAllocator::Get())
 {
   *this = other;
 }
 
-template <typename T, ezUInt32 Size>
+template <typename T, WUInt32 Size>
 template <typename AllocatorWrapper>
-void ezTempHybridArray<T, Size>::operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs)
+void WTempHybridArray<T, Size>::operator=(const WHybridArray<T, Size, AllocatorWrapper>& rhs)
 {
-  ezDynamicArray<T>::operator=(rhs);
+  WDynamicArray<T>::operator=(rhs);
 }
 
-template <typename T, ezUInt32 Size>
-void ezTempHybridArray<T, Size>::operator=(const ezArrayPtr<const T>& rhs)
+template <typename T, WUInt32 Size>
+void WTempHybridArray<T, Size>::operator=(const WArrayPtr<const T>& rhs)
 {
-  ezDynamicArray<T>::operator=(rhs);
+  WDynamicArray<T>::operator=(rhs);
 }
 
-template <typename T, ezUInt32 Size>
-void ezTempHybridArray<T, Size>::operator=(ezHybridArray<T, Size>&& rhs) noexcept
+template <typename T, WUInt32 Size>
+void WTempHybridArray<T, Size>::operator=(WHybridArray<T, Size>&& rhs) noexcept
 {
-  ezDynamicArray<T>::operator=(std::move(rhs));
+  WDynamicArray<T>::operator=(std::move(rhs));
 }

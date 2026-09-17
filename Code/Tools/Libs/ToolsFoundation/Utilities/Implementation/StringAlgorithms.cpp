@@ -4,32 +4,32 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <ToolsFoundation/Utilities/StringAlgorithms.h>
 
-static void ParseSegments(ezStringView sName, ezTempHybridArray<ezInt32, 8>& out_segs)
+static void ParseSegments(WStringView sName, WTempHybridArray<WInt32, 8>& out_segs)
 {
   out_segs.Clear();
   while (!sName.IsEmpty())
   {
     const char* pDot = sName.FindSubString(".");
-    ezStringView sSeg;
+    WStringView sSeg;
     if (pDot == nullptr)
     {
       sSeg = sName;
-      sName = ezStringView();
+      sName = WStringView();
     }
     else
     {
-      sSeg = ezStringView(sName.GetStartPointer(), pDot);
-      sName = ezStringView(pDot + 1, sName.GetEndPointer());
+      sSeg = WStringView(sName.GetStartPointer(), pDot);
+      sName = WStringView(pDot + 1, sName.GetEndPointer());
     }
-    ezInt32 val = 0;
-    ezConversionUtils::StringToInt(sSeg, val).IgnoreResult();
+    WInt32 val = 0;
+    WConversionUtils::StringToInt(sSeg, val).IgnoreResult();
     out_segs.PushBack(val);
   }
 }
 
-static void AppendSegments(ezArrayPtr<const ezInt32> segs, ezStringBuilder& ref_sText)
+static void AppendSegments(WArrayPtr<const WInt32> segs, WStringBuilder& ref_sText)
 {
-  for (ezUInt32 i = 0; i < segs.GetCount(); ++i)
+  for (WUInt32 i = 0; i < segs.GetCount(); ++i)
   {
     if (i > 0)
       ref_sText.Append(".");
@@ -37,12 +37,12 @@ static void AppendSegments(ezArrayPtr<const ezInt32> segs, ezStringBuilder& ref_
   }
 }
 
-static void FindMidpointWithVirtual(ezArrayPtr<const ezInt32> leftSegs, ezInt32 iVirtualRight, ezTempHybridArray<ezInt32, 8>& ref_result)
+static void FindMidpointWithVirtual(WArrayPtr<const WInt32> leftSegs, WInt32 iVirtualRight, WTempHybridArray<WInt32, 8>& ref_result)
 {
   while (true)
   {
-    const ezInt32 lRoot = leftSegs.IsEmpty() ? 0 : leftSegs[0];
-    const ezInt32 diff = iVirtualRight - lRoot;
+    const WInt32 lRoot = leftSegs.IsEmpty() ? 0 : leftSegs[0];
+    const WInt32 diff = iVirtualRight - lRoot;
 
     if (diff > 1)
     {
@@ -57,7 +57,7 @@ static void FindMidpointWithVirtual(ezArrayPtr<const ezInt32> leftSegs, ezInt32 
   }
 }
 
-static void FindMidpoint(ezArrayPtr<const ezInt32> leftSegs, ezArrayPtr<const ezInt32> rightSegs, ezTempHybridArray<ezInt32, 8>& ref_result)
+static void FindMidpoint(WArrayPtr<const WInt32> leftSegs, WArrayPtr<const WInt32> rightSegs, WTempHybridArray<WInt32, 8>& ref_result)
 {
   // Strip matching prefix
   while (!leftSegs.IsEmpty() && !rightSegs.IsEmpty() && leftSegs[0] == rightSegs[0])
@@ -67,11 +67,11 @@ static void FindMidpoint(ezArrayPtr<const ezInt32> leftSegs, ezArrayPtr<const ez
     rightSegs = rightSegs.GetSubArray(1);
   }
 
-  const ezInt32 lRoot = leftSegs.IsEmpty() ? 0 : leftSegs[0];
-  const ezInt32 rRoot = rightSegs.IsEmpty() ? lRoot + 1 : rightSegs[0];
-  const ezInt32 diff = rRoot - lRoot;
+  const WInt32 lRoot = leftSegs.IsEmpty() ? 0 : leftSegs[0];
+  const WInt32 rRoot = rightSegs.IsEmpty() ? lRoot + 1 : rightSegs[0];
+  const WInt32 diff = rRoot - lRoot;
 
-  EZ_ASSERT_DEBUG(diff > 0, "Left segment value must be less than right segment value");
+  W_ASSERT_DEBUG(diff > 0, "Left segment value must be less than right segment value");
 
   if (diff > 1)
   {
@@ -81,14 +81,14 @@ static void FindMidpoint(ezArrayPtr<const ezInt32> leftSegs, ezArrayPtr<const ez
 
   // diff == 1: fall back to sub-level notation
   ref_result.PushBack(lRoot);
-  const ezArrayPtr<const ezInt32> lTail = leftSegs.IsEmpty() ? leftSegs : leftSegs.GetSubArray(1);
+  const WArrayPtr<const WInt32> lTail = leftSegs.IsEmpty() ? leftSegs : leftSegs.GetSubArray(1);
   FindMidpointWithVirtual(lTail, 10, ref_result);
 }
 
 /// Splits sName into a leading text prefix and a trailing numeric part.
 /// The numeric part begins at the first digit, or at a '-' immediately followed by a digit.
 /// ref_sName is updated to point at the numeric part; the prefix is returned.
-static ezStringView ExtractTextPrefix(ezStringView& ref_sName)
+static WStringView ExtractTextPrefix(WStringView& ref_sName)
 {
   const char* pStart = ref_sName.GetStartPointer();
   const char* pEnd = ref_sName.GetEndPointer();
@@ -104,12 +104,12 @@ static ezStringView ExtractTextPrefix(ezStringView& ref_sName)
     ++p;
   }
 
-  ezStringView prefix(pStart, p);
-  ref_sName = ezStringView(p, pEnd);
+  WStringView prefix(pStart, p);
+  ref_sName = WStringView(p, pEnd);
   return prefix;
 }
 
-void ezStringAlgorithms::ComputeNameBetween(ezStringView sLeft, ezStringView sRight, ezStringBuilder& ref_sName)
+void WStringAlgorithms::ComputeNameBetween(WStringView sLeft, WStringView sRight, WStringBuilder& ref_sName)
 {
   if (sLeft.IsEmpty() && sRight.IsEmpty())
   {
@@ -119,17 +119,17 @@ void ezStringAlgorithms::ComputeNameBetween(ezStringView sLeft, ezStringView sRi
 
   // Strip any leading text prefix (non-numeric characters) from both names.
   // The result inherits the left prefix, or the right prefix when prepending.
-  ezStringView sLeftNumeric = sLeft;
-  ezStringView sRightNumeric = sRight;
-  ezStringView sLeftPrefix, sRightPrefix;
+  WStringView sLeftNumeric = sLeft;
+  WStringView sRightNumeric = sRight;
+  WStringView sLeftPrefix, sRightPrefix;
   if (!sLeft.IsEmpty())
     sLeftPrefix = ExtractTextPrefix(sLeftNumeric);
   if (!sRight.IsEmpty())
     sRightPrefix = ExtractTextPrefix(sRightNumeric);
 
-  const ezStringView sResultPrefix = sLeft.IsEmpty() ? sRightPrefix : sLeftPrefix;
+  const WStringView sResultPrefix = sLeft.IsEmpty() ? sRightPrefix : sLeftPrefix;
 
-  ezTempHybridArray<ezInt32, 8> lSegs, rSegs, midSegs;
+  WTempHybridArray<WInt32, 8> lSegs, rSegs, midSegs;
 
   if (sLeft.IsEmpty())
   {

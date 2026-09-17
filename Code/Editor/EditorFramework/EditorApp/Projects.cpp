@@ -18,23 +18,23 @@
 
 void UpdateInputDynamicEnumValues();
 
-void ezQtEditorApp::CloseProject()
+void WQtEditorApp::CloseProject()
 {
   QMetaObject::invokeMethod(this, "SlotQueuedCloseProject", Qt::ConnectionType::QueuedConnection);
 }
 
-void ezQtEditorApp::SlotQueuedCloseProject()
+void WQtEditorApp::SlotQueuedCloseProject()
 {
   // purge the image loading queue when a project is closed, but keep the existing cache
-  ezQtImageCache::GetSingleton()->StopRequestProcessing(false);
+  WQtImageCache::GetSingleton()->StopRequestProcessing(false);
 
-  ezToolsProject::CloseProject();
+  WToolsProject::CloseProject();
 
   // enable image loading again, the queue is purged now
-  ezQtImageCache::GetSingleton()->EnableRequestProcessing();
+  WQtImageCache::GetSingleton()->EnableRequestProcessing();
 }
 
-ezResult ezQtEditorApp::OpenProject(const char* szProject, bool bImmediate /*= false*/)
+WResult WQtEditorApp::OpenProject(const char* szProject, bool bImmediate /*= false*/)
 {
   if (bImmediate)
   {
@@ -43,54 +43,54 @@ ezResult ezQtEditorApp::OpenProject(const char* szProject, bool bImmediate /*= f
   else
   {
     QMetaObject::invokeMethod(this, "SlotQueuedOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szProject));
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 }
 
-void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
+void WQtEditorApp::SlotQueuedOpenProject(QString sProject)
 {
   // Don't try to execute a queued project open if we have already shutdown the editor.
   if (m_bIsRunning)
     CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
 }
 
-ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
+WResult WQtEditorApp::CreateOrOpenProject(bool bCreate, WStringView sFile0)
 {
-  EZ_PROFILE_SCOPE("CreateOrOpenProject");
-  ezStringBuilder sFile = sFile0;
+  W_PROFILE_SCOPE("CreateOrOpenProject");
+  WStringBuilder sFile = sFile0;
   if (!bCreate)
   {
-    const ezStatus status = MakeRemoteProjectLocal(sFile);
+    const WStatus status = MakeRemoteProjectLocal(sFile);
     if (status.Failed())
     {
       // if the message is empty, the user decided not to continue, so don't show an error message in this case
       if (!status.GetMessageString().IsEmpty())
       {
-        ezQtUiServices::GetSingleton()->MessageBoxStatus(status, "Opening remote project failed.");
+        WQtUiServices::GetSingleton()->MessageBoxStatus(status, "Opening remote project failed.");
       }
 
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
   // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
   if (!IsInHeadlessMode() && !m_bAnyProjectOpened)
   {
-    ezStringBuilder sdkDirFromProject;
-    if (ezFileSystem::FindFolderWithSubPath(sdkDirFromProject, sFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
+    WStringBuilder sdkDirFromProject;
+    if (WFileSystem::FindFolderWithSubPath(sdkDirFromProject, sFile, "Data/Base", "WSdkRoot.txt").Succeeded())
     {
       sdkDirFromProject.MakeCleanPath();
       sdkDirFromProject.Trim(nullptr, "/");
 
-      ezStringView sdkDir = ezFileSystem::GetSdkRootDirectory();
+      WStringView sdkDir = WFileSystem::GetSdkRootDirectory();
       sdkDir.Trim(nullptr, "/");
 
       // compare without case, because on Windows those can differ only in the drive letter's case ('d:/...' vs 'D:/...')
       if (!sdkDirFromProject.IsEqual_NoCase(sdkDir))
       {
-        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, sFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
+        if (WQtUiServices::MessageBoxQuestion(WFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, sFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
         {
-          return EZ_FAILURE;
+          return W_FAILURE;
         }
       }
     }
@@ -98,34 +98,34 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 
 
   m_bLoadingProjectInProgress = true;
-  EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
+  W_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
 
   CloseSplashScreen();
 
-  ezStringBuilder sProjectFile = sFile;
+  WStringBuilder sProjectFile = sFile;
   sProjectFile.MakeCleanPath();
 
-  if (bCreate == false && !sProjectFile.EndsWith_NoCase("/ezProject"))
+  if (bCreate == false && !sProjectFile.EndsWith_NoCase("/WProject"))
   {
-    sProjectFile.AppendPath("ezProject");
+    sProjectFile.AppendPath("WProject");
   }
 
-  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == sProjectFile)
+  if (WToolsProject::IsProjectOpen() && WToolsProject::GetSingleton()->GetProjectFile() == sProjectFile)
   {
-    ezQtUiServices::MessageBoxInformation("The selected project is already open");
-    return EZ_FAILURE;
+    WQtUiServices::MessageBoxInformation("The selected project is already open");
+    return W_FAILURE;
   }
 
-  if (!ezToolsProject::CanCloseProject())
-    return EZ_FAILURE;
+  if (!WToolsProject::CanCloseProject())
+    return W_FAILURE;
 
-  ezToolsProject::CloseProject();
+  WToolsProject::CloseProject();
 
   // create default plugin selection
   if (!ExistsPluginSelectionStateDDL(sProjectFile))
     CreatePluginSelectionDDL(sProjectFile, "General3D");
 
-  ezStatus res(EZ_SUCCESS);
+  WStatus res(W_SUCCESS);
 
   if (bCreate)
   {
@@ -136,7 +136,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
       LaunchEditor(sProjectFile, true);
 
       QApplication::closeAllWindows();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
     else
     {
@@ -145,7 +145,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 
       LoadPluginBundleDlls(sProjectFile);
 
-      res = ezToolsProject::CreateProject(sProjectFile);
+      res = WToolsProject::CreateProject(sProjectFile);
     }
   }
   else
@@ -157,7 +157,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
       LaunchEditor(sProjectFile, false);
 
       QApplication::closeAllWindows();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
     else
     {
@@ -166,10 +166,10 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 
       if (!IsInUnattendedMode())
       {
-        ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-        sTemp.AppendPath("ezEditorCrashIndicator");
-        ezOSFile f;
-        if (f.Open(sTemp, ezFileOpenMode::Write, ezFileShareMode::Exclusive).Succeeded())
+        WStringBuilder sTemp = WOSFile::GetTempDataFolder("WEditor");
+        sTemp.AppendPath("WEditorCrashIndicator");
+        WOSFile f;
+        if (f.Open(sTemp, WFileOpenMode::Write, WFileShareMode::Exclusive).Succeeded())
         {
           f.Write(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
           f.Close();
@@ -178,40 +178,40 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
       }
 
       {
-        ezStringBuilder sProjectDir = sProjectFile;
+        WStringBuilder sProjectDir = sProjectFile;
         sProjectDir.PathParentDirectory();
 
-        ezStringBuilder sSettingsFile = sProjectDir;
+        WStringBuilder sSettingsFile = sProjectDir;
         sSettingsFile.AppendPath("Editor/CppProject.ddl");
 
         // first attempt to load project specific plugin bundles
-        ezCppSettings cppSettings;
+        WCppSettings cppSettings;
         if (cppSettings.Load(sSettingsFile).Succeeded())
         {
-          ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezCppProject::GetPluginSourceDir(cppSettings, sProjectDir));
+          WQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(WCppProject::GetPluginSourceDir(cppSettings, sProjectDir));
         }
 
         // now load the plugin DLLs
         LoadPluginBundleDlls(sProjectFile);
       }
 
-      res = ezToolsProject::OpenProject(sProjectFile);
+      res = WToolsProject::OpenProject(sProjectFile);
     }
   }
 
   if (res.Failed())
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("Failed to open project:\n'{0}'", sProjectFile);
 
-    ezQtUiServices::MessageBoxStatus(res, s);
-    return EZ_FAILURE;
+    WQtUiServices::MessageBoxStatus(res, s);
+    return W_FAILURE;
   }
 
 
   if (m_StartupFlags.AreNoneSet(StartupFlags::SafeMode | StartupFlags::Headless))
   {
-    ezStringBuilder sAbsPath;
+    WStringBuilder sAbsPath;
 
     if (!m_DocumentsToOpen.IsEmpty())
     {
@@ -225,7 +225,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
         }
         else
         {
-          ezLog::Error("Document '{}' does not exist in this project.", doc);
+          WLog::Error("Document '{}' does not exist in this project.", doc);
         }
       }
 
@@ -234,10 +234,10 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
     }
     else if (!m_StartupFlags.IsSet(StartupFlags::Dashboard))
     {
-      const ezRecentFilesList allDocs = LoadOpenDocumentsList();
+      const WRecentFilesList allDocs = LoadOpenDocumentsList();
 
       // Unfortunately this crashes in Qt due to the processEvents in the QtProgressBar
-      // ezProgressRange range("Restoring Documents", allDocs.GetFileList().GetCount(), true);
+      // WProgressRange range("Restoring Documents", allDocs.GetFileList().GetCount(), true);
 
       for (auto& doc : allDocs.GetFileList())
       {
@@ -255,24 +255,24 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
     }
 
     // Show the window maximized when opening a project
-    ezQtContainerWindow::GetContainerWindow()->showMaximized();
+    WQtContainerWindow::GetContainerWindow()->showMaximized();
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
+void WQtEditorApp::ProjectEventHandler(const WToolsProjectEvent& r)
 {
   switch (r.m_Type)
   {
-    case ezToolsProjectEvent::Type::ProjectCreated:
+    case WToolsProjectEvent::Type::ProjectCreated:
       SetupNewProject();
       m_bSavePreferencesAfterOpenProject = true;
       break;
 
-    case ezToolsProjectEvent::Type::ProjectOpened:
+    case WToolsProjectEvent::Type::ProjectOpened:
     {
-      EZ_PROFILE_SCOPE("ProjectOpened");
-      ezDynamicStringEnum::s_RequestUnknownCallback = ezMakeDelegate(&ezQtEditorApp::OnDemandDynamicStringEnumLoad, this);
+      W_PROFILE_SCOPE("ProjectOpened");
+      WDynamicStringEnum::s_RequestUnknownCallback = WMakeDelegate(&WQtEditorApp::OnDemandDynamicStringEnumLoad, this);
       LoadProjectPreferences();
       SetupDataDirectories();
       ReadTagRegistry();
@@ -287,23 +287,23 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       LogMissingComponentDocumentation();
 
       // tell the engine process which file system and plugin configuration to use
-      ezEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
-      ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(GetRuntimePluginConfig(true));
+      WEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
+      WEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(GetRuntimePluginConfig(true));
 
-      ezAssetCurator::GetSingleton()->StartInitialize(m_FileSystemConfig);
-      if (ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().Failed())
+      WAssetCurator::GetSingleton()->StartInitialize(m_FileSystemConfig);
+      if (WEditorEngineProcessConnection::GetSingleton()->RestartProcess().Failed())
       {
-        EZ_PROFILE_SCOPE("ErrorLog");
-        ezLog::Error("Failed to start the engine process. Project loading incomplete.");
+        W_PROFILE_SCOPE("ErrorLog");
+        WLog::Error("Failed to start the engine process. Project loading incomplete.");
       }
-      ezAssetCurator::GetSingleton()->WaitForInitialize();
+      WAssetCurator::GetSingleton()->WaitForInitialize();
 
-      m_sLastDocumentFolder = ezToolsProject::GetSingleton()->GetProjectFile();
-      m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
+      m_sLastDocumentFolder = WToolsProject::GetSingleton()->GetProjectFile();
+      m_sLastProjectFolder = WToolsProject::GetSingleton()->GetProjectFile();
 
-      m_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+      m_RecentProjects.Insert(WToolsProject::GetSingleton()->GetProjectFile(), 0);
 
-      ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
 
       // Make sure preferences are saved, this is important when the project was just created.
       if (m_bSavePreferencesAfterOpenProject)
@@ -317,22 +317,22 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         SaveRecentFiles();
       }
 
-      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest | ezQtEditorApp::StartupFlags::Background | ezQtEditorApp::StartupFlags::Unattended))
+      if (m_StartupFlags.AreNoneSet(WQtEditorApp::StartupFlags::Headless | WQtEditorApp::StartupFlags::SafeMode | WQtEditorApp::StartupFlags::UnitTest | WQtEditorApp::StartupFlags::Background | WQtEditorApp::StartupFlags::Unattended))
       {
-        if (ezCppProject::ExistsProjectCMakeListsTxt())
+        if (WCppProject::ExistsProjectCMakeListsTxt())
         {
-          ezStatus compilerStatus = ezCppProject::TestCompiler();
+          WStatus compilerStatus = WCppProject::TestCompiler();
           if (compilerStatus.Failed())
           {
-            ezQtUiServices::MessageBoxWarning(ezFmt("<html>The compiler preferences are invalid.<br><br>\
+            WQtUiServices::MessageBoxWarning(WFmt("<html>The compiler preferences are invalid.<br><br>\
               This project has <a href='https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html'>a dedicated C++ plugin</a> with custom code.<br><br>\
               The compiler set in the preferences does not appear to work, as a result the plugin cannot be compiled <br><br><b>Error:</b> {}</html>",
               compilerStatus.GetMessageString()));
             break;
           }
-          else if (ezCppProject::IsBuildRequired())
+          else if (WCppProject::IsBuildRequired())
           {
-            const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Compile this project's C++ plugin?<br><br>\
+            const auto clicked = WQtUiServices::MessageBoxQuestion("<html>Compile this project's C++ plugin?<br><br>\
 Explanation: This project has <a href='https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html'>a dedicated C++ plugin</a> with custom code. The plugin is currently not compiled and therefore the project won't fully work and certain assets will fail to transform.<br><br>\
 It is advised to compile the plugin now, but you can also do so later.</html>",
               QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply, QMessageBox::StandardButton::Apply);
@@ -341,79 +341,79 @@ It is advised to compile the plugin now, but you can also do so later.</html>",
               break;
 
             QTimer::singleShot(1000, this, [this]()
-              { ezCppProject::EnsureCppPluginReady().IgnoreResult(); });
+              { WCppProject::EnsureCppPluginReady().IgnoreResult(); });
           }
         }
 
 
-        ezTimestamp lastTransform = ezAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
+        WTimestamp lastTransform = WAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
 
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
           QTimer::singleShot(2000, this, [this]()
-            { ezAssetProcessor::GetSingleton()->StartProcessor(); });
+            { WAssetProcessor::GetSingleton()->StartProcessor(); });
         }
-        else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
+        else if (!lastTransform.IsValid() || (WTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
-          const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Apply asset transformation now?<br><br>\
+          const auto clicked = WQtUiServices::MessageBoxQuestion("<html>Apply asset transformation now?<br><br>\
 Explanation: For assets to work properly, they must be <a href='https://ezengine.net/pages/docs/assets/assets-overview.html#asset-transform'>transformed</a>. Otherwise they don't function as they should or don't even show up.<br>You can manually run the asset transform from the <a href='https://ezengine.net/pages/docs/assets/asset-browser.html#transform-assets'>asset browser</a> at any time.</html>",
             QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply, QMessageBox::StandardButton::Apply);
 
           if (clicked == QMessageBox::StandardButton::Ignore)
           {
-            ezAssetCurator::GetSingleton()->StoreFullTransformDate();
+            WAssetCurator::GetSingleton()->StoreFullTransformDate();
             break;
           }
 
           // check whether the project needs to be transformed
           QTimer::singleShot(2000, this, [this]()
-            { ezAssetCurator::GetSingleton()->TransformAllAssets().IgnoreResult(); });
+            { WAssetCurator::GetSingleton()->TransformAllAssets().IgnoreResult(); });
         }
       }
 
       break;
     }
 
-    case ezToolsProjectEvent::Type::ProjectSaveState:
+    case WToolsProjectEvent::Type::ProjectSaveState:
     {
-      m_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+      m_RecentProjects.Insert(WToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
 
       // Auto-save the global editor layout before documents are closed
-      if (!IsInHeadlessMode() && !IsInSafeMode() && !ezToolsProject::GetSingleton()->IsProjectClosing())
+      if (!IsInHeadlessMode() && !IsInSafeMode() && !WToolsProject::GetSingleton()->IsProjectClosing())
       {
-        ezWindowLayoutActions::SaveUserLayout();
+        WWindowLayoutActions::SaveUserLayout();
       }
       break;
     }
 
-    case ezToolsProjectEvent::Type::ProjectClosing:
+    case WToolsProjectEvent::Type::ProjectClosing:
     {
-      ezShutdownProcessMsgToEngine msg;
-      ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+      WShutdownProcessMsgToEngine msg;
+      WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
       break;
     }
 
-    case ezToolsProjectEvent::Type::ProjectClosed:
+    case WToolsProjectEvent::Type::ProjectClosed:
     {
-      ezEditorEngineProcessConnection::GetSingleton()->ShutdownProcess();
+      WEditorEngineProcessConnection::GetSingleton()->ShutdownProcess();
 
-      ezAssetCurator::GetSingleton()->Deinitialize();
+      WAssetCurator::GetSingleton()->Deinitialize();
 
       // remove all data directories that were loaded by the project configuration
-      ezApplicationFileSystemConfig::Clear();
-      ezFileSystem::SetSpecialDirectory("project", nullptr); // removes this directory
+      WApplicationFileSystemConfig::Clear();
+      WFileSystem::SetSpecialDirectory("project", nullptr); // removes this directory
 
       m_ReloadProjectRequiredReasons.Clear();
       UpdateGlobalStatusBarMessage();
 
-      ezPreferences::ClearProjectPreferences();
+      WPreferences::ClearProjectPreferences();
 
       // remove all dynamic enums that were dynamically loaded from the project directory
       {
         for (const auto& val : m_DynamicEnumStringsToClear)
         {
-          ezDynamicStringEnum::RemoveEnum(val);
+          WDynamicStringEnum::RemoveEnum(val);
         }
         m_DynamicEnumStringsToClear.Clear();
       }
@@ -421,9 +421,9 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
       break;
     }
 
-    case ezToolsProjectEvent::Type::SaveAll:
+    case WToolsProjectEvent::Type::SaveAll:
     {
-      ezToolsProject::SaveProjectState();
+      WToolsProject::SaveProjectState();
       SaveAllOpenDocuments();
       break;
     }
@@ -433,22 +433,22 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
   }
 }
 
-void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
+void WQtEditorApp::ProjectRequestHandler(WToolsProjectRequest& r)
 {
   switch (r.m_Type)
   {
-    case ezToolsProjectRequest::Type::CanCloseProject:
-    case ezToolsProjectRequest::Type::CanCloseDocuments:
+    case WToolsProjectRequest::Type::CanCloseProject:
+    case WToolsProjectRequest::Type::CanCloseDocuments:
     {
       if (r.m_bCanClose == false)
         return;
 
-      ezTempHybridArray<ezDocument*, 32> ModifiedDocs;
-      if (r.m_Type == ezToolsProjectRequest::Type::CanCloseProject)
+      WTempHybridArray<WDocument*, 32> ModifiedDocs;
+      if (r.m_Type == WToolsProjectRequest::Type::CanCloseProject)
       {
-        for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
+        for (WDocumentManager* pMan : WDocumentManager::GetAllDocumentManagers())
         {
-          for (ezDocument* pDoc : pMan->GetAllOpenDocuments())
+          for (WDocument* pDoc : pMan->GetAllOpenDocuments())
           {
             if (!pDoc->IsModified())
               continue;
@@ -457,7 +457,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
             // A document without a window was opened programmatically.
             if (!pDoc->HasWindowBeenRequested())
             {
-              ezLog::Info("Discarding unsaved changes in '{}', which is open without a window.", pDoc->GetDocumentPath());
+              WLog::Info("Discarding unsaved changes in '{}', which is open without a window.", pDoc->GetDocumentPath());
               continue;
             }
 
@@ -467,7 +467,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       }
       else
       {
-        for (ezDocument* pDoc : r.m_Documents)
+        for (WDocument* pDoc : r.m_Documents)
         {
           if (pDoc->IsModified())
             ModifiedDocs.PushBack(pDoc);
@@ -476,16 +476,16 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
 
       if (!ModifiedDocs.IsEmpty())
       {
-        ezQtModifiedDocumentsDlg dlg(QApplication::activeWindow(), ModifiedDocs);
+        WQtModifiedDocumentsDlg dlg(QApplication::activeWindow(), ModifiedDocs);
         if (dlg.exec() == 0)
           r.m_bCanClose = false;
       }
     }
     break;
-    case ezToolsProjectRequest::Type::SuggestContainerWindow:
+    case WToolsProjectRequest::Type::SuggestContainerWindow:
     {
       const auto& docs = GetRecentDocumentsList();
-      ezStringBuilder sCleanPath = r.m_Documents[0]->GetDocumentPath();
+      WStringBuilder sCleanPath = r.m_Documents[0]->GetDocumentPath();
       sCleanPath.MakeCleanPath();
 
       for (auto& file : docs.GetFileList())
@@ -498,9 +498,9 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       }
     }
     break;
-    case ezToolsProjectRequest::Type::GetPathForDocumentGuid:
+    case WToolsProjectRequest::Type::GetPathForDocumentGuid:
     {
-      if (ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(r.m_documentGuid))
+      if (WAssetCurator::WLockedSubAsset pSubAsset = WAssetCurator::GetSingleton()->GetSubAsset(r.m_documentGuid))
       {
         r.m_sAbsDocumentPath = pSubAsset->m_pAssetInfo->m_Path;
       }
@@ -509,67 +509,67 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
   }
 }
 
-void ezQtEditorApp::SetupNewProject()
+void WQtEditorApp::SetupNewProject()
 {
-  ezToolsProject::GetSingleton()->CreateSubFolder("Editor");
-  ezToolsProject::GetSingleton()->CreateSubFolder("RuntimeConfigs");
+  WToolsProject::GetSingleton()->CreateSubFolder("Editor");
+  WToolsProject::GetSingleton()->CreateSubFolder("RuntimeConfigs");
 
   // write the default window config
   {
-    ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    WStringBuilder sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-    if (!ezFileSystem::ExistsFile(sPath))
+    if (!WFileSystem::ExistsFile(sPath))
     {
-      ezWindowCreationDesc desc;
-      desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
+      WWindowCreationDesc desc;
+      desc.m_Title = WToolsProject::GetSingleton()->GetProjectName(false);
       desc.SaveToDDL(sPath).IgnoreResult();
     }
   }
 
   // write a stub input mapping
   {
-    ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    WStringBuilder sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
-    if (!ezFileSystem::ExistsFile(sPath))
+    if (!WFileSystem::ExistsFile(sPath))
     {
-      ezDeferredFileWriter file;
+      WDeferredFileWriter file;
       file.SetOutput(sPath);
 
-      ezTempHybridArray<ezGameAppInputConfig, 4> actions;
-      ezGameAppInputConfig& a = actions.ExpandAndGetRef();
+      WTempHybridArray<WGameAppInputConfig, 4> actions;
+      WGameAppInputConfig& a = actions.ExpandAndGetRef();
       a.m_sInputSet = "Default";
       a.m_sInputAction = "Interact";
       a.m_bApplyTimeScaling = false;
-      a.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
-      a.m_sInputSlotTrigger[1] = ezInputSlot_MouseButton0;
-      a.m_sInputSlotTrigger[2] = ezInputSlot_Controller0_ButtonA;
+      a.m_sInputSlotTrigger[0] = WInputSlot_KeySpace;
+      a.m_sInputSlotTrigger[1] = WInputSlot_MouseButton0;
+      a.m_sInputSlotTrigger[2] = WInputSlot_Controller0_ButtonA;
 
-      ezGameAppInputConfig::WriteToDDL(file, actions);
+      WGameAppInputConfig::WriteToDDL(file, actions);
 
       file.Close().IgnoreResult();
     }
   }
 }
 
-void ezQtEditorApp::LogMissingComponentDocumentation()
+void WQtEditorApp::LogMissingComponentDocumentation()
 {
-  EZ_LOG_BLOCK("Missing Component Documentation");
+  W_LOG_BLOCK("Missing Component Documentation");
 
-  ezRTTI::ForEachDerivedType<ezComponent>(
-    [](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WComponent>(
+    [](const WRTTI* pRtti)
     {
-      if (pRtti->GetAttributeByType<ezInDevelopmentAttribute>() != nullptr)
+      if (pRtti->GetAttributeByType<WInDevelopmentAttribute>() != nullptr)
         return;
-      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      if (pRtti->GetAttributeByType<WHiddenAttribute>() != nullptr)
         return;
 
-      ezStringView sTypeName = pRtti->GetTypeName();
-      if (ezTranslateHelpURL(sTypeName).IsEmpty())
+      WStringView sTypeName = pRtti->GetTypeName();
+      if (WTranslateHelpURL(sTypeName).IsEmpty())
       {
-        ezLog::Warning("Component '{}' has no documentation link.", sTypeName);
+        WLog::Warning("Component '{}' has no documentation link.", sTypeName);
       }
     },
-    ezRTTI::ForEachOptions::ExcludeAbstract);
+    WRTTI::ForEachOptions::ExcludeAbstract);
 }

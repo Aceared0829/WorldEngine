@@ -2,22 +2,22 @@
 
 #include "Basics.h"
 
-ezTestAppRun ezRendererTestBasics::SubtestLineRendering()
+WTestAppRun WRendererTestBasics::SubtestLineRendering()
 {
   BeginFrame();
   BeginCommands("RendererTest");
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
 
-  ezColor clear(0, 0, 0, 0);
+  WColor clear(0, 0, 0, 0);
   BeginRendering(clear);
 
-  RenderLineObjects(ezShaderBindFlags::Default);
+  RenderLineObjects(WShaderBindFlags::Default);
 
   EndRendering();
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-  EZ_TEST_LINE_IMAGE(0, 150);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+  W_TEST_LINE_IMAGE(0, 150);
   EndCommands();
   EndFrame();
 
-  return m_iFrame < 0 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < 0 ? WTestAppRun::Continue : WTestAppRun::Quit;
 }

@@ -4,16 +4,16 @@
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Time/Time.h>
 
-ezThreadSignal::ezThreadSignal(Mode mode /*= Mode::AutoReset*/)
+WThreadSignal::WThreadSignal(Mode mode /*= Mode::AutoReset*/)
 {
   m_Mode = mode;
 }
 
-ezThreadSignal::~ezThreadSignal() = default;
+WThreadSignal::~WThreadSignal() = default;
 
-void ezThreadSignal::WaitForSignal() const
+void WThreadSignal::WaitForSignal() const
 {
-  EZ_LOCK(m_ConditionVariable);
+  W_LOCK(m_ConditionVariable);
 
   while (!m_bSignalState)
   {
@@ -26,21 +26,21 @@ void ezThreadSignal::WaitForSignal() const
   }
 }
 
-ezThreadSignal::WaitResult ezThreadSignal::WaitForSignal(ezTime timeout) const
+WThreadSignal::WaitResult WThreadSignal::WaitForSignal(WTime timeout) const
 {
-  EZ_LOCK(m_ConditionVariable);
+  W_LOCK(m_ConditionVariable);
 
-  const ezTime tStart = ezTime::Now();
-  ezTime tElapsed = ezTime::MakeZero();
+  const WTime tStart = WTime::Now();
+  WTime tElapsed = WTime::MakeZero();
 
   while (!m_bSignalState)
   {
-    if (m_ConditionVariable.UnlockWaitForSignalAndLock(timeout - tElapsed) == ezConditionVariable::WaitResult::Timeout)
+    if (m_ConditionVariable.UnlockWaitForSignalAndLock(timeout - tElapsed) == WConditionVariable::WaitResult::Timeout)
     {
       return WaitResult::Timeout;
     }
 
-    tElapsed = ezTime::Now() - tStart;
+    tElapsed = WTime::Now() - tStart;
     if (tElapsed >= timeout)
     {
       return WaitResult::Timeout;
@@ -55,10 +55,10 @@ ezThreadSignal::WaitResult ezThreadSignal::WaitForSignal(ezTime timeout) const
   return WaitResult::Signaled;
 }
 
-void ezThreadSignal::RaiseSignal()
+void WThreadSignal::RaiseSignal()
 {
   {
-    EZ_LOCK(m_ConditionVariable);
+    W_LOCK(m_ConditionVariable);
     m_bSignalState = true;
   }
 
@@ -73,8 +73,8 @@ void ezThreadSignal::RaiseSignal()
   }
 }
 
-void ezThreadSignal::ClearSignal()
+void WThreadSignal::ClearSignal()
 {
-  EZ_LOCK(m_ConditionVariable);
+  W_LOCK(m_ConditionVariable);
   m_bSignalState = false;
 }

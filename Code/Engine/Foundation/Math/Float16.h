@@ -7,85 +7,85 @@
 ///
 /// This class only contains functions to convert between float and float16. It does not support any mathematical operations.
 /// It is only intended for conversion, always do all mathematical operations on regular floats (or let the GPU do them on halfs).
-class EZ_FOUNDATION_DLL ezFloat16
+class W_FOUNDATION_DLL WFloat16
 {
 public:
   // Means that vectors can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Default constructor does not initialize the value.
-  ezFloat16() = default;
+  WFloat16() = default;
 
   /// Create float16 from float.
-  ezFloat16(float f); // [tested]
+  WFloat16(float f); // [tested]
 
   /// Create float16 from float.
   void operator=(float f); // [tested]
 
   /// Create float16 from raw data.
-  void SetRawData(ezUInt16 uiData) { m_uiData = uiData; } // [tested]
+  void SetRawData(WUInt16 uiData) { m_uiData = uiData; } // [tested]
 
   /// Returns the raw 16 Bit data.
-  ezUInt16 GetRawData() const { return m_uiData; } // [tested]
+  WUInt16 GetRawData() const { return m_uiData; } // [tested]
 
   /// Convert float16 to float.
   operator float() const; // [tested]
 
   /// Returns true, if both values are identical.
-  bool operator==(const ezFloat16& c2) { return m_uiData == c2.m_uiData; } // [tested]
+  bool operator==(const WFloat16& c2) { return m_uiData == c2.m_uiData; } // [tested]
 
   /// Returns true, if both values are not identical.
-  bool operator!=(const ezFloat16& c2) { return m_uiData != c2.m_uiData; } // [tested]
+  bool operator!=(const WFloat16& c2) { return m_uiData != c2.m_uiData; } // [tested]
 
 private:
   /// Raw 16 float data.
-  ezUInt16 m_uiData;
+  WUInt16 m_uiData;
 };
 
-/// A simple helper class to use half-precision floats (ezFloat16) as vectors
-class EZ_FOUNDATION_DLL ezFloat16Vec2
+/// A simple helper class to use half-precision floats (WFloat16) as vectors
+class W_FOUNDATION_DLL WFloat16Vec2
 {
 public:
   // Means that vectors can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezFloat16Vec2() = default;
-  ezFloat16Vec2(const ezVec2& vVec);
+  WFloat16Vec2() = default;
+  WFloat16Vec2(const WVec2& vVec);
 
-  void operator=(const ezVec2& vVec);
-  operator ezVec2() const;
+  void operator=(const WVec2& vVec);
+  operator WVec2() const;
 
-  ezFloat16 x, y;
+  WFloat16 x, y;
 };
 
-/// A simple helper class to use half-precision floats (ezFloat16) as vectors
-class EZ_FOUNDATION_DLL ezFloat16Vec3
+/// A simple helper class to use half-precision floats (WFloat16) as vectors
+class W_FOUNDATION_DLL WFloat16Vec3
 {
 public:
   // Means that vectors can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezFloat16Vec3() = default;
-  ezFloat16Vec3(const ezVec3& vVec);
+  WFloat16Vec3() = default;
+  WFloat16Vec3(const WVec3& vVec);
 
-  void operator=(const ezVec3& vVec);
-  operator ezVec3() const;
+  void operator=(const WVec3& vVec);
+  operator WVec3() const;
 
-  ezFloat16 x, y, z;
+  WFloat16 x, y, z;
 };
 
-/// A simple helper class to use half-precision floats (ezFloat16) as vectors
-class EZ_FOUNDATION_DLL ezFloat16Vec4
+/// A simple helper class to use half-precision floats (WFloat16) as vectors
+class W_FOUNDATION_DLL WFloat16Vec4
 {
 public:
   // Means that vectors can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezFloat16Vec4() = default;
-  ezFloat16Vec4(const ezVec4& vVec);
+  WFloat16Vec4() = default;
+  WFloat16Vec4(const WVec4& vVec);
 
-  void operator=(const ezVec4& vVec);
-  operator ezVec4() const;
+  void operator=(const WVec4& vVec);
+  operator WVec4() const;
 
-  ezFloat16 x, y, z, w;
+  WFloat16 x, y, z, w;
 };

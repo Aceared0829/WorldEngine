@@ -10,37 +10,37 @@
 
 #  include <lunasvg.h>
 
-EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezSvgFileFormat> g_SvgFileFormat;
+W_STATICLINK_FORCE static WImageFileFormatRegistrator<WSvgFileFormat> g_SvgFileFormat;
 
-ezResult ezSvgFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
+WResult WSvgFileFormat::ReadImageHeader(WStreamReader& inout_stream, WImageHeader& ref_header, WStringView sFileExtension) const
 {
-  EZ_IGNORE_UNUSED(inout_stream);
-  EZ_IGNORE_UNUSED(sFileExtension);
+  W_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(sFileExtension);
 
   ref_header.SetWidth(m_uiResolutionX);
   ref_header.SetHeight(m_uiResolutionY);
-  ref_header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  ref_header.SetImageFormat(WImageFormat::R8G8B8A8_UNORM);
   ref_header.SetNumMipLevels(1);
   ref_header.SetNumArrayIndices(1);
   ref_header.SetNumFaces(1);
   ref_header.SetDepth(1);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSvgFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
+WResult WSvgFileFormat::ReadImage(WStreamReader& inout_stream, WImage& ref_image, WStringView sFileExtension) const
 {
-  EZ_IGNORE_UNUSED(sFileExtension);
-  EZ_PROFILE_SCOPE("ezSvgFileFormat::ReadImage");
+  W_IGNORE_UNUSED(sFileExtension);
+  W_PROFILE_SCOPE("WSvgFileFormat::ReadImage");
 
   // Read entire SVG file into memory
-  ezDynamicArray<ezUInt8> fileBuffer;
-  ezStreamUtils::ReadAllAndAppend(inout_stream, fileBuffer);
+  WDynamicArray<WUInt8> fileBuffer;
+  WStreamUtils::ReadAllAndAppend(inout_stream, fileBuffer);
 
   if (fileBuffer.IsEmpty())
   {
-    ezLog::Error("SVG file is empty");
-    return EZ_FAILURE;
+    WLog::Error("SVG file is empty");
+    return W_FAILURE;
   }
 
   // Parse SVG document
@@ -50,8 +50,8 @@ ezResult ezSvgFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
 
   if (!document)
   {
-    ezLog::Error("Failed to parse SVG file");
-    return EZ_FAILURE;
+    WLog::Error("Failed to parse SVG file");
+    return W_FAILURE;
   }
 
   // Render SVG to bitmap at default resolution
@@ -62,18 +62,18 @@ ezResult ezSvgFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
 
   if (bitmap.isNull() || bitmap.data() == nullptr)
   {
-    ezLog::Error("Failed to render SVG to bitmap");
-    return EZ_FAILURE;
+    WLog::Error("Failed to render SVG to bitmap");
+    return W_FAILURE;
   }
 
   // Convert from ARGB32 premultiplied to RGBA
   bitmap.convertToRGBA();
 
   // Set up image header
-  ezImageHeader header;
+  WImageHeader header;
   header.SetWidth(m_uiResolutionX);
   header.SetHeight(m_uiResolutionY);
-  header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  header.SetImageFormat(WImageFormat::R8G8B8A8_UNORM);
   header.SetNumMipLevels(1);
   header.SetNumArrayIndices(1);
   header.SetNumFaces(1);
@@ -82,33 +82,33 @@ ezResult ezSvgFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
   ref_image.ResetAndAlloc(header);
 
   // Copy pixel data
-  const ezUInt32 pixelCount = m_uiResolutionX * m_uiResolutionY;
-  ezMemoryUtils::Copy(ref_image.GetBlobPtr<ezUInt8>().GetPtr(), bitmap.data(), pixelCount * 4);
+  const WUInt32 pixelCount = m_uiResolutionX * m_uiResolutionY;
+  WMemoryUtils::Copy(ref_image.GetBlobPtr<WUInt8>().GetPtr(), bitmap.data(), pixelCount * 4);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSvgFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
+WResult WSvgFileFormat::WriteImage(WStreamWriter& inout_stream, const WImageView& image, WStringView sFileExtension) const
 {
-  EZ_IGNORE_UNUSED(inout_stream);
-  EZ_IGNORE_UNUSED(image);
-  EZ_IGNORE_UNUSED(sFileExtension);
+  W_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(image);
+  W_IGNORE_UNUSED(sFileExtension);
 
-  ezLog::Error("Writing SVG files is not supported");
-  return EZ_FAILURE;
+  WLog::Error("Writing SVG files is not supported");
+  return W_FAILURE;
 }
 
-bool ezSvgFileFormat::CanReadFileType(ezStringView sExtension) const
+bool WSvgFileFormat::CanReadFileType(WStringView sExtension) const
 {
   return sExtension.IsEqual_NoCase("svg");
 }
 
-bool ezSvgFileFormat::CanWriteFileType(ezStringView sExtension) const
+bool WSvgFileFormat::CanWriteFileType(WStringView sExtension) const
 {
-  EZ_IGNORE_UNUSED(sExtension);
+  W_IGNORE_UNUSED(sExtension);
   return false;
 }
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_SvgFileFormat);
+W_STATICLINK_FILE(Texture, Texture_Image_Formats_SvgFileFormat);

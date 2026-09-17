@@ -6,26 +6,26 @@
 #include <Foundation/Math/Vec3.h>
 #include <Utilities/UtilitiesDLL.h>
 
-struct ezDynamicTree
+struct WDynamicTree
 {
-  struct ezObjectData
+  struct WObjectData
   {
-    ezInt32 m_iObjectType;
-    ezInt32 m_iObjectInstance;
+    WInt32 m_iObjectType;
+    WInt32 m_iObjectInstance;
   };
 
-  struct ezMultiMapKey
+  struct WMultiMapKey
   {
-    ezUInt32 m_uiKey;
-    ezUInt32 m_uiCounter;
+    WUInt32 m_uiKey;
+    WUInt32 m_uiCounter;
 
-    ezMultiMapKey()
+    WMultiMapKey()
     {
       m_uiKey = 0;
       m_uiCounter = 0;
     }
 
-    inline bool operator<(const ezMultiMapKey& rhs) const
+    inline bool operator<(const WMultiMapKey& rhs) const
     {
       if (m_uiKey == rhs.m_uiKey)
         return m_uiCounter < rhs.m_uiCounter;
@@ -33,15 +33,15 @@ struct ezDynamicTree
       return m_uiKey < rhs.m_uiKey;
     }
 
-    inline bool operator==(const ezMultiMapKey& rhs) const { return (m_uiCounter == rhs.m_uiCounter && m_uiKey == rhs.m_uiKey); }
+    inline bool operator==(const WMultiMapKey& rhs) const { return (m_uiCounter == rhs.m_uiCounter && m_uiKey == rhs.m_uiKey); }
   };
 };
 
-using ezDynamicTreeObject = ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData>::Iterator;
-using ezDynamicTreeObjectConst = ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData>::ConstIterator;
+using WDynamicTreeObject = WMap<WDynamicTree::WMultiMapKey, WDynamicTree::WObjectData>::Iterator;
+using WDynamicTreeObjectConst = WMap<WDynamicTree::WMultiMapKey, WDynamicTree::WObjectData>::ConstIterator;
 
 /// Callback type for object queries. Return "false" to abort a search (e.g. when the desired element has been found).
-using EZ_VISIBLE_OBJ_CALLBACK = bool (*)(void*, ezDynamicTreeObjectConst);
+using W_VISIBLE_OBJ_CALLBACK = bool (*)(void*, WDynamicTreeObjectConst);
 
-class ezDynamicOctree;
-class ezDynamicQuadtree;
+class WDynamicOctree;
+class WDynamicQuadtree;

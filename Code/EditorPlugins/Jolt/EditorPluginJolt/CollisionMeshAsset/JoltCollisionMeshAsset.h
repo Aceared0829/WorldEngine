@@ -4,57 +4,57 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAssetObjects.h>
 
-class ezGeometry;
-struct ezJoltMeshDesc;
+class WGeometry;
+struct WJoltMeshDesc;
 
-class ezJoltCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezJoltCollisionMeshAssetProperties>
+class WJoltCollisionMeshAssetDocument : public WSimpleAssetDocument<WJoltCollisionMeshAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltCollisionMeshAssetDocument, ezSimpleAssetDocument<ezJoltCollisionMeshAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WJoltCollisionMeshAssetDocument, WSimpleAssetDocument<WJoltCollisionMeshAssetProperties>);
 
 public:
-  ezJoltCollisionMeshAssetDocument(ezStringView sDocumentPath, bool bConvexMesh);
+  WJoltCollisionMeshAssetDocument(WStringView sDocumentPath, bool bConvexMesh);
 
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  ezStatus CreateMeshFromFile(ezJoltMeshDesc& outMesh);
-  ezStatus CreateMeshFromGeom(ezGeometry& geom, ezJoltMeshDesc& outMesh);
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  WStatus CreateMeshFromFile(WJoltMeshDesc& outMesh);
+  WStatus CreateMeshFromGeom(WGeometry& geom, WJoltMeshDesc& outMesh);
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   bool m_bIsConvexMesh = false;
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 
-class ezJoltCollisionMeshAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WJoltCollisionMeshAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltCollisionMeshAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WJoltCollisionMeshAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezJoltCollisionMeshAssetDocumentGenerator();
-  ~ezJoltCollisionMeshAssetDocumentGenerator();
+  WJoltCollisionMeshAssetDocumentGenerator();
+  ~WJoltCollisionMeshAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezJoltCollisionMeshAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WJoltCollisionMeshAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Meshes"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };
 
-class ezJoltConvexCollisionMeshAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WJoltConvexCollisionMeshAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltConvexCollisionMeshAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WJoltConvexCollisionMeshAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezJoltConvexCollisionMeshAssetDocumentGenerator();
-  ~ezJoltConvexCollisionMeshAssetDocumentGenerator();
+  WJoltConvexCollisionMeshAssetDocumentGenerator();
+  ~WJoltConvexCollisionMeshAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezJoltConvexCollisionMeshAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WJoltConvexCollisionMeshAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Meshes"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

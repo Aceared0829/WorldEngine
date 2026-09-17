@@ -4,23 +4,23 @@
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/State/ComputePipelineDX11.h>
 
-ezGALComputePipelineDX11::ezGALComputePipelineDX11(const ezGALComputePipelineCreationDescription& description)
-  : ezGALComputePipeline(description)
+WGALComputePipelineDX11::WGALComputePipelineDX11(const WGALComputePipelineCreationDescription& description)
+  : WGALComputePipeline(description)
 {
 }
 
-ezGALComputePipelineDX11::~ezGALComputePipelineDX11() = default;
+WGALComputePipelineDX11::~WGALComputePipelineDX11() = default;
 
-ezResult ezGALComputePipelineDX11::InitPlatform(ezGALDevice*)
+WResult WGALComputePipelineDX11::InitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALComputePipelineDX11::DeInitPlatform(ezGALDevice*)
+WResult WGALComputePipelineDX11::DeInitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALComputePipelineDX11::SetDebugName(const char*)
+void WGALComputePipelineDX11::SetDebugName(const char*)
 {
 }

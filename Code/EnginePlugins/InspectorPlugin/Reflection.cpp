@@ -8,19 +8,19 @@ namespace ReflectionDetail
 
   static void SendBasicTypesGroup()
   {
-    ezTelemetryMessage msg;
+    WTelemetryMessage msg;
     msg.SetMessageID('RFLC', 'DATA');
     msg.GetWriter() << "Basic Types";
     msg.GetWriter() << "";
     msg.GetWriter() << 0;
     msg.GetWriter() << "";
-    msg.GetWriter() << (ezUInt32)0U;
-    msg.GetWriter() << (ezUInt32)0U;
+    msg.GetWriter() << (WUInt32)0U;
+    msg.GetWriter() << (WUInt32)0U;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+    WTelemetry::Broadcast(WTelemetry::Reliable, msg);
   }
 
-  static ezStringView GetParentType(const ezRTTI* pRTTI)
+  static WStringView GetParentType(const WRTTI* pRTTI)
   {
     if (pRTTI->GetParentType())
     {
@@ -28,16 +28,16 @@ namespace ReflectionDetail
     }
 
     if ((pRTTI->GetTypeName() == "bool") || (pRTTI->GetTypeName() == "float") ||
-        (pRTTI->GetTypeName() == "double") || (pRTTI->GetTypeName() == "ezInt8") ||
-        (pRTTI->GetTypeName() == "ezUInt8") || (pRTTI->GetTypeName() == "ezInt16") ||
-        (pRTTI->GetTypeName() == "ezUInt16") || (pRTTI->GetTypeName() == "ezInt32") ||
-        (pRTTI->GetTypeName() == "ezUInt32") || (pRTTI->GetTypeName() == "ezInt64") ||
-        (pRTTI->GetTypeName() == "ezUInt64") || (pRTTI->GetTypeName() == "ezConstCharPtr") ||
-        (pRTTI->GetTypeName() == "ezVec2") || (pRTTI->GetTypeName() == "ezVec3") ||
-        (pRTTI->GetTypeName() == "ezVec4") || (pRTTI->GetTypeName() == "ezMat3") ||
-        (pRTTI->GetTypeName() == "ezMat4") || (pRTTI->GetTypeName() == "ezTime") ||
-        (pRTTI->GetTypeName() == "ezUuid") || (pRTTI->GetTypeName() == "ezColor") ||
-        (pRTTI->GetTypeName() == "ezVariant") || (pRTTI->GetTypeName() == "ezQuat"))
+        (pRTTI->GetTypeName() == "double") || (pRTTI->GetTypeName() == "WInt8") ||
+        (pRTTI->GetTypeName() == "WUInt8") || (pRTTI->GetTypeName() == "WInt16") ||
+        (pRTTI->GetTypeName() == "WUInt16") || (pRTTI->GetTypeName() == "WInt32") ||
+        (pRTTI->GetTypeName() == "WUInt32") || (pRTTI->GetTypeName() == "WInt64") ||
+        (pRTTI->GetTypeName() == "WUInt64") || (pRTTI->GetTypeName() == "WConstCharPtr") ||
+        (pRTTI->GetTypeName() == "WVec2") || (pRTTI->GetTypeName() == "WVec3") ||
+        (pRTTI->GetTypeName() == "WVec4") || (pRTTI->GetTypeName() == "WMat3") ||
+        (pRTTI->GetTypeName() == "WMat4") || (pRTTI->GetTypeName() == "WTime") ||
+        (pRTTI->GetTypeName() == "WUuid") || (pRTTI->GetTypeName() == "WColor") ||
+        (pRTTI->GetTypeName() == "WVariant") || (pRTTI->GetTypeName() == "WQuat"))
     {
       return "Basic Types";
     }
@@ -45,9 +45,9 @@ namespace ReflectionDetail
     return {};
   }
 
-  static void SendReflectionTelemetry(const ezRTTI* pRTTI)
+  static void SendReflectionTelemetry(const WRTTI* pRTTI)
   {
-    ezTelemetryMessage msg;
+    WTelemetryMessage msg;
     msg.SetMessageID('RFLC', 'DATA');
     msg.GetWriter() << pRTTI->GetTypeName();
     msg.GetWriter() << GetParentType(pRTTI);
@@ -62,50 +62,50 @@ namespace ReflectionDetail
       for (auto& prop : properties)
       {
         msg.GetWriter() << prop->GetPropertyName();
-        msg.GetWriter() << (ezInt8)prop->GetCategory();
+        msg.GetWriter() << (WInt8)prop->GetCategory();
 
-        const ezRTTI* pType = prop->GetSpecificType();
+        const WRTTI* pType = prop->GetSpecificType();
         msg.GetWriter() << (pType ? pType->GetTypeName() : "<Unknown Type>");
       }
     }
 
     {
-      const ezArrayPtr<ezAbstractMessageHandler*>& Messages = pRTTI->GetMessageHandlers();
+      const WArrayPtr<WAbstractMessageHandler*>& Messages = pRTTI->GetMessageHandlers();
 
       msg.GetWriter() << Messages.GetCount();
 
-      for (ezUInt32 i = 0; i < Messages.GetCount(); ++i)
+      for (WUInt32 i = 0; i < Messages.GetCount(); ++i)
       {
         msg.GetWriter() << Messages[i]->GetMessageId();
       }
     }
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+    WTelemetry::Broadcast(WTelemetry::Reliable, msg);
   }
 
   static void SendAllReflectionTelemetry()
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     // clear
     {
-      ezTelemetryMessage msg;
-      ezTelemetry::Broadcast(ezTelemetry::Reliable, 'RFLC', ' CLR', nullptr, 0);
+      WTelemetryMessage msg;
+      WTelemetry::Broadcast(WTelemetry::Reliable, 'RFLC', ' CLR', nullptr, 0);
     }
 
     SendBasicTypesGroup();
 
-    ezRTTI::ForEachType([](const ezRTTI* pRtti)
+    WRTTI::ForEachType([](const WRTTI* pRtti)
       { SendReflectionTelemetry(pRtti); });
   }
 
 
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void TelemetryEventsHandler(const WTelemetry::TelemetryEventData& e)
   {
     switch (e.m_EventType)
     {
-      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      case WTelemetry::TelemetryEventData::ConnectedToClient:
         SendAllReflectionTelemetry();
         break;
 
@@ -114,11 +114,11 @@ namespace ReflectionDetail
     }
   }
 
-  static void PluginEventHandler(const ezPluginEvent& e)
+  static void PluginEventHandler(const WPluginEvent& e)
   {
     switch (e.m_EventType)
     {
-      case ezPluginEvent::AfterPluginChanges:
+      case WPluginEvent::AfterPluginChanges:
         SendAllReflectionTelemetry();
         break;
 
@@ -130,16 +130,16 @@ namespace ReflectionDetail
 
 void AddReflectionEventHandler()
 {
-  ezTelemetry::AddEventHandler(ReflectionDetail::TelemetryEventsHandler);
+  WTelemetry::AddEventHandler(ReflectionDetail::TelemetryEventsHandler);
 
-  ezPlugin::Events().AddEventHandler(ReflectionDetail::PluginEventHandler);
+  WPlugin::Events().AddEventHandler(ReflectionDetail::PluginEventHandler);
 }
 
 void RemoveReflectionEventHandler()
 {
-  ezPlugin::Events().RemoveEventHandler(ReflectionDetail::PluginEventHandler);
+  WPlugin::Events().RemoveEventHandler(ReflectionDetail::PluginEventHandler);
 
-  ezTelemetry::RemoveEventHandler(ReflectionDetail::TelemetryEventsHandler);
+  WTelemetry::RemoveEventHandler(ReflectionDetail::TelemetryEventsHandler);
 }
 
 

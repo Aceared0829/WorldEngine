@@ -6,24 +6,24 @@
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
-class ezSceneDocumentManager : public ezAssetDocumentManager
+class WSceneDocumentManager : public WAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentManager, ezAssetDocumentManager);
+  W_ADD_DYNAMIC_REFLECTION(WSceneDocumentManager, WAssetDocumentManager);
 
 public:
-  ezSceneDocumentManager();
+  WSceneDocumentManager();
 
-  virtual ezResult OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex) override;
+  virtual WResult OpenPickedDocument(const WDocumentObject* pPickedComponent, WUInt32 uiPartIndex) override;
 
 private:
-  virtual void InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
-  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
-  virtual void InternalCloneDocument(ezStringView sPath, ezStringView sClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* pHeader, ezAbstractObjectGraph* pObjects, ezAbstractObjectGraph* pTypes) override;
+  virtual void InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext) override;
+  virtual void InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
+  virtual void InternalCloneDocument(WStringView sPath, WStringView sClonePath, const WUuid& documentId, const WUuid& seedGuid, const WUuid& cloneGuid, WAbstractObjectGraph* pHeader, WAbstractObjectGraph* pObjects, WAbstractObjectGraph* pTypes) override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
-  void SetupDefaultScene(ezDocument* pDocument);
+  void SetupDefaultScene(WDocument* pDocument);
 
 
-  ezStaticArray<ezAssetDocumentTypeDescriptor, 4> m_DocTypeDescs;
+  WStaticArray<WAssetDocumentTypeDescriptor, 4> m_DocTypeDescs;
 };

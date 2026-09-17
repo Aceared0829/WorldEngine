@@ -8,60 +8,60 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 
-ezApplication::ezApplication(ezStringView sAppName)
+WApplication::WApplication(WStringView sAppName)
   : m_sAppName(sAppName)
 {
 }
 
-ezApplication::~ezApplication() = default;
+WApplication::~WApplication() = default;
 
-void ezApplication::SetApplicationName(ezStringView sAppName)
+void WApplication::SetApplicationName(WStringView sAppName)
 {
   m_sAppName = sAppName;
 }
 
-ezCommandLineOptionBool opt_WaitForDebugger("app", "-WaitForDebugger", "If specified, the application will wait at startup until a debugger is attached.", false);
+WCommandLineOptionBool opt_WaitForDebugger("app", "-WaitForDebugger", "If specified, the application will wait at startup until a debugger is attached.", false);
 
-ezResult ezApplication::BeforeCoreSystemsStartup()
+WResult WApplication::BeforeCoreSystemsStartup()
 {
-  if (ezFileSystem::DetectSdkRootDirectory().Failed())
+  if (WFileSystem::DetectSdkRootDirectory().Failed())
   {
-    ezLog::Error("Unable to find the SDK root directory. Mounting data directories may fail.");
+    WLog::Error("Unable to find the SDK root directory. Mounting data directories may fail.");
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  ezRTTI::VerifyCorrectnessForAllTypes();
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+  WRTTI::VerifyCorrectnessForAllTypes();
 #endif
 
-  if (opt_WaitForDebugger.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
+  if (opt_WaitForDebugger.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified))
   {
-    while (!ezSystemInformation::IsDebuggerAttached())
+    while (!WSystemInformation::IsDebuggerAttached())
     {
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
     }
 
-    EZ_DEBUG_BREAK;
+    W_DEBUG_BREAK;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-void ezApplication::SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** pArguments)
+void WApplication::SetCommandLineArguments(WUInt32 uiArgumentCount, const char** pArguments)
 {
   m_uiArgumentCount = uiArgumentCount;
   m_pArguments = pArguments;
 
-  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, pArguments, ezCommandLineUtils::PreferOsArgs);
+  WCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, pArguments, WCommandLineUtils::PreferOsArgs);
 }
 
 
-const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
+const char* WApplication::GetArgument(WUInt32 uiArgument) const
 {
-  EZ_ASSERT_DEV(uiArgument < m_uiArgumentCount, "There are only {0} arguments, cannot access argument {1}.", m_uiArgumentCount, uiArgument);
+  W_ASSERT_DEV(uiArgument < m_uiArgumentCount, "There are only {0} arguments, cannot access argument {1}.", m_uiArgumentCount, uiArgument);
 
   return m_pArguments[uiArgument];
 }
 
 
-ezApplication* ezApplication::s_pApplicationInstance = nullptr;
+WApplication* WApplication::s_pApplicationInstance = nullptr;

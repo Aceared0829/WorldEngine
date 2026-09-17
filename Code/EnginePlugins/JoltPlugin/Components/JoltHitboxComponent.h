@@ -5,11 +5,11 @@
 #include <Core/World/World.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
-struct ezMsgAnimationPoseUpdated;
+struct WMsgAnimationPoseUpdated;
 
-using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
+using WSkeletonResourceHandle = WTypedResourceHandle<class WSkeletonResource>;
 
-using ezJoltHitboxComponentManager = ezComponentManager<class ezJoltHitboxComponent, ezBlockStorageType::Compact>;
+using WJoltHitboxComponentManager = WComponentManager<class WJoltHitboxComponent, WBlockStorageType::Compact>;
 
 /// Adds physics shapes to an animated character for hit detection.
 ///
@@ -18,40 +18,40 @@ using ezJoltHitboxComponentManager = ezComponentManager<class ezJoltHitboxCompon
 ///
 /// Typically these shapes are "query shapes" only, meaning they don't participate in the physical simulation,
 /// so they won't push other objects aside.
-/// They can only be detected through raycasts and scene queries (assuming those queries have the ezPhysicsShapeType::Query flag set).
-class EZ_JOLTPLUGIN_DLL ezJoltHitboxComponent : public ezComponent
+/// They can only be detected through raycasts and scene queries (assuming those queries have the WPhysicsShapeType::Query flag set).
+class W_JOLTPLUGIN_DLL WJoltHitboxComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltHitboxComponent, ezComponent, ezJoltHitboxComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltHitboxComponent, WComponent, WJoltHitboxComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltHitboxComponent
+  // WJoltHitboxComponent
 
 public:
-  ezJoltHitboxComponent();
-  ~ezJoltHitboxComponent();
+  WJoltHitboxComponent();
+  ~WJoltHitboxComponent();
 
   /// The same object filter ID is assigned to all hit shapes.
-  ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
+  WUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
 
   /// If true, shapes can only be detected with raycasts and scene queries. If false, they will be kinematic objects in the simulation and push other rigid bodies aside.
   bool m_bQueryShapeOnly = true; // [ property ]
 
   /// At which interval to update the hitbox transforms. Set to zero for full updates every frame.
-  ezTime m_UpdateThreshold; // [ property ]
+  WTime m_UpdateThreshold; // [ property ]
 
   /// Updates the shape transforms to conform with the new pose, but only if the update threshold was exceeded.
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
 
   /// Destroys the current shape objects and creates new ones.
   ///
@@ -61,19 +61,19 @@ public:
   void RecreatePhysicsShapes(); // [ scriptable ]
 
 protected:
-  void CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton);
+  void CreatePhysicsShapes(const WSkeletonResourceHandle& hSkeleton);
   void DestroyPhysicsShapes();
 
   struct Shape
   {
-    ezUInt16 m_uiAttachedToBone = 0xFFFF;
-    ezVec3 m_vOffsetPos;
-    ezQuat m_qOffsetRot;
+    WUInt16 m_uiAttachedToBone = 0xFFFF;
+    WVec3 m_vOffsetPos;
+    WQuat m_qOffsetRot;
 
-    ezGameObjectHandle m_hActorObject;
+    WGameObjectHandle m_hActorObject;
   };
 
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
-  ezTime m_LastUpdate;
-  ezDynamicArray<Shape> m_Shapes;
+  WUInt32 m_uiObjectFilterID = WInvalidIndex;
+  WTime m_LastUpdate;
+  WDynamicArray<Shape> m_Shapes;
 };

@@ -3,9 +3,9 @@
 #include <EditorPluginAssets/AnimationGraphAsset/AnimationGraphQt.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 
-ezQtAnimationGraphNode::ezQtAnimationGraphNode() = default;
+WQtAnimationGraphNode::WQtAnimationGraphNode() = default;
 
-void ezQtAnimationGraphNode::UpdateState()
+void WQtAnimationGraphNode::UpdateState()
 {
   TitleFormat format;
   format.m_uiMaxStringLength = 0;
@@ -13,14 +13,14 @@ void ezQtAnimationGraphNode::UpdateState()
   format.m_bQuoteStrings = false;
   format.m_bIgnoreInvalidProperties = true;
 
-  ezStringBuilder sTemplate;
+  WStringBuilder sTemplate;
   if (!TryGetTitleTemplateFromProperty("CustomTitle", sTemplate) && !TryGetTitleTemplateFromAttribute(sTemplate))
   {
     GetDefaultTitleTemplate(sTemplate);
   }
 
-  ezStringBuilder sTitle;
-  ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+  WStringBuilder sTitle;
+  WTokenParseUtils::RenderTemplate(sTemplate, [&](WStringView sPlaceholder, WVariant index, bool bOptional, WStringBuilder& ref_sOutput)
     { ResolvePropertyPlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
 
   // placeholders that resolved to nothing leave empty quotes and duplicate spaces behind

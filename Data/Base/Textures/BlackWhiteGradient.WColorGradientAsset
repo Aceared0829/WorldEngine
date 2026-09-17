@@ -1,0 +1,339 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{13621572428772333617,1444910283028215760}}
+	s %t{"WAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"ColorGradient"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{13621572428772333617,1444910283028215760}}
+		u4 %Hash{4949274683400066492}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{6577519236019254675,4722279468503126754}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{102}
+		u1 %Green{102}
+		u1 %Red{102}
+		i4 %Tick{1920}
+	}
+}
+o
+{
+	Uuid %id{u4{2759921174629551496,4846011487022810170}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{255}
+		u1 %Green{255}
+		u1 %Red{255}
+		i4 %Tick{4800}
+	}
+}
+o
+{
+	Uuid %id{u4{13790301658960929159,4937105452087822498}}
+	s %t{"WColorGradientAssetData"}
+	u3 %v{3}
+	p
+	{
+		Uuid %Gradient{u4{99427820144369089,15561386945314404423}}
+	}
+}
+o
+{
+	Uuid %id{u4{10734947431062464955,4969788262773070254}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{77}
+		u1 %Green{77}
+		u1 %Red{77}
+		i4 %Tick{1440}
+	}
+}
+o
+{
+	Uuid %id{u4{12476345649338028929,5000190711611728084}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{51}
+		u1 %Green{51}
+		u1 %Red{51}
+		i4 %Tick{960}
+	}
+}
+o
+{
+	Uuid %id{u4{14400754760194716826,5026370279721217892}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{153}
+		u1 %Green{153}
+		u1 %Red{153}
+		i4 %Tick{2880}
+	}
+}
+o
+{
+	Uuid %id{u4{10917945214200984759,5454146463394829606}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{204}
+		u1 %Green{204}
+		u1 %Red{204}
+		i4 %Tick{3840}
+	}
+}
+o
+{
+	Uuid %id{u4{2922332495925193904,5476490492182045644}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{26}
+		u1 %Green{26}
+		u1 %Red{26}
+		i4 %Tick{480}
+	}
+}
+o
+{
+	Uuid %id{u4{8877478168229127301,5514341351032788057}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{0}
+		u1 %Green{0}
+		u1 %Red{0}
+		i4 %Tick{0}
+	}
+}
+o
+{
+	Uuid %id{u4{12963611210187342513,5515316749696025880}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{230}
+		u1 %Green{230}
+		u1 %Red{230}
+		i4 %Tick{4320}
+	}
+}
+o
+{
+	Uuid %id{u4{16654698475230415269,5561131552086485397}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{179}
+		u1 %Green{179}
+		u1 %Red{179}
+		i4 %Tick{3360}
+	}
+}
+o
+{
+	Uuid %id{u4{15957303762931396758,5628496848426508577}}
+	s %t{"WColorGradientColorCP"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{128}
+		u1 %Green{128}
+		u1 %Red{128}
+		i4 %Tick{2400}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"WDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13790301658960929159,4937105452087822498}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{99427820144369089,15561386945314404423}}
+	s %t{"WColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs
+		{
+			Uuid{u4{8877478168229127301,5514341351032788057}}
+			Uuid{u4{2759921174629551496,4846011487022810170}}
+			Uuid{u4{15957303762931396758,5628496848426508577}}
+			Uuid{u4{2922332495925193904,5476490492182045644}}
+			Uuid{u4{12476345649338028929,5000190711611728084}}
+			Uuid{u4{10734947431062464955,4969788262773070254}}
+			Uuid{u4{6577519236019254675,4722279468503126754}}
+			Uuid{u4{14400754760194716826,5026370279721217892}}
+			Uuid{u4{16654698475230415269,5561131552086485397}}
+			Uuid{u4{10917945214200984759,5454146463394829606}}
+			Uuid{u4{12963611210187342513,5515316749696025880}}
+		}
+		VarArray %IntensityCPs{}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{6631209941035484764,6473122775586822239}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WColorGradientIntensityCP"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16010672675562525890,8910430727997280259}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WColorGradient"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9143222088539867141,9609721939939207251}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"WColorGradientAssetData"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{11071188783797134895,15407408096802728321}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WColorGradientColorCP"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6447122151843742996,17608929579605804179}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WColorGradientAlphaCP"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

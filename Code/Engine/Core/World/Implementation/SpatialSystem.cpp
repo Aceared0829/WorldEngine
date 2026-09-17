@@ -6,52 +6,52 @@
 #include <Core/World/World.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSpatialSystem, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSpatialSystem::ezSpatialSystem()
-  : m_Allocator("Spatial System", ezFoundation::GetDefaultAllocator())
+WSpatialSystem::WSpatialSystem()
+  : m_Allocator("Spatial System", WFoundation::GetDefaultAllocator())
 {
 }
 
-ezSpatialSystem::~ezSpatialSystem() = default;
+WSpatialSystem::~WSpatialSystem() = default;
 
-void ezSpatialSystem::StartNewFrame()
+void WSpatialSystem::StartNewFrame()
 {
   ++m_uiFrameCounter;
 }
 
-void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_objects) const
+void WSpatialSystem::FindObjectsInSphere(const WBoundingSphere& sphere, const QueryParams& queryParams, WDynamicArray<WGameObject*>& out_objects) const
 {
   out_objects.Clear();
 
   FindObjectsInSphere(
     sphere, queryParams,
-    [&](ezGameObject* pObject)
+    [&](WGameObject* pObject)
     {
       out_objects.PushBack(pObject);
 
-      return ezVisitorExecution::Continue;
+      return WVisitorExecution::Continue;
     });
 }
 
-void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_objects) const
+void WSpatialSystem::FindObjectsInBox(const WBoundingBox& box, const QueryParams& queryParams, WDynamicArray<WGameObject*>& out_objects) const
 {
   out_objects.Clear();
 
   FindObjectsInBox(
     box, queryParams,
-    [&](ezGameObject* pObject)
+    [&](WGameObject* pObject)
     {
       out_objects.PushBack(pObject);
 
-      return ezVisitorExecution::Continue;
+      return WVisitorExecution::Continue;
     });
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-void ezSpatialSystem::GetInternalStats(ezStringBuilder& ref_sSb) const
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+void WSpatialSystem::GetInternalStats(WStringBuilder& ref_sSb) const
 {
   ref_sSb.Clear();
 }
@@ -60,36 +60,36 @@ void ezSpatialSystem::GetInternalStats(ezStringBuilder& ref_sSb) const
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Spatial, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptExtensionClass_Spatial, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(FindClosestObjectInSphere, In, "World", In, "Category", In, "Center", In, "Radius"),
+    W_SCRIPT_FUNCTION_PROPERTY(FindClosestObjectInSphere, In, "World", In, "Category", In, "Center", In, "Radius"),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezScriptExtensionAttribute("Spatial"),
+    new WScriptExtensionAttribute("Spatial"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 
-ezGameObject* ezScriptExtensionClass_Spatial::FindClosestObjectInSphere(ezWorld* pWorld, ezStringView sCategory, const ezVec3& vCenter, float fRadius)
+WGameObject* WScriptExtensionClass_Spatial::FindClosestObjectInSphere(WWorld* pWorld, WStringView sCategory, const WVec3& vCenter, float fRadius)
 {
-  ezGameObject* pClosest = nullptr;
+  WGameObject* pClosest = nullptr;
 
-  auto category = ezSpatialData::FindCategory(sCategory);
-  if (category != ezInvalidSpatialDataCategory)
+  auto category = WSpatialData::FindCategory(sCategory);
+  if (category != WInvalidSpatialDataCategory)
   {
-    ezSpatialSystem::QueryParams params;
+    WSpatialSystem::QueryParams params;
     params.m_uiCategoryBitmask = category.GetBitmask();
 
-    float fDistanceSqr = ezMath::HighValue<float>();
+    float fDistanceSqr = WMath::HighValue<float>();
 
-    pWorld->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), params, [&](ezGameObject* go) -> ezVisitorExecution::Enum
+    pWorld->GetSpatialSystem()->FindObjectsInSphere(WBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), params, [&](WGameObject* go) -> WVisitorExecution::Enum
       {
         const float fSqr = go->GetGlobalPosition().GetSquaredDistanceTo(vCenter);
 
@@ -99,7 +99,7 @@ ezGameObject* ezScriptExtensionClass_Spatial::FindClosestObjectInSphere(ezWorld*
           pClosest = go;
         }
 
-        return ezVisitorExecution::Continue;
+        return WVisitorExecution::Continue;
         //
       });
   }
@@ -107,4 +107,4 @@ ezGameObject* ezScriptExtensionClass_Spatial::FindClosestObjectInSphere(ezWorld*
   return pClosest;
 }
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);
+W_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);

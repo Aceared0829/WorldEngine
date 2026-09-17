@@ -7,17 +7,17 @@
 
 class QMouseEvent;
 
-class EZ_GUIFOUNDATION_DLL ezQtColorGradientWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtColorGradientWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit ezQtColorGradientWidget(QWidget* pParent);
-  ~ezQtColorGradientWidget();
+  explicit WQtColorGradientWidget(QWidget* pParent);
+  ~WQtColorGradientWidget();
 
   void SetScrubberPosition(double fPosition);
 
-  void setColorGradientData(const ezColorGradient* pGradient);
+  void setColorGradientData(const WColorGradient* pGradient);
 
   void setEditMode(bool bEdit);
   void setShowColorCPs(bool bShow);
@@ -27,20 +27,20 @@ public:
 
   void FrameExtents();
   void ClearSelectedCP();
-  void SelectCP(ezInt32 iColorCP, ezInt32 iAlphaCP, ezInt32 iIntensityCP);
+  void SelectCP(WInt32 iColorCP, WInt32 iAlphaCP, WInt32 iIntensityCP);
 
 Q_SIGNALS:
   void GradientClicked();
-  void addColorCp(double fPosX, const ezColorGammaUB& color);
-  void addAlphaCp(double fPosX, ezUInt8 value);
+  void addColorCp(double fPosX, const WColorGammaUB& color);
+  void addAlphaCp(double fPosX, WUInt8 value);
   void addIntensityCp(double fPosX, float fIntensity);
-  void moveColorCpToPos(ezInt32 iIndex, double fNewPosX);
-  void moveAlphaCpToPos(ezInt32 iIndex, double fNewPosX);
-  void moveIntensityCpToPos(ezInt32 iIndex, double fNewPosX);
-  void deleteColorCp(ezInt32 iIndex);
-  void deleteAlphaCp(ezInt32 iIndex);
-  void deleteIntensityCp(ezInt32 iIndex);
-  void selectionChanged(ezInt32 iColorCP, ezInt32 iAlphaCP, ezInt32 iIntensityCP);
+  void moveColorCpToPos(WInt32 iIndex, double fNewPosX);
+  void moveAlphaCpToPos(WInt32 iIndex, double fNewPosX);
+  void moveIntensityCpToPos(WInt32 iIndex, double fNewPosX);
+  void deleteColorCp(WInt32 iIndex);
+  void deleteAlphaCp(WInt32 iIndex);
+  void deleteIntensityCp(WInt32 iIndex);
+  void selectionChanged(WInt32 iColorCP, WInt32 iAlphaCP, WInt32 iIntensityCP);
   void beginOperation();
   void endOperation(bool bCommit);
   void triggerPickColor();
@@ -80,7 +80,7 @@ private:
   void PaintCoordinateLines(QPainter& p);
 
   void PaintControlPoint(
-    QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const;
+    QPainter& p, const QRect& area, double posX, const WColorGammaUB& outlineColor, const WColorGammaUB& fillColor, bool selected) const;
   void PaintColorCPs(QPainter& p) const;
   void PaintAlphaCPs(QPainter& p) const;
   void PaintIntensityCPs(QPainter& p) const;
@@ -93,22 +93,22 @@ private:
   QRect GetCoordAreaTop() const;
   QRect GetCoordAreaBottom() const;
 
-  double WindowToGradientCoord(ezInt32 mouseWindowPosX) const;
-  ezInt32 GradientToWindowCoord(double gradientPosX) const;
+  double WindowToGradientCoord(WInt32 mouseWindowPosX) const;
+  WInt32 GradientToWindowCoord(double gradientPosX) const;
 
-  ezInt32 FindClosestColorCp(ezInt32 iWindowPosX) const;
-  ezInt32 FindClosestAlphaCp(ezInt32 iWindowPosX) const;
-  ezInt32 FindClosestIntensityCp(ezInt32 iWindowPosX) const;
+  WInt32 FindClosestColorCp(WInt32 iWindowPosX) const;
+  WInt32 FindClosestAlphaCp(WInt32 iWindowPosX) const;
+  WInt32 FindClosestIntensityCp(WInt32 iWindowPosX) const;
 
   bool HoversControlPoint(const QPoint& windowPos) const;
-  bool HoversControlPoint(const QPoint& windowPos, ezInt32& iHoverColorCp, ezInt32& iHoverAlphaCp, ezInt32& iHoverIntensityCp) const;
+  bool HoversControlPoint(const QPoint& windowPos, WInt32& iHoverColorCp, WInt32& iHoverAlphaCp, WInt32& iHoverIntensityCp) const;
   Area HoversInteractiveArea(const QPoint& windowPos) const;
 
-  void EvaluateAt(ezInt32 windowPos, ezColorGammaUB& rgba, float& intensity) const;
+  void EvaluateAt(WInt32 windowPos, WColorGammaUB& rgba, float& intensity) const;
 
   double ComputeCoordinateDisplayStep() const;
 
-  const ezColorGradient* m_pColorGradientData;
+  const WColorGradient* m_pColorGradientData;
 
   bool m_bEditMode;
   bool m_bShowColorCPs;
@@ -122,9 +122,9 @@ private:
   double m_fDisplayExtentMinX;
   double m_fDisplayExtentMaxX;
 
-  ezInt32 m_iSelectedColorCP;
-  ezInt32 m_iSelectedAlphaCP;
-  ezInt32 m_iSelectedIntensityCP;
+  WInt32 m_iSelectedColorCP;
+  WInt32 m_iSelectedAlphaCP;
+  WInt32 m_iSelectedIntensityCP;
 
   QPointF m_LastMousePosition;
   QPixmap m_AlphaPattern;

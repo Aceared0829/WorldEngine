@@ -1,111 +1,111 @@
 #pragma once
 
 #include <Core/CoreInternal.h>
-EZ_CORE_INTERNAL_HEADER
+W_CORE_INTERNAL_HEADER
 
 #include <Core/ResourceManager/ResourceManager.h>
 
-class ezResourceManagerState
+class WResourceManagerState
 {
 private:
-  friend class ezResource;
-  friend class ezResourceManager;
-  friend class ezResourceManagerWorkerDataLoad;
-  friend class ezResourceManagerWorkerUpdateContent;
-  friend class ezResourceHandleReadContext;
+  friend class WResource;
+  friend class WResourceManager;
+  friend class WResourceManagerWorkerDataLoad;
+  friend class WResourceManagerWorkerUpdateContent;
+  friend class WResourceHandleReadContext;
 
   /// \name Events
   ///@{
 
-  ezEvent<const ezResourceEvent&, ezMutex> m_ResourceEvents;
-  ezEvent<const ezResourceManagerEvent&, ezMutex> m_ManagerEvents;
+  WEvent<const WResourceEvent&, WMutex> m_ResourceEvents;
+  WEvent<const WResourceManagerEvent&, WMutex> m_ManagerEvents;
 
   ///@}
   /// \name Resource Fallbacks
   ///@{
 
-  ezDynamicArray<ezResourceManager::ResourceCleanupCB> m_ResourceCleanupCallbacks;
+  WDynamicArray<WResourceManager::ResourceCleanupCB> m_ResourceCleanupCallbacks;
 
   ///@}
   /// \name Resource Priorities
   ///@{
 
-  ezMap<const ezRTTI*, ezResourcePriority> m_ResourceTypePriorities;
+  WMap<const WRTTI*, WResourcePriority> m_ResourceTypePriorities;
 
   ///@}
 
   struct TaskDataUpdateContent
   {
-    ezSharedPtr<ezResourceManagerWorkerUpdateContent> m_pTask;
-    ezTaskGroupID m_GroupId;
+    WSharedPtr<WResourceManagerWorkerUpdateContent> m_pTask;
+    WTaskGroupID m_GroupId;
   };
 
   struct TaskDataDataLoad
   {
-    ezSharedPtr<ezResourceManagerWorkerDataLoad> m_pTask;
-    ezTaskGroupID m_GroupId;
+    WSharedPtr<WResourceManagerWorkerDataLoad> m_pTask;
+    WTaskGroupID m_GroupId;
   };
 
   bool m_bTaskNamesInitialized = false;
   bool m_bBroadcastExistsEvent = false;
-  ezUInt32 m_uiForceNoFallbackAcquisition = 0;
+  WUInt32 m_uiForceNoFallbackAcquisition = 0;
 
   // resources in this queue are waiting for a task to load them
-  ezDeque<ezResourceManager::LoadingInfo> m_LoadingQueue;
+  WDeque<WResourceManager::LoadingInfo> m_LoadingQueue;
 
-  ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> m_LoadedResources;
+  WHashTable<const WRTTI*, WResourceManager::LoadedResources> m_LoadedResources;
 
   bool m_bAllowLaunchDataLoadTask = true;
   bool m_bShutdown = false;
 
-  ezHybridArray<TaskDataUpdateContent, 24> m_WorkerTasksUpdateContent;
-  ezHybridArray<TaskDataDataLoad, 8> m_WorkerTasksDataLoad;
+  WHybridArray<TaskDataUpdateContent, 24> m_WorkerTasksUpdateContent;
+  WHybridArray<TaskDataDataLoad, 8> m_WorkerTasksDataLoad;
 
-  ezTime m_LastFrameUpdate;
-  ezUInt32 m_uiLastResourcePriorityUpdateIdx = 0;
+  WTime m_LastFrameUpdate;
+  WUInt32 m_uiLastResourcePriorityUpdateIdx = 0;
 
-  ezDynamicArray<ezResource*> m_LoadedResourceOfTypeTempContainer;
-  ezHashTable<ezTempHashedString, const ezRTTI*> m_ResourcesToUnloadOnMainThread;
+  WDynamicArray<WResource*> m_LoadedResourceOfTypeTempContainer;
+  WHashTable<WTempHashedString, const WRTTI*> m_ResourcesToUnloadOnMainThread;
 
-  const ezRTTI* m_pFreeUnusedLastType = nullptr;
-  ezTempHashedString m_sFreeUnusedLastResourceID;
+  const WRTTI* m_pFreeUnusedLastType = nullptr;
+  WTempHashedString m_sFreeUnusedLastResourceID;
 
   // Type Loaders
 
-  ezMap<const ezRTTI*, ezResourceTypeLoader*> m_ResourceTypeLoader;
-  ezResourceLoaderFromFile m_FileResourceLoader;
-  ezResourceTypeLoader* m_pDefaultResourceLoader = &m_FileResourceLoader;
-  ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> m_CustomLoaders;
+  WMap<const WRTTI*, WResourceTypeLoader*> m_ResourceTypeLoader;
+  WResourceLoaderFromFile m_FileResourceLoader;
+  WResourceTypeLoader* m_pDefaultResourceLoader = &m_FileResourceLoader;
+  WMap<WResource*, WUniquePtr<WResourceTypeLoader>> m_CustomLoaders;
 
 
   // Override / derived resources
 
-  ezMap<const ezRTTI*, ezHybridArray<ezResourceManager::DerivedTypeInfo, 4>> m_DerivedTypeInfos;
+  WMap<const WRTTI*, WHybridArray<WResourceManager::DerivedTypeInfo, 4>> m_DerivedTypeInfos;
 
 
   // Named resources
 
-  ezHashTable<ezTempHashedString, ezHashedString> m_NamedResources;
+  WHashTable<WTempHashedString, WHashedString> m_NamedResources;
 
   // Asset system interaction
 
-  ezMap<ezString, const ezRTTI*> m_AssetToResourceType;
+  WMap<WString, const WRTTI*> m_AssetToResourceType;
 
 
   // Export mode
 
   bool m_bExportMode = false;
-  ezUInt32 m_uiNextResourceID = 0;
+  WUInt32 m_uiNextResourceID = 0;
 
   // Resource Unloading
-  ezTime m_AutoFreeUnusedTimeout = ezTime::MakeZero();
-  ezTime m_AutoFreeUnusedThreshold = ezTime::MakeZero();
+  WTime m_AutoFreeUnusedTimeout = WTime::MakeZero();
+  WTime m_AutoFreeUnusedThreshold = WTime::MakeZero();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // How often a resource was freed again without ever having been acquired. Used to warn about inefficient resource usage.
-  // See ezResourceManager::FreeUnusedResources.
-  ezHashTable<ezTempHashedString, ezUInt8> m_NeverAcquiredResources;
+  // See WResourceManager::FreeUnusedResources.
+  WHashTable<WTempHashedString, WUInt8> m_NeverAcquiredResources;
 #endif
 
-  ezMap<const ezRTTI*, ezResourceManager::ResourceTypeInfo> m_TypeInfo;
+  WMap<const WRTTI*, WResourceManager::ResourceTypeInfo> m_TypeInfo;
 };

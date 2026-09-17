@@ -3,23 +3,23 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginRmlUi/DragDropHandlers/RmlUiDragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezRmlUiComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRmlUiComponentDragDropHandler, 1, WRTTIDefaultAllocator<WRmlUiComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-float ezRmlUiComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WRmlUiComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "RmlUi") ? 1.0f : 0.0f;
 }
 
-void ezRmlUiComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WRmlUiComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezRmlUiCanvas2DComponent";
+  constexpr const char* szComponentType = "WRmlUiCanvas2DComponent";
   constexpr const char* szPropertyName = "RmlFile";
 
   if (pInfo->m_sTargetContext == "viewport")

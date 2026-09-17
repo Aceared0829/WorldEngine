@@ -3,22 +3,22 @@
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <GameEngine/GameEngineDLL.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
-/// An implementation of ezInputDeviceController that handles XBox controllers.
+/// An implementation of WInputDeviceController that handles XBox controllers.
 ///
 /// Works on all platforms that provide the XINPUT API.
-class EZ_GAMEENGINE_DLL ezInputDeviceXBoxController : public ezInputDeviceController
+class W_GAMEENGINE_DLL WInputDeviceXBoxController : public WInputDeviceController
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceXBoxController, ezInputDeviceController);
+  W_ADD_DYNAMIC_REFLECTION(WInputDeviceXBoxController, WInputDeviceController);
 
 public:
-  ezInputDeviceXBoxController();
-  ~ezInputDeviceXBoxController();
+  WInputDeviceXBoxController();
+  ~WInputDeviceXBoxController();
 
-  /// Returns an ezInputDeviceXBoxController device.
-  static ezInputDeviceXBoxController* GetDevice();
-  virtual bool IsPhysicalControllerConnected(ezUInt8 uiPhysical) const override;
+  /// Returns an WInputDeviceXBoxController device.
+  static WInputDeviceXBoxController* GetDevice();
+  virtual bool IsPhysicalControllerConnected(WUInt8 uiPhysical) const override;
 
   /// Maps connected controllers to virtual controllers in the order of which ones are connected.
   ///
@@ -29,16 +29,16 @@ public:
   void SetupControllerMappingInOrder();
 
 private:
-  static void RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags);
+  static void RegisterControllerButton(const char* szButton, const char* szName, WBitflags<WInputSlotFlags> SlotFlags);
   static void SetDeadZone(const char* szButton);
 
-  virtual void ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength) override;
+  virtual void ApplyVibration(WUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength) override;
   virtual void InitializeDevice() override {}
   virtual void UpdateInputSlotValues() override;
   virtual void RegisterInputSlots() override;
-  virtual void UpdateHardwareState(ezTime tTimeDifference) override;
+  virtual void UpdateHardwareState(WTime tTimeDifference) override;
 
-  void SetValue(ezInt32 iController, const char* szButton, float fValue);
+  void SetValue(WInt32 iController, const char* szButton, float fValue);
 
   bool m_bControllerConnected[MaxControllers];
 };

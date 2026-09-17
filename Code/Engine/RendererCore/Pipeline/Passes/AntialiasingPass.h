@@ -6,23 +6,23 @@
 /// Render pass that applies post-process anti-aliasing.
 ///
 /// Currently it only does an advanced resolve of MSAA render targets using a two pixel wide bspline filter.
-class EZ_RENDERERCORE_DLL ezAntialiasingPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WAntialiasingPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAntialiasingPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WAntialiasingPass, WRenderPipelinePass);
 
 public:
-  ezAntialiasingPass();
-  ~ezAntialiasingPass();
+  WAntialiasingPass();
+  ~WAntialiasingPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  WRenderPipelineNodeInputPin m_PinInput;
+  WRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezHashedString m_sMsaaSampleCount;
-  ezShaderResourceHandle m_hShader;
+  WHashedString m_sMsaaSampleCount;
+  WShaderResourceHandle m_hShader;
 };

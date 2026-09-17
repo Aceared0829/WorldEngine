@@ -5,39 +5,39 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-struct EZ_TOOLSFOUNDATION_DLL ezActiveDocumentChange
+struct W_TOOLSFOUNDATION_DLL WActiveDocumentChange
 {
-  const ezDocument* m_pOldDocument;
-  const ezDocument* m_pNewDocument;
+  const WDocument* m_pOldDocument;
+  const WDocument* m_pNewDocument;
 };
 
-/// Tracks existing and active ezDocument.
+/// Tracks existing and active WDocument.
 ///
 /// While the IDocumentManager manages documents of a certain context,
 /// this class simply keeps track of the overall number of documents and the currently active one.
-class EZ_TOOLSFOUNDATION_DLL ezDocumentRegistry
+class W_TOOLSFOUNDATION_DLL WDocumentRegistry
 {
 public:
-  static bool RegisterDocument(const ezDocument* pDocument);
-  static bool UnregisterDocument(const ezDocument* pDocument);
+  static bool RegisterDocument(const WDocument* pDocument);
+  static bool UnregisterDocument(const WDocument* pDocument);
 
-  static ezArrayPtr<const ezDocument*> GetDocuments() { return s_Documents; }
+  static WArrayPtr<const WDocument*> GetDocuments() { return s_Documents; }
 
-  static void SetActiveDocument(const ezDocument* pDocument);
-  static const ezDocument* GetActiveDocument();
+  static void SetActiveDocument(const WDocument* pDocument);
+  static const WDocument* GetActiveDocument();
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, DocumentRegistry);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, DocumentRegistry);
 
   static void Startup();
   static void Shutdown();
 
 public:
-  // static ezEvent<ezDocumentChange&> m_DocumentAddedEvent;
-  // static ezEvent<ezDocumentChange&> m_DocumentRemovedEvent;
-  static ezEvent<ezActiveDocumentChange&> m_ActiveDocumentChanged;
+  // static WEvent<WDocumentChange&> m_DocumentAddedEvent;
+  // static WEvent<WDocumentChange&> m_DocumentRemovedEvent;
+  static WEvent<WActiveDocumentChange&> m_ActiveDocumentChanged;
 
 private:
-  static ezHybridArray<const ezDocument*, 16> s_Documents;
-  static ezDocument* s_pActiveDocument;
+  static WHybridArray<const WDocument*, 16> s_Documents;
+  static WDocument* s_pActiveDocument;
 };

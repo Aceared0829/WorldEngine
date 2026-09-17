@@ -6,31 +6,31 @@
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezTransformManipulatorAdapter : public ezManipulatorAdapter
+class WTransformManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezTransformManipulatorAdapter();
-  ~ezTransformManipulatorAdapter();
+  WTransformManipulatorAdapter();
+  ~WTransformManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
   virtual void Update() override;
-  void GizmoEventHandler(const ezGizmoEvent& e);
+  void GizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
-  ezVec3 GetTranslation();
-  ezQuat GetRotation();
-  ezVec3 GetScale();
+  WVec3 GetTranslation();
+  WQuat GetRotation();
+  WVec3 GetScale();
 
-  virtual ezTransform GetOffsetTransform() const override;
+  virtual WTransform GetOffsetTransform() const override;
 
-  ezTranslateGizmo m_TranslateGizmo;
-  ezRotateGizmo m_RotateGizmo;
-  ezManipulatorScaleGizmo m_ScaleGizmo;
-  ezVec3 m_vOldScale;
+  WTranslateGizmo m_TranslateGizmo;
+  WRotateGizmo m_RotateGizmo;
+  WManipulatorScaleGizmo m_ScaleGizmo;
+  WVec3 m_vOldScale;
 
   bool m_bHideTranslate = true;
   bool m_bHideRotate = true;

@@ -1,73 +1,73 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-EZ_ALWAYS_INLINE vk::AttachmentLoadOp ezConversionUtilsVulkan::GetAttachmentLoadOp(ezEnum<ezGALRenderTargetLoadOp> op)
+W_ALWAYS_INLINE vk::AttachmentLoadOp WConversionUtilsVulkan::GetAttachmentLoadOp(WEnum<WGALRenderTargetLoadOp> op)
 {
   switch (op)
   {
-    case ezGALRenderTargetLoadOp::Load:
+    case WGALRenderTargetLoadOp::Load:
       return vk::AttachmentLoadOp::eLoad;
-    case ezGALRenderTargetLoadOp::Clear:
+    case WGALRenderTargetLoadOp::Clear:
       return vk::AttachmentLoadOp::eClear;
-    case ezGALRenderTargetLoadOp::DontCare:
+    case WGALRenderTargetLoadOp::DontCare:
       return vk::AttachmentLoadOp::eDontCare;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::AttachmentLoadOp::eLoad;
   }
 }
 
-EZ_ALWAYS_INLINE vk::AttachmentStoreOp ezConversionUtilsVulkan::GetAttachmentStoreOp(ezEnum<ezGALRenderTargetStoreOp> op)
+W_ALWAYS_INLINE vk::AttachmentStoreOp WConversionUtilsVulkan::GetAttachmentStoreOp(WEnum<WGALRenderTargetStoreOp> op)
 {
   switch (op)
   {
-    case ezGALRenderTargetStoreOp::Store:
+    case WGALRenderTargetStoreOp::Store:
       return vk::AttachmentStoreOp::eStore;
-    case ezGALRenderTargetStoreOp::Discard:
+    case WGALRenderTargetStoreOp::Discard:
       return vk::AttachmentStoreOp::eDontCare;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::AttachmentStoreOp::eStore;
   }
 }
 
-EZ_ALWAYS_INLINE vk::VertexInputRate ezConversionUtilsVulkan::GetVertexBindingRate(ezEnum<ezGALVertexBindingRate> rate)
+W_ALWAYS_INLINE vk::VertexInputRate WConversionUtilsVulkan::GetVertexBindingRate(WEnum<WGALVertexBindingRate> rate)
 {
   switch (rate)
   {
-    case ezGALVertexBindingRate::Vertex:
+    case WGALVertexBindingRate::Vertex:
       return vk::VertexInputRate::eVertex;
-    case ezGALVertexBindingRate::Instance:
+    case WGALVertexBindingRate::Instance:
       return vk::VertexInputRate::eInstance;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::VertexInputRate::eVertex;
   }
 }
 
-EZ_ALWAYS_INLINE vk::SampleCountFlagBits ezConversionUtilsVulkan::GetSamples(ezEnum<ezGALMSAASampleCount> samples)
+W_ALWAYS_INLINE vk::SampleCountFlagBits WConversionUtilsVulkan::GetSamples(WEnum<WGALMSAASampleCount> samples)
 {
   switch (samples)
   {
-    case ezGALMSAASampleCount::None:
+    case WGALMSAASampleCount::None:
       return vk::SampleCountFlagBits::e1;
-    case ezGALMSAASampleCount::TwoSamples:
+    case WGALMSAASampleCount::TwoSamples:
       return vk::SampleCountFlagBits::e2;
-    case ezGALMSAASampleCount::FourSamples:
+    case WGALMSAASampleCount::FourSamples:
       return vk::SampleCountFlagBits::e4;
-    case ezGALMSAASampleCount::EightSamples:
+    case WGALMSAASampleCount::EightSamples:
       return vk::SampleCountFlagBits::e8;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::SampleCountFlagBits::e1;
   }
 }
 
-EZ_ALWAYS_INLINE vk::PresentModeKHR ezConversionUtilsVulkan::GetPresentMode(ezEnum<ezGALPresentMode> presentMode, const ezDynamicArray<vk::PresentModeKHR>& supportedModes)
+W_ALWAYS_INLINE vk::PresentModeKHR WConversionUtilsVulkan::GetPresentMode(WEnum<WGALPresentMode> presentMode, const WDynamicArray<vk::PresentModeKHR>& supportedModes)
 {
   switch (presentMode)
   {
-    case ezGALPresentMode::Immediate:
+    case WGALPresentMode::Immediate:
     {
       if (supportedModes.Contains(vk::PresentModeKHR::eImmediate))
         return vk::PresentModeKHR::eImmediate;
@@ -76,24 +76,24 @@ EZ_ALWAYS_INLINE vk::PresentModeKHR ezConversionUtilsVulkan::GetPresentMode(ezEn
       else
         return vk::PresentModeKHR::eFifo;
     }
-    case ezGALPresentMode::VSync:
+    case WGALPresentMode::VSync:
       return vk::PresentModeKHR::eFifo; // FIFO must be supported according to the standard.
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::PresentModeKHR::eFifo;
   }
 }
 
-EZ_FORCE_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
+W_FORCE_INLINE vk::ImageSubresourceRange WConversionUtilsVulkan::GetSubresourceRange(const WGALTextureCreationDescription& texDesc, const WGALRenderTargetViewCreationDescription& viewDesc)
 {
   vk::ImageSubresourceRange range;
-  ezGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
-  range.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  WGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == WGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
+  range.aspectMask = WGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
   range.setBaseMipLevel(viewDesc.m_uiMipLevel).setLevelCount(1).setBaseArrayLayer(viewDesc.m_uiFirstSlice).setLayerCount(viewDesc.m_uiSliceCount);
   return range;
 }
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(
+W_ALWAYS_INLINE vk::ImageSubresourceRange WConversionUtilsVulkan::GetSubresourceRange(
   const vk::ImageSubresourceLayers& layers)
 {
   vk::ImageSubresourceRange range;
@@ -105,11 +105,11 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(ezGALResourceFormat::Enum format, ezGALTextureRange textureRange)
+W_ALWAYS_INLINE vk::ImageSubresourceRange WConversionUtilsVulkan::GetSubresourceRange(WGALResourceFormat::Enum format, WGALTextureRange textureRange)
 {
   vk::ImageSubresourceRange range;
-  range.aspectMask = ezGALResourceFormat::IsDepthFormat(format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-  if (format == ezGALResourceFormat::D24S8)
+  range.aspectMask = WGALResourceFormat::IsDepthFormat(format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  if (format == WGALResourceFormat::D24S8)
   {
     range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
   }
@@ -120,78 +120,78 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
-EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALTextureType> texType)
+W_ALWAYS_INLINE vk::ImageViewType WConversionUtilsVulkan::GetImageViewType(WEnum<WGALTextureType> texType)
 {
   switch (texType)
   {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DShared:
-    case ezGALTextureType::Texture2DProxy:
+    case WGALTextureType::Texture2D:
+    case WGALTextureType::Texture2DShared:
+    case WGALTextureType::Texture2DProxy:
       return vk::ImageViewType::e2D;
 
-    case ezGALTextureType::Texture2DArray:
+    case WGALTextureType::Texture2DArray:
       return vk::ImageViewType::e2DArray;
 
-    case ezGALTextureType::TextureCube:
+    case WGALTextureType::TextureCube:
       return vk::ImageViewType::eCube;
 
-    case ezGALTextureType::TextureCubeArray:
+    case WGALTextureType::TextureCubeArray:
       return vk::ImageViewType::eCubeArray;
 
-    case ezGALTextureType::Texture3D:
+    case WGALTextureType::Texture3D:
       return vk::ImageViewType::e3D;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::ImageViewType::e1D;
   }
 }
 
-EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALShaderTextureType> texType)
+W_ALWAYS_INLINE vk::ImageViewType WConversionUtilsVulkan::GetImageViewType(WEnum<WGALShaderTextureType> texType)
 {
   switch (texType)
   {
-    case ezGALShaderTextureType::Texture2D:
-    case ezGALShaderTextureType::Texture2DMS:
+    case WGALShaderTextureType::Texture2D:
+    case WGALShaderTextureType::Texture2DMS:
       return vk::ImageViewType::e2D;
-    case ezGALShaderTextureType::Texture2DArray:
-    case ezGALShaderTextureType::Texture2DMSArray:
+    case WGALShaderTextureType::Texture2DArray:
+    case WGALShaderTextureType::Texture2DMSArray:
       return vk::ImageViewType::e2DArray;
-    case ezGALShaderTextureType::Texture3D:
+    case WGALShaderTextureType::Texture3D:
       return vk::ImageViewType::e3D;
-    case ezGALShaderTextureType::TextureCube:
+    case WGALShaderTextureType::TextureCube:
       return vk::ImageViewType::eCube;
-    case ezGALShaderTextureType::TextureCubeArray:
+    case WGALShaderTextureType::TextureCubeArray:
       return vk::ImageViewType::eCubeArray;
-    case ezGALShaderTextureType::Texture1D:
-    case ezGALShaderTextureType::Texture1DArray:
-    case ezGALShaderTextureType::Unknown:
+    case WGALShaderTextureType::Texture1D:
+    case WGALShaderTextureType::Texture1DArray:
+    case WGALShaderTextureType::Unknown:
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::ImageViewType::e1D;
   }
 }
 
-EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageArrayViewType(ezEnum<ezGALTextureType> texType)
+W_ALWAYS_INLINE vk::ImageViewType WConversionUtilsVulkan::GetImageArrayViewType(WEnum<WGALTextureType> texType)
 {
   switch (texType)
   {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DArray:
-    case ezGALTextureType::Texture2DProxy:
+    case WGALTextureType::Texture2D:
+    case WGALTextureType::Texture2DArray:
+    case WGALTextureType::Texture2DProxy:
       return vk::ImageViewType::e2DArray;
 
-    case ezGALTextureType::TextureCube:
-    case ezGALTextureType::TextureCubeArray:
+    case WGALTextureType::TextureCube:
+    case WGALTextureType::TextureCubeArray:
       return vk::ImageViewType::eCubeArray;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::ImageViewType::e1D;
   }
 }
 
-EZ_ALWAYS_INLINE bool ezConversionUtilsVulkan::IsDepthFormat(vk::Format format)
+W_ALWAYS_INLINE bool WConversionUtilsVulkan::IsDepthFormat(vk::Format format)
 {
   switch (format)
   {
@@ -206,7 +206,7 @@ EZ_ALWAYS_INLINE bool ezConversionUtilsVulkan::IsDepthFormat(vk::Format format)
   }
 }
 
-EZ_ALWAYS_INLINE bool ezConversionUtilsVulkan::IsStencilFormat(vk::Format format)
+W_ALWAYS_INLINE bool WConversionUtilsVulkan::IsStencilFormat(vk::Format format)
 {
   switch (format)
   {
@@ -220,74 +220,74 @@ EZ_ALWAYS_INLINE bool ezConversionUtilsVulkan::IsStencilFormat(vk::Format format
   }
 }
 
-EZ_ALWAYS_INLINE vk::ImageLayout ezConversionUtilsVulkan::GetTextureReadLayout(vk::Format format)
+W_ALWAYS_INLINE vk::ImageLayout WConversionUtilsVulkan::GetTextureReadLayout(vk::Format format)
 {
   return IsDepthFormat(format) ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
-EZ_ALWAYS_INLINE vk::PrimitiveTopology ezConversionUtilsVulkan::GetPrimitiveTopology(ezEnum<ezGALPrimitiveTopology> topology)
+W_ALWAYS_INLINE vk::PrimitiveTopology WConversionUtilsVulkan::GetPrimitiveTopology(WEnum<WGALPrimitiveTopology> topology)
 {
   switch (topology)
   {
-    case ezGALPrimitiveTopology::Points:
+    case WGALPrimitiveTopology::Points:
       return vk::PrimitiveTopology::ePointList;
-    case ezGALPrimitiveTopology::Lines:
+    case WGALPrimitiveTopology::Lines:
       return vk::PrimitiveTopology::eLineList;
-    case ezGALPrimitiveTopology::Triangles:
+    case WGALPrimitiveTopology::Triangles:
       return vk::PrimitiveTopology::eTriangleList;
-    case ezGALPrimitiveTopology::TriangleStrip:
+    case WGALPrimitiveTopology::TriangleStrip:
       return vk::PrimitiveTopology::eTriangleStrip;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::PrimitiveTopology::ePointList;
   }
 }
 
-EZ_ALWAYS_INLINE vk::ShaderStageFlagBits ezConversionUtilsVulkan::GetShaderStage(ezGALShaderStage::Enum stage)
+W_ALWAYS_INLINE vk::ShaderStageFlagBits WConversionUtilsVulkan::GetShaderStage(WGALShaderStage::Enum stage)
 {
   switch (stage)
   {
-    case ezGALShaderStage::VertexShader:
+    case WGALShaderStage::VertexShader:
       return vk::ShaderStageFlagBits::eVertex;
-    case ezGALShaderStage::HullShader:
+    case WGALShaderStage::HullShader:
       return vk::ShaderStageFlagBits::eTessellationControl;
-    case ezGALShaderStage::DomainShader:
+    case WGALShaderStage::DomainShader:
       return vk::ShaderStageFlagBits::eTessellationEvaluation;
-    case ezGALShaderStage::GeometryShader:
+    case WGALShaderStage::GeometryShader:
       return vk::ShaderStageFlagBits::eGeometry;
-    case ezGALShaderStage::PixelShader:
+    case WGALShaderStage::PixelShader:
       return vk::ShaderStageFlagBits::eFragment;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       [[fallthrough]];
-    case ezGALShaderStage::ComputeShader:
+    case WGALShaderStage::ComputeShader:
       return vk::ShaderStageFlagBits::eCompute;
   }
 }
 
-EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStage(ezGALShaderStage::Enum stage)
+W_ALWAYS_INLINE vk::PipelineStageFlags WConversionUtilsVulkan::GetPipelineStage(WGALShaderStage::Enum stage)
 {
   switch (stage)
   {
-    case ezGALShaderStage::VertexShader:
+    case WGALShaderStage::VertexShader:
       return vk::PipelineStageFlagBits::eVertexShader;
-    case ezGALShaderStage::HullShader:
+    case WGALShaderStage::HullShader:
       return vk::PipelineStageFlagBits::eTessellationControlShader;
-    case ezGALShaderStage::DomainShader:
+    case WGALShaderStage::DomainShader:
       return vk::PipelineStageFlagBits::eTessellationEvaluationShader;
-    case ezGALShaderStage::GeometryShader:
+    case WGALShaderStage::GeometryShader:
       return vk::PipelineStageFlagBits::eGeometryShader;
-    case ezGALShaderStage::PixelShader:
+    case WGALShaderStage::PixelShader:
       return vk::PipelineStageFlagBits::eFragmentShader;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       [[fallthrough]];
-    case ezGALShaderStage::ComputeShader:
+    case WGALShaderStage::ComputeShader:
       return vk::PipelineStageFlagBits::eComputeShader;
   }
 }
 
-EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStage(vk::ShaderStageFlags flags)
+W_ALWAYS_INLINE vk::PipelineStageFlags WConversionUtilsVulkan::GetPipelineStage(vk::ShaderStageFlags flags)
 {
   vk::PipelineStageFlags res;
   if (flags & vk::ShaderStageFlagBits::eVertex)
@@ -306,68 +306,68 @@ EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStag
   return res;
 }
 
-EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(ezGALShaderResourceType::Enum type)
+W_ALWAYS_INLINE vk::DescriptorType WConversionUtilsVulkan::GetDescriptorType(WGALShaderResourceType::Enum type)
 {
   switch (type)
   {
-    case ezGALShaderResourceType::Unknown:
-      EZ_REPORT_FAILURE("Unknown descriptor type");
+    case WGALShaderResourceType::Unknown:
+      W_REPORT_FAILURE("Unknown descriptor type");
       break;
-    case ezGALShaderResourceType::PushConstants:
-      EZ_REPORT_FAILURE("Push constants should never appear as shader resources");
+    case WGALShaderResourceType::PushConstants:
+      W_REPORT_FAILURE("Push constants should never appear as shader resources");
       break;
-    case ezGALShaderResourceType::Sampler:
+    case WGALShaderResourceType::Sampler:
       return vk::DescriptorType::eSampler;
-    case ezGALShaderResourceType::ConstantBuffer:
+    case WGALShaderResourceType::ConstantBuffer:
       return vk::DescriptorType::eUniformBufferDynamic;
-    case ezGALShaderResourceType::Texture:
+    case WGALShaderResourceType::Texture:
       return vk::DescriptorType::eSampledImage;
-    case ezGALShaderResourceType::TextureAndSampler:
+    case WGALShaderResourceType::TextureAndSampler:
       return vk::DescriptorType::eCombinedImageSampler;
-    case ezGALShaderResourceType::TexelBuffer:
+    case WGALShaderResourceType::TexelBuffer:
       return vk::DescriptorType::eUniformTexelBuffer;
-    case ezGALShaderResourceType::StructuredBuffer:
+    case WGALShaderResourceType::StructuredBuffer:
       return vk::DescriptorType::eStorageBuffer;
-    case ezGALShaderResourceType::ByteAddressBuffer:
+    case WGALShaderResourceType::ByteAddressBuffer:
       return vk::DescriptorType::eStorageBuffer;
-    case ezGALShaderResourceType::TextureRW:
+    case WGALShaderResourceType::TextureRW:
       return vk::DescriptorType::eStorageImage;
-    case ezGALShaderResourceType::TexelBufferRW:
+    case WGALShaderResourceType::TexelBufferRW:
       return vk::DescriptorType::eStorageTexelBuffer;
-    case ezGALShaderResourceType::StructuredBufferRW:
+    case WGALShaderResourceType::StructuredBufferRW:
       return vk::DescriptorType::eStorageBuffer;
-    case ezGALShaderResourceType::ByteAddressBufferRW:
+    case WGALShaderResourceType::ByteAddressBufferRW:
       return vk::DescriptorType::eStorageBuffer;
-    case ezGALShaderResourceType::COUNT:
-      EZ_REPORT_FAILURE("COUNT is not a valid resource type");
+    case WGALShaderResourceType::COUNT:
+      W_REPORT_FAILURE("COUNT is not a valid resource type");
       break;
   }
-  EZ_REPORT_FAILURE("Unknown resource type: {}", (int)type);
+  W_REPORT_FAILURE("Unknown resource type: {}", (int)type);
   return vk::DescriptorType::eMutableVALVE;
 }
 
-EZ_ALWAYS_INLINE vk::ShaderStageFlagBits ezConversionUtilsVulkan::GetShaderStages(ezBitflags<ezGALShaderStageFlags> stages)
+W_ALWAYS_INLINE vk::ShaderStageFlagBits WConversionUtilsVulkan::GetShaderStages(WBitflags<WGALShaderStageFlags> stages)
 {
   return (vk::ShaderStageFlagBits)stages.GetValue();
 }
 
-EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStages(ezBitflags<ezGALShaderStageFlags> stages)
+W_ALWAYS_INLINE vk::PipelineStageFlags WConversionUtilsVulkan::GetPipelineStages(WBitflags<WGALShaderStageFlags> stages)
 {
   vk::PipelineStageFlags res;
-  for (int i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+  for (int i = 0; i < WGALShaderStage::ENUM_COUNT; ++i)
   {
-    ezGALShaderStageFlags::Enum flag = ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)i);
+    WGALShaderStageFlags::Enum flag = WGALShaderStageFlags::MakeFromShaderStage((WGALShaderStage::Enum)i);
     if (stages.IsSet(flag))
     {
-      res |= GetPipelineStage((ezGALShaderStage::Enum)i);
+      res |= GetPipelineStage((WGALShaderStage::Enum)i);
     }
   }
   return res;
 }
 
-static_assert((ezUInt32)vk::ShaderStageFlagBits::eVertex == (ezUInt32)ezGALShaderStageFlags::VertexShader);
-static_assert((ezUInt32)vk::ShaderStageFlagBits::eTessellationControl == (ezUInt32)ezGALShaderStageFlags::HullShader);
-static_assert((ezUInt32)vk::ShaderStageFlagBits::eTessellationEvaluation == (ezUInt32)ezGALShaderStageFlags::DomainShader);
-static_assert((ezUInt32)vk::ShaderStageFlagBits::eGeometry == (ezUInt32)ezGALShaderStageFlags::GeometryShader);
-static_assert((ezUInt32)vk::ShaderStageFlagBits::eFragment == (ezUInt32)ezGALShaderStageFlags::PixelShader);
-static_assert((ezUInt32)vk::ShaderStageFlagBits::eCompute == (ezUInt32)ezGALShaderStageFlags::ComputeShader);
+static_assert((WUInt32)vk::ShaderStageFlagBits::eVertex == (WUInt32)WGALShaderStageFlags::VertexShader);
+static_assert((WUInt32)vk::ShaderStageFlagBits::eTessellationControl == (WUInt32)WGALShaderStageFlags::HullShader);
+static_assert((WUInt32)vk::ShaderStageFlagBits::eTessellationEvaluation == (WUInt32)WGALShaderStageFlags::DomainShader);
+static_assert((WUInt32)vk::ShaderStageFlagBits::eGeometry == (WUInt32)WGALShaderStageFlags::GeometryShader);
+static_assert((WUInt32)vk::ShaderStageFlagBits::eFragment == (WUInt32)WGALShaderStageFlags::PixelShader);
+static_assert((WUInt32)vk::ShaderStageFlagBits::eCompute == (WUInt32)WGALShaderStageFlags::ComputeShader);

@@ -3,23 +3,23 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginParticle/DragDropHandlers/ParticleDragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezParticleComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleComponentDragDropHandler, 1, WRTTIDefaultAllocator<WParticleComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-float ezParticleComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WParticleComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "Particle Effect") ? 1.0f : 0.0f;
 }
 
-void ezParticleComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WParticleComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezParticleComponent";
+  constexpr const char* szComponentType = "WParticleComponent";
   constexpr const char* szPropertyName = "Effect";
 
   if (pInfo->m_sTargetContext == "viewport")

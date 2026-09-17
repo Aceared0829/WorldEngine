@@ -5,20 +5,20 @@
 #include <EditorFramework/ui_AssetImportDlg.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtAssetImportDlg : public ezQtDialog, public Ui_AssetImportDlg
+class WQtAssetImportDlg : public WQtDialog, public Ui_AssetImportDlg
 {
   Q_OBJECT
 
 public:
-  ezQtAssetImportDlg(QWidget* pParent, ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& ref_allImports);
-  ~ezQtAssetImportDlg();
+  WQtAssetImportDlg(QWidget* pParent, WDynamicArray<WAssetDocumentGenerator::ImportGroupOptions>& ref_allImports);
+  ~WQtAssetImportDlg();
 
 private Q_SLOTS:
   void SelectedOptionChanged(int index);
   void on_ButtonImport_clicked();
 
 private:
-  void InitRow(ezUInt32 uiRow);
+  void InitRow(WUInt32 uiRow);
 
-  ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& m_AllImports;
+  WDynamicArray<WAssetDocumentGenerator::ImportGroupOptions>& m_AllImports;
 };

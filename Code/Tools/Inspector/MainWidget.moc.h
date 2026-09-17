@@ -11,14 +11,14 @@
 
 class QTreeWidgetItem;
 
-class ezQtMainWidget : public ads::CDockWidget, public Ui_MainWidget
+class WQtMainWidget : public ads::CDockWidget, public Ui_MainWidget
 {
   Q_OBJECT
 public:
-  static ezQtMainWidget* s_pWidget;
+  static WQtMainWidget* s_pWidget;
 
-  ezQtMainWidget(ads::CDockManager* pDockManager, QWidget* pParent = nullptr);
-  ~ezQtMainWidget();
+  WQtMainWidget(ads::CDockManager* pDockManager, QWidget* pParent = nullptr);
+  ~WQtMainWidget();
 
   void ResetStats();
   void UpdateStats();
@@ -39,23 +39,23 @@ private:
   void SaveFavorites();
   void LoadFavorites();
 
-  QTreeWidgetItem* CreateStat(ezStringView sPath, bool bParent);
-  void SetFavorite(const ezString& sStat, bool bFavorite);
+  QTreeWidgetItem* CreateStat(WStringView sPath, bool bParent);
+  void SetFavorite(const WString& sStat, bool bFavorite);
 
-  ezUInt32 m_uiMaxStatSamples;
-  ezTime m_MaxGlobalTime;
+  WUInt32 m_uiMaxStatSamples;
+  WTime m_MaxGlobalTime;
 
   struct StatSample
   {
-    ezTime m_AtGlobalTime;
+    WTime m_AtGlobalTime;
     double m_Value;
   };
 
   struct StatData
   {
-    ezDeque<StatSample> m_History;
+    WDeque<StatSample> m_History;
 
-    ezVariant m_Value;
+    WVariant m_Value;
     QTreeWidgetItem* m_pItem;
     QTreeWidgetItem* m_pItemFavorite;
 
@@ -66,7 +66,7 @@ private:
     }
   };
 
-  friend class ezQtStatVisWidget;
-  ezMap<ezString, StatData> m_Stats;
-  ezSet<ezString> m_Favorites;
+  friend class WQtStatVisWidget;
+  WMap<WString, StatData> m_Stats;
+  WSet<WString> m_Favorites;
 };

@@ -16,5 +16,5 @@ protected:
   virtual void OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput) override;
   virtual void OnBeforeWorldUpdate() override;
 
-  ezTypedComponentHandle<ezRmlUiCanvas2DComponent> m_hMainMenu;
+  WTypedComponentHandle<WRmlUiCanvas2DComponent> m_hMainMenu;
 };

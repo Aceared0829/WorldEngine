@@ -5,21 +5,21 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-class ezAllocPolicyGuarding
+class WAllocPolicyGuarding
 {
 public:
-  ezAllocPolicyGuarding(ezAllocator* pParent);
-  EZ_ALWAYS_INLINE ~ezAllocPolicyGuarding() = default;
+  WAllocPolicyGuarding(WAllocator* pParent);
+  W_ALWAYS_INLINE ~WAllocPolicyGuarding() = default;
 
   void* Allocate(size_t uiSize, size_t uiAlign);
   void Deallocate(void* pPtr);
 
-  EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
+  W_ALWAYS_INLINE WAllocator* GetParent() const { return nullptr; }
 
 private:
-  ezMutex m_Mutex;
+  WMutex m_Mutex;
 
-  ezUInt32 m_uiPageSize;
+  WUInt32 m_uiPageSize;
 
-  ezStaticRingBuffer<void*, (1 << 16)> m_AllocationsToFreeLater;
+  WStaticRingBuffer<void*, (1 << 16)> m_AllocationsToFreeLater;
 };

@@ -9,53 +9,53 @@
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
-ezJoltTriggerComponentManager::ezJoltTriggerComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezJoltTriggerComponent, ezBlockStorageType::FreeList>(pWorld)
+WJoltTriggerComponentManager::WJoltTriggerComponentManager(WWorld* pWorld)
+  : WComponentManager<WJoltTriggerComponent, WBlockStorageType::FreeList>(pWorld)
 {
 }
 
-ezJoltTriggerComponentManager::~ezJoltTriggerComponentManager() = default;
+WJoltTriggerComponentManager::~WJoltTriggerComponentManager() = default;
 
-void ezJoltTriggerComponentManager::UpdateMovingTriggers()
+void WJoltTriggerComponentManager::UpdateMovingTriggers()
 {
-  EZ_PROFILE_SCOPE("MovingTriggers");
+  W_PROFILE_SCOPE("MovingTriggers");
 
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   auto& bodyInterface = pModule->GetJoltSystem()->GetBodyInterface();
 
   for (auto pTrigger : m_MovingTriggers)
   {
     JPH::BodyID bodyId(pTrigger->m_uiJoltBodyID);
 
-    ezSimdTransform trans = pTrigger->GetOwner()->GetGlobalTransformSimd();
+    WSimdTransform trans = pTrigger->GetOwner()->GetGlobalTransformSimd();
 
-    bodyInterface.SetPositionAndRotation(bodyId, ezJoltConversionUtils::ToVec3(trans.m_Position), ezJoltConversionUtils::ToQuat(trans.m_Rotation), JPH::EActivation::Activate);
+    bodyInterface.SetPositionAndRotation(bodyId, WJoltConversionUtils::ToVec3(trans.m_Position), WJoltConversionUtils::ToQuat(trans.m_Rotation), JPH::EActivation::Activate);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltTriggerComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltTriggerComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
+    W_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGESENDERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGESENDERS
   {
-    EZ_MESSAGE_SENDER(m_TriggerEventSender)
+    W_MESSAGE_SENDER(m_TriggerEventSender)
   }
-  EZ_END_MESSAGESENDERS
+  W_END_MESSAGESENDERS
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltTriggerComponent::ezJoltTriggerComponent() = default;
-ezJoltTriggerComponent::~ezJoltTriggerComponent() = default;
+WJoltTriggerComponent::WJoltTriggerComponent() = default;
+WJoltTriggerComponent::~WJoltTriggerComponent() = default;
 
-void ezJoltTriggerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltTriggerComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -64,49 +64,49 @@ void ezJoltTriggerComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << m_sTriggerMessage;
 }
 
-void ezJoltTriggerComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltTriggerComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   s >> m_sTriggerMessage;
 }
 
-void ezJoltTriggerComponent::OnSimulationStarted()
+void WJoltTriggerComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
-  ezJoltUserData* pUserData = nullptr;
+  WJoltUserData* pUserData = nullptr;
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
   pUserData->Init(this);
 
   JPH::BodyCreationSettings bodyCfg;
   if (CreateShape(&bodyCfg, 1.0f, nullptr).Failed())
   {
-    ezLog::Error("Jolt trigger actor component has no valid shape.");
+    WLog::Error("Jolt trigger actor component has no valid shape.");
     return;
   }
 
-  const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
+  const WSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
 
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
 
   bodyCfg.mIsSensor = true;
-  bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
-  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation);
+  bodyCfg.mPosition = WJoltConversionUtils::ToVec3(trans.m_Position);
+  bodyCfg.mRotation = WJoltConversionUtils::ToQuat(trans.m_Rotation);
   bodyCfg.mMotionType = JPH::EMotionType::Kinematic;
-  bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Trigger);
+  bodyCfg.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, WJoltBroadphaseLayer::Trigger);
   bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
   // bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter()); // the group filter is only needed for objects constrained via joints
-  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+  bodyCfg.mUserData = reinterpret_cast<WUInt64>(pUserData);
 
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
-  EZ_ASSERT_DEV(pBody != nullptr, "Jolt body creation failed. You need to increase the maximum number of bodies.");
+  W_ASSERT_DEV(pBody != nullptr, "Jolt body creation failed. You need to increase the maximum number of bodies.");
 
   m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
@@ -114,37 +114,37 @@ void ezJoltTriggerComponent::OnSimulationStarted()
 
   if (GetOwner()->IsDynamic())
   {
-    ezJoltTriggerComponentManager* pManager = static_cast<ezJoltTriggerComponentManager*>(GetOwningManager());
+    WJoltTriggerComponentManager* pManager = static_cast<WJoltTriggerComponentManager*>(GetOwningManager());
     pManager->m_MovingTriggers.Insert(this);
   }
 }
 
-void ezJoltTriggerComponent::OnDeactivated()
+void WJoltTriggerComponent::OnDeactivated()
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
-  ezJoltContactListener* pContactListener = pModule->GetContactListener();
+  WJoltContactListener* pContactListener = pModule->GetContactListener();
   pContactListener->RemoveTrigger(this);
 
   if (GetOwner()->IsDynamic())
   {
-    ezJoltTriggerComponentManager* pManager = static_cast<ezJoltTriggerComponentManager*>(GetOwningManager());
+    WJoltTriggerComponentManager* pManager = static_cast<WJoltTriggerComponentManager*>(GetOwningManager());
     pManager->m_MovingTriggers.Remove(this);
   }
 
   SUPER::OnDeactivated();
 }
 
-void ezJoltTriggerComponent::PostTriggerMessage(const ezGameObjectHandle& hOtherObject, ezTriggerState::Enum triggerState) const
+void WJoltTriggerComponent::PostTriggerMessage(const WGameObjectHandle& hOtherObject, WTriggerState::Enum triggerState) const
 {
-  ezMsgTriggerTriggered msg;
+  WMsgTriggerTriggered msg;
 
   msg.m_TriggerState = triggerState;
   msg.m_sMessage = m_sTriggerMessage;
   msg.m_hTriggeringObject = hOtherObject;
 
-  m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
+  m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), WTime::MakeZero(), WObjectMsgQueueType::PostTransform);
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltTriggerComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltTriggerComponent);

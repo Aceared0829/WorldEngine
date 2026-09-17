@@ -43,14 +43,14 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Utilities/DataStructures/GameGrid.h>
 
-enum PacManState : ezInt32
+enum PacManState : WInt32
 {
   Alive,
   EatenByGhost,
   WonGame,
 };
 
-enum WalkDirection : ezUInt8
+enum WalkDirection : WUInt8
 {
   Up = 0,
   Right = 1,

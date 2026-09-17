@@ -14,37 +14,37 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezJoltMsgDisconnectConstraints);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltMsgDisconnectConstraints, 1, ezRTTIDefaultAllocator<ezJoltMsgDisconnectConstraints>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WJoltMsgDisconnectConstraints);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WJoltMsgDisconnectConstraints, 1, WRTTIDefaultAllocator<WJoltMsgDisconnectConstraints>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltActorComponent, 2)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WJoltActorComponent, 2)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
+    W_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Actors"),
+    new WCategoryAttribute("Physics/Jolt/Actors"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE
+W_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezJoltActorComponent::ezJoltActorComponent() = default;
-ezJoltActorComponent::~ezJoltActorComponent() = default;
+WJoltActorComponent::WJoltActorComponent() = default;
+WJoltActorComponent::~WJoltActorComponent() = default;
 
-void ezJoltActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltActorComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -53,32 +53,32 @@ void ezJoltActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_uiCollisionLayer;
 }
 
-void ezJoltActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltActorComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   s >> m_uiCollisionLayer;
 }
 
-void ezJoltActorComponent::OnSimulationStarted()
+void WJoltActorComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  if (m_uiObjectFilterID == ezInvalidIndex)
+  if (m_uiObjectFilterID == WInvalidIndex)
   {
     // only create a new filter ID, if none has been passed in manually
 
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     m_uiObjectFilterID = pModule->CreateObjectFilterID();
   }
 }
 
-void ezJoltActorComponent::OnDeactivated()
+void WJoltActorComponent::OnDeactivated()
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
 
   JPH::BodyID bodyId(m_uiJoltBodyID);
 
@@ -106,9 +106,9 @@ void ezJoltActorComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltActorComponent::GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, ezGameObject* pObject, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
+void WJoltActorComponent::GatherShapes(WDynamicArray<WJoltSubShape>& shapes, WGameObject* pObject, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial)
 {
-  ezTempHybridArray<ezJoltShapeComponent*, 8> shapeComps;
+  WTempHybridArray<WJoltShapeComponent*, 8> shapeComps;
   pObject->TryGetComponentsOfBaseType(shapeComps);
 
   for (auto pShape : shapeComps)
@@ -122,18 +122,18 @@ void ezJoltActorComponent::GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, 
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
     // ignore all children that are actors themselves
-    const ezJoltActorComponent* pActorComponent = nullptr;
-    if (itChild->TryGetComponentOfBaseType<ezJoltActorComponent>(pActorComponent) && pActorComponent->IsActive())
+    const WJoltActorComponent* pActorComponent = nullptr;
+    if (itChild->TryGetComponentOfBaseType<WJoltActorComponent>(pActorComponent) && pActorComponent->IsActive())
       continue;
 
     GatherShapes(shapes, itChild, rootTransform, fDensity, pMaterial);
   }
 }
 
-ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity, const ezJoltMaterial* pMaterial)
+WResult WJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity, const WJoltMaterial* pMaterial)
 {
-  ezTempHybridArray<ezJoltSubShape, 16> shapes;
-  ezTransform towner = GetOwner()->GetGlobalTransform();
+  WTempHybridArray<WJoltSubShape, 16> shapes;
+  WTransform towner = GetOwner()->GetGlobalTransform();
   towner.m_vScale.Set(1.0f); // pretend like there is no scaling at the root, so that each shape applies its scale
 
   CreateShapes(shapes, towner, fDensity, pMaterial);
@@ -150,10 +150,10 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
     }
   };
 
-  EZ_SCOPE_EXIT(cleanShapes());
+  W_SCOPE_EXIT(cleanShapes());
 
   if (shapes.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (shapes.GetCount() > 0)
   {
@@ -163,51 +163,51 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
     {
       auto pShape = shape.m_pShape;
 
-      if (!shape.m_Transform.m_vScale.IsEqual(ezVec3(1.0f), 0.01f))
+      if (!shape.m_Transform.m_vScale.IsEqual(WVec3(1.0f), 0.01f))
       {
-        auto* pScaledShape = new JPH::ScaledShape(pShape, ezJoltConversionUtils::ToVec3(shape.m_Transform.m_vScale));
+        auto* pScaledShape = new JPH::ScaledShape(pShape, WJoltConversionUtils::ToVec3(shape.m_Transform.m_vScale));
         pShape = pScaledShape;
       }
 
-      opt.AddShape(ezJoltConversionUtils::ToVec3(shape.m_Transform.m_vPosition), ezJoltConversionUtils::ToQuat(shape.m_Transform.m_qRotation).Normalized(), pShape);
+      opt.AddShape(WJoltConversionUtils::ToVec3(shape.m_Transform.m_vPosition), WJoltConversionUtils::ToQuat(shape.m_Transform.m_qRotation).Normalized(), pShape);
     }
 
     auto res = opt.Create();
     if (!res.IsValid())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pSettings->SetShape(res.Get());
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else
   {
     JPH::Shape* pShape = shapes[0].m_pShape;
 
-    if (!shapes[0].m_Transform.m_vScale.IsEqual(ezVec3(1.0f), 0.01f))
+    if (!shapes[0].m_Transform.m_vScale.IsEqual(WVec3(1.0f), 0.01f))
     {
-      auto* pScaledShape = new JPH::ScaledShape(pShape, ezJoltConversionUtils::ToVec3(shapes[0].m_Transform.m_vScale));
+      auto* pScaledShape = new JPH::ScaledShape(pShape, WJoltConversionUtils::ToVec3(shapes[0].m_Transform.m_vScale));
       pShape = pScaledShape;
     }
 
-    if (!shapes[0].m_Transform.m_vPosition.IsZero(0.01f) || shapes[0].m_Transform.m_qRotation != ezQuat::MakeIdentity())
+    if (!shapes[0].m_Transform.m_vPosition.IsZero(0.01f) || shapes[0].m_Transform.m_qRotation != WQuat::MakeIdentity())
     {
-      JPH::RotatedTranslatedShapeSettings opt(ezJoltConversionUtils::ToVec3(shapes[0].m_Transform.m_vPosition), ezJoltConversionUtils::ToQuat(shapes[0].m_Transform.m_qRotation), pShape);
+      JPH::RotatedTranslatedShapeSettings opt(WJoltConversionUtils::ToVec3(shapes[0].m_Transform.m_vPosition), WJoltConversionUtils::ToQuat(shapes[0].m_Transform.m_qRotation), pShape);
 
       auto res = opt.Create();
       if (!res.IsValid())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       pShape = res.Get();
     }
 
     pSettings->SetShape(pShape);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 }
 
-void ezJoltActorComponent::ExtractSubShapeGeometry(const ezGameObject* pObject, ezMsgExtractGeometry& msg) const
+void WJoltActorComponent::ExtractSubShapeGeometry(const WGameObject* pObject, WMsgExtractGeometry& msg) const
 {
-  ezTempHybridArray<const ezJoltShapeComponent*, 8> shapes;
+  WTempHybridArray<const WJoltShapeComponent*, 8> shapes;
   pObject->TryGetComponentsOfBaseType(shapes);
 
   for (auto pShape : shapes)
@@ -221,26 +221,26 @@ void ezJoltActorComponent::ExtractSubShapeGeometry(const ezGameObject* pObject, 
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
     // ignore all children that are actors themselves
-    const ezJoltActorComponent* pActorComponent;
-    if (itChild->TryGetComponentOfBaseType<ezJoltActorComponent>(pActorComponent))
+    const WJoltActorComponent* pActorComponent;
+    if (itChild->TryGetComponentOfBaseType<WJoltActorComponent>(pActorComponent))
       continue;
 
     ExtractSubShapeGeometry(itChild, msg);
   }
 }
 
-const ezJoltUserData* ezJoltActorComponent::GetUserData() const
+const WJoltUserData* WJoltActorComponent::GetUserData() const
 {
-  const ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  const WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
 
   return &pModule->GetUserData(m_uiUserDataIndex);
 }
 
-void ezJoltActorComponent::SetInitialObjectFilterID(ezUInt32 uiObjectFilterID)
+void WJoltActorComponent::SetInitialObjectFilterID(WUInt32 uiObjectFilterID)
 {
-  EZ_ASSERT_DEBUG(!IsActiveAndSimulating(), "The object filter ID can't be changed after simulation has started.");
+  W_ASSERT_DEBUG(!IsActiveAndSimulating(), "The object filter ID can't be changed after simulation has started.");
   m_uiObjectFilterID = uiObjectFilterID;
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltActorComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltActorComponent);

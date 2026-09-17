@@ -3,49 +3,49 @@
 #include <Core/Utils/IntervalScheduler.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezUpdateRate, 1)
-  EZ_ENUM_CONSTANTS(ezUpdateRate::EveryFrame)
-  EZ_ENUM_CONSTANTS(ezUpdateRate::Max30fps, ezUpdateRate::Max20fps, ezUpdateRate::Max10fps)
-  EZ_ENUM_CONSTANTS(ezUpdateRate::Max5fps, ezUpdateRate::Max2fps, ezUpdateRate::Max1fps)
-  EZ_ENUM_CONSTANTS(ezUpdateRate::Never)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WUpdateRate, 1)
+  W_ENUM_CONSTANTS(WUpdateRate::EveryFrame)
+  W_ENUM_CONSTANTS(WUpdateRate::Max30fps, WUpdateRate::Max20fps, WUpdateRate::Max10fps)
+  W_ENUM_CONSTANTS(WUpdateRate::Max5fps, WUpdateRate::Max2fps, WUpdateRate::Max1fps)
+  W_ENUM_CONSTANTS(WUpdateRate::Never)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-static ezTime s_Intervals[] = {
-  ezTime::MakeZero(),                  // EveryFrame
-  ezTime::MakeFromSeconds(1.0 / 30.0), // Max30fps
-  ezTime::MakeFromSeconds(1.0 / 20.0), // Max20fps
-  ezTime::MakeFromSeconds(1.0 / 10.0), // Max10fps
-  ezTime::MakeFromSeconds(1.0 / 5.0),  // Max5fps
-  ezTime::MakeFromSeconds(1.0 / 2.0),  // Max2fps
-  ezTime::MakeFromSeconds(1.0 / 1.0),  // Max1fps
+static WTime s_Intervals[] = {
+  WTime::MakeZero(),                  // EveryFrame
+  WTime::MakeFromSeconds(1.0 / 30.0), // Max30fps
+  WTime::MakeFromSeconds(1.0 / 20.0), // Max20fps
+  WTime::MakeFromSeconds(1.0 / 10.0), // Max10fps
+  WTime::MakeFromSeconds(1.0 / 5.0),  // Max5fps
+  WTime::MakeFromSeconds(1.0 / 2.0),  // Max2fps
+  WTime::MakeFromSeconds(1.0 / 1.0),  // Max1fps
 };
 
-static_assert(EZ_ARRAY_SIZE(s_Intervals) == ezUpdateRate::Max1fps + 1);
+static_assert(W_ARRAY_SIZE(s_Intervals) == WUpdateRate::Max1fps + 1);
 
-ezTime ezUpdateRate::GetInterval(Enum updateRate)
+WTime WUpdateRate::GetInterval(Enum updateRate)
 {
   return s_Intervals[updateRate];
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezIntervalSchedulerBase::ezIntervalSchedulerBase(ezTime minInterval, ezTime maxInterval)
+WIntervalSchedulerBase::WIntervalSchedulerBase(WTime minInterval, WTime maxInterval)
   : m_MinInterval(minInterval)
   , m_MaxInterval(maxInterval)
 {
-  EZ_ASSERT_DEV(m_MinInterval.IsPositive(), "Min interval must be greater than zero");
-  EZ_ASSERT_DEV(m_MaxInterval > m_MinInterval, "Max interval must be greater than min interval");
+  W_ASSERT_DEV(m_MinInterval.IsPositive(), "Min interval must be greater than zero");
+  W_ASSERT_DEV(m_MaxInterval > m_MinInterval, "Max interval must be greater than min interval");
 
   m_fInvIntervalRange = 1.0 / (m_MaxInterval - m_MinInterval).GetSeconds();
 
-  for (ezUInt32 i = 0; i < HistogramSize; ++i)
+  for (WUInt32 i = 0; i < HistogramSize; ++i)
   {
     m_HistogramSlotValues[i] = GetHistogramSlotValue(i);
   }
 }
 
-ezIntervalSchedulerBase::~ezIntervalSchedulerBase() = default;
+WIntervalSchedulerBase::~WIntervalSchedulerBase() = default;
 
 
-EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_IntervalScheduler);
+W_STATICLINK_FILE(Core, Core_Utils_Implementation_IntervalScheduler);

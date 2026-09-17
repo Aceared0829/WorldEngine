@@ -6,28 +6,28 @@
 ///
 /// This node modifies the root rotation values (pitch, yaw, roll) extracted from animations.
 /// Useful for scaling or filtering specific rotation components of character movement.
-class EZ_RENDERERCORE_DLL ezRootRotationAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WRootRotationAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRootRotationAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WRootRotationAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRootRotationAnimNode
+  // WRootRotationAnimNode
 
 public:
-  ezRootRotationAnimNode();
-  ~ezRootRotationAnimNode();
+  WRootRotationAnimNode();
+  ~WRootRotationAnimNode();
 
 private:
-  ezAnimGraphNumberInputPin m_InRotateX; // [ property ]
-  ezAnimGraphNumberInputPin m_InRotateY; // [ property ]
-  ezAnimGraphNumberInputPin m_InRotateZ; // [ property ]
+  WAnimGraphNumberInputPin m_InRotateX; // [ property ]
+  WAnimGraphNumberInputPin m_InRotateY; // [ property ]
+  WAnimGraphNumberInputPin m_InRotateZ; // [ property ]
 };

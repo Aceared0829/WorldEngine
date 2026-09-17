@@ -6,9 +6,9 @@
 /// Message sent when a game object's parent relationship changes.
 ///
 /// Notifies components when their object is linked to or unlinked from a parent object.
-struct EZ_CORE_DLL ezMsgParentChanged : public ezMessage
+struct W_CORE_DLL WMsgParentChanged : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgParentChanged, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgParentChanged, WMessage);
 
   enum class Type
   {
@@ -18,15 +18,15 @@ struct EZ_CORE_DLL ezMsgParentChanged : public ezMessage
   };
 
   Type m_Type = Type::Invalid;
-  ezGameObjectHandle m_hParent; // previous or new parent, depending on m_Type
+  WGameObjectHandle m_hParent; // previous or new parent, depending on m_Type
 };
 
 /// Message sent when a game object's children change.
 ///
 /// Notifies parent objects when child objects are added or removed from their hierarchy.
-struct EZ_CORE_DLL ezMsgChildrenChanged : public ezMessage
+struct W_CORE_DLL WMsgChildrenChanged : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgChildrenChanged, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgChildrenChanged, WMessage);
 
   enum class Type
   {
@@ -35,16 +35,16 @@ struct EZ_CORE_DLL ezMsgChildrenChanged : public ezMessage
   };
 
   Type m_Type;
-  ezGameObjectHandle m_hParent;
-  ezGameObjectHandle m_hChild;
+  WGameObjectHandle m_hParent;
+  WGameObjectHandle m_hChild;
 };
 
 /// Message sent when components are added to or removed from a game object.
 ///
 /// Notifies interested parties when the component composition of an object changes.
-struct EZ_CORE_DLL ezMsgComponentsChanged : public ezMessage
+struct W_CORE_DLL WMsgComponentsChanged : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgComponentsChanged, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgComponentsChanged, WMessage);
 
   enum class Type
   {
@@ -54,6 +54,6 @@ struct EZ_CORE_DLL ezMsgComponentsChanged : public ezMessage
   };
 
   Type m_Type = Type::Invalid;
-  ezGameObjectHandle m_hOwner;
-  ezComponentHandle m_hComponent;
+  WGameObjectHandle m_hOwner;
+  WComponentHandle m_hComponent;
 };

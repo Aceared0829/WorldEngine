@@ -7,37 +7,37 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
-EZ_IMPLEMENT_SINGLETON(ezFileserver);
+W_IMPLEMENT_SINGLETON(WFileserver);
 
-ezFileserver::ezFileserver()
+WFileserver::WFileserver()
   : m_SingletonRegistrar(this)
 {
   // once a server exists, the client should stay inactive
-  ezFileserveClient::DisabledFileserveClient();
+  WFileserveClient::DisabledFileserveClient();
 
   // check whether the fileserve port was reconfigured through the command line
-  m_uiPort = static_cast<ezUInt16>(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_port", m_uiPort));
+  m_uiPort = static_cast<WUInt16>(WCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_port", m_uiPort));
 }
 
-void ezFileserver::StartServer()
+void WFileserver::StartServer()
 {
   if (m_pNetwork)
     return;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
-  m_pNetwork = ezRemoteInterfaceEnet::Make();
-  m_pNetwork->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false).IgnoreResult();
-  m_pNetwork->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
-  m_pNetwork->SetUnhandledMessageHandler(ezMakeDelegate(&ezFileserver::UnknownNetworkMsgHandler, this));
-  m_pNetwork->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
+  m_pNetwork = WRemoteInterfaceEnet::Make();
+  m_pNetwork->StartServer('EZFS', WConversionUtils::ToString(m_uiPort, tmp), false).IgnoreResult();
+  m_pNetwork->SetMessageHandler('FSRV', WMakeDelegate(&WFileserver::NetworkMsgHandler, this));
+  m_pNetwork->SetUnhandledMessageHandler(WMakeDelegate(&WFileserver::UnknownNetworkMsgHandler, this));
+  m_pNetwork->m_RemoteEvents.AddEventHandler(WMakeDelegate(&WFileserver::NetworkEventHandler, this));
 
-  ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::ServerStarted;
+  WFileserverEvent e;
+  e.m_Type = WFileserverEvent::Type::ServerStarted;
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::StopServer()
+void WFileserver::StopServer()
 {
   if (!m_pNetwork)
     return;
@@ -45,12 +45,12 @@ void ezFileserver::StopServer()
   m_pNetwork->ShutdownConnection();
   m_pNetwork.Clear();
 
-  ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::ServerStopped;
+  WFileserverEvent e;
+  e.m_Type = WFileserverEvent::Type::ServerStopped;
   m_Events.Broadcast(e);
 }
 
-bool ezFileserver::UpdateServer()
+bool WFileserver::UpdateServer()
 {
   if (!m_pNetwork)
     return false;
@@ -59,19 +59,19 @@ bool ezFileserver::UpdateServer()
   return m_pNetwork->ExecuteAllMessageHandlers() > 0;
 }
 
-bool ezFileserver::IsServerRunning() const
+bool WFileserver::IsServerRunning() const
 {
   return m_pNetwork != nullptr;
 }
 
-void ezFileserver::SetPort(ezUInt16 uiPort)
+void WFileserver::SetPort(WUInt16 uiPort)
 {
-  EZ_ASSERT_DEV(m_pNetwork == nullptr, "The port cannot be changed after the server was started");
+  W_ASSERT_DEV(m_pNetwork == nullptr, "The port cannot be changed after the server was started");
   m_uiPort = uiPort;
 }
 
 
-void ezFileserver::BroadcastReloadResourcesCommand()
+void WFileserver::BroadcastReloadResourcesCommand()
 {
   if (!IsServerRunning())
     return;
@@ -79,7 +79,7 @@ void ezFileserver::BroadcastReloadResourcesCommand()
   m_pNetwork->Send('FSRV', 'RLDR');
 }
 
-void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
+void WFileserver::NetworkMsgHandler(WRemoteMessage& msg)
 {
   auto& client = DetermineClient(msg);
 
@@ -91,8 +91,8 @@ void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
     // 'are you there' is used to check whether a certain address is a proper Fileserver
     m_pNetwork->Send('FSRV', ' YES');
 
-    ezFileserverEvent e;
-    e.m_Type = ezFileserverEvent::Type::AreYouThereRequest;
+    WFileserverEvent e;
+    e.m_Type = WFileserverEvent::Type::AreYouThereRequest;
     m_Events.Broadcast(e);
     return;
   }
@@ -139,10 +139,10 @@ void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
     return;
   }
 
-  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageData().GetCount());
+  WLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageData().GetCount());
 }
 
-void ezFileserver::UnknownNetworkMsgHandler(ezRemoteMessage& msg)
+void WFileserver::UnknownNetworkMsgHandler(WRemoteMessage& msg)
 {
   auto it = m_CustomMessageHandlers.Find(msg.GetSystemID());
   if (!it.IsValid() || !it.Value().IsValid())
@@ -150,19 +150,19 @@ void ezFileserver::UnknownNetworkMsgHandler(ezRemoteMessage& msg)
 
   auto& client = DetermineClient(msg);
 
-  it.Value()(client, msg, *m_pNetwork, ezMakeDelegate(&ezFileserver::LogCustomActivity, this));
+  it.Value()(client, msg, *m_pNetwork, WMakeDelegate(&WFileserver::LogCustomActivity, this));
 }
 
-void ezFileserver::NetworkEventHandler(const ezRemoteEvent& e)
+void WFileserver::NetworkEventHandler(const WRemoteEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezRemoteEvent::DisconnectedFromClient:
+    case WRemoteEvent::DisconnectedFromClient:
     {
       if (m_Clients.Contains(e.m_uiOtherAppID))
       {
-        ezFileserverEvent se;
-        se.m_Type = ezFileserverEvent::Type::ClientDisconnected;
+        WFileserverEvent se;
+        se.m_Type = WFileserverEvent::Type::ClientDisconnected;
         se.m_uiClientID = e.m_uiOtherAppID;
 
         m_Events.Broadcast(se);
@@ -177,16 +177,16 @@ void ezFileserver::NetworkEventHandler(const ezRemoteEvent& e)
   }
 }
 
-ezFileserveClientContext& ezFileserver::DetermineClient(ezRemoteMessage& msg)
+WFileserveClientContext& WFileserver::DetermineClient(WRemoteMessage& msg)
 {
-  ezFileserveClientContext& client = m_Clients[msg.GetApplicationID()];
+  WFileserveClientContext& client = m_Clients[msg.GetApplicationID()];
 
   if (client.m_uiApplicationID != msg.GetApplicationID())
   {
     client.m_uiApplicationID = msg.GetApplicationID();
 
-    ezFileserverEvent e;
-    e.m_Type = ezFileserverEvent::Type::ClientConnected;
+    WFileserverEvent e;
+    e.m_Type = WFileserverEvent::Type::ClientConnected;
     e.m_uiClientID = client.m_uiApplicationID;
     m_Events.Broadcast(e);
   }
@@ -194,8 +194,8 @@ ezFileserveClientContext& ezFileserver::DetermineClient(ezRemoteMessage& msg)
   {
     client.m_bLostConnection = false;
 
-    ezFileserverEvent e;
-    e.m_Type = ezFileserverEvent::Type::ClientReconnected;
+    WFileserverEvent e;
+    e.m_Type = WFileserverEvent::Type::ClientReconnected;
     e.m_uiClientID = client.m_uiApplicationID;
     m_Events.Broadcast(e);
   }
@@ -203,36 +203,36 @@ ezFileserveClientContext& ezFileserver::DetermineClient(ezRemoteMessage& msg)
   return client;
 }
 
-void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg)
+void WFileserver::HandleMountRequest(WFileserveClientContext& client, WRemoteMessage& msg)
 {
-  ezStringBuilder sDataDir, sRootName, sMountPoint, sRedir;
-  ezUInt16 uiDataDirID = 0xffff;
+  WStringBuilder sDataDir, sRootName, sMountPoint, sRedir;
+  WUInt16 uiDataDirID = 0xffff;
 
   msg.GetReader() >> sDataDir;
   msg.GetReader() >> sRootName;
   msg.GetReader() >> sMountPoint;
   msg.GetReader() >> uiDataDirID;
 
-  EZ_ASSERT_DEV(uiDataDirID >= client.m_MountedDataDirs.GetCount(), "Data dir ID should be larger than previous IDs");
+  W_ASSERT_DEV(uiDataDirID >= client.m_MountedDataDirs.GetCount(), "Data dir ID should be larger than previous IDs");
 
-  client.m_MountedDataDirs.SetCount(ezMath::Max<ezUInt32>(uiDataDirID + 1, client.m_MountedDataDirs.GetCount()));
+  client.m_MountedDataDirs.SetCount(WMath::Max<WUInt32>(uiDataDirID + 1, client.m_MountedDataDirs.GetCount()));
   auto& dir = client.m_MountedDataDirs[uiDataDirID];
   dir.m_sPathOnClient = sDataDir;
   dir.m_sRootName = sRootName;
   dir.m_sMountPoint = sMountPoint;
 
-  ezFileserverEvent e;
+  WFileserverEvent e;
 
-  if (ezFileSystem::ResolveSpecialDirectory(sDataDir, sRedir).Succeeded())
+  if (WFileSystem::ResolveSpecialDirectory(sDataDir, sRedir).Succeeded())
   {
     dir.m_bMounted = true;
     dir.m_sPathOnServer = sRedir;
-    e.m_Type = ezFileserverEvent::Type::MountDataDir;
+    e.m_Type = WFileserverEvent::Type::MountDataDir;
   }
   else
   {
     dir.m_bMounted = false;
-    e.m_Type = ezFileserverEvent::Type::MountDataDirFailed;
+    e.m_Type = WFileserverEvent::Type::MountDataDirFailed;
   }
 
   e.m_uiClientID = client.m_uiApplicationID;
@@ -243,68 +243,68 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezRemote
 }
 
 
-void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg)
+void WFileserver::HandleUnmountRequest(WFileserveClientContext& client, WRemoteMessage& msg)
 {
-  ezUInt16 uiDataDirID = 0xffff;
+  WUInt16 uiDataDirID = 0xffff;
   msg.GetReader() >> uiDataDirID;
 
-  EZ_ASSERT_DEV(uiDataDirID < client.m_MountedDataDirs.GetCount(), "Invalid data dir ID to unmount");
+  W_ASSERT_DEV(uiDataDirID < client.m_MountedDataDirs.GetCount(), "Invalid data dir ID to unmount");
 
   auto& dir = client.m_MountedDataDirs[uiDataDirID];
   dir.m_bMounted = false;
 
-  ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::UnmountDataDir;
+  WFileserverEvent e;
+  e.m_Type = WFileserverEvent::Type::UnmountDataDir;
   e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = dir.m_sPathOnClient;
   e.m_szName = dir.m_sRootName;
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg)
+void WFileserver::HandleFileRequest(WFileserveClientContext& client, WRemoteMessage& msg)
 {
-  ezUInt16 uiDataDirID = 0;
+  WUInt16 uiDataDirID = 0;
   bool bForceThisDataDir = false;
 
   msg.GetReader() >> uiDataDirID;
   msg.GetReader() >> bForceThisDataDir;
 
-  ezStringBuilder sRequestedFile;
+  WStringBuilder sRequestedFile;
   msg.GetReader() >> sRequestedFile;
 
-  ezUuid downloadGuid;
+  WUuid downloadGuid;
   msg.GetReader() >> downloadGuid;
 
-  ezFileserveClientContext::FileStatus status;
+  WFileserveClientContext::FileStatus status;
   msg.GetReader() >> status.m_iTimestamp;
   msg.GetReader() >> status.m_uiHash;
 
-  ezFileserverEvent e;
+  WFileserverEvent e;
   e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = sRequestedFile;
   e.m_uiSentTotal = 0;
 
-  const ezFileserveFileState filestate = client.GetFileStatus(uiDataDirID, sRequestedFile, status, m_SendToClient, bForceThisDataDir);
+  const WFileserveFileState filestate = client.GetFileStatus(uiDataDirID, sRequestedFile, status, m_SendToClient, bForceThisDataDir);
 
   {
-    e.m_Type = ezFileserverEvent::Type::FileDownloadRequest;
+    e.m_Type = WFileserverEvent::Type::FileDownloadRequest;
     e.m_uiSizeTotal = m_SendToClient.GetCount();
     e.m_FileState = filestate;
     m_Events.Broadcast(e);
   }
 
-  if (filestate == ezFileserveFileState::Different)
+  if (filestate == WFileserveFileState::Different)
   {
-    ezUInt32 uiNextByte = 0;
-    const ezUInt32 uiFileSize = m_SendToClient.GetCount();
+    WUInt32 uiNextByte = 0;
+    const WUInt32 uiFileSize = m_SendToClient.GetCount();
 
     // send the file over in multiple packages of 1KB each
     // send at least one package, even for empty files
     do
     {
-      const ezUInt16 uiChunkSize = (ezUInt16)ezMath::Min<ezUInt32>(1024, m_SendToClient.GetCount() - uiNextByte);
+      const WUInt16 uiChunkSize = (WUInt16)WMath::Min<WUInt32>(1024, m_SendToClient.GetCount() - uiNextByte);
 
-      ezRemoteMessage ret;
+      WRemoteMessage ret;
       ret.GetWriter() << downloadGuid;
       ret.GetWriter() << uiChunkSize;
       ret.GetWriter() << uiFileSize;
@@ -313,13 +313,13 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteM
         ret.GetWriter().WriteBytes(&m_SendToClient[uiNextByte], uiChunkSize).IgnoreResult();
 
       ret.SetMessageID('FSRV', 'DWNL');
-      m_pNetwork->Send(ezRemoteTransmitMode::Reliable, ret);
+      m_pNetwork->Send(WRemoteTransmitMode::Reliable, ret);
 
       uiNextByte += uiChunkSize;
 
       // reuse previous values
       {
-        e.m_Type = ezFileserverEvent::Type::FileDownloading;
+        e.m_Type = WFileserverEvent::Type::FileDownloading;
         e.m_uiSentTotal = uiNextByte;
         m_Events.Broadcast(e);
       }
@@ -328,51 +328,51 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteM
 
   // final answer to client
   {
-    ezRemoteMessage ret('FSRV', 'DWNF');
+    WRemoteMessage ret('FSRV', 'DWNF');
     ret.GetWriter() << downloadGuid;
-    ret.GetWriter() << (ezInt8)filestate;
+    ret.GetWriter() << (WInt8)filestate;
     ret.GetWriter() << status.m_iTimestamp;
     ret.GetWriter() << status.m_uiHash;
     ret.GetWriter() << uiDataDirID;
 
-    m_pNetwork->Send(ezRemoteTransmitMode::Reliable, ret);
+    m_pNetwork->Send(WRemoteTransmitMode::Reliable, ret);
   }
 
   // reuse previous values
   {
-    e.m_Type = ezFileserverEvent::Type::FileDownloadFinished;
+    e.m_Type = WFileserverEvent::Type::FileDownloadFinished;
     m_Events.Broadcast(e);
   }
 }
 
-void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg)
+void WFileserver::HandleDeleteFileRequest(WFileserveClientContext& client, WRemoteMessage& msg)
 {
-  ezUInt16 uiDataDirID = 0xffff;
+  WUInt16 uiDataDirID = 0xffff;
   msg.GetReader() >> uiDataDirID;
 
-  ezStringBuilder sFile;
+  WStringBuilder sFile;
   msg.GetReader() >> sFile;
 
-  EZ_ASSERT_DEV(uiDataDirID < client.m_MountedDataDirs.GetCount(), "Invalid data dir ID to unmount");
+  W_ASSERT_DEV(uiDataDirID < client.m_MountedDataDirs.GetCount(), "Invalid data dir ID to unmount");
 
-  ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::FileDeleteRequest;
+  WFileserverEvent e;
+  e.m_Type = WFileserverEvent::Type::FileDeleteRequest;
   e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = sFile;
   m_Events.Broadcast(e);
 
   const auto& dd = client.m_MountedDataDirs[uiDataDirID];
 
-  ezStringBuilder sAbsPath;
+  WStringBuilder sAbsPath;
   sAbsPath = dd.m_sPathOnServer;
   sAbsPath.AppendPath(sFile);
 
-  ezOSFile::DeleteFile(sAbsPath).IgnoreResult();
+  WOSFile::DeleteFile(sAbsPath).IgnoreResult();
 }
 
-void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage& msg)
+void WFileserver::HandleUploadFileHeader(WFileserveClientContext& client, WRemoteMessage& msg)
 {
-  ezUInt16 uiDataDirID = 0;
+  WUInt16 uiDataDirID = 0;
 
   msg.GetReader() >> m_FileUploadGuid;
   msg.GetReader() >> m_uiFileUploadSize;
@@ -382,8 +382,8 @@ void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezRe
   m_SentFromClient.Clear();
   m_SentFromClient.Reserve(m_uiFileUploadSize);
 
-  ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::FileUploadRequest;
+  WFileserverEvent e;
+  e.m_Type = WFileserverEvent::Type::FileUploadRequest;
   e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = m_sCurFileUpload;
   e.m_uiSentTotal = 0;
@@ -392,23 +392,23 @@ void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezRe
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ezRemoteMessage& msg)
+void WFileserver::HandleUploadFileTransfer(WFileserveClientContext& client, WRemoteMessage& msg)
 {
-  ezUuid transferGuid;
+  WUuid transferGuid;
   msg.GetReader() >> transferGuid;
 
   if (transferGuid != m_FileUploadGuid)
     return;
 
-  ezUInt16 uiChunkSize = 0;
+  WUInt16 uiChunkSize = 0;
   msg.GetReader() >> uiChunkSize;
 
-  const ezUInt32 uiStartPos = m_SentFromClient.GetCount();
+  const WUInt32 uiStartPos = m_SentFromClient.GetCount();
   m_SentFromClient.SetCountUninitialized(uiStartPos + uiChunkSize);
   msg.GetReader().ReadBytes(&m_SentFromClient[uiStartPos], uiChunkSize);
 
-  ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::FileUploading;
+  WFileserverEvent e;
+  e.m_Type = WFileserverEvent::Type::FileUploading;
   e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = m_sCurFileUpload;
   e.m_uiSentTotal = m_SentFromClient.GetCount();
@@ -417,29 +417,29 @@ void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ez
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage& msg)
+void WFileserver::HandleUploadFileFinished(WFileserveClientContext& client, WRemoteMessage& msg)
 {
-  ezUuid transferGuid;
+  WUuid transferGuid;
   msg.GetReader() >> transferGuid;
 
   if (transferGuid != m_FileUploadGuid)
     return;
 
-  ezUInt16 uiDataDirID = 0;
+  WUInt16 uiDataDirID = 0;
   msg.GetReader() >> uiDataDirID;
 
-  ezStringBuilder sFile;
+  WStringBuilder sFile;
   msg.GetReader() >> sFile;
 
-  ezStringBuilder sOutputFile;
+  WStringBuilder sOutputFile;
   sOutputFile = client.m_MountedDataDirs[uiDataDirID].m_sPathOnServer;
   sOutputFile.AppendPath(sFile);
 
   {
-    ezOSFile file;
-    if (file.Open(sOutputFile, ezFileOpenMode::Write).Failed())
+    WOSFile file;
+    if (file.Open(sOutputFile, WFileOpenMode::Write).Failed())
     {
-      ezLog::Error("Could not write uploaded file to '{0}'", sOutputFile);
+      WLog::Error("Could not write uploaded file to '{0}'", sOutputFile);
       return;
     }
 
@@ -449,8 +449,8 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
     }
   }
 
-  ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::FileUploadFinished;
+  WFileserverEvent e;
+  e.m_Type = WFileserverEvent::Type::FileUploadFinished;
   e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = sFile;
   e.m_uiSentTotal = m_SentFromClient.GetCount();
@@ -463,31 +463,31 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
   m_pNetwork->Send('FSRV', 'UACK');
 }
 
-void ezFileserver::LogCustomActivity(const char* szText)
+void WFileserver::LogCustomActivity(const char* szText)
 {
-  ezFileserverEvent e;
+  WFileserverEvent e;
   e.m_szName = szText;
-  e.m_Type = ezFileserverEvent::Type::LogCustomActivity;
+  e.m_Type = WFileserverEvent::Type::LogCustomActivity;
   m_Events.Broadcast(e);
 }
 
-ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& myIPs, ezTime timeout)
+WResult WFileserver::SendConnectionInfo(const char* szClientAddress, WUInt16 uiMyPort, const WArrayPtr<WStringBuilder>& myIPs, WTime timeout)
 {
-  ezStringBuilder sAddress = szClientAddress;
+  WStringBuilder sAddress = szClientAddress;
   sAddress.Append(":2042"); // hard-coded port
 
-  ezUniquePtr<ezRemoteInterfaceEnet> network = ezRemoteInterfaceEnet::Make();
-  EZ_SUCCEED_OR_RETURN(network->ConnectToServer('EZIP', sAddress, false));
+  WUniquePtr<WRemoteInterfaceEnet> network = WRemoteInterfaceEnet::Make();
+  W_SUCCEED_OR_RETURN(network->ConnectToServer('EZIP', sAddress, false));
 
   if (network->WaitForConnectionToServer(timeout).Failed())
   {
     network->ShutdownConnection();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  const ezUInt8 uiCount = static_cast<ezUInt8>(myIPs.GetCount());
+  const WUInt8 uiCount = static_cast<WUInt8>(myIPs.GetCount());
 
-  ezRemoteMessage msg('FSRV', 'MYIP');
+  WRemoteMessage msg('FSRV', 'MYIP');
   msg.GetWriter() << uiMyPort;
   msg.GetWriter() << uiCount;
 
@@ -496,20 +496,20 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
     msg.GetWriter() << info;
   }
 
-  network->Send(ezRemoteTransmitMode::Reliable, msg);
+  network->Send(WRemoteTransmitMode::Reliable, msg);
 
   // make sure the message is out, before we shut down
-  for (ezUInt32 i = 0; i < 10; ++i)
+  for (WUInt32 i = 0; i < 10; ++i)
   {
     network->UpdateRemoteInterface();
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
   }
 
   network->ShutdownConnection();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezFileserver::SetCustomMessageHandler(ezUInt32 uiSystemID, ClientMessageHandler handler)
+void WFileserver::SetCustomMessageHandler(WUInt32 uiSystemID, ClientMessageHandler handler)
 {
   m_CustomMessageHandlers[uiSystemID] = handler;
 }

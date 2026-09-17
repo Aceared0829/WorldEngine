@@ -1,13 +1,13 @@
-class ScriptObject : ezAngelScriptClass
+class ScriptObject : WAngelScriptClass
 {
     // int PublicIntVar = 0;
     
     void OnSimulationStarted()
     {
-        // ezLog::Info(\"Simulation Started\");
+        // WLog::Info(\"Simulation Started\");
     }
         
     // void Update() { }
     
-    // void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }
+    // void OnMsgTriggerTriggered(WMsgTriggerTriggered@ msg) { }
 }

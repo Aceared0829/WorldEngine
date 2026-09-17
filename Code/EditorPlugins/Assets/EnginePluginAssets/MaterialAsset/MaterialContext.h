@@ -8,35 +8,35 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezObjectSelectionMsgToEngine;
-class ezRenderContext;
+class WObjectSelectionMsgToEngine;
+class WRenderContext;
 
-class EZ_ENGINEPLUGINASSETS_DLL ezMaterialContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINASSETS_DLL WMaterialContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WMaterialContext, WEngineProcessDocumentContext);
 
 public:
-  ezMaterialContext();
+  WMaterialContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
+  virtual bool UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext) override;
 
 private:
-  ezMaterialResourceHandle m_hMaterial;
-  ezMeshResourceHandle m_hBallMesh;
-  ezMeshResourceHandle m_hSphereMesh;
-  ezMeshResourceHandle m_hBoxMesh;
-  ezMeshResourceHandle m_hPlaneMesh;
-  ezGameObjectHandle m_hMeshObject;
-  ezComponentHandle m_hMeshComponent;
+  WMaterialResourceHandle m_hMaterial;
+  WMeshResourceHandle m_hBallMesh;
+  WMeshResourceHandle m_hSphereMesh;
+  WMeshResourceHandle m_hBoxMesh;
+  WMeshResourceHandle m_hPlaneMesh;
+  WGameObjectHandle m_hMeshObject;
+  WComponentHandle m_hMeshComponent;
 
-  enum class PreviewModel : ezUInt8
+  enum class PreviewModel : WUInt8
   {
     Ball,
     Sphere,

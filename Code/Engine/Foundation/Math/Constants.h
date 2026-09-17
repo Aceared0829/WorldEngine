@@ -2,7 +2,7 @@
 
 #include <Foundation/Math/Declarations.h>
 
-namespace ezMath
+namespace WMath
 {
   /// Returns the natural constant Pi.
   template <typename TYPE>
@@ -63,8 +63,8 @@ namespace ezMath
 
   /// Returns the number of bits in the given type. Mostly useful for unsigned integer types.
   template <typename TYPE>
-  constexpr ezUInt32 NumBits();
-} // namespace ezMath
+  constexpr WUInt32 NumBits();
+} // namespace WMath
 
 
 #include <Foundation/Math/Implementation/Constants_inl.h>

@@ -1,18 +1,18 @@
 
 // can't use a 'using' here, because that can't be forward declared
-class EZ_CORE_DLL ezWindowAndroid : public ezWindowPlatformShared
+class W_CORE_DLL WWindowAndroid : public WWindowPlatformShared
 {
 public:
-  ~ezWindowAndroid();
+  ~WWindowAndroid();
 
-  virtual ezResult InitializeWindow() override;
+  virtual WResult InitializeWindow() override;
   virtual void DestroyWindow() override;
-  virtual ezResult Resize(const ezSizeU32& newWindowSize) override;
+  virtual WResult Resize(const WSizeU32& newWindowSize) override;
   virtual void ProcessWindowMessages() override;
-  virtual ezWindowHandle GetNativeWindowHandle() const override;
+  virtual WWindowHandle GetNativeWindowHandle() const override;
 };
 
 // can't use a 'using' here, because that can't be forward declared
-class EZ_CORE_DLL ezWindow : public ezWindowAndroid
+class W_CORE_DLL WWindow : public WWindowAndroid
 {
 };

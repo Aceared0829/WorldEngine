@@ -5,14 +5,14 @@
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAsset.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtEngineViewWidget;
+class WQtEngineViewWidget;
 
-class ezQtRmlUiAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtRmlUiAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtRmlUiAssetDocumentWindow(ezAssetDocument* pDocument);
+  WQtRmlUiAssetDocumentWindow(WAssetDocument* pDocument);
 
 protected:
   virtual void InternalRedraw() override;
@@ -20,7 +20,7 @@ protected:
 private:
   void SendRedrawMsg();
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtEngineViewWidget* m_pViewWidget;
-  ezRmlUiAssetDocument* m_pAssetDoc;
+  WEngineViewConfig m_ViewConfig;
+  WQtEngineViewWidget* m_pViewWidget;
+  WRmlUiAssetDocument* m_pAssetDoc;
 };

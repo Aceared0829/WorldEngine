@@ -1,9 +1,9 @@
 #include <Core/Interfaces/NavmeshGeoWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNavmeshGeoWorldModuleInterface, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WNavmeshGeoWorldModuleInterface, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(Core, Core_Interfaces_NavmeshGeoWorldModule);
+W_STATICLINK_FILE(Core, Core_Interfaces_NavmeshGeoWorldModule);

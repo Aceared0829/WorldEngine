@@ -3,22 +3,22 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 
-class ezSkeletonAssetDocument;
+class WSkeletonAssetDocument;
 class QTreeView;
-class ezQtDocumentTreeView;
-class ezQtSearchWidget;
+class WQtDocumentTreeView;
+class WQtSearchWidget;
 
-class ezQtSkeletonPanel : public ezQtDocumentPanel
+class WQtSkeletonPanel : public WQtDocumentPanel
 {
   Q_OBJECT
 
 public:
-  ezQtSkeletonPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSkeletonAssetDocument* pDocument);
-  ~ezQtSkeletonPanel();
+  WQtSkeletonPanel(ads::CDockManager* pDockManager, QWidget* pParent, WSkeletonAssetDocument* pDocument);
+  ~WQtSkeletonPanel();
 
 private:
-  ezSkeletonAssetDocument* m_pSkeletonDocument = nullptr;
+  WSkeletonAssetDocument* m_pSkeletonDocument = nullptr;
   QWidget* m_pMainWidget = nullptr;
-  ezQtDocumentTreeView* m_pTreeWidget = nullptr;
-  ezQtSearchWidget* m_pFilterWidget = nullptr;
+  WQtDocumentTreeView* m_pTreeWidget = nullptr;
+  WQtSearchWidget* m_pFilterWidget = nullptr;
 };

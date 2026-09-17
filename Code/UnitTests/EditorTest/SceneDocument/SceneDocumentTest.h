@@ -4,10 +4,10 @@
 
 #include <EditorTest/TestClass/TestClass.h>
 
-class ezEditorSceneDocumentTest : public ezEditorTest
+class WEditorSceneDocumentTest : public WEditorTest
 {
 public:
-  using SUPER = ezEditorTest;
+  using SUPER = WEditorTest;
 
   virtual const char* GetTestName() const override;
 
@@ -21,22 +21,22 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
-  ezResult CreateSimpleScene(const char* szSceneName);
+  WResult CreateSimpleScene(const char* szSceneName);
   void CloseSimpleScene();
   void LayerOperations();
   void PrefabOperations();
   void ComponentOperations();
   void ObjectPropertyPath();
 
-  static void CheckHierarchy(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pRoot, ezDelegate<void(const ezDocumentObject* pChild)> functor);
+  static void CheckHierarchy(WObjectAccessorBase* pAccessor, const WDocumentObject* pRoot, WDelegate<void(const WDocumentObject* pChild)> functor);
 
 private:
-  ezScene2Document* m_pDoc = nullptr;
-  ezLayerDocument* m_pLayer = nullptr;
-  ezUuid m_SceneGuid;
-  ezUuid m_LayerGuid;
+  WScene2Document* m_pDoc = nullptr;
+  WLayerDocument* m_pLayer = nullptr;
+  WUuid m_SceneGuid;
+  WUuid m_LayerGuid;
 };

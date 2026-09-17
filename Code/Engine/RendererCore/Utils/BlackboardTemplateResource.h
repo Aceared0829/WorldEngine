@@ -3,35 +3,35 @@
 #include <Core/ResourceManager/Resource.h>
 #include <RendererCore/Components/BlackboardComponent.h>
 
-using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
+using WBlackboardTemplateResourceHandle = WTypedResourceHandle<class WBlackboardTemplateResource>;
 
-struct EZ_RENDERERCORE_DLL ezBlackboardTemplateResourceDescriptor
+struct W_RENDERERCORE_DLL WBlackboardTemplateResourceDescriptor
 {
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 
-  ezDynamicArray<ezBlackboardEntry> m_Entries;
+  WDynamicArray<WBlackboardEntry> m_Entries;
 };
 
 /// Describes the initial state of a blackboard.
 ///
-/// Used by ezBlackboardComponent to initialize its blackboard from.
-class EZ_RENDERERCORE_DLL ezBlackboardTemplateResource : public ezResource
+/// Used by WBlackboardComponent to initialize its blackboard from.
+class W_RENDERERCORE_DLL WBlackboardTemplateResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBlackboardTemplateResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezBlackboardTemplateResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezBlackboardTemplateResource, ezBlackboardTemplateResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WBlackboardTemplateResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WBlackboardTemplateResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WBlackboardTemplateResource, WBlackboardTemplateResourceDescriptor);
 
 public:
-  ezBlackboardTemplateResource();
-  ~ezBlackboardTemplateResource();
+  WBlackboardTemplateResource();
+  ~WBlackboardTemplateResource();
 
-  const ezBlackboardTemplateResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
+  const WBlackboardTemplateResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezBlackboardTemplateResourceDescriptor m_Descriptor;
+  WBlackboardTemplateResourceDescriptor m_Descriptor;
 };

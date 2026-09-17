@@ -5,8 +5,8 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 
-ezQtPluginSelectionDlg::ezQtPluginSelectionDlg(ezPluginBundleSet* pPluginSet, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtPluginSelectionDlg::WQtPluginSelectionDlg(WPluginBundleSet* pPluginSet, QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -16,9 +16,9 @@ ezQtPluginSelectionDlg::ezQtPluginSelectionDlg(ezPluginBundleSet* pPluginSet, QW
   PluginSelectionWidget->SetPluginSet(&m_LocalPluginSet);
 }
 
-ezQtPluginSelectionDlg::~ezQtPluginSelectionDlg() = default;
+WQtPluginSelectionDlg::~WQtPluginSelectionDlg() = default;
 
-void ezQtPluginSelectionDlg::on_Buttons_clicked(QAbstractButton* pButton)
+void WQtPluginSelectionDlg::on_Buttons_clicked(QAbstractButton* pButton)
 {
   if (Buttons->standardButton(pButton) == QDialogButtonBox::Ok)
   {
@@ -28,9 +28,9 @@ void ezQtPluginSelectionDlg::on_Buttons_clicked(QAbstractButton* pButton)
     {
       *m_pPluginSet = m_LocalPluginSet;
 
-      ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
-      ezCppProject::UpdateEnginePluginDependencies().IgnoreResult();
-      ezQtEditorApp::GetSingleton()->AddRestartRequiredReason("The set of active plugins has changed.");
+      WQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
+      WCppProject::UpdateEnginePluginDependencies().IgnoreResult();
+      WQtEditorApp::GetSingleton()->AddRestartRequiredReason("The set of active plugins has changed.");
     }
 
     accept();

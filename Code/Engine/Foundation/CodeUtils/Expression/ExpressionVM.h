@@ -3,23 +3,23 @@
 #include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class EZ_FOUNDATION_DLL ezExpressionVM
+class W_FOUNDATION_DLL WExpressionVM
 {
 public:
-  ezExpressionVM();
-  ~ezExpressionVM();
+  WExpressionVM();
+  ~WExpressionVM();
 
-  void RegisterFunction(const ezExpressionFunction& func);
-  void UnregisterFunction(const ezExpressionFunction& func);
+  void RegisterFunction(const WExpressionFunction& func);
+  void UnregisterFunction(const WExpressionFunction& func);
 
   struct Flags
   {
-    using StorageType = ezUInt32;
+    using StorageType = WUInt32;
 
     enum Enum
     {
-      MapStreamsByName = EZ_BIT(0),
-      ScalarizeStreams = EZ_BIT(1),
+      MapStreamsByName = W_BIT(0),
+      ScalarizeStreams = W_BIT(1),
 
       UserFriendly = MapStreamsByName | ScalarizeStreams,
       BestPerformance = 0,
@@ -34,28 +34,28 @@ public:
     };
   };
 
-  ezResult Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezProcessingStream> inputs, ezArrayPtr<ezProcessingStream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData = ezExpression::GlobalData(), ezBitflags<Flags> flags = Flags::Default);
+  WResult Execute(const WExpressionByteCode& byteCode, WArrayPtr<const WProcessingStream> inputs, WArrayPtr<WProcessingStream> outputs, WUInt32 uiNumInstances, const WExpression::GlobalData& globalData = WExpression::GlobalData(), WBitflags<Flags> flags = Flags::Default);
 
 private:
   void RegisterDefaultFunctions();
 
-  static ezResult ScalarizeStreams(ezArrayPtr<const ezProcessingStream> streams, ezDynamicArray<ezProcessingStream>& out_ScalarizedStreams);
-  static ezResult AreStreamsScalarized(ezArrayPtr<const ezProcessingStream> streams);
-  static ezResult ValidateStream(const ezProcessingStream& stream, const ezExpression::StreamDesc& streamDesc, ezStringView sStreamType, ezUInt32 uiNumInstances);
+  static WResult ScalarizeStreams(WArrayPtr<const WProcessingStream> streams, WDynamicArray<WProcessingStream>& out_ScalarizedStreams);
+  static WResult AreStreamsScalarized(WArrayPtr<const WProcessingStream> streams);
+  static WResult ValidateStream(const WProcessingStream& stream, const WExpression::StreamDesc& streamDesc, WStringView sStreamType, WUInt32 uiNumInstances);
 
   template <typename T>
-  static ezResult MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<T> streams, ezStringView sStreamType, ezUInt32 uiNumInstances, ezBitflags<Flags> flags, ezDynamicArray<T*>& out_MappedStreams);
-  ezResult MapFunctions(ezArrayPtr<const ezExpression::FunctionDesc> functionDescs, const ezExpression::GlobalData& globalData);
+  static WResult MapStreams(WArrayPtr<const WExpression::StreamDesc> streamDescs, WArrayPtr<T> streams, WStringView sStreamType, WUInt32 uiNumInstances, WBitflags<Flags> flags, WDynamicArray<T*>& out_MappedStreams);
+  WResult MapFunctions(WArrayPtr<const WExpression::FunctionDesc> functionDescs, const WExpression::GlobalData& globalData);
 
-  ezDynamicArray<ezExpression::Register, ezAlignedAllocatorWrapper> m_Registers;
+  WDynamicArray<WExpression::Register, WAlignedAllocatorWrapper> m_Registers;
 
-  ezDynamicArray<ezProcessingStream> m_ScalarizedInputs;
-  ezDynamicArray<ezProcessingStream> m_ScalarizedOutputs;
+  WDynamicArray<WProcessingStream> m_ScalarizedInputs;
+  WDynamicArray<WProcessingStream> m_ScalarizedOutputs;
 
-  ezDynamicArray<const ezProcessingStream*> m_MappedInputs;
-  ezDynamicArray<ezProcessingStream*> m_MappedOutputs;
-  ezDynamicArray<const ezExpressionFunction*> m_MappedFunctions;
+  WDynamicArray<const WProcessingStream*> m_MappedInputs;
+  WDynamicArray<WProcessingStream*> m_MappedOutputs;
+  WDynamicArray<const WExpressionFunction*> m_MappedFunctions;
 
-  ezDynamicArray<ezExpressionFunction> m_Functions;
-  ezHashTable<ezHashedString, ezUInt32> m_FunctionNamesToIndex;
+  WDynamicArray<WExpressionFunction> m_Functions;
+  WHashTable<WHashedString, WUInt32> m_FunctionNamesToIndex;
 };

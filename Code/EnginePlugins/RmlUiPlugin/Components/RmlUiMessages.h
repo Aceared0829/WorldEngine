@@ -4,17 +4,17 @@
 
 #include <Foundation/Communication/Message.h>
 
-struct EZ_RMLUIPLUGIN_DLL ezMsgRmlUiReload : public ezMessage
+struct W_RMLUIPLUGIN_DLL WMsgRmlUiReload : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgRmlUiReload, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgRmlUiReload, WMessage);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_RMLUIPLUGIN_DLL ezMsgRmlUiEvent : ezMessage
+struct W_RMLUIPLUGIN_DLL WMsgRmlUiEvent : WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgRmlUiEvent, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgRmlUiEvent, WMessage);
 
-  ezHashedString m_sIdentifier;
-  ezHashedString m_sType;
+  WHashedString m_sIdentifier;
+  WHashedString m_sType;
 };

@@ -3,39 +3,39 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/Extractor.h>
 
-struct ezPerLightData;
-struct ezPerDecalData;
-struct ezPerReflectionProbeData;
-struct ezPerClusterData;
+struct WPerLightData;
+struct WPerDecalData;
+struct WPerReflectionProbeData;
+struct WPerClusterData;
 
 /// CPU-side data for clustered rendering containing lights, decals, and reflection probes.
 ///
 /// Used by the clustered rendering system to organize lights, decals, and probes into spatial clusters
 /// for efficient per-pixel lookup during shading. The clusters divide the view frustum into a 3D grid.
-class ezClusteredDataCPU : public ezRenderData
+class WClusteredDataCPU : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezClusteredDataCPU, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WClusteredDataCPU, WRenderData);
 
 public:
-  ezClusteredDataCPU();
-  ~ezClusteredDataCPU();
+  WClusteredDataCPU();
+  ~WClusteredDataCPU();
 
   enum
   {
-    MAX_NUM_LIGHTS = EZ_BIT(10),
-    MAX_NUM_DECALS = EZ_BIT(10),
-    MAX_NUM_REFLECTION_PROBES = EZ_BIT(8),
+    MAX_NUM_LIGHTS = W_BIT(10),
+    MAX_NUM_DECALS = W_BIT(10),
+    MAX_NUM_REFLECTION_PROBES = W_BIT(8),
   };
 
-  ezArrayPtr<ezPerLightData> m_LightData;
-  ezArrayPtr<ezPerDecalData> m_DecalData;
-  ezArrayPtr<ezPerReflectionProbeData> m_ReflectionProbeData;
-  ezArrayPtr<ezPerClusterData> m_ClusterData;
-  ezArrayPtr<ezUInt32> m_ClusterItemList;
+  WArrayPtr<WPerLightData> m_LightData;
+  WArrayPtr<WPerDecalData> m_DecalData;
+  WArrayPtr<WPerReflectionProbeData> m_ReflectionProbeData;
+  WArrayPtr<WPerClusterData> m_ClusterData;
+  WArrayPtr<WUInt32> m_ClusterItemList;
 
-  ezUInt32 m_uiBrightestDirectionalLightIndex = 0;
-  ezUInt32 m_uiSkyIrradianceIndex = 0;
-  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
+  WUInt32 m_uiBrightestDirectionalLightIndex = 0;
+  WUInt32 m_uiSkyIrradianceIndex = 0;
+  WEnum<WCameraUsageHint> m_cameraUsageHint = WCameraUsageHint::Default;
 
   float m_fFogHeight = 0.0f;
   float m_fFogHeightFalloff = 0.0f;
@@ -43,43 +43,43 @@ public:
   float m_fFogDensity = 0.0f;
   float m_fFogStartDistance = 0.0f;
   float m_fFogInvSkyDistance = 0.0f;
-  ezColor m_FogColor = ezColor::Black;
+  WColor m_FogColor = WColor::Black;
 
-  ezVec3 m_vLightShaftsDirection = ezVec3::MakeZero();
+  WVec3 m_vLightShaftsDirection = WVec3::MakeZero();
   float m_fLightShaftsIntensity = 0.0f;
   float m_fLightShaftsMaxBrightness = 0.0f;
   float m_fLightShaftsBrightnessThreshold = 0.0f;
   float m_fLightShaftsDiskMaskRadius = 0.0f;
-  ezColorGammaUB m_LightShaftsTintColor = ezColor::White;
+  WColorGammaUB m_LightShaftsTintColor = WColor::White;
 };
 
 /// GPU-side data for clustered rendering.
 ///
 /// Contains GPU buffers for lights, decals, probes, cluster assignments, and related resources.
-/// Uploaded from ezClusteredDataCPU by the data provider and bound to shaders for rendering.
-struct EZ_RENDERERCORE_DLL ezClusteredDataGPU
+/// Uploaded from WClusteredDataCPU by the data provider and bound to shaders for rendering.
+struct W_RENDERERCORE_DLL WClusteredDataGPU
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezClusteredDataGPU);
+  W_DISALLOW_COPY_AND_ASSIGN(WClusteredDataGPU);
 
 public:
-  ezClusteredDataGPU();
-  ~ezClusteredDataGPU();
+  WClusteredDataGPU();
+  ~WClusteredDataGPU();
 
-  ezUInt32 m_uiSkyIrradianceIndex = 0;
-  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
+  WUInt32 m_uiSkyIrradianceIndex = 0;
+  WEnum<WCameraUsageHint> m_cameraUsageHint = WCameraUsageHint::Default;
 
-  ezGALBufferHandle m_hLightDataBuffer;
-  ezGALBufferHandle m_hDecalDataBuffer;
-  ezGALBufferHandle m_hReflectionProbeDataBuffer;
-  ezGALBufferHandle m_hClusterDataBuffer;
-  ezGALBufferHandle m_hClusterItemBuffer;
+  WGALBufferHandle m_hLightDataBuffer;
+  WGALBufferHandle m_hDecalDataBuffer;
+  WGALBufferHandle m_hReflectionProbeDataBuffer;
+  WGALBufferHandle m_hClusterDataBuffer;
+  WGALBufferHandle m_hClusterItemBuffer;
 
-  ezGALBufferHandle m_hConstantBuffer;
+  WGALBufferHandle m_hConstantBuffer;
 
-  ezGALSamplerStateHandle m_hShadowSampler;
+  WGALSamplerStateHandle m_hShadowSampler;
 
-  ezDecalAtlasResourceHandle m_hDecalAtlas;
-  ezGALSamplerStateHandle m_hDecalAtlasSampler;
+  WDecalAtlasResourceHandle m_hDecalAtlas;
+  WGALSamplerStateHandle m_hDecalAtlasSampler;
 };
 
 
@@ -88,45 +88,45 @@ public:
 /// Divides the view frustum into a 3D grid of clusters and assigns visible lights, decals,
 /// and reflection probes to each cluster. This enables efficient per-pixel light lookup during
 /// rendering. Runs after visibility determination in PostSortAndBatch().
-class EZ_RENDERERCORE_DLL ezClusteredDataExtractor : public ezExtractor
+class W_RENDERERCORE_DLL WClusteredDataExtractor : public WExtractor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezClusteredDataExtractor, ezExtractor);
+  W_ADD_DYNAMIC_REFLECTION(WClusteredDataExtractor, WExtractor);
 
 public:
-  ezClusteredDataExtractor(const char* szName = "ClusteredDataExtractor");
-  ~ezClusteredDataExtractor();
+  WClusteredDataExtractor(const char* szName = "ClusteredDataExtractor");
+  ~WClusteredDataExtractor();
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 private:
-  void FillItemListAndClusterData(ezClusteredDataCPU* pData);
-  void UpdateGpuData(const ezView& view, const ezClusteredDataCPU* pData);
-  void AddGpuData(const ezView& view, ezExtractedRenderData& ref_extractedRenderData);
+  void FillItemListAndClusterData(WClusteredDataCPU* pData);
+  void UpdateGpuData(const WView& view, const WClusteredDataCPU* pData);
+  void AddGpuData(const WView& view, WExtractedRenderData& ref_extractedRenderData);
 
-  template <ezUInt32 MaxData>
+  template <WUInt32 MaxData>
   struct TempCluster
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 m_BitMask[MaxData / 32];
+    WUInt32 m_BitMask[MaxData / 32];
   };
 
-  ezDynamicArray<ezPerLightData, ezAlignedAllocatorWrapper> m_TempLightData;
-  ezDynamicArray<ezPerDecalData, ezAlignedAllocatorWrapper> m_TempDecalData;
-  ezDynamicArray<ezPerReflectionProbeData, ezAlignedAllocatorWrapper> m_TempReflectionProbeData;
-  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_NUM_LIGHTS>> m_TempLightsClusters;
-  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_NUM_DECALS>> m_TempDecalsClusters;
-  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_NUM_REFLECTION_PROBES>> m_TempReflectionProbeClusters;
-  ezDynamicArray<ezUInt32> m_TempClusterItemList;
+  WDynamicArray<WPerLightData, WAlignedAllocatorWrapper> m_TempLightData;
+  WDynamicArray<WPerDecalData, WAlignedAllocatorWrapper> m_TempDecalData;
+  WDynamicArray<WPerReflectionProbeData, WAlignedAllocatorWrapper> m_TempReflectionProbeData;
+  WDynamicArray<TempCluster<WClusteredDataCPU::MAX_NUM_LIGHTS>> m_TempLightsClusters;
+  WDynamicArray<TempCluster<WClusteredDataCPU::MAX_NUM_DECALS>> m_TempDecalsClusters;
+  WDynamicArray<TempCluster<WClusteredDataCPU::MAX_NUM_REFLECTION_PROBES>> m_TempReflectionProbeClusters;
+  WDynamicArray<WUInt32> m_TempClusterItemList;
 
-  ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheres;
-  ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheresRightEye;
-  ezMat4 m_mProjection = ezMat4::MakeZero();
-  ezMat4 m_mProjectionRightEye = ezMat4::MakeZero();
+  WDynamicArray<WSimdBSphere, WAlignedAllocatorWrapper> m_ClusterBoundingSpheres;
+  WDynamicArray<WSimdBSphere, WAlignedAllocatorWrapper> m_ClusterBoundingSpheresRightEye;
+  WMat4 m_mProjection = WMat4::MakeZero();
+  WMat4 m_mProjectionRightEye = WMat4::MakeZero();
 
-  ezClusteredDataGPU m_DataGPU;
+  WClusteredDataGPU m_DataGPU;
 };

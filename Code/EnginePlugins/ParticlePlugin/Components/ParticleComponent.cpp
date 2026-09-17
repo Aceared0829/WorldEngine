@@ -15,21 +15,21 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleComponentManager::ezParticleComponentManager(ezWorld* pWorld)
+WParticleComponentManager::WParticleComponentManager(WWorld* pWorld)
   : SUPER(pWorld)
 {
 }
 
-void ezParticleComponentManager::Initialize()
+void WParticleComponentManager::Initialize()
 {
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleComponentManager::Update, this);
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WParticleComponentManager::Update, this);
     desc.m_bOnlyUpdateWhenSimulating = true;
     RegisterUpdateFunction(desc);
   }
 }
 
-void ezParticleComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WParticleComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
@@ -41,7 +41,7 @@ void ezParticleComponentManager::Update(const ezWorldModule::UpdateContext& cont
   }
 }
 
-void ezParticleComponentManager::UpdatePfxTransformsAndBounds()
+void WParticleComponentManager::UpdatePfxTransformsAndBounds()
 {
   for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
   {
@@ -61,61 +61,61 @@ void ezParticleComponentManager::UpdatePfxTransformsAndBounds()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WParticleComponent, 5, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Particle_Effect", ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("SpawnAtStart", m_bSpawnAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction2, m_OnFinishedAction),
-    EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
-    EZ_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
-    EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
-    EZ_ENUM_MEMBER_PROPERTY("SpawnDirection", ezBasisAxis, m_SpawnDirection)->AddAttributes(new ezDefaultValueAttribute((ezInt32)ezBasisAxis::PositiveZ)),
-    EZ_MEMBER_PROPERTY("IgnoreOwnerRotation", m_bIgnoreOwnerRotation),
-    EZ_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
-    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
+    W_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Particle_Effect", WDependencyFlags::Package), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("SpawnAtStart", m_bSpawnAtStart)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ENUM_MEMBER_PROPERTY("OnFinishedAction", WOnComponentFinishedAction2, m_OnFinishedAction),
+    W_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
+    W_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
+    W_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
+    W_ENUM_MEMBER_PROPERTY("SpawnDirection", WBasisAxis, m_SpawnDirection)->AddAttributes(new WDefaultValueAttribute((WInt32)WBasisAxis::PositiveZ)),
+    W_MEMBER_PROPERTY("IgnoreOwnerRotation", m_bIgnoreOwnerRotation),
+    W_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
+    W_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new WExposedParametersAttribute("Effect"), new WExposeColorAlphaAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects"),
+    new WCategoryAttribute("Effects"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
-    EZ_MESSAGE_HANDLER(ezMsgInterruptPlaying, OnMsgInterruptPlaying),
-    EZ_MESSAGE_HANDLER(ezMsgSetFloatParameter, OnMsgSetFloatParameter),
-    EZ_MESSAGE_HANDLER(ezMsgSetColorParameter, OnMsgSetColorParameter),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
+    W_MESSAGE_HANDLER(WMsgSetPlaying, OnMsgSetPlaying),
+    W_MESSAGE_HANDLER(WMsgInterruptPlaying, OnMsgInterruptPlaying),
+    W_MESSAGE_HANDLER(WMsgSetFloatParameter, OnMsgSetFloatParameter),
+    W_MESSAGE_HANDLER(WMsgSetColorParameter, OnMsgSetColorParameter),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(StartEffect),
-    EZ_SCRIPT_FUNCTION_PROPERTY(StopEffect),
-    EZ_SCRIPT_FUNCTION_PROPERTY(InterruptEffect),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsEffectActive),
+    W_SCRIPT_FUNCTION_PROPERTY(StartEffect),
+    W_SCRIPT_FUNCTION_PROPERTY(StopEffect),
+    W_SCRIPT_FUNCTION_PROPERTY(InterruptEffect),
+    W_SCRIPT_FUNCTION_PROPERTY(IsEffectActive),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezParticleComponent::ezParticleComponent() = default;
-ezParticleComponent::~ezParticleComponent() = default;
+WParticleComponent::WParticleComponent() = default;
+WParticleComponent::~WParticleComponent() = default;
 
-void ezParticleComponent::OnDeactivated()
+void WParticleComponent::OnDeactivated()
 {
   m_EffectController.Invalidate();
   SetUserFlag(0, false);
 
-  ezRenderComponent::OnDeactivated();
+  WRenderComponent::OnDeactivated();
 }
 
-void ezParticleComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WParticleComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   auto& s = inout_stream.GetStream();
 
@@ -136,13 +136,13 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   // Version 2
   s << m_FloatParams.GetCount();
-  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
   {
     s << m_FloatParams[i].m_sName;
     s << m_FloatParams[i].m_Value;
   }
   s << m_ColorParams.GetCount();
-  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
   {
     s << m_ColorParams[i].m_sName;
     s << m_ColorParams[i].m_Value;
@@ -160,10 +160,10 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   /// \todo store effect state
 }
 
-void ezParticleComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WParticleComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   auto& s = inout_stream.GetStream();
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   s >> m_hEffectResource;
   s >> m_bSpawnAtStart;
@@ -182,12 +182,12 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   if (uiVersion >= 2)
   {
-    ezUInt32 numFloats, numColors;
+    WUInt32 numFloats, numColors;
 
     s >> numFloats;
     m_FloatParams.SetCountUninitialized(numFloats);
 
-    for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
     {
       s >> m_FloatParams[i].m_sName;
       s >> m_FloatParams[i].m_Value;
@@ -198,7 +198,7 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> numColors;
     m_ColorParams.SetCountUninitialized(numColors);
 
-    for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
     {
       s >> m_ColorParams[i].m_sName;
       s >> m_ColorParams[i].m_Value;
@@ -223,14 +223,14 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-bool ezParticleComponent::StartEffect()
+bool WParticleComponent::StartEffect()
 {
   // stop any previous effect
   m_EffectController.Invalidate();
 
   if (m_hEffectResource.IsValid())
   {
-    ezParticleWorldModule* pModule = GetWorld()->GetOrCreateModule<ezParticleWorldModule>();
+    WParticleWorldModule* pModule = GetWorld()->GetOrCreateModule<WParticleWorldModule>();
 
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this, m_FloatParams, m_ColorParams);
 
@@ -245,22 +245,22 @@ bool ezParticleComponent::StartEffect()
   return false;
 }
 
-void ezParticleComponent::StopEffect()
+void WParticleComponent::StopEffect()
 {
   m_EffectController.Invalidate();
 }
 
-void ezParticleComponent::InterruptEffect()
+void WParticleComponent::InterruptEffect()
 {
   m_EffectController.StopImmediate();
 }
 
-bool ezParticleComponent::IsEffectActive() const
+bool WParticleComponent::IsEffectActive() const
 {
   return m_EffectController.IsAlive();
 }
 
-void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
+void WParticleComponent::OnMsgSetPlaying(WMsgSetPlaying& ref_msg)
 {
   if (ref_msg.m_bPlay)
   {
@@ -272,22 +272,22 @@ void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
   }
 }
 
-void ezParticleComponent::OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg)
+void WParticleComponent::OnMsgSetFloatParameter(WMsgSetFloatParameter& ref_msg)
 {
   SetFloatParameter(ref_msg.m_sParameterName, ref_msg.m_fValue);
 }
 
-void ezParticleComponent::OnMsgSetColorParameter(ezMsgSetColorParameter& ref_msg)
+void WParticleComponent::OnMsgSetColorParameter(WMsgSetColorParameter& ref_msg)
 {
   SetColorParameter(ref_msg.m_sParameterName, ref_msg.m_Value);
 }
 
-void ezParticleComponent::OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg)
+void WParticleComponent::OnMsgInterruptPlaying(WMsgInterruptPlaying& ref_msg)
 {
   InterruptEffect();
 }
 
-void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
+void WParticleComponent::SetParticleEffect(const WParticleEffectResourceHandle& hEffect)
 {
   m_EffectController.Invalidate();
 
@@ -297,20 +297,20 @@ void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle
 }
 
 
-void ezParticleComponent::SetParticleEffectFile(ezStringView sFile)
+void WParticleComponent::SetParticleEffectFile(WStringView sFile)
 {
-  ezParticleEffectResourceHandle hEffect;
+  WParticleEffectResourceHandle hEffect;
 
   if (!sFile.IsEmpty())
   {
-    hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(sFile);
+    hEffect = WResourceManager::LoadResource<WParticleEffectResource>(sFile);
   }
 
   SetParticleEffect(hEffect);
 }
 
 
-ezStringView ezParticleComponent::GetParticleEffectFile() const
+WStringView WParticleComponent::GetParticleEffectFile() const
 {
   if (!m_hEffectResource.IsValid())
     return "";
@@ -319,19 +319,19 @@ ezStringView ezParticleComponent::GetParticleEffectFile() const
 }
 
 
-ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WParticleComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   if (m_EffectController.IsAlive())
   {
-    ezBoundingBoxSphere volume = ezBoundingBoxSphere::MakeInvalid();
+    WBoundingBoxSphere volume = WBoundingBoxSphere::MakeInvalid();
 
     m_EffectController.GetBoundingVolume(volume);
 
     if (volume.IsValid())
     {
-      if (m_SpawnDirection != ezBasisAxis::PositiveZ)
+      if (m_SpawnDirection != WBasisAxis::PositiveZ)
       {
-        const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
+        const WQuat qRot = WBasisAxis::GetBasisRotation(WBasisAxis::PositiveZ, m_SpawnDirection);
         volume.Transform(qRot.GetAsMat4());
       }
 
@@ -341,20 +341,20 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bo
       }
 
       ref_bounds = volume;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-void ezParticleComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WParticleComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   switch (msg.m_pView->GetCameraUsageHint())
   {
-    case ezCameraUsageHint::Shadow:
-    case ezCameraUsageHint::Reflection:
+    case WCameraUsageHint::Shadow:
+    case WCameraUsageHint::Reflection:
       return;
 
     default:
@@ -364,12 +364,12 @@ void ezParticleComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
   m_EffectController.ExtractRenderData(msg, GetPfxTransform());
 }
 
-void ezParticleComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
+void WParticleComponent::OnMsgDeleteGameObject(WMsgDeleteGameObject& msg)
 {
-  ezOnComponentFinishedAction2::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
+  WOnComponentFinishedAction2::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
-void ezParticleComponent::Update()
+void WParticleComponent::Update()
 {
   if (!m_EffectController.IsAlive() && m_bSpawnAtStart && !GetUserFlag(0))
   {
@@ -391,19 +391,19 @@ void ezParticleComponent::Update()
     }
   }
 
-  if (!m_EffectController.IsAlive() && (m_OnFinishedAction == ezOnComponentFinishedAction2::Restart))
+  if (!m_EffectController.IsAlive() && (m_OnFinishedAction == WOnComponentFinishedAction2::Restart))
   {
-    const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+    const WTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
-    if (m_RestartTime == ezTime())
+    if (m_RestartTime == WTime())
     {
-      const ezTime tDiff = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(m_MinRestartDelay.GetSeconds(), m_MinRestartDelay.GetSeconds() + m_RestartDelayRange.GetSeconds()));
+      const WTime tDiff = WTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(m_MinRestartDelay.GetSeconds(), m_MinRestartDelay.GetSeconds() + m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }
     else if (m_RestartTime <= tNow)
     {
-      m_RestartTime = ezTime::MakeZero();
+      m_RestartTime = WTime::MakeZero();
       StartEffect();
     }
   }
@@ -414,7 +414,7 @@ void ezParticleComponent::Update()
     {
       m_bFloatParamsChanged = false;
 
-      for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+      for (WUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
       {
         const auto& e = m_FloatParams[i];
         m_EffectController.SetParameter(e.m_sName, e.m_Value);
@@ -425,32 +425,32 @@ void ezParticleComponent::Update()
     {
       m_bColorParamsChanged = false;
 
-      for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+      for (WUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
       {
         const auto& e = m_ColorParams[i];
         m_EffectController.SetParameter(e.m_sName, e.m_Value);
       }
     }
 
-    const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+    const WTime tDiff = GetWorld()->GetClock().GetTimeDiff();
     m_EffectController.UpdateWindSamples(tDiff);
     m_EffectController.FindNearbyAttractors(tDiff);
   }
   else
   {
-    ezOnComponentFinishedAction2::HandleFinishedAction(this, m_OnFinishedAction);
+    WOnComponentFinishedAction2::HandleFinishedAction(this, m_OnFinishedAction);
   }
 }
 
-const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
+const WRangeView<const char*, WUInt32> WParticleComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32
+  return WRangeView<const char*, WUInt32>([this]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
-    [this](ezUInt32& ref_uiIt)
+    [this](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
+    [this](const WUInt32& uiIt) -> const char*
     {
       if (uiIt < m_FloatParams.GetCount())
         return m_FloatParams[uiIt].m_sName.GetData();
@@ -459,26 +459,26 @@ const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() co
     });
 }
 
-void ezParticleComponent::SetParameter(const char* szKey, const ezVariant& var)
+void WParticleComponent::SetParameter(const char* szKey, const WVariant& var)
 {
   if (var.CanConvertTo<float>())
   {
-    SetFloatParameter(ezStringView(szKey), var.ConvertTo<float>());
+    SetFloatParameter(WStringView(szKey), var.ConvertTo<float>());
     return;
   }
 
-  if (var.CanConvertTo<ezColor>())
+  if (var.CanConvertTo<WColor>())
   {
-    SetColorParameter(ezStringView(szKey), var.ConvertTo<ezColor>());
+    SetColorParameter(WStringView(szKey), var.ConvertTo<WColor>());
     return;
   }
 }
 
-void ezParticleComponent::SetFloatParameter(ezStringView sName, float fValue)
+void WParticleComponent::SetFloatParameter(WStringView sName, float fValue)
 {
-  const ezTempHashedString tmp(sName);
+  const WTempHashedString tmp(sName);
 
-  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
   {
     if (m_FloatParams[i].m_sName == tmp)
     {
@@ -497,11 +497,11 @@ void ezParticleComponent::SetFloatParameter(ezStringView sName, float fValue)
   e.m_Value = fValue;
 }
 
-void ezParticleComponent::SetColorParameter(ezStringView sName, const ezColor& value)
+void WParticleComponent::SetColorParameter(WStringView sName, const WColor& value)
 {
-  const ezTempHashedString tmp(sName);
+  const WTempHashedString tmp(sName);
 
-  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
   {
     if (m_ColorParams[i].m_sName == tmp)
     {
@@ -520,11 +520,11 @@ void ezParticleComponent::SetColorParameter(ezStringView sName, const ezColor& v
   e.m_Value = value;
 }
 
-void ezParticleComponent::RemoveParameter(const char* szKey)
+void WParticleComponent::RemoveParameter(const char* szKey)
 {
-  const ezTempHashedString th(szKey);
+  const WTempHashedString th(szKey);
 
-  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
   {
     if (m_FloatParams[i].m_sName == th)
     {
@@ -533,7 +533,7 @@ void ezParticleComponent::RemoveParameter(const char* szKey)
     }
   }
 
-  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
   {
     if (m_ColorParams[i].m_sName == th)
     {
@@ -543,9 +543,9 @@ void ezParticleComponent::RemoveParameter(const char* szKey)
   }
 }
 
-bool ezParticleComponent::GetParameter(const char* szKey, ezVariant& out_value) const
+bool WParticleComponent::GetParameter(const char* szKey, WVariant& out_value) const
 {
-  const ezTempHashedString th(szKey);
+  const WTempHashedString th(szKey);
 
   for (const auto& e : m_FloatParams)
   {
@@ -566,11 +566,11 @@ bool ezParticleComponent::GetParameter(const char* szKey, ezVariant& out_value) 
   return false;
 }
 
-ezTransform ezParticleComponent::GetPfxTransform() const
+WTransform WParticleComponent::GetPfxTransform() const
 {
-  ezTransform transform = GetOwner()->GetGlobalTransform();
+  WTransform transform = GetOwner()->GetGlobalTransform();
 
-  const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
+  const WQuat qRot = WBasisAxis::GetBasisRotation(WBasisAxis::PositiveZ, m_SpawnDirection);
 
   if (m_bIgnoreOwnerRotation)
   {
@@ -584,10 +584,10 @@ ezTransform ezParticleComponent::GetPfxTransform() const
   return transform;
 }
 
-void ezParticleComponent::UpdatePfxTransformAndBounds()
+void WParticleComponent::UpdatePfxTransformAndBounds()
 {
   m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetLinearVelocity());
   m_EffectController.CombineSystemBoundingVolumes();
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);

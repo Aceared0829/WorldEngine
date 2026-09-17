@@ -4,7 +4,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <QAbstractListModel>
 
-enum class ezFileserveActivityType
+enum class WFileserveActivityType
 {
   StartServer,
   StopServer,
@@ -20,25 +20,25 @@ enum class ezFileserveActivityType
   Other
 };
 
-struct ezQtFileserveActivityItem
+struct WQtFileserveActivityItem
 {
   QString m_Text;
-  ezFileserveActivityType m_Type;
+  WFileserveActivityType m_Type;
 };
 
-class EZ_EDITORPLUGINFILESERVE_DLL ezQtFileserveActivityModel : public QAbstractListModel
+class W_EDITORPLUGINFILESERVE_DLL WQtFileserveActivityModel : public QAbstractListModel
 {
   Q_OBJECT
 
 public:
-  ezQtFileserveActivityModel(QWidget* pParent);
+  WQtFileserveActivityModel(QWidget* pParent);
 
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual QVariant data(const QModelIndex& index, int iRole = Qt::DisplayRole) const override;
   virtual QVariant headerData(int iSection, Qt::Orientation orientation, int iRole = Qt::DisplayRole) const override;
 
-  ezQtFileserveActivityItem& AppendItem();
+  WQtFileserveActivityItem& AppendItem();
   void UpdateView();
 
   void Clear();
@@ -47,6 +47,6 @@ private Q_SLOTS:
 
 private:
   bool m_bTimerRunning = false;
-  ezUInt32 m_uiAddedItems = 0;
-  ezDeque<ezQtFileserveActivityItem> m_Items;
+  WUInt32 m_uiAddedItems = 0;
+  WDeque<WQtFileserveActivityItem> m_Items;
 };

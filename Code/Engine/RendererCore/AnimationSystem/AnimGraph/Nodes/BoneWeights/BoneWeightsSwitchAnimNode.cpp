@@ -8,49 +8,49 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSwitchBoneWeightsAnimNode, 1, ezRTTIDefaultAllocator<ezSwitchBoneWeightsAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSwitchBoneWeightsAnimNode, 1, WRTTIDefaultAllocator<WSwitchBoneWeightsAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("TransitionDuration", m_TransitionDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromMilliseconds(200))),
-    EZ_MEMBER_PROPERTY("InIndex", m_InIndex)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("WeightsCount", m_uiWeightsCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(2)),
-    EZ_ARRAY_MEMBER_PROPERTY("InWeights", m_InWeights)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("WeightsCount")),
-    EZ_MEMBER_PROPERTY("OutWeights", m_OutWeights)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("TransitionDuration", m_TransitionDuration)->AddAttributes(new WDefaultValueAttribute(WTime::MakeFromMilliseconds(200))),
+    W_MEMBER_PROPERTY("InIndex", m_InIndex)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("WeightsCount", m_uiWeightsCount)->AddAttributes(new WNoTemporaryTransactionsAttribute(), new WDynamicPinAttribute(), new WDefaultValueAttribute(2)),
+    W_ARRAY_MEMBER_PROPERTY("InWeights", m_InWeights)->AddAttributes(new WHiddenAttribute(), new WDynamicPinAttribute("WeightsCount")),
+    W_MEMBER_PROPERTY("OutWeights", m_OutWeights)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Weights"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Teal)),
-    new ezTitleAttribute("Bone Weights Switch"),
+    new WCategoryAttribute("Weights"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Teal)),
+    new WTitleAttribute("Bone Weights Switch"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezSwitchBoneWeightsAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WSwitchBoneWeightsAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_TransitionDuration;
   stream << m_uiWeightsCount;
 
-  EZ_SUCCEED_OR_RETURN(m_InIndex.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InWeights));
-  EZ_SUCCEED_OR_RETURN(m_OutWeights.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InIndex.Serialize(stream));
+  W_SUCCEED_OR_RETURN(stream.WriteArray(m_InWeights));
+  W_SUCCEED_OR_RETURN(m_OutWeights.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSwitchBoneWeightsAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WSwitchBoneWeightsAnimNode::DeserializeNode(WStreamReader& stream)
 {
   const auto version = stream.ReadVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   if (version >= 2)
   {
@@ -59,31 +59,31 @@ ezResult ezSwitchBoneWeightsAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_uiWeightsCount;
 
-  EZ_SUCCEED_OR_RETURN(m_InIndex.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InWeights));
-  EZ_SUCCEED_OR_RETURN(m_OutWeights.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InIndex.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(stream.ReadArray(m_InWeights));
+  W_SUCCEED_OR_RETURN(m_OutWeights.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WSwitchBoneWeightsAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (!m_OutWeights.IsConnected() || !m_InIndex.IsConnected() || m_InWeights.IsEmpty())
     return;
 
-  ezTempHybridArray<const ezAnimGraphBoneWeightsInputPin*, 12> pPins;
-  for (ezUInt32 i = 0; i < m_InWeights.GetCount(); ++i)
+  WTempHybridArray<const WAnimGraphBoneWeightsInputPin*, 12> pPins;
+  for (WUInt32 i = 0; i < m_InWeights.GetCount(); ++i)
   {
     pPins.PushBack(&m_InWeights[i]);
   }
 
   // duplicate pin connections to fill up holes
-  for (ezUInt32 i = 1; i < pPins.GetCount(); ++i)
+  for (WUInt32 i = 1; i < pPins.GetCount(); ++i)
   {
     if (!pPins[i]->IsConnected())
       pPins[i] = pPins[i - 1];
   }
-  for (ezUInt32 i = pPins.GetCount(); i > 1; --i)
+  for (WUInt32 i = pPins.GetCount(); i > 1; --i)
   {
     if (!pPins[i - 2]->IsConnected())
       pPins[i - 2] = pPins[i - 1];
@@ -97,7 +97,7 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
 
   InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
-  const ezInt8 iDstIdx = ezMath::Clamp<ezInt8>((ezInt8)m_InIndex.GetNumber(ref_graph, 0), 0, pPins.GetCount() - 1);
+  const WInt8 iDstIdx = WMath::Clamp<WInt8>((WInt8)m_InIndex.GetNumber(ref_graph, 0), 0, pPins.GetCount() - 1);
 
   if (pInstance->m_iTransitionToIndex < 0)
   {
@@ -114,7 +114,7 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
       // if we transition back to the previous index, just reverse the transition
       pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
       pInstance->m_iTransitionToIndex = iDstIdx;
-      pInstance->m_TransitionTime = ezMath::Max(ezTime::MakeZero(), m_TransitionDuration - pInstance->m_TransitionTime);
+      pInstance->m_TransitionTime = WMath::Max(WTime::MakeZero(), m_TransitionDuration - pInstance->m_TransitionTime);
     }
     else if (pInstance->m_TransitionTime < m_TransitionDuration * 0.5)
     {
@@ -125,7 +125,7 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
     else
     {
       // otherwise just start a new transition from the current target to the new target
-      pInstance->m_TransitionTime = ezTime::MakeZero();
+      pInstance->m_TransitionTime = WTime::MakeZero();
       pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
       pInstance->m_iTransitionToIndex = iDstIdx;
     }
@@ -136,10 +136,10 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
     pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
   }
 
-  EZ_ASSERT_DEBUG(pInstance->m_iTransitionToIndex >= 0 && pInstance->m_iTransitionToIndex < (ezInt32)pPins.GetCount(), "Invalid pose index");
+  W_ASSERT_DEBUG(pInstance->m_iTransitionToIndex >= 0 && pInstance->m_iTransitionToIndex < (WInt32)pPins.GetCount(), "Invalid pose index");
 
-  const ezInt8 iTransitionFromIndex = pInstance->m_iTransitionFromIndex;
-  const ezInt8 iTransitionToIndex = pInstance->m_iTransitionToIndex;
+  const WInt8 iTransitionFromIndex = pInstance->m_iTransitionFromIndex;
+  const WInt8 iTransitionToIndex = pInstance->m_iTransitionToIndex;
 
   if (iTransitionFromIndex == iTransitionToIndex)
   {
@@ -147,8 +147,8 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
   }
   else
   {
-    const float fLerp0 = (float)ezMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
-    const float fLerp = static_cast<float>(ezMath::GetCurveValue_EaseInOutCubic(fLerp0));
+    const float fLerp0 = (float)WMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
+    const float fLerp = static_cast<float>(WMath::GetCurveValue_EaseInOutCubic(fLerp0));
 
     auto pWeights0 = pPins[iTransitionFromIndex]->GetWeights(ref_controller, ref_graph);
     auto pWeights1 = pPins[iTransitionToIndex]->GetWeights(ref_controller, ref_graph);
@@ -159,11 +159,11 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
 
     if (pInstance->m_pBlendedBoneWeights == nullptr)
     {
-      static ezAtomicInteger32 iCounter = 0;
-      ezStringBuilder sTmpName;
+      static WAtomicInteger32 iCounter = 0;
+      WStringBuilder sTmpName;
       sTmpName.SetFormat("SwitchBlend_Tmp_{}", iCounter.PostIncrement());
 
-      pInstance->m_pBlendedBoneWeights = ref_controller.CreateBoneWeights(sTmpName, *pSkeleton, [](ezAnimGraphSharedBoneWeights& ref_bw) {});
+      pInstance->m_pBlendedBoneWeights = ref_controller.CreateBoneWeights(sTmpName, *pSkeleton, [](WAnimGraphSharedBoneWeights& ref_bw) {});
     }
 
     const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
@@ -173,14 +173,14 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
     const auto& weights1 = pWeights1->m_pSharedBoneWeights->m_Weights;
     auto& blendedWeights = pInstance->m_pBlendedBoneWeights->m_Weights;
 
-    const ezUInt32 numWeights = ezMath::Min(weights0.GetCount(), weights1.GetCount());
+    const WUInt32 numWeights = WMath::Min(weights0.GetCount(), weights1.GetCount());
     blendedWeights.SetCount(numWeights);
 
     const ozz::math::SimdFloat4 lerp1 = ozz::math::simd_float4::Load1(1.0f - fLerp);
     const ozz::math::SimdFloat4 lerp2 = ozz::math::simd_float4::Load1(fLerp);
 
     // lerp each component of SimdFloat4
-    for (ezUInt32 i = 0; i < numWeights; ++i)
+    for (WUInt32 i = 0; i < numWeights; ++i)
     {
       const ozz::math::SimdFloat4& w0 = weights0[i];
       const ozz::math::SimdFloat4& w1 = weights1[i];
@@ -189,9 +189,9 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
     }
 
     // Copy before AddPinDataBoneWeights, which may reallocate the array and invalidate pWeights0/pWeights1.
-    const float fOverallWeight = ezMath::Lerp(pWeights0->m_fOverallWeight, pWeights1->m_fOverallWeight, fLerp);
+    const float fOverallWeight = WMath::Lerp(pWeights0->m_fOverallWeight, pWeights1->m_fOverallWeight, fLerp);
 
-    ezAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
+    WAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
     pPinData->m_fOverallWeight = fOverallWeight;
     pPinData->m_pSharedBoneWeights = pInstance->m_pBlendedBoneWeights.Borrow();
 
@@ -199,10 +199,10 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
   }
 }
 
-bool ezSwitchBoneWeightsAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WSwitchBoneWeightsAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_BoneWeights_BoneWeightsSwitchAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_BoneWeights_BoneWeightsSwitchAnimNode);

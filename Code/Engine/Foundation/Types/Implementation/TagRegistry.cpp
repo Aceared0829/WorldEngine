@@ -4,39 +4,39 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Tag.h>
 
-static ezTagRegistry s_GlobalRegistry;
+static WTagRegistry s_GlobalRegistry;
 
-ezTagRegistry::ezTagRegistry() = default;
+WTagRegistry::WTagRegistry() = default;
 
-ezTagRegistry& ezTagRegistry::GetGlobalRegistry()
+WTagRegistry& WTagRegistry::GetGlobalRegistry()
 {
   return s_GlobalRegistry;
 }
 
-const ezTag& ezTagRegistry::RegisterTag(ezStringView sTagString)
+const WTag& WTagRegistry::RegisterTag(WStringView sTagString)
 {
-  ezHashedString TagString;
+  WHashedString TagString;
   TagString.Assign(sTagString);
 
   return RegisterTag(TagString);
 }
 
-const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& sTagString)
+const WTag& WTagRegistry::RegisterTag(const WHashedString& sTagString)
 {
-  EZ_LOCK(m_TagRegistryMutex);
+  W_LOCK(m_TagRegistryMutex);
 
   // Early out if the tag is already registered
-  const ezTag* pResult = GetTagByName(sTagString);
+  const WTag* pResult = GetTagByName(sTagString);
 
   if (pResult != nullptr)
     return *pResult;
 
-  const ezUInt32 uiNextTagIndex = m_TagsByIndex.GetCount();
+  const WUInt32 uiNextTagIndex = m_TagsByIndex.GetCount();
 
   // Build temp tag
-  ezTag TempTag;
-  TempTag.m_uiBlockIndex = uiNextTagIndex / (sizeof(ezTagSetBlockStorage) * 8);
-  TempTag.m_uiBitIndex = uiNextTagIndex - (TempTag.m_uiBlockIndex * sizeof(ezTagSetBlockStorage) * 8);
+  WTag TempTag;
+  TempTag.m_uiBlockIndex = uiNextTagIndex / (sizeof(WTagSetBlockStorage) * 8);
+  TempTag.m_uiBitIndex = uiNextTagIndex - (TempTag.m_uiBlockIndex * sizeof(WTagSetBlockStorage) * 8);
   TempTag.m_sTagString = sTagString;
 
   // Store the tag
@@ -44,13 +44,13 @@ const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& sTagString)
 
   m_TagsByIndex.PushBack(&it.Value());
 
-  ezLog::Debug("Registered Tag '{0}'", sTagString);
+  WLog::Debug("Registered Tag '{0}'", sTagString);
   return *m_TagsByIndex.PeekBack();
 }
 
-const ezTag* ezTagRegistry::GetTagByName(const ezTempHashedString& sTagString) const
+const WTag* WTagRegistry::GetTagByName(const WTempHashedString& sTagString) const
 {
-  EZ_LOCK(m_TagRegistryMutex);
+  W_LOCK(m_TagRegistryMutex);
 
   auto It = m_RegisteredTags.Find(sTagString);
   if (It.IsValid())
@@ -61,13 +61,13 @@ const ezTag* ezTagRegistry::GetTagByName(const ezTempHashedString& sTagString) c
   return nullptr;
 }
 
-const ezTag* ezTagRegistry::GetTagByMurmurHash(ezUInt32 uiMurmurHash) const
+const WTag* WTagRegistry::GetTagByMurmurHash(WUInt32 uiMurmurHash) const
 {
-  EZ_LOCK(m_TagRegistryMutex);
+  W_LOCK(m_TagRegistryMutex);
 
-  for (ezTag* pTag : m_TagsByIndex)
+  for (WTag* pTag : m_TagsByIndex)
   {
-    if (ezHashingUtils::MurmurHash32String(pTag->GetTagString()) == uiMurmurHash)
+    if (WHashingUtils::MurmurHash32String(pTag->GetTagString()) == uiMurmurHash)
     {
       return pTag;
     }
@@ -76,47 +76,47 @@ const ezTag* ezTagRegistry::GetTagByMurmurHash(ezUInt32 uiMurmurHash) const
   return nullptr;
 }
 
-const ezTag* ezTagRegistry::GetTagByIndex(ezUInt32 uiIndex) const
+const WTag* WTagRegistry::GetTagByIndex(WUInt32 uiIndex) const
 {
-  EZ_LOCK(m_TagRegistryMutex);
+  W_LOCK(m_TagRegistryMutex);
   return m_TagsByIndex[uiIndex];
 }
 
-ezUInt32 ezTagRegistry::GetNumTags() const
+WUInt32 WTagRegistry::GetNumTags() const
 {
-  EZ_LOCK(m_TagRegistryMutex);
+  W_LOCK(m_TagRegistryMutex);
   return m_TagsByIndex.GetCount();
 }
 
-ezResult ezTagRegistry::Load(ezStreamReader& inout_stream)
+WResult WTagRegistry::Load(WStreamReader& inout_stream)
 {
-  EZ_LOCK(m_TagRegistryMutex);
+  W_LOCK(m_TagRegistryMutex);
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   if (uiVersion != 1)
   {
-    ezLog::Error("Invalid ezTagRegistry version {0}", uiVersion);
-    return EZ_FAILURE;
+    WLog::Error("Invalid WTagRegistry version {0}", uiVersion);
+    return W_FAILURE;
   }
 
-  ezUInt32 uiNumTags = 0;
+  WUInt32 uiNumTags = 0;
   inout_stream >> uiNumTags;
 
   if (uiNumTags > 16 * 1024)
   {
-    ezLog::Error("ezTagRegistry::Load, unreasonable amount of tags {0}, cancelling load.", uiNumTags);
-    return EZ_FAILURE;
+    WLog::Error("WTagRegistry::Load, unreasonable amount of tags {0}, cancelling load.", uiNumTags);
+    return W_FAILURE;
   }
 
-  ezStringBuilder temp;
-  for (ezUInt32 i = 0; i < uiNumTags; ++i)
+  WStringBuilder temp;
+  for (WUInt32 i = 0; i < uiNumTags; ++i)
   {
     inout_stream >> temp;
 
     RegisterTag(temp);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

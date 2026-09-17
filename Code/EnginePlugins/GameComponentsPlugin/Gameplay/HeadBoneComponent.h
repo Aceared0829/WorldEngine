@@ -4,7 +4,7 @@
 
 #include <Core/World/ComponentManager.h>
 
-using ezHeadBoneComponentManager = ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating>;
+using WHeadBoneComponentManager = WComponentManagerSimple<class WHeadBoneComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Applies a vertical rotation in local space (local Y axis) to the owner game object.
 ///
@@ -17,23 +17,23 @@ using ezHeadBoneComponentManager = ezComponentManagerSimple<class ezHeadBoneComp
 /// This component takes care to apply that amount of rotation and not more.
 ///
 /// Call SetVerticalRotation() or ChangeVerticalRotation() to set or add some rotation.
-class EZ_GAMECOMPONENTS_DLL ezHeadBoneComponent : public ezComponent
+class W_GAMECOMPONENTS_DLL WHeadBoneComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezHeadBoneComponent, ezComponent, ezHeadBoneComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WHeadBoneComponent, WComponent, WHeadBoneComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezHeadBoneComponent
+  // WHeadBoneComponent
 
 public:
-  ezHeadBoneComponent();
-  ~ezHeadBoneComponent();
+  WHeadBoneComponent();
+  ~WHeadBoneComponent();
 
   /// Sets the vertical rotation to a fixed value.
   ///
@@ -45,11 +45,11 @@ public:
   /// The final rotation will be clamped to the maximum allowed value.
   void ChangeVerticalRotation(float fRadians);                 // [ scriptable ]
 
-  ezAngle m_MaxVerticalRotation = ezAngle::MakeFromDegree(80); // [ property ]
+  WAngle m_MaxVerticalRotation = WAngle::MakeFromDegree(80); // [ property ]
 
 protected:
   void Update();
 
-  ezAngle m_NewVerticalRotation;
-  ezAngle m_CurVerticalRotation;
+  WAngle m_NewVerticalRotation;
+  WAngle m_CurVerticalRotation;
 };

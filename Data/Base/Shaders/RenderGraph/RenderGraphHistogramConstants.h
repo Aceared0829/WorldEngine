@@ -2,7 +2,7 @@
 
 #include <Shaders/Common/ConstantBufferMacros.h>
 
-BEGIN_PUSH_CONSTANTS(ezRenderGraphHistogramConstants)
+BEGIN_PUSH_CONSTANTS(WRenderGraphHistogramConstants)
 {
   UINT2(TextureSize);
   INT1(SampleIndex);
@@ -11,4 +11,4 @@ BEGIN_PUSH_CONSTANTS(ezRenderGraphHistogramConstants)
   FLOAT1(RangeMin);
   FLOAT1(RangeMax);
 }
-END_PUSH_CONSTANTS(ezRenderGraphHistogramConstants)
+END_PUSH_CONSTANTS(WRenderGraphHistogramConstants)

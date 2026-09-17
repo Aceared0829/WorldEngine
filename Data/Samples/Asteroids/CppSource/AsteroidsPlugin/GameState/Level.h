@@ -5,7 +5,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
+using WCollectionResourceHandle = WTypedResourceHandle<class WCollectionResource>;
 
 #define MaxPlayers 4
 #define MaxAsteroids 30
@@ -16,15 +16,15 @@ class Level
 public:
   Level();
 
-  void SetupLevel(ezUniquePtr<ezWorld> pWorld);
-  void UpdatePlayerInput(ezInt32 iPlayer);
+  void SetupLevel(WUniquePtr<WWorld> pWorld);
+  void UpdatePlayerInput(WInt32 iPlayer);
 
-  ezWorld* GetWorld() const { return m_pWorld.Borrow(); }
+  WWorld* GetWorld() const { return m_pWorld.Borrow(); }
 private:
-  void CreatePlayerShip(ezInt32 iPlayer);
+  void CreatePlayerShip(WInt32 iPlayer);
   void CreateAsteroid();
 
-  ezCollectionResourceHandle m_hAssetCollection;
-  ezUniquePtr<ezWorld> m_pWorld;
-  ezGameObjectHandle m_hPlayerShips[MaxPlayers];
+  WCollectionResourceHandle m_hAssetCollection;
+  WUniquePtr<WWorld> m_pWorld;
+  WGameObjectHandle m_hPlayerShips[MaxPlayers];
 };

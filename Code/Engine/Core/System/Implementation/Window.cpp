@@ -8,25 +8,25 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/System/Screen.h>
 
-ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
+WResult WWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
-  ezTempHybridArray<ezScreenInfo, 2> screens;
-  if (ezScreen::EnumerateScreens(screens).Failed() || screens.IsEmpty())
-    return EZ_FAILURE;
+  WTempHybridArray<WScreenInfo, 2> screens;
+  if (WScreen::EnumerateScreens(screens).Failed() || screens.IsEmpty())
+    return W_FAILURE;
 
-  ezInt32 iShowOnMonitor = m_iMonitor;
+  WInt32 iShowOnMonitor = m_iMonitor;
 
-  if (iShowOnMonitor >= (ezInt32)screens.GetCount())
+  if (iShowOnMonitor >= (WInt32)screens.GetCount())
     iShowOnMonitor = -1;
 
-  const ezScreenInfo* pScreen = nullptr;
+  const WScreenInfo* pScreen = nullptr;
 
   // this means 'pick the primary screen'
   if (iShowOnMonitor < 0)
   {
     pScreen = &screens[0];
 
-    for (ezUInt32 i = 0; i < screens.GetCount(); ++i)
+    for (WUInt32 i = 0; i < screens.GetCount(); ++i)
     {
       if (screens[i].m_bIsPrimary)
       {
@@ -40,7 +40,7 @@ ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
     pScreen = &screens[iShowOnMonitor];
   }
 
-  if (m_WindowMode == ezWindowMode::FullscreenBorderlessNativeResolution)
+  if (m_WindowMode == WWindowMode::FullscreenBorderlessNativeResolution)
   {
     m_Resolution.width = pScreen->m_iResolutionX;
     m_Resolution.height = pScreen->m_iResolutionY;
@@ -48,161 +48,161 @@ ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
   else
   {
     // clamp the resolution to the native resolution ?
-    // m_ClientAreaSize.width = ezMath::Min<ezUInt32>(m_ClientAreaSize.width, pScreen->m_iResolutionX);
-    // m_ClientAreaSize.height= ezMath::Min<ezUInt32>(m_ClientAreaSize.height,pScreen->m_iResolutionY);
+    // m_ClientAreaSize.width = WMath::Min<WUInt32>(m_ClientAreaSize.width, pScreen->m_iResolutionX);
+    // m_ClientAreaSize.height= WMath::Min<WUInt32>(m_ClientAreaSize.height,pScreen->m_iResolutionY);
   }
 
   if (m_bCenterWindowOnDisplay)
   {
-    m_Position.Set(pScreen->m_iOffsetX + (pScreen->m_iResolutionX - (ezInt32)m_Resolution.width) / 2, pScreen->m_iOffsetY + (pScreen->m_iResolutionY - (ezInt32)m_Resolution.height) / 2);
+    m_Position.Set(pScreen->m_iOffsetX + (pScreen->m_iResolutionX - (WInt32)m_Resolution.width) / 2, pScreen->m_iOffsetY + (pScreen->m_iResolutionY - (WInt32)m_Resolution.height) / 2);
   }
   else
   {
     m_Position.Set(pScreen->m_iOffsetX, pScreen->m_iOffsetY);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWindowCreationDesc::SaveToDDL(ezOpenDdlWriter& ref_writer)
+void WWindowCreationDesc::SaveToDDL(WOpenDdlWriter& ref_writer)
 {
   ref_writer.BeginObject("WindowDesc");
 
-  ezOpenDdlUtils::StoreString(ref_writer, m_Title, "Title");
+  WOpenDdlUtils::StoreString(ref_writer, m_Title, "Title");
 
   switch (m_WindowMode.GetValue())
   {
-    case ezWindowMode::FullscreenBorderlessNativeResolution:
-      ezOpenDdlUtils::StoreString(ref_writer, "Borderless", "Mode");
+    case WWindowMode::FullscreenBorderlessNativeResolution:
+      WOpenDdlUtils::StoreString(ref_writer, "Borderless", "Mode");
       break;
-    case ezWindowMode::FullscreenFixedResolution:
-      ezOpenDdlUtils::StoreString(ref_writer, "Fullscreen", "Mode");
+    case WWindowMode::FullscreenFixedResolution:
+      WOpenDdlUtils::StoreString(ref_writer, "Fullscreen", "Mode");
       break;
-    case ezWindowMode::WindowFixedResolution:
-      ezOpenDdlUtils::StoreString(ref_writer, "Window", "Mode");
+    case WWindowMode::WindowFixedResolution:
+      WOpenDdlUtils::StoreString(ref_writer, "Window", "Mode");
       break;
-    case ezWindowMode::WindowResizable:
-      ezOpenDdlUtils::StoreString(ref_writer, "ResizableWindow", "Mode");
+    case WWindowMode::WindowResizable:
+      WOpenDdlUtils::StoreString(ref_writer, "ResizableWindow", "Mode");
       break;
   }
 
   if (m_iMonitor >= 0)
-    ezOpenDdlUtils::StoreInt8(ref_writer, m_iMonitor, "Monitor");
+    WOpenDdlUtils::StoreInt8(ref_writer, m_iMonitor, "Monitor");
 
-  if (m_Position != ezVec2I32(0x80000000, 0x80000000))
+  if (m_Position != WVec2I32(0x80000000, 0x80000000))
   {
-    ezOpenDdlUtils::StoreVec2I(ref_writer, m_Position, "Position");
+    WOpenDdlUtils::StoreVec2I(ref_writer, m_Position, "Position");
   }
 
-  ezOpenDdlUtils::StoreVec2U(ref_writer, ezVec2U32(m_Resolution.width, m_Resolution.height), "Resolution");
+  WOpenDdlUtils::StoreVec2U(ref_writer, WVec2U32(m_Resolution.width, m_Resolution.height), "Resolution");
 
-  ezOpenDdlUtils::StoreBool(ref_writer, m_bClipMouseCursor, "ClipMouseCursor");
-  ezOpenDdlUtils::StoreBool(ref_writer, m_bShowMouseCursor, "ShowMouseCursor");
-  ezOpenDdlUtils::StoreBool(ref_writer, m_bSetForegroundOnInit, "SetForegroundOnInit");
-  ezOpenDdlUtils::StoreBool(ref_writer, m_bCenterWindowOnDisplay, "CenterWindowOnDisplay");
+  WOpenDdlUtils::StoreBool(ref_writer, m_bClipMouseCursor, "ClipMouseCursor");
+  WOpenDdlUtils::StoreBool(ref_writer, m_bShowMouseCursor, "ShowMouseCursor");
+  WOpenDdlUtils::StoreBool(ref_writer, m_bSetForegroundOnInit, "SetForegroundOnInit");
+  WOpenDdlUtils::StoreBool(ref_writer, m_bCenterWindowOnDisplay, "CenterWindowOnDisplay");
 
   ref_writer.EndObject();
 }
 
 
-ezResult ezWindowCreationDesc::SaveToDDL(ezStringView sFile)
+WResult WWindowCreationDesc::SaveToDDL(WStringView sFile)
 {
-  ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileWriter file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  ezOpenDdlWriter writer;
+  WOpenDdlWriter writer;
   writer.SetOutputStream(&file);
 
   SaveToDDL(writer);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWindowCreationDesc::LoadFromDDL(const ezOpenDdlReaderElement* pParentElement)
+void WWindowCreationDesc::LoadFromDDL(const WOpenDdlReaderElement* pParentElement)
 {
-  if (const ezOpenDdlReaderElement* pDesc = pParentElement->FindChildOfType("WindowDesc"))
+  if (const WOpenDdlReaderElement* pDesc = pParentElement->FindChildOfType("WindowDesc"))
   {
-    if (const ezOpenDdlReaderElement* pTitle = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::String, "Title"))
+    if (const WOpenDdlReaderElement* pTitle = pDesc->FindChildOfType(WOpenDdlPrimitiveType::String, "Title"))
       m_Title = pTitle->GetPrimitivesString()[0];
 
-    if (const ezOpenDdlReaderElement* pMode = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::String, "Mode"))
+    if (const WOpenDdlReaderElement* pMode = pDesc->FindChildOfType(WOpenDdlPrimitiveType::String, "Mode"))
     {
       auto mode = pMode->GetPrimitivesString()[0];
 
       if (mode == "Borderless")
-        m_WindowMode = ezWindowMode::FullscreenBorderlessNativeResolution;
+        m_WindowMode = WWindowMode::FullscreenBorderlessNativeResolution;
       else if (mode == "Fullscreen")
-        m_WindowMode = ezWindowMode::FullscreenFixedResolution;
+        m_WindowMode = WWindowMode::FullscreenFixedResolution;
       else if (mode == "Window")
-        m_WindowMode = ezWindowMode::WindowFixedResolution;
+        m_WindowMode = WWindowMode::WindowFixedResolution;
       else if (mode == "ResizableWindow")
-        m_WindowMode = ezWindowMode::WindowResizable;
+        m_WindowMode = WWindowMode::WindowResizable;
     }
 
-    if (const ezOpenDdlReaderElement* pMonitor = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Int8, "Monitor"))
+    if (const WOpenDdlReaderElement* pMonitor = pDesc->FindChildOfType(WOpenDdlPrimitiveType::Int8, "Monitor"))
     {
       m_iMonitor = pMonitor->GetPrimitivesInt8()[0];
     }
 
-    if (const ezOpenDdlReaderElement* pPosition = pDesc->FindChild("Position"))
+    if (const WOpenDdlReaderElement* pPosition = pDesc->FindChild("Position"))
     {
-      ezOpenDdlUtils::ConvertToVec2I(pPosition, m_Position).IgnoreResult();
+      WOpenDdlUtils::ConvertToVec2I(pPosition, m_Position).IgnoreResult();
     }
 
-    if (const ezOpenDdlReaderElement* pPosition = pDesc->FindChild("Resolution"))
+    if (const WOpenDdlReaderElement* pPosition = pDesc->FindChild("Resolution"))
     {
-      ezVec2U32 res;
-      ezOpenDdlUtils::ConvertToVec2U(pPosition, res).IgnoreResult();
+      WVec2U32 res;
+      WOpenDdlUtils::ConvertToVec2U(pPosition, res).IgnoreResult();
       m_Resolution.width = res.x;
       m_Resolution.height = res.y;
     }
 
-    if (const ezOpenDdlReaderElement* pClipMouseCursor = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "ClipMouseCursor"))
+    if (const WOpenDdlReaderElement* pClipMouseCursor = pDesc->FindChildOfType(WOpenDdlPrimitiveType::Bool, "ClipMouseCursor"))
       m_bClipMouseCursor = pClipMouseCursor->GetPrimitivesBool()[0];
 
-    if (const ezOpenDdlReaderElement* pShowMouseCursor = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "ShowMouseCursor"))
+    if (const WOpenDdlReaderElement* pShowMouseCursor = pDesc->FindChildOfType(WOpenDdlPrimitiveType::Bool, "ShowMouseCursor"))
       m_bShowMouseCursor = pShowMouseCursor->GetPrimitivesBool()[0];
 
-    if (const ezOpenDdlReaderElement* pSetForegroundOnInit = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "SetForegroundOnInit"))
+    if (const WOpenDdlReaderElement* pSetForegroundOnInit = pDesc->FindChildOfType(WOpenDdlPrimitiveType::Bool, "SetForegroundOnInit"))
       m_bSetForegroundOnInit = pSetForegroundOnInit->GetPrimitivesBool()[0];
 
-    if (const ezOpenDdlReaderElement* pCenterWindowOnDisplay = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "CenterWindowOnDisplay"))
+    if (const WOpenDdlReaderElement* pCenterWindowOnDisplay = pDesc->FindChildOfType(WOpenDdlPrimitiveType::Bool, "CenterWindowOnDisplay"))
       m_bCenterWindowOnDisplay = pCenterWindowOnDisplay->GetPrimitivesBool()[0];
   }
 }
 
-ezResult ezWindowCreationDesc::LoadFromDDL(ezStringView sFile)
+WResult WWindowCreationDesc::LoadFromDDL(WStringView sFile)
 {
-  ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileReader file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  ezOpenDdlReader reader;
-  EZ_SUCCEED_OR_RETURN(reader.ParseDocument(file));
+  WOpenDdlReader reader;
+  W_SUCCEED_OR_RETURN(reader.ParseDocument(file));
 
   LoadFromDDL(reader.GetRootElement());
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezWindowPlatformShared::ezWindowPlatformShared() = default;
+WWindowPlatformShared::WWindowPlatformShared() = default;
 
-ezWindowPlatformShared::~ezWindowPlatformShared()
+WWindowPlatformShared::~WWindowPlatformShared()
 {
-  EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+  W_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call WGALDevice::WaitIdle before destroying a window.");
 
-  ezWindowEvent e;
-  e.m_Type = ezWindowEvent::Type::WindowDestruction;
+  WWindowEvent e;
+  e.m_Type = WWindowEvent::Type::WindowDestruction;
   e.m_pWindow = this;
 
   m_WindowEvents.Broadcast(e);
 }
 
-void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
+void WWindowPlatformShared::OnResize(const WSizeU32& newWindowSize)
 {
   m_CreationDescription.m_Resolution = newWindowSize;
 
-  ezWindowEvent e;
-  e.m_Type = ezWindowEvent::Type::SizeChanged;
+  WWindowEvent e;
+  e.m_Type = WWindowEvent::Type::SizeChanged;
   e.m_pWindow = this;
   e.m_iPayload1 = newWindowSize.width;
   e.m_iPayload2 = newWindowSize.height;
@@ -210,10 +210,10 @@ void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
   m_WindowEvents.Broadcast(e);
 }
 
-void ezWindowPlatformShared::OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY)
+void WWindowPlatformShared::OnWindowMove(const WInt32 iNewPosX, const WInt32 iNewPosY)
 {
-  ezWindowEvent e;
-  e.m_Type = ezWindowEvent::Type::PositionChanged;
+  WWindowEvent e;
+  e.m_Type = WWindowEvent::Type::PositionChanged;
   e.m_pWindow = this;
   e.m_iPayload1 = iNewPosX;
   e.m_iPayload2 = iNewPosY;
@@ -221,34 +221,34 @@ void ezWindowPlatformShared::OnWindowMove(const ezInt32 iNewPosX, const ezInt32 
   m_WindowEvents.Broadcast(e);
 }
 
-void ezWindowPlatformShared::OnFocus(bool bHasFocus)
+void WWindowPlatformShared::OnFocus(bool bHasFocus)
 {
   m_bHasFocus = bHasFocus;
 
-  ezWindowEvent e;
-  e.m_Type = ezWindowEvent::Type::FocusChanged;
+  WWindowEvent e;
+  e.m_Type = WWindowEvent::Type::FocusChanged;
   e.m_pWindow = this;
   e.m_iPayload1 = bHasFocus ? 1 : 0;
 
   m_WindowEvents.Broadcast(e);
 }
 
-void ezWindowPlatformShared::OnVisibleChange(bool bVisible)
+void WWindowPlatformShared::OnVisibleChange(bool bVisible)
 {
   m_bVisible = bVisible;
 
-  ezWindowEvent e;
-  e.m_Type = ezWindowEvent::Type::VisibilityChanged;
+  WWindowEvent e;
+  e.m_Type = WWindowEvent::Type::VisibilityChanged;
   e.m_pWindow = this;
   e.m_iPayload1 = bVisible ? 1 : 0;
 
   m_WindowEvents.Broadcast(e);
 }
 
-void ezWindowPlatformShared::OnClickClose()
+void WWindowPlatformShared::OnClickClose()
 {
-  ezWindowEvent e;
-  e.m_Type = ezWindowEvent::Type::CloseButtonClicked;
+  WWindowEvent e;
+  e.m_Type = WWindowEvent::Type::CloseButtonClicked;
   e.m_pWindow = this;
 
   m_WindowEvents.Broadcast(e);

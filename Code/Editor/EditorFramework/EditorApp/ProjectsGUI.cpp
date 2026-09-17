@@ -4,23 +4,23 @@
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-void ezQtEditorApp::GuiOpenDashboard()
+void WQtEditorApp::GuiOpenDashboard()
 {
-  if (ezQtUiServices::SuppressModalWindow("ezQtDashboardDlg"))
+  if (WQtUiServices::SuppressModalWindow("WQtDashboardDlg"))
     return;
 
   QMetaObject::invokeMethod(this, "SlotQueuedGuiOpenDashboard", Qt::ConnectionType::QueuedConnection);
 }
 
-void ezQtEditorApp::GuiOpenDocsAndCommunity()
+void WQtEditorApp::GuiOpenDocsAndCommunity()
 {
-  if (ezQtUiServices::SuppressModalWindow("ezQtDashboardDlg (documentation)"))
+  if (WQtUiServices::SuppressModalWindow("WQtDashboardDlg (documentation)"))
     return;
 
   QMetaObject::invokeMethod(this, "SlotQueuedGuiOpenDocsAndCommunity", Qt::ConnectionType::QueuedConnection);
 }
 
-bool ezQtEditorApp::GuiCreateProject(bool bImmediate /*= false*/)
+bool WQtEditorApp::GuiCreateProject(bool bImmediate /*= false*/)
 {
   if (bImmediate)
   {
@@ -28,7 +28,7 @@ bool ezQtEditorApp::GuiCreateProject(bool bImmediate /*= false*/)
   }
   else
   {
-    if (ezQtUiServices::SuppressModalWindow("ezQtCreateProjectDlg"))
+    if (WQtUiServices::SuppressModalWindow("WQtCreateProjectDlg"))
       return false;
 
     QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, true));
@@ -36,7 +36,7 @@ bool ezQtEditorApp::GuiCreateProject(bool bImmediate /*= false*/)
   }
 }
 
-bool ezQtEditorApp::GuiOpenProject(bool bImmediate /*= false*/)
+bool WQtEditorApp::GuiOpenProject(bool bImmediate /*= false*/)
 {
   if (bImmediate)
   {
@@ -44,7 +44,7 @@ bool ezQtEditorApp::GuiOpenProject(bool bImmediate /*= false*/)
   }
   else
   {
-    if (ezQtUiServices::SuppressModalWindow("Open Project (file picker)"))
+    if (WQtUiServices::SuppressModalWindow("Open Project (file picker)"))
       return false;
 
     QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, false));
@@ -52,33 +52,33 @@ bool ezQtEditorApp::GuiOpenProject(bool bImmediate /*= false*/)
   }
 }
 
-void ezQtEditorApp::SlotQueuedGuiOpenDashboard()
+void WQtEditorApp::SlotQueuedGuiOpenDashboard()
 {
-  ezQtDashboardDlg dlg(nullptr, ezQtDashboardDlg::DashboardTab::Projects);
+  WQtDashboardDlg dlg(nullptr, WQtDashboardDlg::DashboardTab::Projects);
   dlg.exec();
 }
 
-void ezQtEditorApp::SlotQueuedGuiOpenDocsAndCommunity()
+void WQtEditorApp::SlotQueuedGuiOpenDocsAndCommunity()
 {
-  ezQtDashboardDlg dlg(nullptr, ezQtDashboardDlg::DashboardTab::Documentation);
+  WQtDashboardDlg dlg(nullptr, WQtDashboardDlg::DashboardTab::Documentation);
   dlg.exec();
 }
 
-void ezQtEditorApp::SlotQueuedGuiCreateOrOpenProject(bool bCreate)
+void WQtEditorApp::SlotQueuedGuiCreateOrOpenProject(bool bCreate)
 {
   GuiCreateOrOpenProject(bCreate);
 }
 
-bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
+bool WQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
 {
   const QString sDir = QString::fromUtf8(m_sLastProjectFolder.GetData());
-  ezStringBuilder sFile;
+  WStringBuilder sFile;
 
-  const char* szFilter = "ezProject (ezProject)";
+  const char* szFilter = "WProject (WProject)";
 
   if (bCreate)
   {
-    ezQtCreateProjectDlg dlg(nullptr);
+    WQtCreateProjectDlg dlg(nullptr);
     if (dlg.exec() == QDialog::Rejected)
       return false;
 
@@ -86,8 +86,8 @@ bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
   }
   else
   {
-    // native window, so not covered by ezQtDialog - see CreateOrOpenProject() for opening a known path
-    if (ezQtUiServices::SuppressModalWindow("Open Project (file picker)"))
+    // native window, so not covered by WQtDialog - see CreateOrOpenProject() for opening a known path
+    if (WQtUiServices::SuppressModalWindow("Open Project (file picker)"))
       return false;
 
     sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter), nullptr, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
@@ -98,10 +98,10 @@ bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
 
   if (bCreate)
   {
-    sFile.AppendPath("ezProject");
+    sFile.AppendPath("WProject");
   }
 
-  m_sLastProjectFolder = ezPathUtils::GetFileDirectory(sFile);
+  m_sLastProjectFolder = WPathUtils::GetFileDirectory(sFile);
 
   return CreateOrOpenProject(bCreate, sFile).Succeeded();
 }

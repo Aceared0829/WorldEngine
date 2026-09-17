@@ -7,12 +7,12 @@
 #include <assimp/scene.h>
 #include <assimp/texture.h>
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
-  static const void MakeValidMaterialName(ezString& ref_sTarget, const char* szSource, ezUInt32 uiMatIdx, ezSet<ezString>& ref_knownMaterialNames)
+  static const void MakeValidMaterialName(WString& ref_sTarget, const char* szSource, WUInt32 uiMatIdx, WSet<WString>& ref_knownMaterialNames)
   {
-    ezStringBuilder tmp;
-    ezPathUtils::MakeValidFilename(szSource, '_', tmp);
+    WStringBuilder tmp;
+    WPathUtils::MakeValidFilename(szSource, '_', tmp);
 
     if (ref_knownMaterialNames.Contains(tmp))
     {
@@ -27,7 +27,7 @@ namespace ezModelImporter2
   }
 
   template <typename assimpType>
-  static void TryReadAssimpProperty(ezMap<PropertySemantic, ezVariant>& inout_properties, PropertySemantic targetSemantic, const aiMaterial& assimpMaterial, const char* szKey, ezUInt32 uiType, ezUInt32 uiIdx, bool bInvert = false)
+  static void TryReadAssimpProperty(WMap<PropertySemantic, WVariant>& inout_properties, PropertySemantic targetSemantic, const aiMaterial& assimpMaterial, const char* szKey, WUInt32 uiType, WUInt32 uiIdx, bool bInvert = false)
   {
     assimpType value;
     if (assimpMaterial.Get(szKey, uiType, uiIdx, value) == AI_SUCCESS)
@@ -36,7 +36,7 @@ namespace ezModelImporter2
     }
   }
 
-  void TryReadAssimpTextures(ezMap<TextureSemantic, ezString>& out_textures, aiTextureType type, TextureSemantic targetSemantic, const aiMaterial& assimpMaterial)
+  void TryReadAssimpTextures(WMap<TextureSemantic, WString>& out_textures, aiTextureType type, TextureSemantic targetSemantic, const aiMaterial& assimpMaterial)
   {
     // there could be multiple textures of this type, but we can only handle one
     aiString path;
@@ -46,15 +46,15 @@ namespace ezModelImporter2
     }
   }
 
-  ezResult ImporterAssimp::ImportMaterials()
+  WResult ImporterAssimp::ImportMaterials()
   {
     if (!m_pScene->HasMaterials())
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
-    ezSet<ezString> knownMaterialNames;
+    WSet<WString> knownMaterialNames;
     knownMaterialNames.Insert("");
 
-    for (ezUInt32 matIdx = 0; matIdx < m_pScene->mNumMaterials; ++matIdx)
+    for (WUInt32 matIdx = 0; matIdx < m_pScene->mNumMaterials; ++matIdx)
     {
       aiMaterial* pMat = m_pScene->mMaterials[matIdx];
 
@@ -90,6 +90,6 @@ namespace ezModelImporter2
       // TryReadAssimpTextures(tr, aiTextureType_REFLECTION, TextureSemantic::ReflectionMap, *pMat); // From Assimp documentation "Contains the color of a perfect mirror reflection."
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

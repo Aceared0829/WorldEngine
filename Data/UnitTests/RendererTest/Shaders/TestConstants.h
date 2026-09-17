@@ -4,7 +4,7 @@
 
 #include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
 
-CONSTANT_BUFFER(ezTestPerFrame, 0)
+CONSTANT_BUFFER(WTestPerFrame, 0)
 {
   FLOAT1(Time);
   FLOAT1(Unused1);
@@ -12,12 +12,12 @@ CONSTANT_BUFFER(ezTestPerFrame, 0)
   FLOAT1(Unused3);
 };
 
-CONSTANT_BUFFER(ezTestColors, 2)
+CONSTANT_BUFFER(WTestColors, 2)
 {
   FLOAT4(VertexColor);
 };
 
-CONSTANT_BUFFER(ezTestPositions, 3)
+CONSTANT_BUFFER(WTestPositions, 3)
 {
   FLOAT4(Vertex0);
   FLOAT4(Vertex1);

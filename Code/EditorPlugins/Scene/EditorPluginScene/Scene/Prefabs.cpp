@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 
-void ezSceneDocument::UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection)
+void WSceneDocument::UnlinkPrefabs(WArrayPtr<const WDocumentObject*> selection)
 {
   SUPER::UnlinkPrefabs(selection);
 
@@ -15,12 +15,12 @@ void ezSceneDocument::UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selectio
   {
     auto pMetaScene = m_GameObjectMetaData->BeginModifyMetaData(pObject->GetGuid());
     pMetaScene->m_CachedNodeName.Clear();
-    m_GameObjectMetaData->EndModifyMetaData(ezGameObjectMetaData::CachedName);
+    m_GameObjectMetaData->EndModifyMetaData(WGameObjectMetaData::CachedName);
   }
 }
 
 
-bool ezSceneDocument::IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid) const
+bool WSceneDocument::IsObjectEditorPrefab(const WUuid& object, WUuid* out_pPrefabAssetGuid) const
 {
   auto pMeta = m_DocumentObjectMetaData->BeginReadMetaData(object);
   const bool bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
@@ -36,29 +36,29 @@ bool ezSceneDocument::IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_pPr
 }
 
 
-bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid) const
+bool WSceneDocument::IsObjectEnginePrefab(const WUuid& object, WUuid* out_pPrefabAssetGuid) const
 {
-  const ezDocumentObject* pObject = GetObjectManager()->GetObject(object);
+  const WDocumentObject* pObject = GetObjectManager()->GetObject(object);
 
-  ezTempHybridArray<ezVariant, 16> values;
+  WTempHybridArray<WVariant, 16> values;
   pObject->GetTypeAccessor().GetValues("Components", values);
 
-  for (ezVariant& value : values)
+  for (WVariant& value : values)
   {
-    auto pChild = GetObjectManager()->GetObject(value.Get<ezUuid>());
+    auto pChild = GetObjectManager()->GetObject(value.Get<WUuid>());
 
     // search for prefab components
-    if (pChild->GetTypeAccessor().GetType()->IsDerivedFrom<ezPrefabReferenceComponent>())
+    if (pChild->GetTypeAccessor().GetType()->IsDerivedFrom<WPrefabReferenceComponent>())
     {
-      ezVariant varPrefab = pChild->GetTypeAccessor().GetValue("Prefab");
+      WVariant varPrefab = pChild->GetTypeAccessor().GetValue("Prefab");
 
-      if (varPrefab.IsA<ezString>())
+      if (varPrefab.IsA<WString>())
       {
         if (out_pPrefabAssetGuid)
         {
-          const ezString sAsset = varPrefab.Get<ezString>();
+          const WString sAsset = varPrefab.Get<WString>();
 
-          const auto info = ezAssetCurator::GetSingleton()->FindSubAsset(sAsset);
+          const auto info = WAssetCurator::GetSingleton()->FindSubAsset(sAsset);
 
           if (info.isValid())
           {
@@ -74,38 +74,38 @@ bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_pPr
   return false;
 }
 
-void ezSceneDocument::UpdatePrefabs()
+void WSceneDocument::UpdatePrefabs()
 {
-  EZ_LOCK(m_GameObjectMetaData->GetMutex());
+  W_LOCK(m_GameObjectMetaData->GetMutex());
   SUPER::UpdatePrefabs();
 }
 
 
-ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab)
+WUuid WSceneDocument::ReplaceByPrefab(const WDocumentObject* pRootObject, WStringView sPrefabFile, const WUuid& prefabAsset, const WUuid& prefabSeed, bool bEnginePrefab)
 {
-  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, sPrefabFile, prefabAsset, prefabSeed, bEnginePrefab);
+  WUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, sPrefabFile, prefabAsset, prefabSeed, bEnginePrefab);
   if (newGuid.IsValid())
   {
     auto pMeta = m_GameObjectMetaData->BeginModifyMetaData(newGuid);
     pMeta->m_CachedNodeName.Clear();
-    m_GameObjectMetaData->EndModifyMetaData(ezGameObjectMetaData::CachedName);
+    m_GameObjectMetaData->EndModifyMetaData(WGameObjectMetaData::CachedName);
   }
   return newGuid;
 }
 
-ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
+WUuid WSceneDocument::RevertPrefab(const WDocumentObject* pObject)
 {
   auto pHistory = GetCommandHistory();
-  const ezVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-  const ezQuat vLocalRot = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
-  const ezVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+  const WVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<WVec3>();
+  const WQuat vLocalRot = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<WQuat>();
+  const WVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<WVec3>();
   const float fLocalUniformScale = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
-  ezUuid newGuid = SUPER::RevertPrefab(pObject);
+  WUuid newGuid = SUPER::RevertPrefab(pObject);
 
   if (newGuid.IsValid())
   {
-    ezSetObjectPropertyCommand setCmd;
+    WSetObjectPropertyCommand setCmd;
     setCmd.m_Object = newGuid;
 
     setCmd.m_sProperty = "LocalPosition";
@@ -127,12 +127,12 @@ ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
   return newGuid;
 }
 
-void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab)
+void WSceneDocument::UpdatePrefabObject(WDocumentObject* pObject, const WUuid& PrefabAsset, const WUuid& PrefabSeed, WStringView sBasePrefab)
 {
   auto pHistory = GetCommandHistory();
-  const ezVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-  const ezQuat vLocalRot = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
-  const ezVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+  const WVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<WVec3>();
+  const WQuat vLocalRot = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<WQuat>();
+  const WVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<WVec3>();
   const float fLocalUniformScale = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
   SUPER::UpdatePrefabObject(pObject, PrefabAsset, PrefabSeed, sBasePrefab);
@@ -140,7 +140,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   // the root object has the same GUID as the PrefabSeed
   if (PrefabSeed.IsValid())
   {
-    ezSetObjectPropertyCommand setCmd;
+    WSetObjectPropertyCommand setCmd;
     setCmd.m_Object = PrefabSeed;
 
     setCmd.m_sProperty = "LocalPosition";
@@ -161,32 +161,32 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   }
 }
 
-void ezSceneDocument::ConvertToEditorPrefab(ezArrayPtr<const ezDocumentObject*> selection)
+void WSceneDocument::ConvertToEditorPrefab(WArrayPtr<const WDocumentObject*> selection)
 {
-  ezDeque<const ezDocumentObject*> newSelection;
+  WDeque<const WDocumentObject*> newSelection;
 
   auto pHistory = GetCommandHistory();
   pHistory->StartTransaction("Convert to Editor Prefab");
 
-  for (const ezDocumentObject* pObject : selection)
+  for (const WDocumentObject* pObject : selection)
   {
-    ezUuid assetGuid;
+    WUuid assetGuid;
     if (!IsObjectEnginePrefab(pObject->GetGuid(), &assetGuid))
       continue;
 
-    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
+    auto pAsset = WAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
 
     if (!pAsset.isValid())
       continue;
 
-    const ezTransform transform = GetGlobalTransform(pObject);
+    const WTransform transform = GetGlobalTransform(pObject);
 
-    ezUuid newGuid = ezUuid::MakeUuid();
-    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_Path.GetAbsolutePath(), assetGuid, newGuid, false);
+    WUuid newGuid = WUuid::MakeUuid();
+    WUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_Path.GetAbsolutePath(), assetGuid, newGuid, false);
 
     if (newObject.IsValid())
     {
-      const ezDocumentObject* pNewObject = GetObjectManager()->GetObject(newObject);
+      const WDocumentObject* pNewObject = GetObjectManager()->GetObject(newObject);
       SetGlobalTransform(pNewObject, transform, TransformationChanges::All);
 
       newSelection.PushBack(pNewObject);
@@ -198,57 +198,57 @@ void ezSceneDocument::ConvertToEditorPrefab(ezArrayPtr<const ezDocumentObject*> 
   GetSelectionManager()->SetSelection(newSelection);
 }
 
-void ezSceneDocument::ConvertToEnginePrefab(ezArrayPtr<const ezDocumentObject*> selection)
+void WSceneDocument::ConvertToEnginePrefab(WArrayPtr<const WDocumentObject*> selection)
 {
-  ezDeque<const ezDocumentObject*> newSelection;
+  WDeque<const WDocumentObject*> newSelection;
 
   auto pHistory = GetCommandHistory();
   pHistory->StartTransaction("Convert to Engine Prefab");
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
-  for (const ezDocumentObject* pObject : selection)
+  for (const WDocumentObject* pObject : selection)
   {
-    ezUuid assetGuid;
+    WUuid assetGuid;
     if (!IsObjectEditorPrefab(pObject->GetGuid(), &assetGuid))
       continue;
 
-    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
+    auto pAsset = WAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
 
     if (!pAsset.isValid())
       continue;
 
-    const ezTransform transform = ComputeGlobalTransform(pObject);
+    const WTransform transform = ComputeGlobalTransform(pObject);
 
-    const ezDocumentObject* pNewObject = nullptr;
+    const WDocumentObject* pNewObject = nullptr;
 
     // create an object with the reference prefab component
     {
-      ezUuid ObjectGuid, CmpGuid;
-      ObjectGuid = ezUuid::MakeUuid();
-      CmpGuid = ezUuid::MakeUuid();
+      WUuid ObjectGuid, CmpGuid;
+      ObjectGuid = WUuid::MakeUuid();
+      CmpGuid = WUuid::MakeUuid();
 
-      ezAddObjectCommand cmd;
-      cmd.m_Parent = (pObject->GetParent() == GetObjectManager()->GetRootObject()) ? ezUuid() : pObject->GetParent()->GetGuid();
+      WAddObjectCommand cmd;
+      cmd.m_Parent = (pObject->GetParent() == GetObjectManager()->GetRootObject()) ? WUuid() : pObject->GetParent()->GetGuid();
       cmd.m_Index = pObject->GetPropertyIndex();
-      cmd.SetType("ezGameObject");
+      cmd.SetType("WGameObject");
       cmd.m_NewObjectGuid = ObjectGuid;
       cmd.m_sParentProperty = "Children";
 
-      EZ_VERIFY(pHistory->AddCommand(cmd).Succeeded(), "AddCommand failed");
+      W_VERIFY(pHistory->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
-      cmd.SetType("ezPrefabReferenceComponent");
+      cmd.SetType("WPrefabReferenceComponent");
       cmd.m_sParentProperty = "Components";
       cmd.m_Index = -1;
       cmd.m_NewObjectGuid = CmpGuid;
       cmd.m_Parent = ObjectGuid;
-      EZ_VERIFY(pHistory->AddCommand(cmd).Succeeded(), "AddCommand failed");
+      W_VERIFY(pHistory->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
-      ezSetObjectPropertyCommand cmd2;
+      WSetObjectPropertyCommand cmd2;
       cmd2.m_Object = CmpGuid;
       cmd2.m_sProperty = "Prefab";
-      cmd2.m_NewValue = ezConversionUtils::ToString(assetGuid, tmp).GetData();
-      EZ_VERIFY(pHistory->AddCommand(cmd2).Succeeded(), "AddCommand failed");
+      cmd2.m_NewValue = WConversionUtils::ToString(assetGuid, tmp).GetData();
+      W_VERIFY(pHistory->AddCommand(cmd2).Succeeded(), "AddCommand failed");
 
 
       pNewObject = GetObjectManager()->GetObject(ObjectGuid);
@@ -261,10 +261,10 @@ void ezSceneDocument::ConvertToEnginePrefab(ezArrayPtr<const ezDocumentObject*> 
 
     // delete old object
     {
-      ezRemoveObjectCommand rem;
+      WRemoveObjectCommand rem;
       rem.m_Object = pObject->GetGuid();
 
-      EZ_VERIFY(pHistory->AddCommand(rem).Succeeded(), "AddCommand failed");
+      W_VERIFY(pHistory->AddCommand(rem).Succeeded(), "AddCommand failed");
     }
   }
 

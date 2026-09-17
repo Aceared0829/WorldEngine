@@ -5,28 +5,28 @@
 #include <RTSPlugin/GameState/RTSGameState.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
-    EZ_MEMBER_PROPERTY("Damage", m_iDamage)->AddAttributes(new ezDefaultValueAttribute(10)),
+    W_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new WDefaultValueAttribute(10.0f)),
+    W_MEMBER_PROPERTY("Damage", m_iDamage)->AddAttributes(new WDefaultValueAttribute(10)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(RtsMsgSetTarget, OnMsgSetTarget),
+    W_MESSAGE_HANDLER(RtsMsgSetTarget, OnMsgSetTarget),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("RTS Sample"),
+    new WCategoryAttribute("RTS Sample"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
 RtsTorpedoComponent::RtsTorpedoComponent()
@@ -36,7 +36,7 @@ RtsTorpedoComponent::RtsTorpedoComponent()
 
 RtsTorpedoComponent::~RtsTorpedoComponent() = default;
 
-void RtsTorpedoComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void RtsTorpedoComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -46,10 +46,10 @@ void RtsTorpedoComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_iDamage;
 }
 
-void RtsTorpedoComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void RtsTorpedoComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -69,15 +69,15 @@ void RtsTorpedoComponent::Update()
   if (RTSGameState::GetSingleton() == nullptr || RTSGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
     return;
 
-  ezGameObject* pObject = nullptr;
+  WGameObject* pObject = nullptr;
   if (GetWorld()->TryGetObject(m_hTargetObject, pObject))
   {
     m_vTargetPosition = pObject->GetGlobalTransform().m_vPosition.GetAsVec2();
   }
 
-  const ezTransform transform = GetOwner()->GetGlobalTransform();
-  const ezVec2 vCurPos = transform.m_vPosition.GetAsVec2();
-  const ezVec2 vDir = m_vTargetPosition - vCurPos;
+  const WTransform transform = GetOwner()->GetGlobalTransform();
+  const WVec2 vCurPos = transform.m_vPosition.GetAsVec2();
+  const WVec2 vDir = m_vTargetPosition - vCurPos;
   const float fDist = vDir.GetLength();
 
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
@@ -86,7 +86,7 @@ void RtsTorpedoComponent::Update()
 
   if (fDist > 0)
   {
-    const ezVec2 vDirNorm = vDir / fDist;
+    const WVec2 vDirNorm = vDir / fDist;
     float fTravelDist = m_fSpeed * tDiff;
 
     if (fTravelDist >= fDist)
@@ -95,7 +95,7 @@ void RtsTorpedoComponent::Update()
       bExplode = true;
     }
 
-    const ezVec3 vNewPos = transform.m_vPosition + vDirNorm.GetAsVec3(0) * fTravelDist;
+    const WVec3 vNewPos = transform.m_vPosition + vDirNorm.GetAsVec3(0) * fTravelDist;
 
     GetOwner()->SetGlobalPosition(vNewPos);
   }

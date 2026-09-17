@@ -1,22 +1,22 @@
-shared class MsgSwitchMonitor : ezAngelScriptMessage
+shared class MsgSwitchMonitor : WAngelScriptMessage
 {
-    ezString renderTarget;
-    ezString screenMaterial;
+    WString renderTarget;
+    WString screenMaterial;
 }
 
-class Monitor : ezAngelScriptClass
+class Monitor : WAngelScriptClass
 {
     void OnMsgSwitchMonitor(MsgSwitchMonitor@ msg)
     {
         auto display = GetOwner().FindChildByName("Display");
 
-        ezMsgSetMeshMaterial mat;
+        WMsgSetMeshMaterial mat;
         mat.MaterialSlot = 0;
         mat.Material = msg.screenMaterial;
 
         display.SendMessage(mat);
 
-        ezRenderTargetActivatorComponent@ activator;
+        WRenderTargetActivatorComponent@ activator;
         if (display.TryGetComponentOfBaseType(@activator))
         {
             activator.RenderTarget = msg.renderTarget;

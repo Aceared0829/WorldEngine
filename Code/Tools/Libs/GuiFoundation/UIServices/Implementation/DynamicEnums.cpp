@@ -2,29 +2,29 @@
 
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 
-ezMap<ezString, ezDynamicEnum> ezDynamicEnum::s_DynamicEnums;
+WMap<WString, WDynamicEnum> WDynamicEnum::s_DynamicEnums;
 
-void ezDynamicEnum::Clear()
+void WDynamicEnum::Clear()
 {
   m_ValidValues.Clear();
 }
 
-void ezDynamicEnum::SetValueAndName(ezInt32 iValue, ezStringView sNewName)
+void WDynamicEnum::SetValueAndName(WInt32 iValue, WStringView sNewName)
 {
   m_ValidValues[iValue] = sNewName;
 }
 
-void ezDynamicEnum::RemoveValue(ezInt32 iValue)
+void WDynamicEnum::RemoveValue(WInt32 iValue)
 {
   m_ValidValues.Remove(iValue);
 }
 
-bool ezDynamicEnum::IsValueValid(ezInt32 iValue) const
+bool WDynamicEnum::IsValueValid(WInt32 iValue) const
 {
   return m_ValidValues.Find(iValue).IsValid();
 }
 
-ezStringView ezDynamicEnum::GetValueName(ezInt32 iValue) const
+WStringView WDynamicEnum::GetValueName(WInt32 iValue) const
 {
   auto it = m_ValidValues.Find(iValue);
 
@@ -34,13 +34,13 @@ ezStringView ezDynamicEnum::GetValueName(ezInt32 iValue) const
   return it.Value();
 }
 
-void ezDynamicEnum::SetEditCommand(ezStringView sCmd, const ezVariant& value)
+void WDynamicEnum::SetEditCommand(WStringView sCmd, const WVariant& value)
 {
   m_sEditCommand = sCmd;
   m_EditCommandValue = value;
 }
 
-ezDynamicEnum& ezDynamicEnum::GetDynamicEnum(const char* szEnumName)
+WDynamicEnum& WDynamicEnum::GetDynamicEnum(const char* szEnumName)
 {
   return s_DynamicEnums[szEnumName];
 }

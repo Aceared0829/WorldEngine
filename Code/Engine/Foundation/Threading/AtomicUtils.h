@@ -10,95 +10,95 @@
 /// Important considerations:
 /// - Individual operations are atomic, but sequences of operations are not
 /// - Only use in code that requires thread safety - atomic ops have performance overhead
-/// - For higher-level usage, prefer ezAtomicInteger which wraps these utilities
+/// - For higher-level usage, prefer WAtomicInteger which wraps these utilities
 /// - All operations use lock-free hardware instructions where available
 ///
 /// These functions form the foundation for lock-free data structures and algorithms.
-struct EZ_FOUNDATION_DLL ezAtomicUtils
+struct W_FOUNDATION_DLL WAtomicUtils
 {
   /// Atomically reads a 32-bit integer value
   ///
   /// Ensures the read operation is atomic and not subject to partial reads on all platforms.
-  static ezInt32 Read(const ezInt32& iSrc); // [tested]
+  static WInt32 Read(const WInt32& iSrc); // [tested]
 
   /// Atomically reads a 64-bit integer value
   ///
   /// Ensures the read operation is atomic and not subject to partial reads on all platforms.
-  static ezInt64 Read(const ezInt64& iSrc); // [tested]
+  static WInt64 Read(const WInt64& iSrc); // [tested]
 
   /// Increments dest as an atomic operation and returns the new value.
-  static ezInt32 Increment(ezInt32& ref_iDest); // [tested]
+  static WInt32 Increment(WInt32& ref_iDest); // [tested]
 
   /// Increments dest as an atomic operation and returns the new value.
-  static ezInt64 Increment(ezInt64& ref_iDest); // [tested]
+  static WInt64 Increment(WInt64& ref_iDest); // [tested]
 
   /// Decrements dest as an atomic operation and returns the new value.
-  static ezInt32 Decrement(ezInt32& ref_iDest); // [tested]
+  static WInt32 Decrement(WInt32& ref_iDest); // [tested]
 
   /// Decrements dest as an atomic operation and returns the new value.
-  static ezInt64 Decrement(ezInt64& ref_iDest); // [tested]
+  static WInt64 Decrement(WInt64& ref_iDest); // [tested]
 
   /// Increments dest as an atomic operation and returns the old value.
-  static ezInt32 PostIncrement(ezInt32& ref_iDest); // [tested]
+  static WInt32 PostIncrement(WInt32& ref_iDest); // [tested]
 
   /// Increments dest as an atomic operation and returns the old value.
-  static ezInt64 PostIncrement(ezInt64& ref_iDest); // [tested]
+  static WInt64 PostIncrement(WInt64& ref_iDest); // [tested]
 
   /// Decrements dest as an atomic operation and returns the old value.
-  static ezInt32 PostDecrement(ezInt32& ref_iDest); // [tested]
+  static WInt32 PostDecrement(WInt32& ref_iDest); // [tested]
 
   /// Decrements dest as an atomic operation and returns the old value.
-  static ezInt64 PostDecrement(ezInt64& ref_iDest); // [tested]
+  static WInt64 PostDecrement(WInt64& ref_iDest); // [tested]
 
   /// Adds value to dest as an atomic operation.
-  static void Add(ezInt32& ref_iDest, ezInt32 value); // [tested]
+  static void Add(WInt32& ref_iDest, WInt32 value); // [tested]
 
   /// Adds value to dest as an atomic operation.
-  static void Add(ezInt64& ref_iDest, ezInt64 value); // [tested]
+  static void Add(WInt64& ref_iDest, WInt64 value); // [tested]
 
   /// Performs an atomic bitwise AND on dest using value.
-  static void And(ezInt32& ref_iDest, ezInt32 value); // [tested]
+  static void And(WInt32& ref_iDest, WInt32 value); // [tested]
 
   /// Performs an atomic bitwise AND on dest using value.
-  static void And(ezInt64& ref_iDest, ezInt64 value); // [tested]
+  static void And(WInt64& ref_iDest, WInt64 value); // [tested]
 
   /// Performs an atomic bitwise OR on dest using value.
-  static void Or(ezInt32& ref_iDest, ezInt32 value); // [tested]
+  static void Or(WInt32& ref_iDest, WInt32 value); // [tested]
 
   /// Performs an atomic bitwise OR on dest using value.
-  static void Or(ezInt64& ref_iDest, ezInt64 value); // [tested]
+  static void Or(WInt64& ref_iDest, WInt64 value); // [tested]
 
   /// Performs an atomic bitwise XOR on dest using value.
-  static void Xor(ezInt32& ref_iDest, ezInt32 value); // [tested]
+  static void Xor(WInt32& ref_iDest, WInt32 value); // [tested]
 
   /// Performs an atomic bitwise XOR on dest using value.
-  static void Xor(ezInt64& ref_iDest, ezInt64 value); // [tested]
+  static void Xor(WInt64& ref_iDest, WInt64 value); // [tested]
 
   /// Performs an atomic min operation on dest using value.
-  static void Min(ezInt32& ref_iDest, ezInt32 value); // [tested]
+  static void Min(WInt32& ref_iDest, WInt32 value); // [tested]
 
   /// Performs an atomic min operation on dest using value.
-  static void Min(ezInt64& ref_iDest, ezInt64 value); // [tested]
+  static void Min(WInt64& ref_iDest, WInt64 value); // [tested]
 
   /// Performs an atomic max operation on dest using value.
-  static void Max(ezInt32& ref_iDest, ezInt32 value); // [tested]
+  static void Max(WInt32& ref_iDest, WInt32 value); // [tested]
 
   /// Performs an atomic max operation on dest using value.
-  static void Max(ezInt64& ref_iDest, ezInt64 value); // [tested]
+  static void Max(WInt64& ref_iDest, WInt64 value); // [tested]
 
   /// Sets dest to value as an atomic operation and returns the original value of dest.
-  static ezInt32 Set(ezInt32& ref_iDest, ezInt32 value); // [tested]
+  static WInt32 Set(WInt32& ref_iDest, WInt32 value); // [tested]
 
   /// Sets dest to value as an atomic operation and returns the original value of dest.
-  static ezInt64 Set(ezInt64& ref_iDest, ezInt64 value); // [tested]
+  static WInt64 Set(WInt64& ref_iDest, WInt64 value); // [tested]
 
   /// If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
   /// function returns false.
-  static bool TestAndSet(ezInt32& ref_iDest, ezInt32 iExpected, ezInt32 value); // [tested]
+  static bool TestAndSet(WInt32& ref_iDest, WInt32 iExpected, WInt32 value); // [tested]
 
   /// If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
   /// function returns false.
-  static bool TestAndSet(ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value); // [tested]
+  static bool TestAndSet(WInt64& ref_iDest, WInt64 iExpected, WInt64 value); // [tested]
 
   /// If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
   /// function returns false.
@@ -106,11 +106,11 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
 
   /// If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value
   /// of *dest* before the modification.
-  static ezInt32 CompareAndSwap(ezInt32& ref_iDest, ezInt32 iExpected, ezInt32 value); // [tested]
+  static WInt32 CompareAndSwap(WInt32& ref_iDest, WInt32 iExpected, WInt32 value); // [tested]
 
   /// If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value
   /// of *dest* before the modification.
-  static ezInt64 CompareAndSwap(ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value); // [tested]
+  static WInt64 CompareAndSwap(WInt64& ref_iDest, WInt64 iExpected, WInt64 value); // [tested]
 };
 
 // include platforma specific implementation

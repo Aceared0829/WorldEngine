@@ -8,9 +8,9 @@
 #include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOpenXRInputDevice, 1, ezRTTINoAllocator);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WOpenXRInputDevice, 1, WRTTINoAllocator);
 // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
@@ -36,11 +36,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 #define XR_Grip_Pose "grip_pose"
 #define XR_Aim_Pose "aim_pose"
 
-void ezOpenXRInputDevice::GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_devices) const
+void WOpenXRInputDevice::GetDeviceList(WHybridArray<WXRDeviceID, 64>& out_devices) const
 {
-  EZ_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'Initialize' first.");
+  W_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'Initialize' first.");
   out_devices.PushBack(0);
-  for (ezXRDeviceID i = 0; i < 3; i++)
+  for (WXRDeviceID i = 0; i < 3; i++)
   {
     if (m_DeviceState[i].m_bDeviceIsConnected)
     {
@@ -49,18 +49,18 @@ void ezOpenXRInputDevice::GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_dev
   }
 }
 
-ezXRDeviceID ezOpenXRInputDevice::GetDeviceIDByType(ezXRDeviceType::Enum type) const
+WXRDeviceID WOpenXRInputDevice::GetDeviceIDByType(WXRDeviceType::Enum type) const
 {
-  ezXRDeviceID deviceID = -1;
+  WXRDeviceID deviceID = -1;
   switch (type)
   {
-    case ezXRDeviceType::HMD:
+    case WXRDeviceType::HMD:
       deviceID = 0;
       break;
-    case ezXRDeviceType::LeftController:
+    case WXRDeviceType::LeftController:
       deviceID = m_iLeftControllerDeviceID;
       break;
-    case ezXRDeviceType::RightController:
+    case WXRDeviceType::RightController:
       deviceID = m_iRightControllerDeviceID;
       break;
     default:
@@ -75,57 +75,57 @@ ezXRDeviceID ezOpenXRInputDevice::GetDeviceIDByType(ezXRDeviceType::Enum type) c
   return deviceID;
 }
 
-const ezXRDeviceState& ezOpenXRInputDevice::GetDeviceState(ezXRDeviceID deviceID) const
+const WXRDeviceState& WOpenXRInputDevice::GetDeviceState(WXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'Initialize' first.");
-  EZ_ASSERT_DEV(deviceID < 3 && deviceID >= 0, "Invalid device ID.");
-  EZ_ASSERT_DEV(m_DeviceState[deviceID].m_bDeviceIsConnected, "Invalid device ID.");
+  W_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'Initialize' first.");
+  W_ASSERT_DEV(deviceID < 3 && deviceID >= 0, "Invalid device ID.");
+  W_ASSERT_DEV(m_DeviceState[deviceID].m_bDeviceIsConnected, "Invalid device ID.");
   return m_DeviceState[deviceID];
 }
 
-ezString ezOpenXRInputDevice::GetDeviceName(ezXRDeviceID deviceID) const
+WString WOpenXRInputDevice::GetDeviceName(WXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'Initialize' first.");
-  EZ_ASSERT_DEV(deviceID < 3 && deviceID >= 0, "Invalid device ID.");
-  EZ_ASSERT_DEV(m_DeviceState[deviceID].m_bDeviceIsConnected, "Invalid device ID.");
+  W_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'Initialize' first.");
+  W_ASSERT_DEV(deviceID < 3 && deviceID >= 0, "Invalid device ID.");
+  W_ASSERT_DEV(m_DeviceState[deviceID].m_bDeviceIsConnected, "Invalid device ID.");
   return m_sActiveProfile[deviceID];
 }
 
-ezBitflags<ezXRDeviceFeatures> ezOpenXRInputDevice::GetDeviceFeatures(ezXRDeviceID deviceID) const
+WBitflags<WXRDeviceFeatures> WOpenXRInputDevice::GetDeviceFeatures(WXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'Initialize' first.");
-  EZ_ASSERT_DEV(deviceID < 3 && deviceID >= 0, "Invalid device ID.");
-  EZ_ASSERT_DEV(m_DeviceState[deviceID].m_bDeviceIsConnected, "Invalid device ID.");
+  W_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'Initialize' first.");
+  W_ASSERT_DEV(deviceID < 3 && deviceID >= 0, "Invalid device ID.");
+  W_ASSERT_DEV(m_DeviceState[deviceID].m_bDeviceIsConnected, "Invalid device ID.");
   return m_SupportedFeatures[deviceID];
 }
 
-ezOpenXRInputDevice::ezOpenXRInputDevice(ezOpenXR* pOpenXR)
-  : ezXRInputDevice()
+WOpenXRInputDevice::WOpenXRInputDevice(WOpenXR* pOpenXR)
+  : WXRInputDevice()
   , m_pOpenXR(pOpenXR)
 {
   m_pInstance = m_pOpenXR->m_pInstance;
 }
 
-XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpace)
+XrResult WOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpace)
 {
   m_pSession = session;
 
   // HMD is always connected or we wouldn't have been able to create a session.
-  m_DeviceState[0] = ezXRDeviceState();
+  m_DeviceState[0] = WXRDeviceState();
   m_DeviceState[0].m_bDeviceIsConnected = true;
   m_sActiveProfile[0] = "HMD";
-  m_SupportedFeatures[0] = ezXRDeviceFeatures::AimPose | ezXRDeviceFeatures::GripPose;
+  m_SupportedFeatures[0] = WXRDeviceFeatures::AimPose | WXRDeviceFeatures::GripPose;
 
   // Controllers
-  for (ezUInt32 uiControllerId : {m_iLeftControllerDeviceID, m_iRightControllerDeviceID})
+  for (WUInt32 uiControllerId : {m_iLeftControllerDeviceID, m_iRightControllerDeviceID})
   {
-    m_DeviceState[uiControllerId] = ezXRDeviceState();
+    m_DeviceState[uiControllerId] = WXRDeviceState();
     m_sActiveProfile[uiControllerId].Clear();
   }
 
   XrActionSetCreateInfo actionSetInfo{XR_TYPE_ACTION_SET_CREATE_INFO};
-  ezStringUtils::Copy(actionSetInfo.actionSetName, XR_MAX_ACTION_SET_NAME_SIZE, "gameplay");
-  ezStringUtils::Copy(actionSetInfo.localizedActionSetName, XR_MAX_LOCALIZED_ACTION_SET_NAME_SIZE, "Gameplay");
+  WStringUtils::Copy(actionSetInfo.actionSetName, XR_MAX_ACTION_SET_NAME_SIZE, "gameplay");
+  WStringUtils::Copy(actionSetInfo.localizedActionSetName, XR_MAX_LOCALIZED_ACTION_SET_NAME_SIZE, "Gameplay");
   actionSetInfo.priority = 0;
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateActionSet(m_pInstance, &actionSetInfo, &m_pActionSet), DestroyActions);
 
@@ -158,26 +158,26 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   XrAction GripPose = XR_NULL_HANDLE;
   XrAction AimPose = XR_NULL_HANDLE;
 
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Trigger, XR_Trigger, XR_ACTION_TYPE_FLOAT_INPUT, Trigger), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Select, XR_Select_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SelectClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Menu, XR_Menu_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, MenuClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Squeeze, XR_Squeeze, XR_ACTION_TYPE_FLOAT_INPUT, SqueezeValue), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::Trigger, XR_Trigger, XR_ACTION_TYPE_FLOAT_INPUT, Trigger), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::Select, XR_Select_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SelectClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::Menu, XR_Menu_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, MenuClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::Squeeze, XR_Squeeze, XR_ACTION_TYPE_FLOAT_INPUT, SqueezeValue), DestroyActions);
 
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStick, XR_Primary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, PrimaryAnalogStickAxis), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickClick, XR_Primary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickTouch, XR_Primary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickTouch), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::PrimaryAnalogStick, XR_Primary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, PrimaryAnalogStickAxis), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::PrimaryAnalogStickClick, XR_Primary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::PrimaryAnalogStickTouch, XR_Primary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickTouch), DestroyActions);
 
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStick, XR_Secondary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, SecondaryAnalogStickAxis), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickClick, XR_Secondary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryAnalogStickClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickTouch, XR_Secondary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryAnalogStickTouch), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::SecondaryAnalogStick, XR_Secondary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, SecondaryAnalogStickAxis), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::SecondaryAnalogStickClick, XR_Secondary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryAnalogStickClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::SecondaryAnalogStickTouch, XR_Secondary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryAnalogStickTouch), DestroyActions);
 
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryButton, XR_Primary_Button_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryButtonClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryButtonTouch, XR_Primary_Button_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryButtonTouch), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryButton, XR_Secondary_Button_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryButtonClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryButtonTouch, XR_Secondary_Button_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryButtonTouch), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::PrimaryButton, XR_Primary_Button_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryButtonClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::PrimaryButtonTouch, XR_Primary_Button_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryButtonTouch), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::SecondaryButton, XR_Secondary_Button_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryButtonClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::SecondaryButtonTouch, XR_Secondary_Button_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryButtonTouch), DestroyActions);
 
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::GripPose, XR_Grip_Pose, XR_ACTION_TYPE_POSE_INPUT, GripPose), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::AimPose, XR_Aim_Pose, XR_ACTION_TYPE_POSE_INPUT, AimPose), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::GripPose, XR_Grip_Pose, XR_ACTION_TYPE_POSE_INPUT, GripPose), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(WXRDeviceFeatures::AimPose, XR_Aim_Pose, XR_ACTION_TYPE_POSE_INPUT, AimPose), DestroyActions);
 
   Bind simpleController[] = {
     {SelectClick, "/user/hand/left/input/select"},
@@ -353,8 +353,8 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
 
 
   XrActionSpaceCreateInfo spaceCreateInfo{XR_TYPE_ACTION_SPACE_CREATE_INFO};
-  spaceCreateInfo.poseInActionSpace = ezOpenXRConversionUtils::ConvertTransform(ezTransform::MakeIdentity());
-  for (ezUInt32 uiSide : {0, 1})
+  spaceCreateInfo.poseInActionSpace = WOpenXRConversionUtils::ConvertTransform(WTransform::MakeIdentity());
+  for (WUInt32 uiSide : {0, 1})
   {
     spaceCreateInfo.subactionPath = m_SubActionPath[uiSide];
     spaceCreateInfo.action = GripPose;
@@ -366,7 +366,7 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   return XR_SUCCESS;
 }
 
-void ezOpenXRInputDevice::DestroyActions()
+void WOpenXRInputDevice::DestroyActions()
 {
   for (Action& action : m_BooleanActions)
   {
@@ -398,7 +398,7 @@ void ezOpenXRInputDevice::DestroyActions()
     m_pActionSet = XR_NULL_HANDLE;
   }
 
-  for (ezUInt32 uiSide : {0, 1})
+  for (WUInt32 uiSide : {0, 1})
   {
     if (m_gripSpace[uiSide])
     {
@@ -412,7 +412,7 @@ void ezOpenXRInputDevice::DestroyActions()
     }
   }
 
-  for (ezUInt32 i = 0; i < 3; i++)
+  for (WUInt32 i = 0; i < 3; i++)
   {
     m_sActiveProfile[i].Clear();
     m_SupportedFeatures[i].Clear();
@@ -420,31 +420,31 @@ void ezOpenXRInputDevice::DestroyActions()
   }
 }
 
-XrPath ezOpenXRInputDevice::CreatePath(const char* szPath)
+XrPath WOpenXRInputDevice::CreatePath(const char* szPath)
 {
   XrInstance instance = m_pOpenXR->m_pInstance;
 
   XrPath path;
   if (xrStringToPath(instance, szPath, &path) != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR path conversion failure: {0}", szPath);
+    WLog::Error("OpenXR path conversion failure: {0}", szPath);
   }
   return path;
 }
 
-XrResult ezOpenXRInputDevice::CreateAction(ezXRDeviceFeatures::Enum feature, const char* actionName, XrActionType actionType, XrAction& out_action)
+XrResult WOpenXRInputDevice::CreateAction(WXRDeviceFeatures::Enum feature, const char* actionName, XrActionType actionType, XrAction& out_action)
 {
   XrActionCreateInfo actionCreateInfo{XR_TYPE_ACTION_CREATE_INFO};
   actionCreateInfo.actionType = actionType;
   actionCreateInfo.countSubactionPaths = m_SubActionPath.GetCount();
   actionCreateInfo.subactionPaths = m_SubActionPath.GetData();
-  ezStringUtils::Copy(actionCreateInfo.actionName, XR_MAX_ACTION_NAME_SIZE, actionName);
-  ezStringUtils::Copy(actionCreateInfo.localizedActionName, XR_MAX_LOCALIZED_ACTION_NAME_SIZE, actionName);
+  WStringUtils::Copy(actionCreateInfo.actionName, XR_MAX_ACTION_NAME_SIZE, actionName);
+  WStringUtils::Copy(actionCreateInfo.localizedActionName, XR_MAX_LOCALIZED_ACTION_NAME_SIZE, actionName);
 
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateAction(m_pActionSet, &actionCreateInfo, &out_action), voidFunction);
 
-  ezStringBuilder sLeft(m_SubActionPrefix[0], actionName);
-  ezStringBuilder sRight(m_SubActionPrefix[1], actionName);
+  WStringBuilder sLeft(m_SubActionPrefix[0], actionName);
+  WStringBuilder sRight(m_SubActionPrefix[1], actionName);
 
   switch (actionType)
   {
@@ -461,19 +461,19 @@ XrResult ezOpenXRInputDevice::CreateAction(ezXRDeviceFeatures::Enum feature, con
       m_PoseActions.PushBack({feature, out_action, sLeft, sRight});
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   return XR_SUCCESS;
 }
 
-XrResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szInteractionProfile, const char* szNiceName, ezArrayPtr<Bind> bindings)
+XrResult WOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szInteractionProfile, const char* szNiceName, WArrayPtr<Bind> bindings)
 {
   XrInstance instance = m_pOpenXR->m_pInstance;
 
   XrPath InteractionProfile = CreatePath(szInteractionProfile);
 
-  ezDynamicArray<XrActionSuggestedBinding> xrBindings;
+  WDynamicArray<XrActionSuggestedBinding> xrBindings;
   xrBindings.Reserve(bindings.GetCount());
   for (const Bind& binding : bindings)
   {
@@ -487,16 +487,16 @@ XrResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szIn
   profileBindings.countSuggestedBindings = xrBindings.GetCount();
   XR_SUCCEED_OR_RETURN_LOG(xrSuggestInteractionProfileBindings(instance, &profileBindings));
 
-  m_InteractionProfileToNiceName[static_cast<ezUInt64>(InteractionProfile)] = szNiceName;
+  m_InteractionProfileToNiceName[static_cast<WUInt64>(InteractionProfile)] = szNiceName;
 
   return XR_SUCCESS;
 }
 
-XrResult ezOpenXRInputDevice::AttachSessionActionSets(XrSession session)
+XrResult WOpenXRInputDevice::AttachSessionActionSets(XrSession session)
 {
   m_pSession = session;
   XrSessionActionSetsAttachInfo attachInfo{XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO};
-  ezHybridArray<XrActionSet, 1> actionSets;
+  WHybridArray<XrActionSet, 1> actionSets;
   actionSets.PushBack(m_pActionSet);
 
   attachInfo.countActionSets = actionSets.GetCount();
@@ -506,24 +506,24 @@ XrResult ezOpenXRInputDevice::AttachSessionActionSets(XrSession session)
   return XR_SUCCESS;
 }
 
-XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
+XrResult WOpenXRInputDevice::UpdateCurrentInteractionProfile()
 {
   // This function is triggered by the XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED event.
   // Unfortunately it does not seem to provide any info in regards to what top level path is affected
   // so we check both controllers again.
-  auto GetActiveControllerProfile = [this](ezUInt32 uiSide) -> XrPath
+  auto GetActiveControllerProfile = [this](WUInt32 uiSide) -> XrPath
   {
     XrInteractionProfileState state{XR_TYPE_INTERACTION_PROFILE_STATE};
     XrResult res = xrGetCurrentInteractionProfile(m_pSession, m_SubActionPath[uiSide], &state);
     if (res == XR_SUCCESS)
     {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (state.interactionProfile != XR_NULL_PATH && !m_InteractionProfileToNiceName.Contains(static_cast<ezUInt64>(state.interactionProfile)))
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+      if (state.interactionProfile != XR_NULL_PATH && !m_InteractionProfileToNiceName.Contains(static_cast<WUInt64>(state.interactionProfile)))
       {
         char buffer[256];
-        ezUInt32 temp;
+        WUInt32 temp;
         xrPathToString(m_pInstance, state.interactionProfile, 256, &temp, buffer);
-        EZ_REPORT_FAILURE("Unknown interaction profile was selected by the OpenXR runtime: '{}'", buffer);
+        W_REPORT_FAILURE("Unknown interaction profile was selected by the OpenXR runtime: '{}'", buffer);
       }
 #endif
       return state.interactionProfile;
@@ -531,11 +531,11 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
     return XR_NULL_PATH;
   };
 
-  for (ezUInt32 uiSide : {0, 1})
+  for (WUInt32 uiSide : {0, 1})
   {
-    const ezUInt32 uiControllerId = uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID;
+    const WUInt32 uiControllerId = uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID;
     XrPath path = GetActiveControllerProfile(uiSide);
-    m_sActiveProfile[uiControllerId] = m_InteractionProfileToNiceName[static_cast<ezUInt64>(path)];
+    m_sActiveProfile[uiControllerId] = m_InteractionProfileToNiceName[static_cast<WUInt64>(path)];
   }
 
   UpdateActions();
@@ -543,45 +543,45 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
   return XR_SUCCESS;
 }
 
-void ezOpenXRInputDevice::InitializeDevice() {}
+void WOpenXRInputDevice::InitializeDevice() {}
 
-void ezOpenXRInputDevice::RegisterInputSlots()
+void WOpenXRInputDevice::RegisterInputSlots()
 {
   for (const Action& action : m_BooleanActions)
   {
-    for (ezUInt32 uiSide : {0, 1})
+    for (WUInt32 uiSide : {0, 1})
     {
-      RegisterInputSlot(action.m_sKey[uiSide], action.m_sKey[uiSide], ezInputSlotFlags::IsButton);
+      RegisterInputSlot(action.m_sKey[uiSide], action.m_sKey[uiSide], WInputSlotFlags::IsButton);
     }
   }
   for (const Action& action : m_FloatActions)
   {
-    for (ezUInt32 uiSide : {0, 1})
+    for (WUInt32 uiSide : {0, 1})
     {
-      RegisterInputSlot(action.m_sKey[uiSide], action.m_sKey[uiSide], ezInputSlotFlags::IsAnalogTrigger);
+      RegisterInputSlot(action.m_sKey[uiSide], action.m_sKey[uiSide], WInputSlotFlags::IsAnalogTrigger);
     }
   }
   for (const Vec2Action& action : m_Vec2Actions)
   {
-    for (ezUInt32 uiSide : {0, 1})
+    for (WUInt32 uiSide : {0, 1})
     {
-      RegisterInputSlot(action.m_sKey_negx[uiSide], action.m_sKey_negx[uiSide], ezInputSlotFlags::IsAnalogStick);
-      RegisterInputSlot(action.m_sKey_posx[uiSide], action.m_sKey_posx[uiSide], ezInputSlotFlags::IsAnalogStick);
-      RegisterInputSlot(action.m_sKey_negy[uiSide], action.m_sKey_negy[uiSide], ezInputSlotFlags::IsAnalogStick);
-      RegisterInputSlot(action.m_sKey_posy[uiSide], action.m_sKey_posy[uiSide], ezInputSlotFlags::IsAnalogStick);
+      RegisterInputSlot(action.m_sKey_negx[uiSide], action.m_sKey_negx[uiSide], WInputSlotFlags::IsAnalogStick);
+      RegisterInputSlot(action.m_sKey_posx[uiSide], action.m_sKey_posx[uiSide], WInputSlotFlags::IsAnalogStick);
+      RegisterInputSlot(action.m_sKey_negy[uiSide], action.m_sKey_negy[uiSide], WInputSlotFlags::IsAnalogStick);
+      RegisterInputSlot(action.m_sKey_posy[uiSide], action.m_sKey_posy[uiSide], WInputSlotFlags::IsAnalogStick);
     }
   }
 }
 
-XrResult ezOpenXRInputDevice::UpdateActions()
+XrResult WOpenXRInputDevice::UpdateActions()
 {
   if (m_pSession == XR_NULL_HANDLE)
     return XR_SUCCESS;
 
-  EZ_PROFILE_SCOPE("UpdateActions");
+  W_PROFILE_SCOPE("UpdateActions");
   const XrFrameState& frameState = m_pOpenXR->m_FrameState;
 
-  ezHybridArray<XrActiveActionSet, 1> activeActionSets;
+  WHybridArray<XrActiveActionSet, 1> activeActionSets;
   activeActionSets.PushBack({m_pActionSet, XR_NULL_PATH});
 
   XrActionsSyncInfo syncInfo{XR_TYPE_ACTIONS_SYNC_INFO};
@@ -593,9 +593,9 @@ XrResult ezOpenXRInputDevice::UpdateActions()
 
   XR_SUCCEED_OR_RETURN_LOG(res);
 
-  for (ezUInt32 uiSide : {0, 1})
+  for (WUInt32 uiSide : {0, 1})
   {
-    const ezUInt32 uiControllerId = uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID;
+    const WUInt32 uiControllerId = uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID;
 
     for (const Action& action : m_PoseActions)
     {
@@ -644,13 +644,13 @@ XrResult ezOpenXRInputDevice::UpdateActions()
       m_SupportedFeatures[uiControllerId].AddOrRemove(action.m_Feature, state.isActive);
     }
 
-    auto UpdatePose = [](ezVec3& vPosition, ezQuat& qRotation, bool& m_bIsValid, const XrSpaceLocation& viewInScene)
+    auto UpdatePose = [](WVec3& vPosition, WQuat& qRotation, bool& m_bIsValid, const XrSpaceLocation& viewInScene)
     {
       if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) ==
           (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
       {
-        vPosition = ezOpenXRConversionUtils::ConvertPosition(viewInScene.pose.position);
-        qRotation = ezOpenXRConversionUtils::ConvertOrientation(viewInScene.pose.orientation);
+        vPosition = WOpenXRConversionUtils::ConvertPosition(viewInScene.pose.position);
+        qRotation = WOpenXRConversionUtils::ConvertOrientation(viewInScene.pose.orientation);
         m_bIsValid = true;
       }
       else
@@ -662,7 +662,7 @@ XrResult ezOpenXRInputDevice::UpdateActions()
     XrInteractionProfileState state2{XR_TYPE_INTERACTION_PROFILE_STATE};
     XrResult res2 = xrGetCurrentInteractionProfile(m_pSession, m_SubActionPath[uiSide], &state2);
 
-    ezXRDeviceState& state = m_DeviceState[uiControllerId];
+    WXRDeviceState& state = m_DeviceState[uiControllerId];
     const XrTime time = frameState.predictedDisplayTime;
     XrSpaceLocation viewInScene = {XR_TYPE_SPACE_LOCATION};
     XR_SUCCEED_OR_RETURN_LOG(xrLocateSpace(m_gripSpace[uiSide], m_pOpenXR->GetBaseSpace(), time, &viewInScene));
@@ -676,46 +676,46 @@ XrResult ezOpenXRInputDevice::UpdateActions()
   return XR_SUCCESS;
 }
 
-void ezOpenXRInputDevice::UpdateControllerState()
+void WOpenXRInputDevice::UpdateControllerState()
 {
-  for (ezUInt32 uiSide : {0, 1})
+  for (WUInt32 uiSide : {0, 1})
   {
-    const ezUInt32 uiControllerId = uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID;
-    const bool bDeviceConnected = m_SupportedFeatures[uiControllerId].IsSet(ezXRDeviceFeatures::AimPose);
+    const WUInt32 uiControllerId = uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID;
+    const bool bDeviceConnected = m_SupportedFeatures[uiControllerId].IsSet(WXRDeviceFeatures::AimPose);
 
     if (!m_DeviceState[uiControllerId].m_bDeviceIsConnected && bDeviceConnected)
     {
       // Connected
       m_DeviceState[uiControllerId].m_bDeviceIsConnected = true;
 
-      ezXRDeviceEventData data;
-      data.m_Type = ezXRDeviceEventData::Type::DeviceAdded;
+      WXRDeviceEventData data;
+      data.m_Type = WXRDeviceEventData::Type::DeviceAdded;
       data.uiDeviceID = uiControllerId;
       m_InputEvents.Broadcast(data);
     }
     else if (m_DeviceState[uiControllerId].m_bDeviceIsConnected && !bDeviceConnected)
     {
       // Disconnected
-      m_DeviceState[uiControllerId] = ezXRDeviceState();
-      m_SupportedFeatures[uiControllerId] = ezXRDeviceFeatures::None;
+      m_DeviceState[uiControllerId] = WXRDeviceState();
+      m_SupportedFeatures[uiControllerId] = WXRDeviceFeatures::None;
 
-      ezXRDeviceEventData data;
-      data.m_Type = ezXRDeviceEventData::Type::DeviceRemoved;
+      WXRDeviceEventData data;
+      data.m_Type = WXRDeviceEventData::Type::DeviceRemoved;
       data.uiDeviceID = uiControllerId;
       m_InputEvents.Broadcast(data);
     }
   }
 }
 
-ezOpenXRInputDevice::Vec2Action::Vec2Action(ezXRDeviceFeatures::Enum feature, XrAction pAction, ezStringView sLeft, ezStringView sRight)
+WOpenXRInputDevice::Vec2Action::Vec2Action(WXRDeviceFeatures::Enum feature, XrAction pAction, WStringView sLeft, WStringView sRight)
 {
   m_Feature = feature;
   m_Action = pAction;
 
-  ezStringView sides[2] = {sLeft, sRight};
-  for (ezUInt32 uiSide : {0, 1})
+  WStringView sides[2] = {sLeft, sRight};
+  for (WUInt32 uiSide : {0, 1})
   {
-    ezStringBuilder temp = sides[uiSide];
+    WStringBuilder temp = sides[uiSide];
     temp.Append("_negx");
     m_sKey_negx[uiSide] = temp;
 
@@ -734,4 +734,4 @@ ezOpenXRInputDevice::Vec2Action::Vec2Action(ezXRDeviceFeatures::Enum feature, Xr
 }
 
 
-EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_Input_Implementation_OpenXRInputDevice);
+W_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_Input_Implementation_OpenXRInputDevice);

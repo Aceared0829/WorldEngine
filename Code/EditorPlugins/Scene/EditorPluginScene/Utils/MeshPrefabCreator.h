@@ -8,25 +8,25 @@
 #include <Foundation/Types/Uuid.h>
 
 /// How a prefab created from a mesh should be set up for physics.
-struct ezMeshPrefabPhysics
+struct WMeshPrefabPhysics
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
     None,
 
-    /// Generates an ezJoltCollisionMeshAsset next to the mesh asset, unless a suitable one exists.
+    /// Generates an WJoltCollisionMeshAsset next to the mesh asset, unless a suitable one exists.
     /// Triangle meshes cannot be used for dynamic actors.
     StaticTriangleMesh,
 
     /// Fills in concave parts of the shape.
     StaticConvexHull,
 
-    /// Sized from the mesh bounds, so it needs no additional asset but requires ezMeshPrefabSource::m_bHasBounds.
+    /// Sized from the mesh bounds, so it needs no additional asset but requires WMeshPrefabSource::m_bHasBounds.
     StaticBox,
 
-    /// Generates an ezJoltConvexCollisionMeshAsset. Dynamic actors require a convex shape.
+    /// Generates an WJoltConvexCollisionMeshAsset. Dynamic actors require a convex shape.
     DynamicConvexHull,
 
     DynamicBox,
@@ -35,22 +35,22 @@ struct ezMeshPrefabPhysics
   };
 };
 
-/// \see ezMeshPrefabCreator::CreateMeshPrefab()
-struct ezMeshPrefabOptions
+/// \see WMeshPrefabCreator::CreateMeshPrefab()
+struct WMeshPrefabOptions
 {
   /// Where to write the prefab. Absolute, or relative to the parent of a data directory
-  /// ("Testing Chambers/Objects/Barrel.ezPrefab"). Empty means the suggested path, which is what
+  /// ("Testing Chambers/Objects/Barrel.WPrefab"). Empty means the suggested path, which is what
   /// creating prefabs for several meshes at once uses.
-  /// \see ezMeshPrefabCreator::SuggestPrefabPath()
-  ezString m_sPrefabPath;
+  /// \see WMeshPrefabCreator::SuggestPrefabPath()
+  WString m_sPrefabPath;
 
   /// RTTI name of the component that renders the mesh. Empty falls back to
-  /// ezMeshPrefabSource::GetDefaultRenderComponentType().
-  ezString m_sRenderComponentType;
+  /// WMeshPrefabSource::GetDefaultRenderComponentType().
+  WString m_sRenderComponentType;
 
-  ezEnum<ezMeshPrefabPhysics> m_Physics;
-  ezUInt8 m_uiCollisionLayer = 0;
-  ezString m_sSurfaceAsset;
+  WEnum<WMeshPrefabPhysics> m_Physics;
+  WUInt8 m_uiCollisionLayer = 0;
+  WString m_sSurfaceAsset;
 
   /// Overwrites a prefab that already exists instead of refusing.
   ///
@@ -62,57 +62,57 @@ struct ezMeshPrefabOptions
 };
 
 /// What a mesh asset offers for prefab creation. Filled by GatherMeshPrefabSource().
-struct EZ_EDITORPLUGINSCENE_DLL ezMeshPrefabSource
+struct W_EDITORPLUGINSCENE_DLL WMeshPrefabSource
 {
-  ezUuid m_MeshAssetGuid;
-  ezString m_sMeshAssetPath;
+  WUuid m_MeshAssetGuid;
+  WString m_sMeshAssetPath;
 
   /// The mesh asset's "MeshFile" property. Empty if it could not be read, in which case no collision
   /// mesh asset can be generated.
-  ezString m_sMeshFile;
+  WString m_sMeshFile;
 
   /// LOD-1 and up, in ascending order. Does not include the mesh asset itself, which is LOD 0.
-  ezDynamicArray<ezUuid> m_LodGuids;
+  WDynamicArray<WUuid> m_LodGuids;
 
   bool m_bAnimated = false;
 
   /// An existing collision mesh asset built from the same source file, if there is one.
-  ezUuid m_ExistingTriangleColMesh;
-  ezUuid m_ExistingConvexColMesh;
+  WUuid m_ExistingTriangleColMesh;
+  WUuid m_ExistingConvexColMesh;
 
   /// False when the asset was never transformed, in which case the box collider modes can't be used.
   bool m_bHasBounds = false;
-  ezVec3 m_vBoundsCenter = ezVec3::MakeZero();
-  ezVec3 m_vBoundsHalfExtents = ezVec3(0.5f);
+  WVec3 m_vBoundsCenter = WVec3::MakeZero();
+  WVec3 m_vBoundsHalfExtents = WVec3(0.5f);
   float m_fBoundsRadius = 1.0f;
 
-  /// ezAnimatedMeshComponent for animated meshes, ezLodMeshComponent when LODs were found,
-  /// otherwise ezMeshComponent.
-  ezStringView GetDefaultRenderComponentType() const;
+  /// WAnimatedMeshComponent for animated meshes, WLodMeshComponent when LODs were found,
+  /// otherwise WMeshComponent.
+  WStringView GetDefaultRenderComponentType() const;
 
   /// Derived from an existing collision mesh asset built from the same source. None when there is
   /// none, so that generating a collider is a deliberate choice.
-  ezEnum<ezMeshPrefabPhysics> GetDefaultPhysics() const;
+  WEnum<WMeshPrefabPhysics> GetDefaultPhysics() const;
 };
 
 /// Creates prefab documents that display a single mesh.
 ///
 /// Components are added by RTTI name, so that this does not depend on the mesh or physics plugins.
 /// Consequently the physics options only work while the Jolt plugin is loaded.
-class EZ_EDITORPLUGINSCENE_DLL ezMeshPrefabCreator
+class W_EDITORPLUGINSCENE_DLL WMeshPrefabCreator
 {
 public:
   /// Fails if the guid does not belong to a mesh asset. Missing bounds are not a failure, they are
-  /// reported through ezMeshPrefabSource::m_bHasBounds.
+  /// reported through WMeshPrefabSource::m_bHasBounds.
   ///
   /// Opens the mesh asset document to read its source file, if it is not open already.
-  static ezResult GatherMeshPrefabSource(const ezUuid& meshAssetGuid, ezMeshPrefabSource& out_source);
+  static WResult GatherMeshPrefabSource(const WUuid& meshAssetGuid, WMeshPrefabSource& out_source);
 
   /// Creates and saves the prefab document, plus a collision mesh asset if the physics option needs one.
   ///
   /// Fails if a file already exists at the target path, unless
-  /// ezMeshPrefabOptions::m_bOverwriteExisting is set.
-  static ezStatus CreateMeshPrefab(const ezMeshPrefabSource& source, const ezMeshPrefabOptions& options);
+  /// WMeshPrefabOptions::m_bOverwriteExisting is set.
+  static WStatus CreateMeshPrefab(const WMeshPrefabSource& source, const WMeshPrefabOptions& options);
 
   /// Creates a prefab for each of the given mesh assets, each at its suggested path.
   ///
@@ -121,25 +121,25 @@ public:
   /// such as a document that cannot be written, is reported back.
   ///
   /// The render component type is decided per mesh, so that a selection can mix animated and static
-  /// meshes; ezMeshPrefabOptions::m_sRenderComponentType is ignored here.
-  static ezStatus CreateMeshPrefabs(ezArrayPtr<const ezUuid> meshAssetGuids, const ezMeshPrefabOptions& options, ezUInt32& out_uiCreated, ezUInt32& out_uiSkipped);
+  /// meshes; WMeshPrefabOptions::m_sRenderComponentType is ignored here.
+  static WStatus CreateMeshPrefabs(WArrayPtr<const WUuid> meshAssetGuids, const WMeshPrefabOptions& options, WUInt32& out_uiCreated, WUInt32& out_uiSkipped);
 
   /// The default absolute path for a mesh asset's prefab, next to it.
   ///
   /// Appends a number if that file is already taken, unless bAllowExisting is set.
-  static ezString SuggestPrefabPath(const ezMeshPrefabSource& source, bool bAllowExisting = false);
+  static WString SuggestPrefabPath(const WMeshPrefabSource& source, bool bAllowExisting = false);
 
   /// Turns an absolute path into one relative to the parent of its data directory, for display.
   /// Returns the input unchanged if it is not inside a data directory.
-  static ezString MakeDisplayPath(ezStringView sAbsolutePath);
+  static WString MakeDisplayPath(WStringView sAbsolutePath);
 
   /// Resolves what MakeDisplayPath() produced, or any absolute path, back to an absolute path.
   /// Fails if the path names no known data directory.
-  static ezResult ResolveDisplayPath(ezStringView sPath, ezStringBuilder& out_sAbsolutePath);
+  static WResult ResolveDisplayPath(WStringView sPath, WStringBuilder& out_sAbsolutePath);
 
   /// Whether the Jolt plugin is loaded, i.e. whether the physics options can be used at all.
   static bool IsPhysicsAvailable();
 
   /// Whether the given guid refers to a mesh or animated mesh asset.
-  static bool IsMeshAsset(const ezUuid& assetGuid);
+  static bool IsMeshAsset(const WUuid& assetGuid);
 };

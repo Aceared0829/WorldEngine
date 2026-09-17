@@ -5,68 +5,68 @@
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiDocumentContext, 1, ezRTTIDefaultAllocator<ezRmlUiDocumentContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRmlUiDocumentContext, 1, WRTTIDefaultAllocator<WRmlUiDocumentContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "RmlUi"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "RmlUi"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRmlUiDocumentContext::ezRmlUiDocumentContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WRmlUiDocumentContext::WRmlUiDocumentContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-ezRmlUiDocumentContext::~ezRmlUiDocumentContext() = default;
+WRmlUiDocumentContext::~WRmlUiDocumentContext() = default;
 
-void ezRmlUiDocumentContext::OnInitialize()
+void WRmlUiDocumentContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
   // Preview object
   {
-    ezGameObjectDesc obj;
+    WGameObjectDesc obj;
     obj.m_sName.Assign("RmlUiPreview");
     obj.m_bDynamic = true;
     pWorld->CreateObject(obj, m_pMainObject);
 
-    ezRmlUiCanvas2DComponent* pComponent = nullptr;
-    ezRmlUiCanvas2DComponent::CreateComponent(m_pMainObject, pComponent);
+    WRmlUiCanvas2DComponent* pComponent = nullptr;
+    WRmlUiCanvas2DComponent::CreateComponent(m_pMainObject, pComponent);
 
     pComponent->SetPassInput(false);
     pComponent->SetOnDemandUpdate(false);
     pComponent->SetAutobindBlackboards(false); // there is no blackboard that could be bound in this context
 
-    ezStringBuilder sResourceGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sResourceGuid);
-    m_hMainResource = ezResourceManager::LoadResource<ezRmlUiResource>(sResourceGuid);
+    WStringBuilder sResourceGuid;
+    WConversionUtils::ToString(GetDocumentGuid(), sResourceGuid);
+    m_hMainResource = WResourceManager::LoadResource<WRmlUiResource>(sResourceGuid);
 
     pComponent->SetRmlResource(m_hMainResource);
   }
 }
 
-ezEngineProcessViewContext* ezRmlUiDocumentContext::CreateViewContext()
+WEngineProcessViewContext* WRmlUiDocumentContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezRmlUiViewContext, this);
+  return W_DEFAULT_NEW(WRmlUiViewContext, this);
 }
 
-void ezRmlUiDocumentContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WRmlUiDocumentContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-bool ezRmlUiDocumentContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WRmlUiDocumentContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
-  EZ_LOCK(m_pMainObject->GetWorld()->GetWriteMarker());
+  W_LOCK(m_pMainObject->GetWorld()->GetWriteMarker());
 
   m_pMainObject->UpdateLocalBounds();
-  ezBoundingBoxSphere bounds = m_pMainObject->GetGlobalBounds();
+  WBoundingBoxSphere bounds = m_pMainObject->GetGlobalBounds();
 
-  ezRmlUiViewContext* pMeshViewContext = static_cast<ezRmlUiViewContext*>(pThumbnailViewContext);
+  WRmlUiViewContext* pMeshViewContext = static_cast<WRmlUiViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
 }

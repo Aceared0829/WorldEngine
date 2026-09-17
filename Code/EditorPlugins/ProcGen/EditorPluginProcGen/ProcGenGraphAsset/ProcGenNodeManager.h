@@ -9,24 +9,24 @@
 /// Visual graph pin for procedural generation nodes.
 ///
 /// Basic pin implementation for procedural generation graphs without additional metadata.
-class ezProcGenPin : public ezVisualGraphPin
+class WProcGenPin : public WVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPin, ezVisualGraphPin);
+  W_ADD_DYNAMIC_REFLECTION(WProcGenPin, WVisualGraphPin);
 
 public:
-  using ezVisualGraphPin::ezVisualGraphPin;
+  using WVisualGraphPin::WVisualGraphPin;
 };
 
 /// Object manager for procedural generation graphs.
 ///
 /// Manages nodes and connections for procedural generation systems, such as terrain generation or placement rules.
 /// Validates connections between different types of procedural generation nodes.
-class ezProcGenNodeManager : public ezVisualGraphObjectManager
+class WProcGenNodeManager : public WVisualGraphObjectManager
 {
 public:
-  virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
-  virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
-  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
+  virtual bool InternalIsNode(const WDocumentObject* pObject) const override;
+  virtual void InternalCreatePins(const WDocumentObject* pObject, NodeInternal& ref_node) override;
+  virtual void GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
+  virtual WStatus InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const override;
 };

@@ -7,30 +7,30 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-EZ_DECLARE_FLAGS(ezUInt8, ezReflectionProbeUpdaterFlags, SkyLight, HasCustomCubeMap);
+W_DECLARE_FLAGS(WUInt8, WReflectionProbeUpdaterFlags, SkyLight, HasCustomCubeMap);
 
 /// Renders reflection probes and stores filtered mipmap chains into an atlas texture as well as computing sky irradiance
 /// Rendering sky irradiance is optional and only done if m_iIrradianceOutputIndex != -1.
-class ezReflectionProbeUpdater
+class WReflectionProbeUpdater
 {
 public:
   /// Defines the target specular reflection probe atlas and index as well as the sky irradiance atlas and index in case the rendered cube map is a sky light.
   struct TargetSlot
   {
-    ezGALTextureHandle m_hSpecularOutputTexture;   ///< Must be a valid cube map texture array handle.
-    ezGALTextureHandle m_hIrradianceOutputTexture; ///< Optional. Must be set if m_iIrradianceOutputIndex != -1.
-    ezInt32 m_iSpecularOutputIndex = -1;           ///< Must be a valid index into the atlas texture.
-    ezInt32 m_iIrradianceOutputIndex = -1;         ///< If -1, no irradiance is computed.
+    WGALTextureHandle m_hSpecularOutputTexture;   ///< Must be a valid cube map texture array handle.
+    WGALTextureHandle m_hIrradianceOutputTexture; ///< Optional. Must be set if m_iIrradianceOutputIndex != -1.
+    WInt32 m_iSpecularOutputIndex = -1;           ///< Must be a valid index into the atlas texture.
+    WInt32 m_iIrradianceOutputIndex = -1;         ///< If -1, no irradiance is computed.
   };
 
 public:
-  ezReflectionProbeUpdater();
-  ~ezReflectionProbeUpdater();
+  WReflectionProbeUpdater();
+  ~WReflectionProbeUpdater();
 
   /// Returns how many new probes can be started this frame.
   /// \param out_updatesFinished Contains the probes that finished last frame.
   /// \return The number of new probes can be started this frame.
-  ezUInt32 GetFreeUpdateSlots(ezDynamicArray<ezReflectionProbeRef>& out_updatesFinished);
+  WUInt32 GetFreeUpdateSlots(WDynamicArray<WReflectionProbeRef>& out_updatesFinished);
 
   /// Starts rendering a new reflection probe.
   ///
@@ -43,23 +43,23 @@ public:
   /// \param bFirstBake Set if the probe has no usable content yet. Allows rendering multiple faces per frame.
   /// \param bSkyLight Set for the sky light, which renders all six faces at once as its result invalidates all other probes.
   /// \param bSharingBudget Set if probes of the other kind (first bake vs. refresh) are also waiting. The per frame budget is then split between them instead of going to this probe alone.
-  /// \return Returns EZ_FAILURE if no more free slots are available.
-  ezResult StartDynamicUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, const ezTransform& globalTransform, const TargetSlot& target, bool bFirstBake = false, bool bSkyLight = false, bool bSharingBudget = false);
+  /// \return Returns W_FAILURE if no more free slots are available.
+  WResult StartDynamicUpdate(const WReflectionProbeRef& probe, const WReflectionProbeDesc& desc, const WTransform& globalTransform, const TargetSlot& target, bool bFirstBake = false, bool bSkyLight = false, bool bSharingBudget = false);
 
   /// Starts filtering an existing cube map into a new reflection probe.
   /// \param probe The world and probe index to be rendered. Used as an identifier.
   /// \param desc Probe render settings.
   /// \param sourceTexture Cube map that should be filtered into a reflection probe.
   /// \param target Where the probe should be rendered into.
-  /// \return Returns EZ_FAILURE if no more free slots are available.
-  ezResult StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle hSourceTexture, const TargetSlot& target);
+  /// \return Returns W_FAILURE if no more free slots are available.
+  WResult StartFilterUpdate(const WReflectionProbeRef& probe, const WReflectionProbeDesc& desc, WTextureCubeResourceHandle hSourceTexture, const TargetSlot& target);
 
   /// Returns whether a probe that has no content yet is currently being rendered.
   /// Used to decide whether the per frame budget has to be shared with such a probe.
   bool IsFirstBakeInProgress() const;
 
   /// Cancel a previously started update.
-  void CancelUpdate(const ezReflectionProbeRef& probe);
+  void CancelUpdate(const WReflectionProbeRef& probe);
 
   /// Generates update steps. Should be called in PreExtraction phase.
   void GenerateUpdateSteps();
@@ -70,13 +70,13 @@ public:
 private:
   struct ReflectionView
   {
-    ezViewHandle m_hView;
-    ezCamera m_Camera;
+    WViewHandle m_hView;
+    WCamera m_Camera;
   };
 
   struct UpdateStep
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
@@ -102,19 +102,19 @@ private:
     ProbeUpdateInfo();
     ~ProbeUpdateInfo();
 
-    ezBitflags<ezReflectionProbeUpdaterFlags> m_flags;
-    ezReflectionProbeRef m_probe;
-    ezReflectionProbeDesc m_desc;
-    ezTransform m_globalTransform;
-    ezTextureCubeResourceHandle m_sourceTexture;
+    WBitflags<WReflectionProbeUpdaterFlags> m_flags;
+    WReflectionProbeRef m_probe;
+    WReflectionProbeDesc m_desc;
+    WTransform m_globalTransform;
+    WTextureCubeResourceHandle m_sourceTexture;
     TargetSlot m_TargetSlot;
 
     struct Step
     {
-      EZ_DECLARE_POD_TYPE();
+      W_DECLARE_POD_TYPE();
 
-      ezUInt8 m_uiViewIndex;
-      ezEnum<UpdateStep> m_UpdateStep;
+      WUInt8 m_uiViewIndex;
+      WEnum<UpdateStep> m_UpdateStep;
     };
 
     bool m_bInUse = false;
@@ -122,31 +122,31 @@ private:
     // Whether this probe had no usable content when the update was started.
     bool m_bFirstBake = false;
 
-    ezEnum<UpdateStep> m_LastUpdateStep;
+    WEnum<UpdateStep> m_LastUpdateStep;
 
     // How many cube faces this probe may render in a single frame. 1 for probes that already have content.
-    ezUInt8 m_uiRenderBurst = 1;
+    WUInt8 m_uiRenderBurst = 1;
 
-    ezHybridArray<Step, 8> m_UpdateSteps;
+    WHybridArray<Step, 8> m_UpdateSteps;
 
-    ezGALTextureHandle m_hCubemap;
-    ezGALTextureHandle m_hCubemapProxies[6];
+    WGALTextureHandle m_hCubemap;
+    WGALTextureHandle m_hCubemapProxies[6];
   };
 
 private:
-  static void CreateViews(ezDynamicArray<ReflectionView>& views, ezUInt32 uiNumViews, const char* szNameSuffix, const char* szRenderPipelineResource);
-  static ezUInt8 ComputeRenderBurst(bool bFirstBake, bool bSkyLight, bool bSharingBudget);
+  static void CreateViews(WDynamicArray<ReflectionView>& views, WUInt32 uiNumViews, const char* szNameSuffix, const char* szRenderPipelineResource);
+  static WUInt8 ComputeRenderBurst(bool bFirstBake, bool bSkyLight, bool bSharingBudget);
   void CreateReflectionViewsAndResources();
 
-  void ResetProbeUpdateInfo(ezUInt32 uiInfo);
+  void ResetProbeUpdateInfo(WUInt32 uiInfo);
   void AddViewToRender(const ProbeUpdateInfo::Step& step, ProbeUpdateInfo& updateInfo);
 
   bool m_bUpdateStepsFlushed = true;
 
-  ezDynamicArray<ReflectionView> m_RenderViews;
-  ezDynamicArray<ReflectionView> m_FilterViews;
+  WDynamicArray<ReflectionView> m_RenderViews;
+  WDynamicArray<ReflectionView> m_FilterViews;
 
   // Active Dynamic Updates
-  ezDynamicArray<ezUniquePtr<ProbeUpdateInfo>> m_DynamicUpdates;
-  ezHybridArray<ezReflectionProbeRef, 4> m_FinishedLastFrame;
+  WDynamicArray<WUniquePtr<ProbeUpdateInfo>> m_DynamicUpdates;
+  WHybridArray<WReflectionProbeRef, 4> m_FinishedLastFrame;
 };

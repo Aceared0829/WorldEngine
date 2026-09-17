@@ -24,12 +24,12 @@
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 8, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneDocument, 8, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WSceneDocument_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezGameObject");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WGameObject");
 
   if (e.m_pObject->GetDocumentObjectManager()->GetDocument()->GetDocumentTypeName() != "Prefab")
     return;
@@ -44,23 +44,23 @@ void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
       return;
   }
 
-  const ezString name = e.m_pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+  const WString name = e.m_pObject->GetTypeAccessor().GetValue("Name").ConvertTo<WString>();
   if (name != "<Prefab-Root>")
     return;
 
   auto& props = *e.m_pPropertyStates;
   props["Name"].m_sNewLabelText = "Prefab.NameLabel";
-  props["Active"].m_Visibility = ezPropertyUiState::Invisible;
-  props["LocalPosition"].m_Visibility = ezPropertyUiState::Invisible;
-  props["LocalRotation"].m_Visibility = ezPropertyUiState::Invisible;
-  props["LocalScaling"].m_Visibility = ezPropertyUiState::Invisible;
-  props["LocalUniformScaling"].m_Visibility = ezPropertyUiState::Invisible;
-  props["GlobalKey"].m_Visibility = ezPropertyUiState::Invisible;
-  // props["Tags"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Active"].m_Visibility = WPropertyUiState::Invisible;
+  props["LocalPosition"].m_Visibility = WPropertyUiState::Invisible;
+  props["LocalRotation"].m_Visibility = WPropertyUiState::Invisible;
+  props["LocalScaling"].m_Visibility = WPropertyUiState::Invisible;
+  props["LocalUniformScaling"].m_Visibility = WPropertyUiState::Invisible;
+  props["GlobalKey"].m_Visibility = WPropertyUiState::Invisible;
+  // props["Tags"].m_Visibility = WPropertyUiState::Invisible;
 }
 
-ezSceneDocument::ezSceneDocument(ezStringView sDocumentPath, DocumentType documentType)
-  : ezGameObjectDocument(sDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
+WSceneDocument::WSceneDocument(WStringView sDocumentPath, DocumentType documentType)
+  : WGameObjectDocument(sDocumentPath, W_DEFAULT_NEW(WSceneObjectManager))
 {
   m_DocumentType = documentType;
   m_GameMode = GameMode::Off;
@@ -78,68 +78,68 @@ ezSceneDocument::ezSceneDocument(ezStringView sDocumentPath, DocumentType docume
   m_GameModeData[GameMode::Play].m_bRenderShapeIcons = false;
   m_GameModeData[GameMode::Play].m_bRenderVisualizers = false;
 
-  GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::SelectionManagerEventHandler, this), m_SelectionHandlerUnsubscriber);
+  GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WSceneDocument::SelectionManagerEventHandler, this), m_SelectionHandlerUnsubscriber);
 }
 
-void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const WDocumentObject* pObject, WStringView sProperty) -> bool
     { return pManager->IsUnderRootProperty("Settings", pObject, sProperty); });
   // (Remote IPC mirror only sends scene)
-  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const WDocumentObject* pObject, WStringView sProperty) -> bool
     { return pManager->IsUnderRootProperty("Children", pObject, sProperty); });
 
   EnsureSettingsObjectExist();
 
-  m_DocumentObjectMetaData->m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
-  ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+  m_DocumentObjectMetaData->m_DataModifiedEvent.AddEventHandler(WMakeDelegate(&WSceneDocument::DocumentObjectMetaDataEventHandler, this));
+  WToolsProject::s_Events.AddEventHandler(WMakeDelegate(&WSceneDocument::ToolsProjectEventHandler, this));
+  WEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(WMakeDelegate(&WSceneDocument::EngineConnectionEventHandler, this));
 
   m_ObjectMirror.InitSender(GetObjectManager());
   m_ObjectMirror.InitReceiver(&m_Context);
   m_ObjectMirror.SendDocument();
 
-  GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ChildOrderStructureEventHandler, this), m_ChildOrderStructureEventUnsubscriber);
+  GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WSceneDocument::ChildOrderStructureEventHandler, this), m_ChildOrderStructureEventUnsubscriber);
 
   // Layer sub-documents have their storage swapped into the main document's command history when active,
   // so subscribe to the main document's command history to catch those transaction events.
-  ezCommandHistory* pHistory = IsMainDocument() ? GetCommandHistory() : static_cast<ezSceneDocument*>(GetMainDocument())->GetCommandHistory();
-  pHistory->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ChildOrderCommandHistoryEventHandler, this), m_ChildOrderCommandHistoryUnsubscriber);
+  WCommandHistory* pHistory = IsMainDocument() ? GetCommandHistory() : static_cast<WSceneDocument*>(GetMainDocument())->GetCommandHistory();
+  pHistory->m_Events.AddEventHandler(WMakeDelegate(&WSceneDocument::ChildOrderCommandHistoryEventHandler, this), m_ChildOrderCommandHistoryUnsubscriber);
 }
 
-ezSceneDocument::~ezSceneDocument()
+WSceneDocument::~WSceneDocument()
 {
   m_SelectionHandlerUnsubscriber.Unsubscribe();
 
-  m_DocumentObjectMetaData->m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
+  m_DocumentObjectMetaData->m_DataModifiedEvent.RemoveEventHandler(WMakeDelegate(&WSceneDocument::DocumentObjectMetaDataEventHandler, this));
 
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
+  WToolsProject::s_Events.RemoveEventHandler(WMakeDelegate(&WSceneDocument::ToolsProjectEventHandler, this));
 
-  ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+  WEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(WMakeDelegate(&WSceneDocument::EngineConnectionEventHandler, this));
 
   m_ObjectMirror.Clear();
   m_ObjectMirror.DeInit();
 }
 
-void ezSceneDocument::GroupSelection()
+void WSceneDocument::GroupSelection()
 {
   const auto& sel = GetSelectionManager()->GetSelection();
-  const ezUInt32 numSel = sel.GetCount();
+  const WUInt32 numSel = sel.GetCount();
   if (numSel <= 1)
     return;
 
-  const ezDocumentObject* pCommonParent = sel[0]->GetParent();
+  const WDocumentObject* pCommonParent = sel[0]->GetParent();
 
-  // this happens for top-level objects, their parent object is an ezDocumentRootObject
-  if (pCommonParent->GetType() != ezGetStaticRTTI<ezGameObject>())
+  // this happens for top-level objects, their parent object is an WDocumentRootObject
+  if (pCommonParent->GetType() != WGetStaticRTTI<WGameObject>())
   {
     pCommonParent = nullptr;
   }
 
-  const ezTransform tGroup = GetGlobalTransform(GetSelectionManager()->GetCurrentObject());
+  const WTransform tGroup = GetGlobalTransform(GetSelectionManager()->GetCurrentObject());
 
   for (const auto& item : sel)
   {
@@ -153,11 +153,11 @@ void ezSceneDocument::GroupSelection()
 
   pHistory->StartTransaction("Group Selection");
 
-  ezUuid groupObj = ezUuid::MakeUuid();
+  WUuid groupObj = WUuid::MakeUuid();
 
-  ezAddObjectCommand cmdAdd;
+  WAddObjectCommand cmdAdd;
   cmdAdd.m_NewObjectGuid = groupObj;
-  cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
+  cmdAdd.m_pType = WGetStaticRTTI<WGameObject>();
   cmdAdd.m_Index = -1;
   cmdAdd.m_sParentProperty = "Children";
 
@@ -166,7 +166,7 @@ void ezSceneDocument::GroupSelection()
   // put the new group object under the shared parent
   if (pCommonParent != nullptr)
   {
-    ezMoveObjectCommand cmdMove;
+    WMoveObjectCommand cmdMove;
     cmdMove.m_NewParent = pCommonParent->GetGuid();
     cmdMove.m_Index = -1;
     cmdMove.m_sParentProperty = "Children";
@@ -178,7 +178,7 @@ void ezSceneDocument::GroupSelection()
   auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
   SetGlobalTransform(pGroupObject, tGroup, TransformationChanges::All);
 
-  ezMoveObjectCommand cmdMove;
+  WMoveObjectCommand cmdMove;
   cmdMove.m_NewParent = cmdAdd.m_NewObjectGuid;
   cmdMove.m_Index = -1;
   cmdMove.m_sParentProperty = "Children";
@@ -191,23 +191,23 @@ void ezSceneDocument::GroupSelection()
 
   pHistory->FinishTransaction();
 
-  const ezDocumentObject* pGroupObj = GetObjectManager()->GetObject(groupObj);
+  const WDocumentObject* pGroupObj = GetObjectManager()->GetObject(groupObj);
 
   GetSelectionManager()->SetSelection(pGroupObj);
 
-  ShowDocumentStatus(ezFmt("Grouped {} objects", numSel));
+  ShowDocumentStatus(WFmt("Grouped {} objects", numSel));
 }
 
-void ezSceneDocument::SelectParentObject()
+void WSceneDocument::SelectParentObject()
 {
   const auto& Sel = GetSelectionManager()->GetSelection();
 
   if (Sel.IsEmpty())
     return;
 
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const auto& ctxt = WQtEngineViewWidget::GetInteractionContext();
 
-  const ezDocumentObject* pObject = GetObjectManager()->GetObject(Sel[0]->GetGuid());
+  const WDocumentObject* pObject = GetObjectManager()->GetObject(Sel[0]->GetGuid());
 
   if (pObject->GetParent() && pObject->GetParent() != GetObjectManager()->GetRootObject())
   {
@@ -219,7 +219,7 @@ void ezSceneDocument::SelectParentObject()
   }
 }
 
-void ezSceneDocument::SetSelectedAsActiveParent()
+void WSceneDocument::SetSelectedAsActiveParent()
 {
   const auto& sel = GetSelectionManager()->GetSelection();
 
@@ -229,39 +229,39 @@ void ezSceneDocument::SetSelectedAsActiveParent()
   SetActiveParent(sel.PeekBack()->GetGuid());
 }
 
-void ezSceneDocument::ClearActiveParent()
+void WSceneDocument::ClearActiveParent()
 {
-  SetActiveParent(ezUuid::MakeInvalid());
+  SetActiveParent(WUuid::MakeInvalid());
 }
 
-void ezSceneDocument::DuplicateSpecial()
+void WSceneDocument::DuplicateSpecial()
 {
   if (GetSelectionManager()->IsSelectionEmpty())
     return;
 
-  ezQtDuplicateDlg dlg(nullptr);
+  WQtDuplicateDlg dlg(nullptr);
   if (dlg.exec() == QDialog::Rejected)
     return;
 
-  ezMap<ezUuid, ezUuid> parents;
+  WMap<WUuid, WUuid> parents;
 
-  ezAbstractObjectGraph graph;
+  WAbstractObjectGraph graph;
   CopySelectedObjects(graph, &parents);
 
-  ezStringBuilder temp, tmp1, tmp2;
+  WStringBuilder temp, tmp1, tmp2;
   for (auto it = parents.GetIterator(); it.IsValid(); ++it)
   {
-    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key(), tmp1), ezConversionUtils::ToString(it.Value(), tmp2));
+    temp.AppendFormat("{0}={1};", WConversionUtils::ToString(it.Key(), tmp1), WConversionUtils::ToString(it.Value(), tmp2));
   }
 
   // Serialize to string
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
+  WAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
   memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
 
-  ezDuplicateObjectsCommand cmd;
+  WDuplicateObjectsCommand cmd;
   cmd.m_sGraphTextFormat = (const char*)streamStorage.GetData();
   cmd.m_sParentNodes = temp;
   cmd.m_uiNumberOfCopies = dlg.s_uiNumberOfCopies;
@@ -272,8 +272,8 @@ void ezSceneDocument::DuplicateSpecial()
   cmd.m_bGroupDuplicates = dlg.s_bGroupCopies;
   cmd.m_iRevolveAxis = dlg.s_iRevolveAxis;
   cmd.m_fRevolveRadius = dlg.s_fRevolveRadius;
-  cmd.m_RevolveStartAngle = ezAngle::MakeFromDegree(dlg.s_iRevolveStartAngle);
-  cmd.m_RevolveAngleStep = ezAngle::MakeFromDegree(dlg.s_iRevolveAngleStep);
+  cmd.m_RevolveStartAngle = WAngle::MakeFromDegree(dlg.s_iRevolveStartAngle);
+  cmd.m_RevolveAngleStep = WAngle::MakeFromDegree(dlg.s_iRevolveAngleStep);
 
   auto history = GetCommandHistory();
 
@@ -286,28 +286,28 @@ void ezSceneDocument::DuplicateSpecial()
 }
 
 
-void ezSceneDocument::DeltaTransform()
+void WSceneDocument::DeltaTransform()
 {
   if (GetSelectionManager()->IsSelectionEmpty())
     return;
 
-  ezQtDeltaTransformDlg dlg(nullptr, this);
+  WQtDeltaTransformDlg dlg(nullptr, this);
   dlg.exec();
 }
 
-void ezSceneDocument::SnapObjectToCamera()
+void WSceneDocument::SnapObjectToCamera()
 {
   const auto& selection = GetSelectionManager()->GetSelection();
 
   if (selection.IsEmpty())
     return;
 
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const auto& ctxt = WQtEngineViewWidget::GetInteractionContext();
 
   if (ctxt.m_pLastHoveredViewWidget == nullptr)
     return;
 
-  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != WSceneViewPerspective::Perspective)
   {
     ShowDocumentStatus("Note: This operation can only be performed in perspective views.");
     return;
@@ -315,21 +315,21 @@ void ezSceneDocument::SnapObjectToCamera()
 
   const auto& camera = ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
-  ezMat3 mRot;
+  WMat3 mRot;
 
-  ezTransform transform;
+  WTransform transform;
   transform.m_vScale.Set(1.0f);
   transform.m_vPosition = camera.GetCenterPosition();
   mRot.SetColumn(0, camera.GetCenterDirForwards());
   mRot.SetColumn(1, camera.GetCenterDirRight());
   mRot.SetColumn(2, camera.GetCenterDirUp());
-  transform.m_qRotation = ezQuat::MakeFromMat3(mRot);
+  transform.m_qRotation = WQuat::MakeFromMat3(mRot);
 
   auto* pHistory = GetCommandHistory();
 
   pHistory->StartTransaction("Snap Object to Camera");
   {
-    for (const ezDocumentObject* pObject : selection)
+    for (const WDocumentObject* pObject : selection)
     {
       SetGlobalTransform(pObject, transform, TransformationChanges::Translation | TransformationChanges::Rotation);
     }
@@ -338,24 +338,24 @@ void ezSceneDocument::SnapObjectToCamera()
 }
 
 
-void ezSceneDocument::AttachToObject()
+void WSceneDocument::AttachToObject()
 {
   const auto& selection = GetSelectionManager()->GetSelection();
 
   if (selection.IsEmpty())
     return;
 
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const auto& ctxt = WQtEngineViewWidget::GetInteractionContext();
   if (ctxt.m_pLastHoveredViewWidget == nullptr || ctxt.m_pLastPickingResult == nullptr || !ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
     return;
 
   if (GetObjectManager()->GetObject(ctxt.m_pLastPickingResult->m_PickedObject) == nullptr)
   {
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(ezStatus(EZ_FAILURE), "Target object belongs to a different document.");
+    WQtUiServices::GetSingleton()->MessageBoxStatus(WStatus(W_FAILURE), "Target object belongs to a different document.");
     return;
   }
 
-  ezMoveObjectCommand cmd;
+  WMoveObjectCommand cmd;
   cmd.m_sParentProperty = "Children";
   cmd.m_NewParent = ctxt.m_pLastPickingResult->m_PickedObject;
   cmd.m_Index = -1;
@@ -364,14 +364,14 @@ void ezSceneDocument::AttachToObject()
 
   pHistory->StartTransaction("Attach to Object");
   {
-    for (const ezDocumentObject* pObject : selection)
+    for (const WDocumentObject* pObject : selection)
     {
       cmd.m_Object = pObject->GetGuid();
 
       auto res = pHistory->AddCommand(cmd);
       if (res.Failed())
       {
-        ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Attach to object failed");
+        WQtUiServices::GetSingleton()->MessageBoxStatus(res, "Attach to object failed");
         pHistory->CancelTransaction();
         return;
       }
@@ -380,28 +380,28 @@ void ezSceneDocument::AttachToObject()
   pHistory->FinishTransaction();
 }
 
-void ezSceneDocument::DetachFromParent()
+void WSceneDocument::DetachFromParent()
 {
   const auto& selection = GetSelectionManager()->GetSelection();
 
   if (selection.IsEmpty())
     return;
 
-  ezMoveObjectCommand cmd;
+  WMoveObjectCommand cmd;
   cmd.m_sParentProperty = "Children";
 
   auto* pHistory = GetCommandHistory();
 
   pHistory->StartTransaction("Detach from Parent");
   {
-    for (const ezDocumentObject* pObject : selection)
+    for (const WDocumentObject* pObject : selection)
     {
       cmd.m_Object = pObject->GetGuid();
 
       auto res = pHistory->AddCommand(cmd);
       if (res.Failed())
       {
-        ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Detach from parent failed");
+        WQtUiServices::GetSingleton()->MessageBoxStatus(res, "Detach from parent failed");
         pHistory->CancelTransaction();
         return;
       }
@@ -409,38 +409,38 @@ void ezSceneDocument::DetachFromParent()
   }
   pHistory->FinishTransaction();
 
-  ShowDocumentStatus(ezFmt("Detached {} objects", selection.GetCount()));
+  ShowDocumentStatus(WFmt("Detached {} objects", selection.GetCount()));
 
   // reapply the selection to fix tree views etc. after the re-parenting
-  ezDeque<const ezDocumentObject*> prevSelection = selection;
+  WDeque<const WDocumentObject*> prevSelection = selection;
   GetSelectionManager()->Clear();
   GetSelectionManager()->SetSelection(prevSelection);
 }
 
-void ezSceneDocument::SyncChildOrderForObject(const ezDocumentObject* pObj)
+void WSceneDocument::SyncChildOrderForObject(const WDocumentObject* pObj)
 {
-  for (const ezDocumentObject* pComp : pObj->GetChildren())
+  for (const WDocumentObject* pComp : pObj->GetChildren())
   {
     if (pComp->GetParentProperty() != "Components")
       continue;
 
-    if (pComp->GetType()->GetAttributeByType<ezSyncChildOrderAttribute>() == nullptr)
+    if (pComp->GetType()->GetAttributeByType<WSyncChildOrderAttribute>() == nullptr)
       continue;
 
-    ezSyncChildOrderMsgToEngine msg;
+    WSyncChildOrderMsgToEngine msg;
     // Sub-documents (layers) must use the main document's GUID and connection.
-    ezSceneDocument* pMainDoc = IsMainDocument() ? this : static_cast<ezSceneDocument*>(GetMainDocument());
+    WSceneDocument* pMainDoc = IsMainDocument() ? this : static_cast<WSceneDocument*>(GetMainDocument());
     msg.m_DocumentGuid = pMainDoc->GetGuid();
-    msg.m_LayerGuid = IsMainDocument() ? ezUuid() : GetGuid();
+    msg.m_LayerGuid = IsMainDocument() ? WUuid() : GetGuid();
     msg.m_ComponentGuid = pComp->GetGuid();
 
-    const ezIReflectedTypeAccessor& accessor = pObj->GetTypeAccessor();
-    const ezInt32 iCount = accessor.GetCount("Children");
-    for (ezInt32 i = 0; i < iCount; ++i)
+    const WIReflectedTypeAccessor& accessor = pObj->GetTypeAccessor();
+    const WInt32 iCount = accessor.GetCount("Children");
+    for (WInt32 i = 0; i < iCount; ++i)
     {
-      ezVariant val = accessor.GetValue("Children", i);
-      if (val.IsA<ezUuid>())
-        msg.m_ChildOrder.PushBack(val.Get<ezUuid>());
+      WVariant val = accessor.GetValue("Children", i);
+      if (val.IsA<WUuid>())
+        msg.m_ChildOrder.PushBack(val.Get<WUuid>());
     }
 
     if (!msg.m_ChildOrder.IsEmpty())
@@ -451,26 +451,26 @@ void ezSceneDocument::SyncChildOrderForObject(const ezDocumentObject* pObj)
   }
 }
 
-void ezSceneDocument::SyncChildOrderForSelection()
+void WSceneDocument::SyncChildOrderForSelection()
 {
-  for (const ezDocumentObject* pObj : GetSelectionManager()->GetSelection())
+  for (const WDocumentObject* pObj : GetSelectionManager()->GetSelection())
     SyncChildOrderForObject(pObj);
 }
 
-void ezSceneDocument::SyncAllChildOrders()
+void WSceneDocument::SyncAllChildOrders()
 {
-  ApplyRecursive(GetObjectManager()->GetRootObject(), [this](const ezDocumentObject* pObj)
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this](const WDocumentObject* pObj)
     { SyncChildOrderForObject(pObj); });
 }
 
-void ezSceneDocument::SendPendingChildOrderSyncs()
+void WSceneDocument::SendPendingChildOrderSyncs()
 {
   if (m_PendingChildOrderSync.IsEmpty())
     return;
 
-  for (const ezUuid& guid : m_PendingChildOrderSync)
+  for (const WUuid& guid : m_PendingChildOrderSync)
   {
-    const ezDocumentObject* pObj = GetObjectManager()->GetObject(guid);
+    const WDocumentObject* pObj = GetObjectManager()->GetObject(guid);
     if (pObj != nullptr)
       SyncChildOrderForObject(pObj);
   }
@@ -478,28 +478,28 @@ void ezSceneDocument::SendPendingChildOrderSyncs()
   m_PendingChildOrderSync.Clear();
 }
 
-void ezSceneDocument::ChildOrderStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WSceneDocument::ChildOrderStructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+    case WDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case WDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::AfterObjectMoved2:
     {
       if (e.m_sParentProperty != "Children")
         break;
 
-      const ezDocumentObject* pParent =
-        (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved) ? e.m_pPreviousParent : e.m_pNewParent;
+      const WDocumentObject* pParent =
+        (e.m_EventType == WDocumentObjectStructureEvent::Type::AfterObjectRemoved) ? e.m_pPreviousParent : e.m_pNewParent;
 
       if (pParent == nullptr)
         break;
 
-      for (const ezDocumentObject* pComp : pParent->GetChildren())
+      for (const WDocumentObject* pComp : pParent->GetChildren())
       {
         if (pComp->GetParentProperty() != "Components")
           continue;
-        if (pComp->GetType()->GetAttributeByType<ezSyncChildOrderAttribute>() != nullptr)
+        if (pComp->GetType()->GetAttributeByType<WSyncChildOrderAttribute>() != nullptr)
         {
           m_PendingChildOrderSync.Insert(pParent->GetGuid());
           break;
@@ -512,16 +512,16 @@ void ezSceneDocument::ChildOrderStructureEventHandler(const ezDocumentObjectStru
   }
 }
 
-void ezSceneDocument::ChildOrderCommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+void WSceneDocument::ChildOrderCommandHistoryEventHandler(const WCommandHistoryEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezCommandHistoryEvent::Type::TransactionEnded:
-    case ezCommandHistoryEvent::Type::UndoEnded:
-    case ezCommandHistoryEvent::Type::RedoEnded:
+    case WCommandHistoryEvent::Type::TransactionEnded:
+    case WCommandHistoryEvent::Type::UndoEnded:
+    case WCommandHistoryEvent::Type::RedoEnded:
       SendPendingChildOrderSyncs();
       break;
-    case ezCommandHistoryEvent::Type::TransactionCanceled:
+    case WCommandHistoryEvent::Type::TransactionCanceled:
       m_PendingChildOrderSync.Clear();
       break;
     default:
@@ -529,32 +529,32 @@ void ezSceneDocument::ChildOrderCommandHistoryEventHandler(const ezCommandHistor
   }
 }
 
-void ezSceneDocument::CopyReference()
+void WSceneDocument::CopyReference()
 {
   if (GetSelectionManager()->GetSelection().GetCount() != 1)
     return;
 
-  const ezUuid guid = GetSelectionManager()->GetSelection()[0]->GetGuid();
+  const WUuid guid = GetSelectionManager()->GetSelection()[0]->GetGuid();
 
-  ezStringBuilder sGuid;
-  ezConversionUtils::ToString(guid, sGuid);
+  WStringBuilder sGuid;
+  WConversionUtils::ToString(guid, sGuid);
 
   QApplication::clipboard()->setText(sGuid.GetData());
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", sGuid), ezTime::MakeFromSeconds(5));
+  WQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(WFmt("Copied Object Reference: {}", sGuid), WTime::MakeFromSeconds(5));
 }
 
-ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu)
+WStatus WSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu)
 {
-  const ezRTTI* pComponentType = ezRTTI::FindTypeByName("ezShapeIconComponent");
+  const WRTTI* pComponentType = WRTTI::FindTypeByName("WShapeIconComponent");
 
   if (bComponentSelectionMenu)
   {
     // show the context menu to select a component type
 
     QMenu m;
-    ezQtTypeMenu tm;
-    tm.FillMenu(&m, ezGetStaticRTTI<ezComponent>(), true, false);
+    WQtTypeMenu tm;
+    tm.FillMenu(&m, WGetStaticRTTI<WComponent>(), true, false);
 
     m.exec(QCursor::pos());
 
@@ -569,23 +569,23 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
 
   history->StartTransaction("Create Node");
 
-  ezAddObjectCommand cmdAdd;
-  cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
+  WAddObjectCommand cmdAdd;
+  cmdAdd.m_pType = WGetStaticRTTI<WGameObject>();
   cmdAdd.m_sParentProperty = "Children";
   cmdAdd.m_Index = -1;
 
-  ezUuid NewNode;
+  WUuid NewNode;
 
   const auto& Sel = GetSelectionManager()->GetSelection();
 
   if (Sel.IsEmpty() || !bAttachToParent)
   {
-    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+    cmdAdd.m_NewObjectGuid = WUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     if (!bAttachToParent)
     {
-      const ezUuid activeParent = GetRedirectedGameObjectDoc()->GetActiveParent();
+      const WUuid activeParent = GetRedirectedGameObjectDoc()->GetActiveParent();
 
       // the object may not exist anymore
       if (auto pParentObj = GetObjectManager()->GetObject(activeParent))
@@ -603,7 +603,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
   }
   else
   {
-    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+    cmdAdd.m_NewObjectGuid = WUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     cmdAdd.m_Parent = Sel[0]->GetGuid();
@@ -615,23 +615,23 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
     }
   }
 
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const auto& ctxt = WQtEngineViewWidget::GetInteractionContext();
 
   if (!bAttachToParent && bAtPickedPosition && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN())
   {
-    ezVec3 position = ctxt.m_pLastPickingResult->m_vPickedPosition;
+    WVec3 position = ctxt.m_pLastPickingResult->m_vPickedPosition;
 
-    ezSnapProvider::SnapTranslation(position);
+    WSnapProvider::SnapTranslation(position);
 
-    ezSetObjectPropertyCommand cmdSet;
+    WSetObjectPropertyCommand cmdSet;
     cmdSet.m_NewValue = position;
     cmdSet.m_Object = NewNode;
     cmdSet.m_sProperty = "LocalPosition";
 
     if (auto pParentObj = GetObjectManager()->GetObject(cmdAdd.m_Parent))
     {
-      const ezTransform tParent = GetGlobalTransform(pParentObj);
-      const ezTransform tRel = ezTransform::MakeLocalTransform(tParent, ezTransform(position, ezQuat::MakeIdentity()));
+      const WTransform tParent = GetGlobalTransform(pParentObj);
+      const WTransform tRel = WTransform::MakeLocalTransform(tParent, WTransform(position, WQuat::MakeIdentity()));
 
       cmdSet.m_NewValue = tRel.m_vPosition;
     }
@@ -646,7 +646,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
 
   // Add a dummy shape icon component, which enables picking
   {
-    ezAddObjectCommand cmdAdd;
+    WAddObjectCommand cmdAdd;
     cmdAdd.m_pType = pComponentType;
     cmdAdd.m_sParentProperty = "Components";
     cmdAdd.m_Index = -1;
@@ -658,44 +658,44 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
   history->FinishTransaction();
 
   GetSelectionManager()->SetSelection(GetObjectManager()->GetObject(NewNode));
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezSceneDocument::DuplicateSelection()
+void WSceneDocument::DuplicateSelection()
 {
-  ezMap<ezUuid, ezUuid> parents;
+  WMap<WUuid, WUuid> parents;
 
-  ezAbstractObjectGraph graph;
+  WAbstractObjectGraph graph;
   CopySelectedObjects(graph, &parents);
 
-  ezStringBuilder temp, tmp1, tmp2;
+  WStringBuilder temp, tmp1, tmp2;
   for (auto it = parents.GetIterator(); it.IsValid(); ++it)
   {
-    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key(), tmp1), ezConversionUtils::ToString(it.Value(), tmp2));
+    temp.AppendFormat("{0}={1};", WConversionUtils::ToString(it.Key(), tmp1), WConversionUtils::ToString(it.Value(), tmp2));
   }
 
   // Serialize to string
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
+  WAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
   memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
 
-  ezDuplicateObjectsCommand cmd;
+  WDuplicateObjectsCommand cmd;
   cmd.m_sGraphTextFormat = (const char*)streamStorage.GetData();
   cmd.m_sParentNodes = temp;
 
   // When exactly one object is selected, place the duplicate right after the original in the parent's children list.
   if (parents.GetCount() == 1)
   {
-    ezTempHybridArray<ezSelectionEntry, 4> topLevelSel;
+    WTempHybridArray<WSelectionEntry, 4> topLevelSel;
     GetSelectionManager()->GetTopLevelSelection(topLevelSel);
 
     if (topLevelSel.GetCount() == 1)
     {
-      const ezVariant idx = topLevelSel[0].m_pObject->GetPropertyIndex();
+      const WVariant idx = topLevelSel[0].m_pObject->GetPropertyIndex();
       if (idx.IsValid())
-        cmd.m_iInsertIndex = idx.ConvertTo<ezInt32>() + 1;
+        cmd.m_iInsertIndex = idx.ConvertTo<WInt32>() + 1;
     }
   }
 
@@ -709,7 +709,7 @@ void ezSceneDocument::DuplicateSelection()
     history->FinishTransaction();
 }
 
-void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
+void WSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
 
@@ -717,30 +717,30 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
 
   for (auto pItem : sel)
   {
-    if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
       continue;
 
-    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
+    ApplyRecursive(pItem, [this, bHide](const WDocumentObject* pObj)
       {
       auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObj->GetGuid());
       if (pMeta->m_bHidden != bHide)
       {
         pMeta->m_bHidden = bHide;
-        m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::HiddenFlag);
+        m_DocumentObjectMetaData->EndModifyMetaData(WDocumentObjectMetaData::HiddenFlag);
       }
       else
         m_DocumentObjectMetaData->EndModifyMetaData(0); });
   }
 }
 
-void ezSceneDocument::HideUnselectedObjects()
+void WSceneDocument::HideUnselectedObjects()
 {
   ShowOrHideAllObjects(ShowOrHide::Hide);
 
   ShowOrHideSelectedObjects(ShowOrHide::Show);
 }
 
-void ezSceneDocument::SetGameMode(GameMode::Enum mode)
+void WSceneDocument::SetGameMode(GameMode::Enum mode)
 {
   if (m_GameMode == mode)
     return;
@@ -774,30 +774,30 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
     SendGameWorldToEngine();
   }
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::GameModeChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::GameModeChanged;
   m_GameObjectEvents.Broadcast(e);
 
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
+WStatus WSceneDocument::CreatePrefabDocumentFromSelection(WStringView sFile, const WRTTI* pRootType, WDelegate<void(WAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, WDelegate<void(WDocumentObject*)> adjustNewNodesCB /* = {} */, WDelegate<void(WAbstractObjectGraph& graph, WDynamicArray<WAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
-  ezTempHybridArray<ezSelectionEntry, 32> Selection;
+  WTempHybridArray<WSelectionEntry, 32> Selection;
   GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, Selection);
 
   if (Selection.IsEmpty())
-    return ezStatus("To create a prefab, the selection must not be empty");
+    return WStatus("To create a prefab, the selection must not be empty");
 
-  const ezTransform tReference = QueryLocalTransform(Selection.PeekBack().m_pObject);
+  const WTransform tReference = QueryLocalTransform(Selection.PeekBack().m_pObject);
 
-  ezVariantArray varChildren;
+  WVariantArray varChildren;
 
-  auto centerNodes = [tReference, &varChildren](ezAbstractObjectNode* pGraphNode)
+  auto centerNodes = [tReference, &varChildren](WAbstractObjectNode* pGraphNode)
   {
     if (auto pPosition = pGraphNode->FindProperty("LocalPosition"))
     {
-      ezVec3 pos = pPosition->m_Value.ConvertTo<ezVec3>();
+      WVec3 pos = pPosition->m_Value.ConvertTo<WVec3>();
       pos -= tReference.m_vPosition;
 
       pGraphNode->ChangeProperty("LocalPosition", pos);
@@ -805,7 +805,7 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, 
 
     if (auto pRotation = pGraphNode->FindProperty("LocalRotation"))
     {
-      ezQuat rot = pRotation->m_Value.ConvertTo<ezQuat>();
+      WQuat rot = pRotation->m_Value.ConvertTo<WQuat>();
       rot = tReference.m_qRotation.GetInverse() * rot;
 
       pGraphNode->ChangeProperty("LocalRotation", rot);
@@ -814,11 +814,11 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, 
     varChildren.PushBack(pGraphNode->GetGuid());
   };
 
-  auto adjustResult = [tReference, this](ezDocumentObject* pObject)
+  auto adjustResult = [tReference, this](WDocumentObject* pObject)
   {
-    const ezTransform tOld = QueryLocalTransform(pObject);
+    const WTransform tOld = QueryLocalTransform(pObject);
 
-    ezSetObjectPropertyCommand cmd;
+    WSetObjectPropertyCommand cmd;
     cmd.m_Object = pObject->GetGuid();
 
     cmd.m_sProperty = "LocalPosition";
@@ -830,7 +830,7 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, 
     GetCommandHistory()->AddCommand(cmd).AssertSuccess();
   };
 
-  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& ref_graphRootNodes)
+  auto finalizeGraph = [this, &varChildren](WAbstractObjectGraph& ref_graph, WDynamicArray<WAbstractObjectNode*>& ref_graphRootNodes)
   {
     if (ref_graphRootNodes.GetCount() == 1)
     {
@@ -838,9 +838,9 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, 
     }
     else
     {
-      const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+      const WRTTI* pRtti = WGetStaticRTTI<WGameObject>();
 
-      ezAbstractObjectNode* pRoot = ref_graph.AddNode(ezUuid::MakeUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
+      WAbstractObjectNode* pRoot = ref_graph.AddNode(WUuid::MakeUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
       pRoot->AddProperty("Name", "<Prefab-Root>");
       pRoot->AddProperty("Children", varChildren);
 
@@ -859,12 +859,12 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, 
   return SUPER::CreatePrefabDocumentFromSelection(sFile, pRootType, adjustGraphNodeCB, adjustNewNodesCB, finalizeGraphCB);
 }
 
-bool ezSceneDocument::CanEngineProcessBeRestarted() const
+bool WSceneDocument::CanEngineProcessBeRestarted() const
 {
   return m_GameMode == GameMode::Off;
 }
 
-void ezSceneDocument::StartSimulateWorld()
+void WSceneDocument::StartSimulateWorld()
 {
   if (m_GameMode != GameMode::Off)
   {
@@ -873,8 +873,8 @@ void ezSceneDocument::StartSimulateWorld()
   }
 
   {
-    ezGameObjectDocumentEvent e;
-    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate;
+    WGameObjectDocumentEvent e;
+    e.m_Type = WGameObjectDocumentEvent::Type::GameMode_StartingSimulate;
     e.m_pDocument = this;
     s_GameObjectDocumentEvents.Broadcast(e);
   }
@@ -883,7 +883,7 @@ void ezSceneDocument::StartSimulateWorld()
 }
 
 
-void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
+void WSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
 {
   if (m_GameMode != GameMode::Off)
   {
@@ -892,8 +892,8 @@ void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
   }
 
   {
-    ezGameObjectDocumentEvent e;
-    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_StartingPlay;
+    WGameObjectDocumentEvent e;
+    e.m_Type = WGameObjectDocumentEvent::Type::GameMode_StartingPlay;
     e.m_pDocument = this;
     s_GameObjectDocumentEvents.Broadcast(e);
   }
@@ -903,22 +903,22 @@ void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
   // attempt to start PTG
   // do not change state here
   {
-    ezGameModeMsgToEngine msg;
+    WGameModeMsgToEngine msg;
     msg.m_bEnablePTG = true;
     msg.m_bUseStartPosition = false;
 
     if (bUsePickedPositionAsStart)
     {
-      const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+      const auto& ctxt = WQtEngineViewWidget::GetInteractionContext();
 
       if (ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastHoveredViewWidget->GetDocumentWindow()->GetDocument() == this)
       {
         msg.m_bUseStartPosition = true;
         msg.m_vStartPosition = ctxt.m_pLastPickingResult->m_vPickedPosition;
 
-        ezVec3 vPickDir = ctxt.m_pLastPickingResult->m_vPickedPosition - ctxt.m_pLastPickingResult->m_vPickingRayStart;
+        WVec3 vPickDir = ctxt.m_pLastPickingResult->m_vPickedPosition - ctxt.m_pLastPickingResult->m_vPickingRayStart;
         vPickDir.z = 0;
-        vPickDir.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
+        vPickDir.NormalizeIfNotZero(WVec3(1, 0, 0)).IgnoreResult();
 
         msg.m_vStartDirection = vPickDir;
       }
@@ -929,7 +929,7 @@ void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
 }
 
 
-bool ezSceneDocument::StopGameMode()
+bool WSceneDocument::StopGameMode()
 {
   if (m_GameMode == GameMode::Off)
     return false;
@@ -945,15 +945,15 @@ bool ezSceneDocument::StopGameMode()
     // attempt to stop PTG
     // do not change any state, that will be done by the response msg
     {
-      ezGameModeMsgToEngine msg;
+      WGameModeMsgToEngine msg;
       msg.m_bEnablePTG = false;
       GetEditorEngineConnection()->SendMessage(&msg);
     }
   }
 
   {
-    ezGameObjectDocumentEvent e;
-    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_Stopped;
+    WGameObjectDocumentEvent e;
+    e.m_Type = WGameObjectDocumentEvent::Type::GameMode_Stopped;
     e.m_pDocument = this;
     s_GameObjectDocumentEvents.Broadcast(e);
   }
@@ -961,64 +961,64 @@ bool ezSceneDocument::StopGameMode()
   return true;
 }
 
-void ezSceneDocument::StepSimulation()
+void WSceneDocument::StepSimulation()
 {
   SetStepSimulation(true);
 }
 
-void ezSceneDocument::PauseSimulation()
+void WSceneDocument::PauseSimulation()
 {
   SetPauseSimulation(true);
 }
 
-void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
+void WSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
 
-  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj)
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const WDocumentObject* pObj)
     {
-    // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
     // return;
 
-    ezUInt32 uiFlags = 0;
+    WUInt32 uiFlags = 0;
 
     auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObj->GetGuid());
 
     if (pMeta->m_bHidden != bHide)
     {
       pMeta->m_bHidden = bHide;
-      uiFlags = ezDocumentObjectMetaData::HiddenFlag;
+      uiFlags = WDocumentObjectMetaData::HiddenFlag;
     }
 
     m_DocumentObjectMetaData->EndModifyMetaData(uiFlags); });
 }
-void ezSceneDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
+void WSceneDocument::GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const
 {
-  out_mimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
+  out_mimeTypes.PushBack("application/WEditor.WAbstractGraph");
 }
 
-bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezStringBuilder& out_sMimeType) const
+bool WSceneDocument::CopySelectedObjects(WAbstractObjectGraph& ref_graph, WStringBuilder& out_sMimeType) const
 {
-  out_sMimeType = "application/ezEditor.ezAbstractGraph";
+  out_sMimeType = "application/WEditor.WAbstractGraph";
   return CopySelectedObjects(ref_graph, nullptr);
 }
 
-bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMap<ezUuid, ezUuid>* out_pParents) const
+bool WSceneDocument::CopySelectedObjects(WAbstractObjectGraph& ref_graph, WMap<WUuid, WUuid>* out_pParents) const
 {
   if (GetSelectionManager()->GetSelection().GetCount() == 0)
     return false;
 
   // Serialize selection to graph
-  ezTempHybridArray<ezSelectionEntry, 64> selection;
+  WTempHybridArray<WSelectionEntry, 64> selection;
   GetSelectionManager()->GetTopLevelSelection(selection);
 
-  ezDocumentObjectConverterWriter writer(&ref_graph, GetObjectManager());
+  WDocumentObjectConverterWriter writer(&ref_graph, GetObjectManager());
 
   // objects are required to be named root but this is not enforced or obvious by the interface.
-  for (ezUInt32 i = 0; i < selection.GetCount(); i++)
+  for (WUInt32 i = 0; i < selection.GetCount(); i++)
   {
     const auto& item = selection[i];
-    ezAbstractObjectNode* pNode = writer.AddObjectToGraph(item.m_pObject, "root");
+    WAbstractObjectNode* pNode = writer.AddObjectToGraph(item.m_pObject, "root");
     pNode->AddProperty("__GlobalTransform", GetGlobalTransform(item.m_pObject));
     pNode->AddProperty("__Order", i);
     pNode->AddProperty("__SelectionOrder", item.m_uiSelectionOrder);
@@ -1039,32 +1039,32 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMa
   return true;
 }
 
-bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec3& vPasteAt)
+bool WSceneDocument::PasteAt(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, const WVec3& vPasteAt)
 {
-  ezTransform refTransform = ezTransform::MakeIdentity();
-  ezUInt32 uiHighestSelectionOrder = 0;
+  WTransform refTransform = WTransform::MakeIdentity();
+  WUInt32 uiHighestSelectionOrder = 0;
 
-  ezTempHybridArray<ezTransform, 16> globalTransforms;
-  globalTransforms.SetCount(info.GetCount(), ezTransform::MakeIdentity());
+  WTempHybridArray<WTransform, 16> globalTransforms;
+  globalTransforms.SetCount(info.GetCount(), WTransform::MakeIdentity());
 
-  for (ezUInt32 i = 0; i < info.GetCount(); ++i)
+  for (WUInt32 i = 0; i < info.GetCount(); ++i)
   {
     const PasteInfo& pi = info[i];
 
-    if (pi.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
+    if (pi.m_pObject->GetTypeAccessor().GetType() != WGetStaticRTTI<WGameObject>())
       return false;
 
     if (auto* pNode = objectGraph.GetNode(pi.m_pObject->GetGuid()))
     {
       if (auto* pProperty = pNode->FindProperty("__GlobalTransform"))
       {
-        globalTransforms[i] = pProperty->m_Value.Get<ezTransform>();
+        globalTransforms[i] = pProperty->m_Value.Get<WTransform>();
 
         if (auto* pProperty = pNode->FindProperty("__SelectionOrder"))
         {
           // find the last selected element, and use it as the reference point for the paste position
 
-          const ezUInt32 uiSelOrder = pProperty->m_Value.ConvertTo<ezUInt32>();
+          const WUInt32 uiSelOrder = pProperty->m_Value.ConvertTo<WUInt32>();
           if (uiSelOrder >= uiHighestSelectionOrder)
           {
             uiHighestSelectionOrder = uiSelOrder;
@@ -1075,7 +1075,7 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstrac
     }
   }
 
-  for (ezUInt32 i = 0; i < info.GetCount(); ++i)
+  for (WUInt32 i = 0; i < info.GetCount(); ++i)
   {
     const PasteInfo& pi = info[i];
 
@@ -1088,7 +1088,7 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstrac
       GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", pi.m_Index);
     }
 
-    ezTransform tNew = globalTransforms[i];
+    WTransform tNew = globalTransforms[i];
     tNew.m_vPosition -= refTransform.m_vPosition;
     tNew.m_vPosition += vPasteAt;
 
@@ -1098,7 +1098,7 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstrac
   return true;
 }
 
-bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph)
+bool WSceneDocument::PasteAtOrignalPosition(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph)
 {
   for (const PasteInfo& pi : info)
   {
@@ -1115,9 +1115,9 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, 
     {
       if (auto* pProperty = pNode->FindProperty("__GlobalTransform"))
       {
-        if (pProperty->m_Value.IsA<ezTransform>())
+        if (pProperty->m_Value.IsA<WTransform>())
         {
-          SetGlobalTransform(pi.m_pObject, pProperty->m_Value.Get<ezTransform>(), TransformationChanges::All);
+          SetGlobalTransform(pi.m_pObject, pProperty->m_Value.Get<WTransform>(), TransformationChanges::All);
         }
       }
     }
@@ -1126,14 +1126,14 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, 
   return true;
 }
 
-bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
+bool WSceneDocument::Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType)
 {
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const auto& ctxt = WQtEngineViewWidget::GetInteractionContext();
 
   if (bAllowPickedPosition && ctxt.m_pLastPickingResult && ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
   {
-    ezVec3 pos = ctxt.m_pLastPickingResult->m_vPickedPosition;
-    ezSnapProvider::SnapTranslation(pos);
+    WVec3 pos = ctxt.m_pLastPickingResult->m_vPickedPosition;
+    WSnapProvider::SnapTranslation(pos);
 
     if (!PasteAt(info, objectGraph, pos))
       return false;
@@ -1151,19 +1151,19 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
   {
     auto pSelMan = GetSelectionManager();
 
-    ezDeque<const ezDocumentObject*> NewSelection;
+    WDeque<const WDocumentObject*> NewSelection;
     NewSelection.SetCount(info.GetCount());
 
-    for (ezUInt32 i = 0; i < info.GetCount(); ++i)
+    for (WUInt32 i = 0; i < info.GetCount(); ++i)
     {
       const PasteInfo& pi = info[i];
 
-      ezUInt32 order = i;
+      WUInt32 order = i;
       if (auto* pNode = objectGraph.GetNode(pi.m_pObject->GetGuid()))
       {
         if (auto* pProperty = pNode->FindProperty("__SelectionOrder"))
         {
-          order = pProperty->m_Value.ConvertTo<ezUInt32>();
+          order = pProperty->m_Value.ConvertTo<WUInt32>();
         }
       }
 
@@ -1176,7 +1176,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
   return true;
 }
 
-bool ezSceneDocument::DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected)
+bool WSceneDocument::DuplicateSelectedObjects(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bSetSelected)
 {
   if (!PasteAtOrignalPosition(info, objectGraph))
     return false;
@@ -1189,7 +1189,7 @@ bool ezSceneDocument::DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info
   {
     auto pSelMan = GetSelectionManager();
 
-    ezDeque<const ezDocumentObject*> NewSelection;
+    WDeque<const WDocumentObject*> NewSelection;
 
     for (const PasteInfo& pi : info)
     {
@@ -1202,155 +1202,155 @@ bool ezSceneDocument::DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info
   return true;
 }
 
-void ezSceneDocument::EnsureSettingsObjectExist()
+void WSceneDocument::EnsureSettingsObjectExist()
 {
   // Settings object was changed to have a base class and each document type has a different implementation.
-  const ezRTTI* pSettingsType = nullptr;
+  const WRTTI* pSettingsType = nullptr;
   switch (m_DocumentType)
   {
-    case ezSceneDocument::DocumentType::Scene:
-      pSettingsType = ezGetStaticRTTI<ezSceneDocumentSettings>();
+    case WSceneDocument::DocumentType::Scene:
+      pSettingsType = WGetStaticRTTI<WSceneDocumentSettings>();
       break;
-    case ezSceneDocument::DocumentType::Prefab:
-      pSettingsType = ezGetStaticRTTI<ezPrefabDocumentSettings>();
+    case WSceneDocument::DocumentType::Prefab:
+      pSettingsType = WGetStaticRTTI<WPrefabDocumentSettings>();
       break;
-    case ezSceneDocument::DocumentType::Layer:
-      pSettingsType = ezGetStaticRTTI<ezLayerDocumentSettings>();
+    case WSceneDocument::DocumentType::Layer:
+      pSettingsType = WGetStaticRTTI<WLayerDocumentSettings>();
       break;
   }
 
   auto pRoot = GetObjectManager()->GetRootObject();
-  // Use the ezObjectDirectAccessor instead of calling GetObjectAccessor because we do not want
+  // Use the WObjectDirectAccessor instead of calling GetObjectAccessor because we do not want
   // undo ops for this operation.
-  ezObjectDirectAccessor accessor(GetObjectManager());
-  ezVariant value;
-  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
-  ezUuid id = value.Get<ezUuid>();
+  WObjectDirectAccessor accessor(GetObjectManager());
+  WVariant value;
+  W_VERIFY(accessor.WObjectAccessorBase::GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  WUuid id = value.Get<WUuid>();
   if (!id.IsValid())
   {
-    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObjectByName(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
+    W_VERIFY(accessor.WObjectAccessorBase::AddObjectByName(pRoot, "Settings", WVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
   }
   else
   {
-    ezDocumentObject* pSettings = GetObjectManager()->GetObject(id);
-    EZ_VERIFY(pSettings, "Document corrupt, root references a non-existing object");
+    WDocumentObject* pSettings = GetObjectManager()->GetObject(id);
+    W_VERIFY(pSettings, "Document corrupt, root references a non-existing object");
     if (pSettings->GetType() != pSettingsType)
     {
       accessor.RemoveObject(pSettings).AssertSuccess();
       GetObjectManager()->DestroyObject(pSettings);
-      EZ_VERIFY(accessor.ezObjectAccessorBase::AddObjectByName(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
+      W_VERIFY(accessor.WObjectAccessorBase::AddObjectByName(pRoot, "Settings", WVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
     }
   }
 }
 
-const ezDocumentObject* ezSceneDocument::GetSettingsObject() const
+const WDocumentObject* WSceneDocument::GetSettingsObject() const
 {
   auto pRoot = GetObjectManager()->GetRootObject();
-  ezVariant value;
-  EZ_VERIFY(GetObjectAccessor()->GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
-  ezUuid id = value.Get<ezUuid>();
+  WVariant value;
+  W_VERIFY(GetObjectAccessor()->GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  WUuid id = value.Get<WUuid>();
   return GetObjectManager()->GetObject(id);
 }
 
-const ezSceneDocumentSettingsBase* ezSceneDocument::GetSettingsBase() const
+const WSceneDocumentSettingsBase* WSceneDocument::GetSettingsBase() const
 {
-  return static_cast<const ezSceneDocumentSettingsBase*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
+  return static_cast<const WSceneDocumentSettingsBase*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
 }
 
-ezStatus ezSceneDocument::CreateExposedProperty(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
+WStatus WSceneDocument::CreateExposedProperty(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WRTTI* pType, const WAbstractProperty* pProperty, WVariant index, WExposedSceneProperty& out_key) const
 {
-  ezTempHybridArray<ezVariant, 2> path;
+  WTempHybridArray<WVariant, 2> path;
   if (index.IsValid())
     path.PushBack(index);
 
   pAccessor = pAccessor->ResolveProxy(pObject, pType, pProperty, path);
 
-  const ezDocumentObject* pNodeComponent = ezObjectPropertyPath::FindParentNodeComponent(pObject);
+  const WDocumentObject* pNodeComponent = WObjectPropertyPath::FindParentNodeComponent(pObject);
   if (!pObject)
-    return ezStatus("No parent node or component found.");
+    return WStatus("No parent node or component found.");
 
-  ezObjectPropertyPathContext context = {pNodeComponent, pAccessor, "Children"};
-  ezVariant firstIndex;
+  WObjectPropertyPathContext context = {pNodeComponent, pAccessor, "Children"};
+  WVariant firstIndex;
   if (!path.IsEmpty())
     firstIndex = path[0];
 
-  ezPropertyReference propertyRef = {pObject->GetGuid(), pProperty, firstIndex};
-  ezStringBuilder sPropertyPath;
-  ezStatus res = ezObjectPropertyPath::CreatePropertyPath(context, propertyRef, sPropertyPath);
+  WPropertyReference propertyRef = {pObject->GetGuid(), pProperty, firstIndex};
+  WStringBuilder sPropertyPath;
+  WStatus res = WObjectPropertyPath::CreatePropertyPath(context, propertyRef, sPropertyPath);
   if (res.Failed())
     return res;
 
   if (path.GetCount() > 1)
-    ezObjectPropertyPath::AppendSubIndices(sPropertyPath, path.GetArrayPtr().GetSubArray(1));
+    WObjectPropertyPath::AppendSubIndices(sPropertyPath, path.GetArrayPtr().GetSubArray(1));
 
   out_key.m_Object = pNodeComponent->GetGuid();
   out_key.m_sPropertyPath = sPropertyPath;
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezSceneDocument::AddExposedParameter(const char* szName, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index)
+WStatus WSceneDocument::AddExposedParameter(const char* szName, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WRTTI* pType, const WAbstractProperty* pProperty, WVariant index)
 {
   if (m_DocumentType != DocumentType::Prefab)
-    return ezStatus("Exposed parameters are only supported in prefab documents.");
+    return WStatus("Exposed parameters are only supported in prefab documents.");
 
   if (FindExposedParameter(pAccessor, pObject, pType, pProperty, index) != -1)
-    return ezStatus("Exposed parameter already exists.");
+    return WStatus("Exposed parameter already exists.");
 
-  ezExposedSceneProperty key;
-  ezStatus res = CreateExposedProperty(pAccessor, pObject, pType, pProperty, index, key);
+  WExposedSceneProperty key;
+  WStatus res = CreateExposedProperty(pAccessor, pObject, pType, pProperty, index, key);
   if (res.Failed())
     return res;
 
-  ezUuid id;
-  res = GetObjectAccessor()->AddObjectByName(GetSettingsObject(), "ExposedProperties", -1, ezGetStaticRTTI<ezExposedSceneProperty>(), id);
+  WUuid id;
+  res = GetObjectAccessor()->AddObjectByName(GetSettingsObject(), "ExposedProperties", -1, WGetStaticRTTI<WExposedSceneProperty>(), id);
   if (res.Failed())
     return res;
-  const ezDocumentObject* pParam = GetObjectManager()->GetObject(id);
+  const WDocumentObject* pParam = GetObjectManager()->GetObject(id);
   GetObjectAccessor()->SetValueByName(pParam, "Name", szName).LogFailure();
   GetObjectAccessor()->SetValueByName(pParam, "Object", key.m_Object).LogFailure();
-  GetObjectAccessor()->SetValueByName(pParam, "PropertyPath", ezVariant(key.m_sPropertyPath)).LogFailure();
-  return ezStatus(EZ_SUCCESS);
+  GetObjectAccessor()->SetValueByName(pParam, "PropertyPath", WVariant(key.m_sPropertyPath)).LogFailure();
+  return WStatus(W_SUCCESS);
 }
 
-ezInt32 ezSceneDocument::FindExposedParameter(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index)
+WInt32 WSceneDocument::FindExposedParameter(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WRTTI* pType, const WAbstractProperty* pProperty, WVariant index)
 {
-  EZ_ASSERT_DEV(m_DocumentType == DocumentType::Prefab, "Exposed properties are only supported in prefab documents.");
+  W_ASSERT_DEV(m_DocumentType == DocumentType::Prefab, "Exposed properties are only supported in prefab documents.");
 
-  ezExposedSceneProperty key;
-  ezStatus res = CreateExposedProperty(pAccessor, pObject, pType, pProperty, index, key);
+  WExposedSceneProperty key;
+  WStatus res = CreateExposedProperty(pAccessor, pObject, pType, pProperty, index, key);
   if (res.Failed())
     return -1;
 
-  const ezPrefabDocumentSettings* settings = GetSettings<ezPrefabDocumentSettings>();
-  for (ezUInt32 i = 0; i < settings->m_ExposedProperties.GetCount(); i++)
+  const WPrefabDocumentSettings* settings = GetSettings<WPrefabDocumentSettings>();
+  for (WUInt32 i = 0; i < settings->m_ExposedProperties.GetCount(); i++)
   {
     const auto& param = settings->m_ExposedProperties[i];
     if (param.m_Object == key.m_Object && param.m_sPropertyPath == key.m_sPropertyPath)
-      return (ezInt32)i;
+      return (WInt32)i;
   }
   return -1;
 }
 
-ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 iIndex)
+WStatus WSceneDocument::RemoveExposedParameter(WInt32 iIndex)
 {
-  ezVariant value;
+  WVariant value;
   auto res = GetObjectAccessor()->GetValueByName(GetSettingsObject(), "ExposedProperties", value, iIndex);
   if (res.Failed())
     return res;
 
-  ezUuid id = value.Get<ezUuid>();
+  WUuid id = value.Get<WUuid>();
   return GetObjectAccessor()->RemoveObject(GetObjectManager()->GetObject(id));
 }
 
 
-void ezSceneDocument::StoreFavoriteCamera(ezUInt8 uiSlot)
+void WSceneDocument::StoreFavoriteCamera(WUInt8 uiSlot)
 {
-  EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
+  W_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
-  ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
+  WQuadViewPreferencesUser* pPreferences = WPreferences::QueryPreferences<WQuadViewPreferencesUser>(this);
   auto& cam = pPreferences->m_FavoriteCamera[uiSlot];
 
-  auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+  auto* pView = WQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
   if (pView)
   {
@@ -1366,50 +1366,50 @@ void ezSceneDocument::StoreFavoriteCamera(ezUInt8 uiSlot)
   }
 }
 
-void ezSceneDocument::RestoreFavoriteCamera(ezUInt8 uiSlot)
+void WSceneDocument::RestoreFavoriteCamera(WUInt8 uiSlot)
 {
-  EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
+  W_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
-  ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
+  WQuadViewPreferencesUser* pPreferences = WPreferences::QueryPreferences<WQuadViewPreferencesUser>(this);
   auto& cam = pPreferences->m_FavoriteCamera[uiSlot];
 
-  auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+  auto* pView = WQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
   if (pView == nullptr)
     return;
 
-  ezVec3 vCamPos = cam.m_vCamPos;
-  ezVec3 vCamDir = cam.m_vCamDir;
-  ezVec3 vCamUp = cam.m_vCamUp;
+  WVec3 vCamPos = cam.m_vCamPos;
+  WVec3 vCamDir = cam.m_vCamDir;
+  WVec3 vCamUp = cam.m_vCamUp;
 
   // if the projection mode of the view is orthographic, ignore the direction of the stored favorite camera
   // if we apply a favorite that was saved in an orthographic view, and we apply it to a perspective view,
   // we want to ignore one of the axis, as the respective orthographic position can be arbitrary
   switch (pView->m_pViewConfig->m_Perspective)
   {
-    case ezSceneViewPerspective::Orthogonal_Front:
-    case ezSceneViewPerspective::Orthogonal_Right:
-    case ezSceneViewPerspective::Orthogonal_Top:
+    case WSceneViewPerspective::Orthogonal_Front:
+    case WSceneViewPerspective::Orthogonal_Right:
+    case WSceneViewPerspective::Orthogonal_Top:
       vCamDir = pView->m_pViewConfig->m_Camera.GetCenterDirForwards();
       vCamUp = pView->m_pViewConfig->m_Camera.GetCenterDirUp();
       break;
 
-    case ezSceneViewPerspective::Perspective:
+    case WSceneViewPerspective::Perspective:
     {
-      const ezVec3 vOldPos = pView->m_pViewConfig->m_Camera.GetCenterPosition();
+      const WVec3 vOldPos = pView->m_pViewConfig->m_Camera.GetCenterPosition();
 
       switch (cam.m_PerspectiveMode)
       {
-        case ezSceneViewPerspective::Orthogonal_Front:
+        case WSceneViewPerspective::Orthogonal_Front:
           vCamPos.x = vOldPos.x;
           break;
-        case ezSceneViewPerspective::Orthogonal_Right:
+        case WSceneViewPerspective::Orthogonal_Right:
           vCamPos.y = vOldPos.y;
           break;
-        case ezSceneViewPerspective::Orthogonal_Top:
+        case WSceneViewPerspective::Orthogonal_Top:
           vCamPos.z = vOldPos.z;
           break;
-        case ezSceneViewPerspective::Perspective:
+        case WSceneViewPerspective::Perspective:
           break;
       }
 
@@ -1420,33 +1420,33 @@ void ezSceneDocument::RestoreFavoriteCamera(ezUInt8 uiSlot)
   pView->InterpolateCameraTo(vCamPos, vCamDir, pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vCamUp);
 }
 
-ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
+WResult WSceneDocument::JumpToLevelCamera(WUInt8 uiSlot, bool bImmediate)
 {
-  EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
+  W_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
-  auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+  auto* pView = WQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
   if (pView == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   auto* pObjMan = GetObjectManager();
 
-  ezTempHybridArray<ezDocumentObject*, 8> stack;
+  WTempHybridArray<WDocumentObject*, 8> stack;
   stack.PushBack(pObjMan->GetRootObject());
 
-  const ezRTTI* pCamType = ezGetStaticRTTI<ezCameraComponent>();
-  const ezDocumentObject* pCamObj = nullptr;
+  const WRTTI* pCamType = WGetStaticRTTI<WCameraComponent>();
+  const WDocumentObject* pCamObj = nullptr;
 
   while (!stack.IsEmpty())
   {
-    const ezDocumentObject* pObj = stack.PeekBack();
+    const WDocumentObject* pObj = stack.PeekBack();
     stack.PopBack();
 
     stack.PushBackRange(pObj->GetChildren());
 
     if (pObj->GetType() == pCamType)
     {
-      ezInt32 iShortcut = pObj->GetTypeAccessor().GetValue("EditorShortcut").ConvertTo<ezInt32>();
+      WInt32 iShortcut = pObj->GetTypeAccessor().GetValue("EditorShortcut").ConvertTo<WInt32>();
 
       if (iShortcut == uiSlot)
       {
@@ -1457,92 +1457,92 @@ ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
   }
 
   if (pCamObj == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezTransform tCam = GetGlobalTransform(pCamObj);
+  const WTransform tCam = GetGlobalTransform(pCamObj);
 
-  ezVec3 vCamDir = tCam.m_qRotation * ezVec3(1, 0, 0);
-  ezVec3 vCamUp = tCam.m_qRotation * ezVec3(0, 0, 1);
+  WVec3 vCamDir = tCam.m_qRotation * WVec3(1, 0, 0);
+  WVec3 vCamUp = tCam.m_qRotation * WVec3(0, 0, 1);
 
   // if the projection mode of the view is orthographic, ignore the direction of the level camera
   switch (pView->m_pViewConfig->m_Perspective)
   {
-    case ezSceneViewPerspective::Orthogonal_Front:
-    case ezSceneViewPerspective::Orthogonal_Right:
-    case ezSceneViewPerspective::Orthogonal_Top:
+    case WSceneViewPerspective::Orthogonal_Front:
+    case WSceneViewPerspective::Orthogonal_Right:
+    case WSceneViewPerspective::Orthogonal_Top:
       vCamDir = pView->m_pViewConfig->m_Camera.GetCenterDirForwards();
       vCamUp = pView->m_pViewConfig->m_Camera.GetCenterDirUp();
       break;
 
-    case ezSceneViewPerspective::Perspective:
+    case WSceneViewPerspective::Perspective:
       break;
   }
 
   pView->InterpolateCameraTo(tCam.m_vPosition, vCamDir, pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vCamUp, bImmediate);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
+WResult WSceneDocument::CreateLevelCamera(WUInt8 uiSlot)
 {
-  EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
+  W_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
-  auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+  auto* pView = WQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
   if (pView == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pView->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
-    return EZ_FAILURE;
+  if (pView->m_pViewConfig->m_Perspective != WSceneViewPerspective::Perspective)
+    return W_FAILURE;
 
   const auto* pRootObj = GetObjectManager()->GetRootObject();
 
-  const ezVec3 vPos = pView->m_pViewConfig->m_Camera.GetCenterPosition();
-  const ezVec3 vDir = pView->m_pViewConfig->m_Camera.GetCenterDirForwards().GetNormalized();
-  const ezVec3 vUp = pView->m_pViewConfig->m_Camera.GetCenterDirUp().GetNormalized();
+  const WVec3 vPos = pView->m_pViewConfig->m_Camera.GetCenterPosition();
+  const WVec3 vDir = pView->m_pViewConfig->m_Camera.GetCenterDirForwards().GetNormalized();
+  const WVec3 vUp = pView->m_pViewConfig->m_Camera.GetCenterDirUp().GetNormalized();
 
   auto* pAccessor = GetObjectAccessor();
   pAccessor->StartTransaction("Create Level Camera");
 
-  ezUuid camObjGuid;
-  if (pAccessor->AddObjectByName(pRootObj, "Children", -1, ezGetStaticRTTI<ezGameObject>(), camObjGuid).Failed())
+  WUuid camObjGuid;
+  if (pAccessor->AddObjectByName(pRootObj, "Children", -1, WGetStaticRTTI<WGameObject>(), camObjGuid).Failed())
   {
     pAccessor->CancelTransaction();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezMat3 mRot;
+  WMat3 mRot;
   mRot.SetColumn(0, vDir);
   mRot.SetColumn(1, vUp.CrossRH(vDir).GetNormalized());
   mRot.SetColumn(2, vUp);
-  ezQuat qRot;
-  qRot = ezQuat::MakeFromMat3(mRot);
+  WQuat qRot;
+  qRot = WQuat::MakeFromMat3(mRot);
   qRot.Normalize();
 
-  SetGlobalTransform(pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);
+  SetGlobalTransform(pAccessor->GetObject(camObjGuid), WTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);
 
-  ezUuid camCompGuid;
-  if (pAccessor->AddObjectByName(pAccessor->GetObject(camObjGuid), "Components", -1, ezGetStaticRTTI<ezCameraComponent>(), camCompGuid).Failed())
+  WUuid camCompGuid;
+  if (pAccessor->AddObjectByName(pAccessor->GetObject(camObjGuid), "Components", -1, WGetStaticRTTI<WCameraComponent>(), camCompGuid).Failed())
   {
     pAccessor->CancelTransaction();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (pAccessor->SetValueByName(pAccessor->GetObject(camCompGuid), "EditorShortcut", uiSlot).Failed())
   {
     pAccessor->CancelTransaction();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   pAccessor->FinishTransaction();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
+void WSceneDocument::DocumentObjectMetaDataEventHandler(const WObjectMetaData<WUuid, WDocumentObjectMetaData>::EventData& e)
 {
-  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0)
+  if ((e.m_uiModifiedFlags & WDocumentObjectMetaData::HiddenFlag) != 0)
   {
-    ezObjectTagMsgToEngine msg;
+    WObjectTagMsgToEngine msg;
     msg.m_bSetTag = e.m_pValue->m_bHidden;
     msg.m_sTag = "EditorHidden";
     msg.m_bApplyOnAllChildren = true;
@@ -1551,13 +1551,13 @@ void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<
   }
 }
 
-void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e)
+void WSceneDocument::EngineConnectionEventHandler(const WEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
-    case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
-    case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
+    case WEditorEngineProcessConnection::Event::Type::ProcessCrashed:
+    case WEditorEngineProcessConnection::Event::Type::ProcessShutdown:
+    case WEditorEngineProcessConnection::Event::Type::ProcessStarted:
       SetGameMode(GameMode::Off);
       break;
 
@@ -1567,11 +1567,11 @@ void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessCo
 }
 
 
-void ezSceneDocument::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+void WSceneDocument::ToolsProjectEventHandler(const WToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezToolsProjectEvent::Type::ProjectConfigChanged:
+    case WToolsProjectEvent::Type::ProjectConfigChanged:
     {
       // we are lazy and just refresh the current selection here
       // that ensures that ui elements will rebuild their content
@@ -1585,14 +1585,14 @@ void ezSceneDocument::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
   }
 }
 
-void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
+void WSceneDocument::HandleGameModeMsg(const WGameModeMsgToEditor* pMsg)
 {
   if (m_GameMode == GameMode::Simulate)
   {
     if (pMsg->m_bRunningPTG)
     {
       m_GameMode = GameMode::Off;
-      ezLog::Warning("Incorrect state change from 'simulate' to 'play-the-game'");
+      WLog::Warning("Incorrect state change from 'simulate' to 'play-the-game'");
     }
     else
     {
@@ -1607,10 +1607,10 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
     return;
   }
 
-  EZ_REPORT_FAILURE("Unreachable Code reached.");
+  W_REPORT_FAILURE("Unreachable Code reached.");
 }
 
-void ezSceneDocument::HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg)
+void WSceneDocument::HandleObjectStateFromEngineMsg(const WPushObjectStateMsgToEditor* pMsg)
 {
   auto pHistory = GetCommandHistory();
 
@@ -1622,29 +1622,29 @@ void ezSceneDocument::HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgT
 
     if (pObject)
     {
-      SetGlobalTransform(pObject, ezTransform(state.m_vPosition, state.m_qRotation), TransformationChanges::Translation | TransformationChanges::Rotation);
+      SetGlobalTransform(pObject, WTransform(state.m_vPosition, state.m_qRotation), TransformationChanges::Translation | TransformationChanges::Rotation);
     }
   }
 
   pHistory->FinishTransaction();
 }
 
-void ezSceneDocument::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
+void WSceneDocument::SendObjectMsg(const WDocumentObject* pObj, WObjectTagMsgToEngine* pMsg)
 {
-  // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
+  // if WObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
 
-  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
     return;
 
   pMsg->m_ObjectGuid = pObj->GetGuid();
   GetEditorEngineConnection()->SendMessage(pMsg);
 }
 
-void ezSceneDocument::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
+void WSceneDocument::SendObjectMsgRecursive(const WDocumentObject* pObj, WObjectTagMsgToEngine* pMsg)
 {
-  // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
+  // if WObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
 
-  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
     return;
 
   pMsg->m_ObjectGuid = pObj->GetGuid();
@@ -1656,11 +1656,11 @@ void ezSceneDocument::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObj
   }
 }
 
-void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsgInterDoc* pMsg) const
+void WSceneDocument::GatherObjectsOfType(WDocumentObject* pRoot, WGatherObjectsOfTypeMsgInterDoc* pMsg) const
 {
   if (pRoot->GetType() == pMsg->m_pType)
   {
-    ezStringBuilder sFullPath;
+    WStringBuilder sFullPath;
     GenerateFullDisplayName(pRoot, sFullPath);
 
     auto& res = pMsg->m_Results.ExpandAndGetRef();
@@ -1675,7 +1675,7 @@ void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjec
   }
 }
 
-void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
+void WSceneDocument::SelectionManagerEventHandler(const WSelectionManagerEvent& e)
 {
   if (!m_bStoreSelectionChange)
     return;
@@ -1690,10 +1690,10 @@ void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent
 
   switch (e.m_Type)
   {
-    case ezSelectionManagerEvent::Type::ObjectAdded:
-    case ezSelectionManagerEvent::Type::ObjectRemoved:
-    case ezSelectionManagerEvent::Type::SelectionSet:
-    case ezSelectionManagerEvent::Type::SelectionCleared: // empty selections are important to keep, for layer changes to be undoable
+    case WSelectionManagerEvent::Type::ObjectAdded:
+    case WSelectionManagerEvent::Type::ObjectRemoved:
+    case WSelectionManagerEvent::Type::SelectionSet:
+    case WSelectionManagerEvent::Type::SelectionCleared: // empty selections are important to keep, for layer changes to be undoable
     {
       const auto& curSel = GetSelectionManager()->GetSelection();
 
@@ -1703,7 +1703,7 @@ void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent
 
       sel.m_Objects.SetCountUninitialized(curSel.GetCount());
 
-      for (ezUInt32 i = 0; i < curSel.GetCount(); ++i)
+      for (WUInt32 i = 0; i < curSel.GetCount(); ++i)
       {
         sel.m_Objects[i] = curSel[i]->GetGuid();
       }
@@ -1732,12 +1732,12 @@ void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent
   }
 }
 
-bool ezSceneDocument::CanUndoSelection() const
+bool WSceneDocument::CanUndoSelection() const
 {
   return m_SelectionStack.GetCount() > 1;
 }
 
-void ezSceneDocument::UndoSelection()
+void WSceneDocument::UndoSelection()
 {
   if (m_SelectionStack.IsEmpty())
     return;
@@ -1748,16 +1748,16 @@ void ezSceneDocument::UndoSelection()
   auto& back = m_SelectionStack.PeekBack();
 
   m_bStoreSelectionChange = false;
-  EZ_SCOPE_EXIT(m_bStoreSelectionChange = true);
+  W_SCOPE_EXIT(m_bStoreSelectionChange = true);
 
-  auto* pDoc = ezDocumentManager::GetDocumentByGuid(back.m_documentGuid);
+  auto* pDoc = WDocumentManager::GetDocumentByGuid(back.m_documentGuid);
   if (pDoc == nullptr)
     return;
 
   auto pObjMan = pDoc->GetObjectManager();
 
-  ezDeque<const ezDocumentObject*> newSel;
-  for (const ezUuid& guid : back.m_Objects)
+  WDeque<const WDocumentObject*> newSel;
+  for (const WUuid& guid : back.m_Objects)
   {
     if (auto pDoc = pObjMan->GetObject(guid))
     {
@@ -1768,32 +1768,32 @@ void ezSceneDocument::UndoSelection()
   GetSelectionManager()->SetSelection(newSel);
 }
 
-void ezSceneDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
+void WSceneDocument::OnInterDocumentMessage(WReflectedClass* pMessage, WDocument* pSender)
 {
   // #TODO needs to be overwritten by Scene2
-  if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsOfTypeMsgInterDoc>())
+  if (pMessage->GetDynamicRTTI()->IsDerivedFrom<WGatherObjectsOfTypeMsgInterDoc>())
   {
-    GatherObjectsOfType(GetObjectManager()->GetRootObject(), static_cast<ezGatherObjectsOfTypeMsgInterDoc*>(pMessage));
+    GatherObjectsOfType(GetObjectManager()->GetRootObject(), static_cast<WGatherObjectsOfTypeMsgInterDoc*>(pMessage));
   }
 }
 
-ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
+WStatus WSceneDocument::RequestExportScene(const char* szTargetFile, const WAssetFileHeader& header)
 {
   if (GetGameMode() != GameMode::Off)
-    return ezStatus("Cannot export while the scene is simulating");
+    return WStatus("Cannot export while the scene is simulating");
 
-  EZ_SUCCEED_OR_RETURN(SaveDocument());
+  W_SUCCEED_OR_RETURN(SaveDocument());
 
-  EZ_SUCCEED_OR_RETURN(WaitForEngineStatusLoaded());
+  W_SUCCEED_OR_RETURN(WaitForEngineStatusLoaded());
 
   // Ensure child order information is synced to the engine before export.
   // When a scene is transformed in the background (not opened in a window), the
-  // ezDocumentOpenResponseMsgToEditor that normally triggers SyncAllChildOrders() is never
-  // received, so components with ezSyncChildOrderAttribute (e.g. ezSplineComponent) would
+  // WDocumentOpenResponseMsgToEditor that normally triggers SyncAllChildOrders() is never
+  // received, so components with WSyncChildOrderAttribute (e.g. WSplineComponent) would
   // export with incorrect child order data.
   SyncAllChildOrders();
 
-  const ezStatus status = ezAssetDocument::RemoteExport(header, szTargetFile);
+  const WStatus status = WAssetDocument::RemoteExport(header, szTargetFile);
 
   // make sure the world is reset
   SendGameWorldToEngine();
@@ -1801,7 +1801,7 @@ ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezA
   return status;
 }
 
-void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WSceneDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
@@ -1809,55 +1809,55 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
   if (!IsPrefab())
     return;
 
-  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+  WExposedParameters* pExposedParams = W_DEFAULT_NEW(WExposedParameters);
 
   if (m_DocumentType == DocumentType::Prefab)
   {
-    ezSet<ezString> alreadyExposed;
+    WSet<WString> alreadyExposed;
 
-    auto pSettings = GetSettings<ezPrefabDocumentSettings>();
+    auto pSettings = GetSettings<WPrefabDocumentSettings>();
     for (auto prop : pSettings->m_ExposedProperties)
     {
       auto pRootObject = GetObjectManager()->GetObject(prop.m_Object);
       if (!pRootObject)
       {
-        ezLog::Warning("The exposed scene property '{0}' does not point to a valid object and is skipped.", prop.m_sName);
+        WLog::Warning("The exposed scene property '{0}' does not point to a valid object and is skipped.", prop.m_sName);
         continue;
       }
 
-      ezObjectPropertyPathContext context = {pRootObject, GetObjectAccessor(), "Children"};
+      WObjectPropertyPathContext context = {pRootObject, GetObjectAccessor(), "Children"};
 
-      ezPropertyReference key;
-      auto res = ezObjectPropertyPath::ResolvePropertyPath(context, prop.m_sPropertyPath, key);
+      WPropertyReference key;
+      auto res = WObjectPropertyPath::ResolvePropertyPath(context, prop.m_sPropertyPath, key);
       if (res.Failed())
       {
-        ezLog::Warning("The exposed scene property '{0}' can no longer be resolved and is skipped.", prop.m_sName);
+        WLog::Warning("The exposed scene property '{0}' can no longer be resolved and is skipped.", prop.m_sName);
         continue;
       }
-      ezVariant value;
+      WVariant value;
 
-      const ezExposedParameter* pSourceParameter = nullptr;
+      const WExposedParameter* pSourceParameter = nullptr;
       auto pLeafObject = GetObjectManager()->GetObject(key.m_Object);
-      if (const ezExposedParametersAttribute* pAttrib = key.m_pProperty->GetAttributeByType<ezExposedParametersAttribute>())
+      if (const WExposedParametersAttribute* pAttrib = key.m_pProperty->GetAttributeByType<WExposedParametersAttribute>())
       {
         // If the target of the exposed parameter is yet another exposed parameter, we need to do the following:
-        // A: Get the default value from via an ezExposedParameterCommandAccessor. This ensures that in case the target does not actually exist (because it was not overwritten in this template instance) we get the default parameter of the exposed param instead.
-        // B: Replace the property type of the exposed parameter (which will always be an ezVariant inside the ezVariantDictionary) with the property type the exposed parameter actually points to.
-        const ezAbstractProperty* pParameterSourceProp = pLeafObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
-        EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), pLeafObject->GetType()->GetTypeName());
+        // A: Get the default value from via an WExposedParameterCommandAccessor. This ensures that in case the target does not actually exist (because it was not overwritten in this template instance) we get the default parameter of the exposed param instead.
+        // B: Replace the property type of the exposed parameter (which will always be an WVariant inside the WVariantDictionary) with the property type the exposed parameter actually points to.
+        const WAbstractProperty* pParameterSourceProp = pLeafObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
+        W_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), pLeafObject->GetType()->GetTypeName());
 
-        ezExposedParameterCommandAccessor proxy(context.m_pAccessor, key.m_pProperty, pParameterSourceProp);
+        WExposedParameterCommandAccessor proxy(context.m_pAccessor, key.m_pProperty, pParameterSourceProp);
         res = proxy.GetValue(pLeafObject, key.m_pProperty, value, key.m_Index);
-        if (key.m_Index.IsA<ezString>())
+        if (key.m_Index.IsA<WString>())
         {
-          pSourceParameter = proxy.GetExposedParam(pLeafObject, key.m_Index.Get<ezString>());
+          pSourceParameter = proxy.GetExposedParam(pLeafObject, key.m_Index.Get<WString>());
         }
       }
       else
       {
         res = context.m_pAccessor->GetValue(pLeafObject, key.m_pProperty, value, key.m_Index);
       }
-      EZ_ASSERT_DEBUG(res.Succeeded(), "ResolvePropertyPath succeeded so GetValue should too");
+      W_ASSERT_DEBUG(res.Succeeded(), "ResolvePropertyPath succeeded so GetValue should too");
 
       // do not show the same parameter twice, even if they have different types, as the UI doesn't handle that case properly
       // TODO: we should prevent users from using the same name for differently typed parameters
@@ -1867,7 +1867,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 
       alreadyExposed.Insert(prop.m_sName);
 
-      ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+      WExposedParameter* param = W_DEFAULT_NEW(WExposedParameter);
       pExposedParams->m_Parameters.PushBack(param);
       param->m_sName = prop.m_sName;
       param->m_DefaultValue = value;
@@ -1877,7 +1877,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
         param->m_sType = pSourceParameter->m_sType;
         for (auto attrib : pSourceParameter->m_Attributes)
         {
-          param->m_Attributes.PushBack(ezReflectionSerializer::Clone(attrib));
+          param->m_Attributes.PushBack(WReflectionSerializer::Clone(attrib));
         }
       }
       else
@@ -1885,7 +1885,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
         param->m_sType = key.m_pProperty->GetSpecificType()->GetTypeName();
         for (auto attrib : key.m_pProperty->GetAttributes())
         {
-          param->m_Attributes.PushBack(ezReflectionSerializer::Clone(attrib));
+          param->m_Attributes.PushBack(WReflectionSerializer::Clone(attrib));
         }
       }
     }
@@ -1895,11 +1895,11 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
+WTransformStatus WSceneDocument::ExportScene(bool bCreateThumbnail)
 {
   if (GetUnknownObjectTypeInstances() > 0)
   {
-    return ezTransformStatus("Can't export scene/prefab when it contains unknown object types.");
+    return WTransformStatus("Can't export scene/prefab when it contains unknown object types.");
   }
 
   // #TODO export layers
@@ -1908,31 +1908,31 @@ ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
   if (saveres.Failed())
     return saveres;
 
-  ezTransformStatus res;
+  WTransformStatus res;
 
   if (bCreateThumbnail)
   {
     // this is needed to generate a scene thumbnail, however that has a larger overhead (1 sec or so)
-    res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
+    res = WAssetCurator::GetSingleton()->TransformAsset(GetGuid(), WTransformFlags::ForceTransform | WTransformFlags::TriggeredManually);
   }
   else
   {
-    res = TransformAsset(ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
+    res = TransformAsset(WTransformFlags::ForceTransform | WTransformFlags::TriggeredManually);
   }
 
   if (res.Failed())
-    ezLog::Error(res.m_sMessage);
+    WLog::Error(res.m_sMessage);
   else
-    ezLog::Success(res.m_sMessage);
+    WLog::Success(res.m_sMessage);
 
   ShowDocumentStatus(res.m_sMessage.GetData());
 
   return res;
 }
 
-void ezSceneDocument::ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode, const ezMat3& mTransform)
+void WSceneDocument::ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode, const WMat3& mTransform)
 {
-  ezExportSceneGeometryMsgToEngine msg;
+  WExportSceneGeometryMsgToEngine msg;
   msg.m_sOutputFile = szFile;
   msg.m_bSelectionOnly = bOnlySelection;
   msg.m_iExtractionMode = iExtractionMode;
@@ -1940,40 +1940,40 @@ void ezSceneDocument::ExportSceneGeometry(const char* szFile, bool bOnlySelectio
 
   SendMessageToEngine(&msg);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Geometry exported to '{0}'", szFile), ezTime::MakeFromSeconds(5.0f));
+  WQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(WFmt("Geometry exported to '{0}'", szFile), WTime::MakeFromSeconds(5.0f));
 }
 
-void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WSceneDocument::HandleEngineMessage(const WEditorEngineDocumentMsg* pMsg)
 {
-  ezGameObjectDocument::HandleEngineMessage(pMsg);
+  WGameObjectDocument::HandleEngineMessage(pMsg);
 
-  if (const ezGameModeMsgToEditor* msg = ezDynamicCast<const ezGameModeMsgToEditor*>(pMsg))
+  if (const WGameModeMsgToEditor* msg = WDynamicCast<const WGameModeMsgToEditor*>(pMsg))
   {
     HandleGameModeMsg(msg);
     return;
   }
 
-  if (const ezDocumentOpenResponseMsgToEditor* msg = ezDynamicCast<const ezDocumentOpenResponseMsgToEditor*>(pMsg))
+  if (const WDocumentOpenResponseMsgToEditor* msg = WDynamicCast<const WDocumentOpenResponseMsgToEditor*>(pMsg))
   {
     SyncObjectHiddenState();
     SyncAllChildOrders();
   }
 
-  if (const ezPushObjectStateMsgToEditor* msg = ezDynamicCast<const ezPushObjectStateMsgToEditor*>(pMsg))
+  if (const WPushObjectStateMsgToEditor* msg = WDynamicCast<const WPushObjectStateMsgToEditor*>(pMsg))
   {
     HandleObjectStateFromEngineMsg(msg);
   }
 }
 
-ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WSceneDocument::InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
   if (m_DocumentType == DocumentType::Prefab)
   {
-    const ezPrefabDocumentSettings* pSettings = GetSettings<ezPrefabDocumentSettings>();
+    const WPrefabDocumentSettings* pSettings = GetSettings<WPrefabDocumentSettings>();
 
     if (GetEditorEngineConnection() != nullptr)
     {
-      ezExposedDocumentObjectPropertiesMsgToEngine msg;
+      WExposedDocumentObjectPropertiesMsgToEngine msg;
       msg.m_Properties = pSettings->m_ExposedProperties;
 
       SendMessageToEngine(&msg);
@@ -1983,18 +1983,18 @@ ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFi
 }
 
 
-ezTransformStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WSceneDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 
   /* this function is never called */
-  return ezStatus(EZ_FAILURE);
+  return WStatus(W_FAILURE);
 }
 
 
-ezTransformStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo, {});
+  WStatus status = WAssetDocument::RemoteCreateThumbnail(ThumbnailInfo, {});
 
   // if we were to do this BEFORE making the screenshot, the scene would be killed, but not immediately restored
   // and the screenshot would end up empty
@@ -2006,7 +2006,7 @@ ezTransformStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& 
   return status;
 }
 
-void ezSceneDocument::SyncObjectHiddenState()
+void WSceneDocument::SyncObjectHiddenState()
 {
   // #TODO Scene2 handling
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
@@ -2015,12 +2015,12 @@ void ezSceneDocument::SyncObjectHiddenState()
   }
 }
 
-void ezSceneDocument::SyncObjectHiddenState(ezDocumentObject* pObject)
+void WSceneDocument::SyncObjectHiddenState(WDocumentObject* pObject)
 {
   const bool bHidden = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid())->m_bHidden;
   m_DocumentObjectMetaData->EndReadMetaData();
 
-  ezObjectTagMsgToEngine msg;
+  WObjectTagMsgToEngine msg;
   msg.m_bSetTag = bHidden;
   msg.m_sTag = "EditorHidden";
 
@@ -2032,16 +2032,16 @@ void ezSceneDocument::SyncObjectHiddenState(ezDocumentObject* pObject)
   }
 }
 
-void ezSceneDocument::UpdateObjectDebugTargets()
+void WSceneDocument::UpdateObjectDebugTargets()
 {
-  ezGatherObjectsForDebugVisMsgInterDoc msg;
+  WGatherObjectsForDebugVisMsgInterDoc msg;
   BroadcastInterDocumentMessage(&msg, this);
 
   {
-    ezObjectsForDebugVisMsgToEngine msgToEngine;
-    msgToEngine.m_Objects.SetCountUninitialized(sizeof(ezUuid) * msg.m_Objects.GetCount());
+    WObjectsForDebugVisMsgToEngine msgToEngine;
+    msgToEngine.m_Objects.SetCountUninitialized(sizeof(WUuid) * msg.m_Objects.GetCount());
 
-    ezMemoryUtils::Copy<ezUInt8>(msgToEngine.m_Objects.GetData(), reinterpret_cast<ezUInt8*>(msg.m_Objects.GetData()), msgToEngine.m_Objects.GetCount());
+    WMemoryUtils::Copy<WUInt8>(msgToEngine.m_Objects.GetData(), reinterpret_cast<WUInt8*>(msg.m_Objects.GetData()), msgToEngine.m_Objects.GetCount());
 
     GetEditorEngineConnection()->SendMessage(&msgToEngine);
   }

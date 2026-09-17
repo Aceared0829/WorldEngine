@@ -22,18 +22,18 @@ class QStandardItemModel;
 class QStandardItem;
 class QToolButton;
 class QMenu;
-class ezDocumentObject;
-class ezQtDoubleSpinBox;
+class WDocumentObject;
+class WQtDoubleSpinBox;
 class QSlider;
 
 /// *** CHECKBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorCheckboxWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorCheckboxWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorCheckboxWidget();
+  WQtPropertyEditorCheckboxWidget();
 
   virtual void mousePressEvent(QMouseEvent* pEv) override;
 
@@ -42,7 +42,7 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override {}
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
   QHBoxLayout* m_pLayout = nullptr;
   QCheckBox* m_pWidget = nullptr;
@@ -52,12 +52,12 @@ protected:
 
 /// *** DOUBLE SPINBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorDoubleSpinboxWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorDoubleSpinboxWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorDoubleSpinboxWidget(ezInt8 iNumComponents);
+  WQtPropertyEditorDoubleSpinboxWidget(WInt8 iNumComponents);
 
 private Q_SLOTS:
   void on_EditingFinished_triggered();
@@ -65,24 +65,24 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
   bool m_bUseTemporaryTransaction = false;
   bool m_bTemporaryCommand = false;
-  ezInt8 m_iNumComponents = 0;
-  ezEnum<ezVariantType> m_OriginalType;
+  WInt8 m_iNumComponents = 0;
+  WEnum<WVariantType> m_OriginalType;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtDoubleSpinBox* m_pWidget[4] = {};
+  WQtDoubleSpinBox* m_pWidget[4] = {};
 };
 
 /// *** TIME SPINBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorTimeWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorTimeWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorTimeWidget();
+  WQtPropertyEditorTimeWidget();
 
 private Q_SLOTS:
   void on_EditingFinished_triggered();
@@ -90,21 +90,21 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
   bool m_bTemporaryCommand = false;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtDoubleSpinBox* m_pWidget = nullptr;
+  WQtDoubleSpinBox* m_pWidget = nullptr;
 };
 
 /// *** ANGLE SPINBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorAngleWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorAngleWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorAngleWidget();
+  WQtPropertyEditorAngleWidget();
 
 private Q_SLOTS:
   void on_EditingFinished_triggered();
@@ -112,22 +112,22 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
   bool m_bTemporaryCommand = false;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtDoubleSpinBox* m_pWidget = nullptr;
+  WQtDoubleSpinBox* m_pWidget = nullptr;
 };
 
 /// *** INT SPINBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorIntSpinboxWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorIntSpinboxWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorIntSpinboxWidget(ezInt8 iNumComponents, ezInt32 iMinValue, ezInt32 iMaxValue);
-  ~ezQtPropertyEditorIntSpinboxWidget();
+  WQtPropertyEditorIntSpinboxWidget(WInt8 iNumComponents, WInt32 iMinValue, WInt32 iMaxValue);
+  ~WQtPropertyEditorIntSpinboxWidget();
 
   void SetReadOnly(bool bReadOnly = true) override;
 
@@ -140,28 +140,28 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
   bool m_bUseTemporaryTransaction = false;
   bool m_bTemporaryCommand = false;
-  ezInt8 m_iNumComponents = 0;
-  ezEnum<ezVariantType> m_OriginalType;
+  WInt8 m_iNumComponents = 0;
+  WEnum<WVariantType> m_OriginalType;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtDoubleSpinBox* m_pWidget[4] = {};
+  WQtDoubleSpinBox* m_pWidget[4] = {};
   QSlider* m_pSlider = nullptr;
 };
 
 /// *** SLIDER ***
 
-class EZ_GUIFOUNDATION_DLL ezQtImageSliderWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtImageSliderWidget : public QWidget
 {
   Q_OBJECT
 public:
-  using ImageGeneratorFunc = QImage (*)(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue);
+  using ImageGeneratorFunc = QImage (*)(WUInt32 uiWidth, WUInt32 uiHeight, double fMinValue, double fMaxValue);
 
-  ezQtImageSliderWidget(ImageGeneratorFunc generator, double fMinValue, double fMaxValue, QWidget* pParent);
+  WQtImageSliderWidget(ImageGeneratorFunc generator, double fMinValue, double fMaxValue, QWidget* pParent);
 
-  static ezMap<ezString, ImageGeneratorFunc> s_ImageGenerators;
+  static WMap<WString, ImageGeneratorFunc> s_ImageGenerators;
 
   double GetValue() const { return m_fValue; }
   void SetValue(double fValue);
@@ -186,13 +186,13 @@ protected:
   double m_fMaxValue = 0;
 };
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorSliderWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorSliderWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorSliderWidget();
-  ~ezQtPropertyEditorSliderWidget();
+  WQtPropertyEditorSliderWidget();
+  ~WQtPropertyEditorSliderWidget();
 
 private Q_SLOTS:
   void SlotSliderValueChanged(double fValue);
@@ -202,12 +202,12 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
   bool m_bTemporaryCommand = false;
-  ezEnum<ezVariantType> m_OriginalType;
+  WEnum<WVariantType> m_OriginalType;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtImageSliderWidget* m_pSlider = nullptr;
+  WQtImageSliderWidget* m_pSlider = nullptr;
 
   double m_fMinValue = 0;
   double m_fMaxValue = 0;
@@ -215,12 +215,12 @@ protected:
 
 /// *** QUATERNION ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorQuaternionWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorQuaternionWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorQuaternionWidget();
+  WQtPropertyEditorQuaternionWidget();
 
 private Q_SLOTS:
   void on_EditingFinished_triggered();
@@ -228,22 +228,22 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   bool m_bTemporaryCommand = false;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtDoubleSpinBox* m_pWidget[3] = {};
+  WQtDoubleSpinBox* m_pWidget[3] = {};
 };
 
 /// *** TRANSFORM ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorTransformWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorTransformWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorTransformWidget();
+  WQtPropertyEditorTransformWidget();
 
 private Q_SLOTS:
   void on_EditingFinished_triggered();
@@ -251,23 +251,23 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   bool m_bTemporaryCommand = false;
   QVBoxLayout* m_pLayout = nullptr;
-  ezQtDoubleSpinBox* m_pWidget[9] = {};
+  WQtDoubleSpinBox* m_pWidget[9] = {};
 };
 
 
 /// *** LINEEDIT ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorLineEditWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorLineEditWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorLineEditWidget();
+  WQtPropertyEditorLineEditWidget();
 
   void SetReadOnly(bool bReadOnly = true) override;
 
@@ -277,25 +277,25 @@ protected Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
   QLineEdit* m_pWidget = nullptr;
   QLabel* m_pWarningIcon = nullptr;
-  ezEnum<ezVariantType> m_OriginalType;
+  WEnum<WVariantType> m_OriginalType;
 };
 
 
 /// *** COLOR ***
 
-class EZ_GUIFOUNDATION_DLL ezQtColorButtonWidget : public QFrame
+class W_GUIFOUNDATION_DLL WQtColorButtonWidget : public QFrame
 {
   Q_OBJECT
 
 public:
-  explicit ezQtColorButtonWidget(QWidget* pParent);
-  void SetColor(const ezVariant& color);
+  explicit WQtColorButtonWidget(QWidget* pParent);
+  void SetColor(const WVariant& color);
 
 Q_SIGNALS:
   void clicked();
@@ -311,40 +311,40 @@ private:
   QPalette m_Pal;
 };
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorColorWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorColorWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorColorWidget();
+  WQtPropertyEditorColorWidget();
 
 private Q_SLOTS:
   void on_Button_triggered();
-  void on_CurrentColor_changed(const ezColor& color);
+  void on_CurrentColor_changed(const WColor& color);
   void on_Color_reset();
   void on_Color_accepted();
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   bool m_bExposeAlpha = false;
   bool m_bIsHDR = false;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtColorButtonWidget* m_pWidget = nullptr;
-  ezVariant m_OriginalValue;
+  WQtColorButtonWidget* m_pWidget = nullptr;
+  WVariant m_OriginalValue;
 };
 
 
 /// *** ENUM COMBOBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorEnumWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorEnumWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorEnumWidget();
+  WQtPropertyEditorEnumWidget();
 
 private Q_SLOTS:
   void on_CurrentEnum_changed(int iEnum);
@@ -352,25 +352,25 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
   QComboBox* m_pWidget = nullptr;
-  ezInt64 m_iCurrentEnum = 0;
+  WInt64 m_iCurrentEnum = 0;
   QPushButton* m_pButtons[2] = {nullptr, nullptr};
 };
 
 
 /// *** BITFLAGS COMBOBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorBitflagsWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorBitflagsWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorBitflagsWidget();
-  virtual ~ezQtPropertyEditorBitflagsWidget();
+  WQtPropertyEditorBitflagsWidget();
+  virtual ~WQtPropertyEditorBitflagsWidget();
 
 private Q_SLOTS:
   void on_Menu_aboutToShow();
@@ -378,30 +378,30 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
   void SetAllChecked(bool bChecked);
 
 protected:
-  ezMap<ezInt64, QCheckBox*> m_Constants;
+  WMap<WInt64, QCheckBox*> m_Constants;
   QHBoxLayout* m_pLayout = nullptr;
   QPushButton* m_pWidget = nullptr;
   QPushButton* m_pAllButton = nullptr;
   QPushButton* m_pClearButton = nullptr;
   QMenu* m_pMenu = nullptr;
-  ezInt64 m_iCurrentBitflags = 0;
+  WInt64 m_iCurrentBitflags = 0;
 };
 
 
 /// *** CURVE1D ***
 
-class EZ_GUIFOUNDATION_DLL ezQtCurve1DButtonWidget : public QLabel
+class W_GUIFOUNDATION_DLL WQtCurve1DButtonWidget : public QLabel
 {
   Q_OBJECT
 
 public:
-  explicit ezQtCurve1DButtonWidget(QWidget* pParent);
+  explicit WQtCurve1DButtonWidget(QWidget* pParent);
 
-  void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange);
+  void UpdatePreview(WObjectAccessorBase* pObjectAccessor, const WDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange);
 
 Q_SIGNALS:
   void clicked();
@@ -410,41 +410,41 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 };
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorCurve1DWidget : public ezQtPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorCurve1DWidget : public WQtPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorCurve1DWidget();
+  WQtPropertyEditorCurve1DWidget();
 
 private Q_SLOTS:
   void on_Button_triggered();
 
 protected:
-  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
+  virtual void SetSelection(const WArrayPtr<WPropertySelection>& items) override;
   virtual void OnInit() override;
   virtual void DoPrepareToDie() override;
   void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtCurve1DButtonWidget* m_pButton = nullptr;
-  ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
-  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_Unsub2;
+  WQtCurve1DButtonWidget* m_pButton = nullptr;
+  WCopyOnBroadcastEvent<const WDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
+  WCopyOnBroadcastEvent<const WDocumentObjectStructureEvent&>::Unsubscriber m_Unsub2;
 };
 
 /// *** COLOR GRADIENT ***
 
-class EZ_GUIFOUNDATION_DLL ezQtColorGradientButtonWidget : public QLabel
+class W_GUIFOUNDATION_DLL WQtColorGradientButtonWidget : public QLabel
 {
   Q_OBJECT
 
 public:
-  explicit ezQtColorGradientButtonWidget(QWidget* pParent);
+  explicit WQtColorGradientButtonWidget(QWidget* pParent);
 
-  void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pGradientObject);
+  void UpdatePreview(WObjectAccessorBase* pObjectAccessor, const WDocumentObject* pGradientObject);
 
 Q_SIGNALS:
   void clicked();
@@ -453,28 +453,28 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 };
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorColorGradientWidget : public ezQtPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorColorGradientWidget : public WQtPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorColorGradientWidget();
+  WQtPropertyEditorColorGradientWidget();
 
 private Q_SLOTS:
   void on_Button_triggered();
 
 protected:
-  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
+  virtual void SetSelection(const WArrayPtr<WPropertySelection>& items) override;
   virtual void OnInit() override;
   virtual void DoPrepareToDie() override;
   void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void ObjectEventHandler(const ezDocumentObjectEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void ObjectEventHandler(const WDocumentObjectEvent& e);
 
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtColorGradientButtonWidget* m_pButton = nullptr;
-  ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
-  ezEvent<const ezDocumentObjectEvent&>::Unsubscriber m_Unsub2;
+  WQtColorGradientButtonWidget* m_pButton = nullptr;
+  WCopyOnBroadcastEvent<const WDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
+  WEvent<const WDocumentObjectEvent&>::Unsubscriber m_Unsub2;
 };

@@ -3,22 +3,22 @@
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneExportModifier, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier::CreateModifiers(ezDynamicArray<ezSceneExportModifier*>& ref_modifiers)
+void WSceneExportModifier::CreateModifiers(WDynamicArray<WSceneExportModifier*>& ref_modifiers)
 {
-  ezRTTI::ForEachDerivedType<ezSceneExportModifier>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WSceneExportModifier>(
+    [&](const WRTTI* pRtti)
     {
-      ezSceneExportModifier* pMod = pRtti->GetAllocator()->Allocate<ezSceneExportModifier>();
+      WSceneExportModifier* pMod = pRtti->GetAllocator()->Allocate<WSceneExportModifier>();
       ref_modifiers.PushBack(pMod);
     },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+    WRTTI::ForEachOptions::ExcludeNonAllocatable);
 }
 
-void ezSceneExportModifier::DestroyModifiers(ezDynamicArray<ezSceneExportModifier*>& ref_modifiers)
+void WSceneExportModifier::DestroyModifiers(WDynamicArray<WSceneExportModifier*>& ref_modifiers)
 {
   for (auto pMod : ref_modifiers)
   {
@@ -28,9 +28,9 @@ void ezSceneExportModifier::DestroyModifiers(ezDynamicArray<ezSceneExportModifie
   ref_modifiers.Clear();
 }
 
-void ezSceneExportModifier::ApplyAllModifiers(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+void WSceneExportModifier::ApplyAllModifiers(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport)
 {
-  ezTempHybridArray<ezSceneExportModifier*, 8> modifiers;
+  WTempHybridArray<WSceneExportModifier*, 8> modifiers;
   CreateModifiers(modifiers);
 
   for (auto pMod : modifiers)
@@ -43,7 +43,7 @@ void ezSceneExportModifier::ApplyAllModifiers(ezWorld& ref_world, ezStringView s
   CleanUpWorld(ref_world);
 }
 
-void VisitObject(ezWorld& ref_world, ezGameObject* pObject)
+void VisitObject(WWorld& ref_world, WGameObject* pObject)
 {
   for (auto it = pObject->GetChildren(); it.IsValid(); it.Next())
   {
@@ -65,9 +65,9 @@ void VisitObject(ezWorld& ref_world, ezGameObject* pObject)
   ref_world.DeleteObjectDelayed(pObject->GetHandle(), false);
 }
 
-void ezSceneExportModifier::CleanUpWorld(ezWorld& ref_world)
+void WSceneExportModifier::CleanUpWorld(WWorld& ref_world)
 {
-  EZ_LOCK(ref_world.GetWriteMarker());
+  W_LOCK(ref_world.GetWriteMarker());
 
   // Don't do this (for now), as we would also delete objects that are referenced by other components,
   // and currently we can't know which ones are important to keep.

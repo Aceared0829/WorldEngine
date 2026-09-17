@@ -3,16 +3,16 @@
 #include <Core/Messages/EventMessageSender.h>
 #include <Core/World/World.h>
 
-namespace ezInternal
+namespace WInternal
 {
   template <typename World, typename GameObject>
-  static void UpdateCachedReceivers(const ezMessage& msg, World& ref_world, const ezComponent* pSenderComponent, GameObject pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
+  static void UpdateCachedReceivers(const WMessage& msg, World& ref_world, const WComponent* pSenderComponent, GameObject pSearchObject, WSmallArray<WComponentHandle, 1>& inout_cachedReceivers)
   {
-    if (inout_cachedReceivers.GetUserData<ezUInt32>() == 0)
+    if (inout_cachedReceivers.GetUserData<WUInt32>() == 0)
     {
-      using ComponentType = typename std::conditional<std::is_const<World>::value, const ezComponent*, ezComponent*>::type;
+      using ComponentType = typename std::conditional<std::is_const<World>::value, const WComponent*, WComponent*>::type;
 
-      ezTempHybridArray<ComponentType, 4> eventMsgHandlers;
+      WTempHybridArray<ComponentType, 4> eventMsgHandlers;
       ref_world.FindEventMsgHandlers(msg, pSenderComponent, pSearchObject, eventMsgHandlers);
 
       for (auto pEventMsgHandler : eventMsgHandlers)
@@ -20,80 +20,80 @@ namespace ezInternal
         inout_cachedReceivers.PushBack(pEventMsgHandler->GetHandle());
       }
 
-      inout_cachedReceivers.GetUserData<ezUInt32>() = 1;
+      inout_cachedReceivers.GetUserData<WUInt32>() = 1;
     }
   }
 
-  bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
+  bool EventMessageSenderHelper::SendEventMessage(WMessage& ref_msg, WComponent* pSenderComponent, WGameObject* pSearchObject, WSmallArray<WComponentHandle, 1>& inout_cachedReceivers)
   {
-    EZ_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
-    ezWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
+    W_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
+    WWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
     UpdateCachedReceivers(ref_msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     bool bHandlerFound = false;
 #endif
 
     bool bResult = false;
     for (auto hReceiver : inout_cachedReceivers)
     {
-      ezComponent* pReceiverComponent = nullptr;
+      WComponent* pReceiverComponent = nullptr;
       if (pWorld->TryGetComponent(hReceiver, pReceiverComponent))
       {
         bResult |= pReceiverComponent->SendMessage(ref_msg);
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
         bHandlerFound = true;
 #endif
       }
     }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     if (!bHandlerFound && ref_msg.GetDebugMessageRouting())
     {
-      ezLog::Warning("ezEventMessageSender::SendMessage: No event message handler found for message of type {0}.", ref_msg.GetId());
+      WLog::Warning("WEventMessageSender::SendMessage: No event message handler found for message of type {0}.", ref_msg.GetId());
     }
 #endif
 
     return bResult;
   }
 
-  bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
+  bool EventMessageSenderHelper::SendEventMessage(WMessage& ref_msg, const WComponent* pSenderComponent, const WGameObject* pSearchObject, WSmallArray<WComponentHandle, 1>& inout_cachedReceivers)
   {
-    EZ_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
-    const ezWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
+    W_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
+    const WWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
     UpdateCachedReceivers(ref_msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     bool bHandlerFound = false;
 #endif
 
     bool bResult = false;
     for (auto hReceiver : inout_cachedReceivers)
     {
-      const ezComponent* pReceiverComponent = nullptr;
+      const WComponent* pReceiverComponent = nullptr;
       if (pWorld->TryGetComponent(hReceiver, pReceiverComponent))
       {
         bResult |= pReceiverComponent->SendMessage(ref_msg);
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
         bHandlerFound = true;
 #endif
       }
     }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     if (!bHandlerFound && ref_msg.GetDebugMessageRouting())
     {
-      ezLog::Warning("ezEventMessageSender::SendMessage: No event message handler found for message of type {0}.", ref_msg.GetId());
+      WLog::Warning("WEventMessageSender::SendMessage: No event message handler found for message of type {0}.", ref_msg.GetId());
     }
 #endif
 
     return bResult;
   }
 
-  void EventMessageSenderHelper::PostEventMessage(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers, ezTime delay, ezObjectMsgQueueType::Enum queueType)
+  void EventMessageSenderHelper::PostEventMessage(const WMessage& msg, const WComponent* pSenderComponent, const WGameObject* pSearchObject, WSmallArray<WComponentHandle, 1>& inout_cachedReceivers, WTime delay, WObjectMsgQueueType::Enum queueType)
   {
-    EZ_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
-    const ezWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
+    W_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
+    const WWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
     UpdateCachedReceivers(msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
     if (!inout_cachedReceivers.IsEmpty())
@@ -103,14 +103,14 @@ namespace ezInternal
         pWorld->PostMessage(hReceiver, msg, delay, queueType);
       }
     }
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     else if (msg.GetDebugMessageRouting())
     {
-      ezLog::Warning("ezEventMessageSender::PostMessage: No event message handler found for message of type {0}.", msg.GetId());
+      WLog::Warning("WEventMessageSender::PostMessage: No event message handler found for message of type {0}.", msg.GetId());
     }
 #endif
   }
 
-} // namespace ezInternal
+} // namespace WInternal
 
 

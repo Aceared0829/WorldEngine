@@ -5,18 +5,18 @@
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualGraphCommandAccessor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualGraphCommandAccessor, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualGraphCommandAccessor::ezVisualGraphCommandAccessor(ezCommandHistory* pHistory)
-  : ezObjectCommandAccessor(pHistory)
+WVisualGraphCommandAccessor::WVisualGraphCommandAccessor(WCommandHistory* pHistory)
+  : WObjectCommandAccessor(pHistory)
 {
 }
 
-ezVisualGraphCommandAccessor::~ezVisualGraphCommandAccessor() = default;
+WVisualGraphCommandAccessor::~WVisualGraphCommandAccessor() = default;
 
-ezStatus ezVisualGraphCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+WStatus WVisualGraphCommandAccessor::SetValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index /*= WVariant()*/)
 {
   if (m_pHistory->InTemporaryTransaction() == false)
   {
@@ -35,135 +35,135 @@ ezStatus ezVisualGraphCommandAccessor::SetValue(const ezDocumentObject* pObject,
 
     if (IsDynamicPinProperty(pNodeObject, pDynamicPinProperty))
     {
-      ezTempHybridArray<ConnectionInfo, 16> oldConnections;
-      EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pNodeObject, oldConnections));
+      WTempHybridArray<ConnectionInfo, 16> oldConnections;
+      W_SUCCEED_OR_RETURN(DisconnectAllPins(pNodeObject, oldConnections));
 
       // TODO: remap oldConnections
 
-      EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index));
+      W_SUCCEED_OR_RETURN(WObjectCommandAccessor::SetValue(pObject, pProp, newValue, index));
 
       return TryReconnectAllPins(pNodeObject, oldConnections);
     }
   }
 
-  return ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index);
+  return WObjectCommandAccessor::SetValue(pObject, pProp, newValue, index);
 }
 
-ezStatus ezVisualGraphCommandAccessor::InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+WStatus WVisualGraphCommandAccessor::InsertValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index /*= WVariant()*/)
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
-    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
-    EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
+    WTempHybridArray<ConnectionInfo, 16> oldConnections;
+    W_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
 
-    EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::InsertValue(pObject, pProp, newValue, index));
+    W_SUCCEED_OR_RETURN(WObjectCommandAccessor::InsertValue(pObject, pProp, newValue, index));
 
     return TryReconnectAllPins(pObject, oldConnections);
   }
   else
   {
-    return ezObjectCommandAccessor::InsertValue(pObject, pProp, newValue, index);
+    return WObjectCommandAccessor::InsertValue(pObject, pProp, newValue, index);
   }
 }
 
-ezStatus ezVisualGraphCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
+WStatus WVisualGraphCommandAccessor::RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index /*= WVariant()*/)
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
-    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
-    EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
+    WTempHybridArray<ConnectionInfo, 16> oldConnections;
+    W_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
 
-    EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::RemoveValue(pObject, pProp, index));
+    W_SUCCEED_OR_RETURN(WObjectCommandAccessor::RemoveValue(pObject, pProp, index));
 
     return TryReconnectAllPins(pObject, oldConnections);
   }
   else
   {
-    return ezObjectCommandAccessor::RemoveValue(pObject, pProp, index);
+    return WObjectCommandAccessor::RemoveValue(pObject, pProp, index);
   }
 }
 
-ezStatus ezVisualGraphCommandAccessor::MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+WStatus WVisualGraphCommandAccessor::MoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex)
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
-    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
-    EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
+    WTempHybridArray<ConnectionInfo, 16> oldConnections;
+    W_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
 
     // TODO: remap oldConnections
 
-    EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::MoveValue(pObject, pProp, oldIndex, newIndex));
+    W_SUCCEED_OR_RETURN(WObjectCommandAccessor::MoveValue(pObject, pProp, oldIndex, newIndex));
 
     return TryReconnectAllPins(pObject, oldConnections);
   }
   else
   {
-    return ezObjectCommandAccessor::MoveValue(pObject, pProp, oldIndex, newIndex);
+    return WObjectCommandAccessor::MoveValue(pObject, pProp, oldIndex, newIndex);
   }
 }
 
-ezStatus ezVisualGraphCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+WStatus WVisualGraphCommandAccessor::AddObject(const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType, WUuid& inout_objectGuid)
 {
   if (IsDynamicPinProperty(pParent, pParentProp))
   {
-    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
-    EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pParent, oldConnections));
+    WTempHybridArray<ConnectionInfo, 16> oldConnections;
+    W_SUCCEED_OR_RETURN(DisconnectAllPins(pParent, oldConnections));
 
     // TODO: remap oldConnections
 
-    EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::AddObject(pParent, pParentProp, index, pType, inout_objectGuid));
+    W_SUCCEED_OR_RETURN(WObjectCommandAccessor::AddObject(pParent, pParentProp, index, pType, inout_objectGuid));
 
     return TryReconnectAllPins(pParent, oldConnections);
   }
   else
   {
-    return ezObjectCommandAccessor::AddObject(pParent, pParentProp, index, pType, inout_objectGuid);
+    return WObjectCommandAccessor::AddObject(pParent, pParentProp, index, pType, inout_objectGuid);
   }
 }
 
-ezStatus ezVisualGraphCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
+WStatus WVisualGraphCommandAccessor::RemoveObject(const WDocumentObject* pObject)
 {
-  if (const ezDocumentObject* pParent = pObject->GetParent())
+  if (const WDocumentObject* pParent = pObject->GetParent())
   {
-    const ezAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(pObject->GetParentProperty());
+    const WAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(pObject->GetParentProperty());
     if (IsDynamicPinProperty(pParent, pProp))
     {
-      ezTempHybridArray<ConnectionInfo, 16> oldConnections;
-      EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pParent, oldConnections));
+      WTempHybridArray<ConnectionInfo, 16> oldConnections;
+      W_SUCCEED_OR_RETURN(DisconnectAllPins(pParent, oldConnections));
 
       // TODO: remap oldConnections
 
-      EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::RemoveObject(pObject));
+      W_SUCCEED_OR_RETURN(WObjectCommandAccessor::RemoveObject(pObject));
 
       return TryReconnectAllPins(pParent, oldConnections);
     }
   }
 
-  return ezObjectCommandAccessor::RemoveObject(pObject);
+  return WObjectCommandAccessor::RemoveObject(pObject);
 }
 
 
-bool ezVisualGraphCommandAccessor::IsNode(const ezDocumentObject* pObject) const
+bool WVisualGraphCommandAccessor::IsNode(const WDocumentObject* pObject) const
 {
-  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const WVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
   return pManager->IsNode(pObject);
 }
 
-bool ezVisualGraphCommandAccessor::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
+bool WVisualGraphCommandAccessor::IsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const
 {
-  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const WVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
   return pManager->IsDynamicPinProperty(pObject, pProp);
 }
 
-ezStatus ezVisualGraphCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObject, ezDynamicArray<ConnectionInfo>& out_oldConnections)
+WStatus WVisualGraphCommandAccessor::DisconnectAllPins(const WDocumentObject* pObject, WDynamicArray<ConnectionInfo>& out_oldConnections)
 {
-  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const WVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
-  auto Disconnect = [&](ezArrayPtr<const ezVisualGraphConnection* const> connections) -> ezStatus
+  auto Disconnect = [&](WArrayPtr<const WVisualGraphConnection* const> connections) -> WStatus
   {
-    for (const ezVisualGraphConnection* pConnection : connections)
+    for (const WVisualGraphConnection* pConnection : connections)
     {
       auto& connectionInfo = out_oldConnections.ExpandAndGetRef();
       connectionInfo.m_pSource = pConnection->GetSourcePin().GetParent();
@@ -171,48 +171,48 @@ ezStatus ezVisualGraphCommandAccessor::DisconnectAllPins(const ezDocumentObject*
       connectionInfo.m_sSourcePin = pConnection->GetSourcePin().GetName();
       connectionInfo.m_sTargetPin = pConnection->GetTargetPin().GetName();
 
-      EZ_SUCCEED_OR_RETURN(ezNodeCommands::DisconnectAndRemoveCommand(m_pHistory, pConnection->GetParent()->GetGuid()));
+      W_SUCCEED_OR_RETURN(WNodeCommands::DisconnectAndRemoveCommand(m_pHistory, pConnection->GetParent()->GetGuid()));
     }
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   };
 
   auto inputs = pManager->GetInputPins(pObject);
   for (auto& pInputPin : inputs)
   {
-    EZ_SUCCEED_OR_RETURN(Disconnect(pManager->GetConnections(*pInputPin)));
+    W_SUCCEED_OR_RETURN(Disconnect(pManager->GetConnections(*pInputPin)));
   }
 
   auto outputs = pManager->GetOutputPins(pObject);
   for (auto& pOutputPin : outputs)
   {
-    EZ_SUCCEED_OR_RETURN(Disconnect(pManager->GetConnections(*pOutputPin)));
+    W_SUCCEED_OR_RETURN(Disconnect(pManager->GetConnections(*pOutputPin)));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezVisualGraphCommandAccessor::TryReconnectAllPins(const ezDocumentObject* pObject, const ezDynamicArray<ConnectionInfo>& oldConnections)
+WStatus WVisualGraphCommandAccessor::TryReconnectAllPins(const WDocumentObject* pObject, const WDynamicArray<ConnectionInfo>& oldConnections)
 {
-  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
-  const ezRTTI* pConnectionType = pManager->GetConnectionType();
+  auto pManager = static_cast<const WVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
+  const WRTTI* pConnectionType = pManager->GetConnectionType();
 
   for (auto& connectionInfo : oldConnections)
   {
-    const ezVisualGraphPin* pSourcePin = pManager->GetOutputPinByName(connectionInfo.m_pSource, connectionInfo.m_sSourcePin);
-    const ezVisualGraphPin* pTargetPin = pManager->GetInputPinByName(connectionInfo.m_pTarget, connectionInfo.m_sTargetPin);
+    const WVisualGraphPin* pSourcePin = pManager->GetOutputPinByName(connectionInfo.m_pSource, connectionInfo.m_sSourcePin);
+    const WVisualGraphPin* pTargetPin = pManager->GetInputPinByName(connectionInfo.m_pTarget, connectionInfo.m_sTargetPin);
 
     // This connection can't be restored because a pin doesn't exist anymore, which is ok in this case.
     if (pSourcePin == nullptr || pTargetPin == nullptr)
       continue;
 
     // This connection is not valid anymore after pins have changed.
-    ezVisualGraphObjectManager::CanConnectResult res;
+    WVisualGraphObjectManager::CanConnectResult res;
     if (pManager->CanConnect(pConnectionType, *pSourcePin, *pTargetPin, res).Failed())
       continue;
 
-    EZ_SUCCEED_OR_RETURN(ezNodeCommands::AddAndConnectCommand(m_pHistory, pConnectionType, *pSourcePin, *pTargetPin));
+    W_SUCCEED_OR_RETURN(WNodeCommands::AddAndConnectCommand(m_pHistory, pConnectionType, *pSourcePin, *pTargetPin));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

@@ -3,7 +3,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezCameraModeSwitchActions
+class W_EDITORFRAMEWORK_DLL WCameraModeSwitchActions
 {
 public:
   static void RegisterActions();
@@ -12,15 +12,15 @@ public:
   /// Maps the camera mode dropdown to the toolbar identified by \a szMapping.
   static void MapToolbarActions(const char* szMapping);
 
-  static ezActionDescriptorHandle s_hCameraMode;
+  static WActionDescriptorHandle s_hCameraMode;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezCameraModeSwitchAction : public ezDynamicMenuAction
+class W_EDITORFRAMEWORK_DLL WCameraModeSwitchAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCameraModeSwitchAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WCameraModeSwitchAction, WDynamicMenuAction);
 
 public:
-  ezCameraModeSwitchAction(const ezActionContext& context, const char* szName, const char* szIconPath);
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
-  virtual void Execute(const ezVariant& value) override;
+  WCameraModeSwitchAction(const WActionContext& context, const char* szName, const char* szIconPath);
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
+  virtual void Execute(const WVariant& value) override;
 };

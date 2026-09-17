@@ -3,35 +3,35 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
 
-class ezDecalAssetDocumentManager : public ezAssetDocumentManager
+class WDecalAssetDocumentManager : public WAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalAssetDocumentManager, ezAssetDocumentManager);
+  W_ADD_DYNAMIC_REFLECTION(WDecalAssetDocumentManager, WAssetDocumentManager);
 
 public:
-  ezDecalAssetDocumentManager();
-  ~ezDecalAssetDocumentManager();
+  WDecalAssetDocumentManager();
+  ~WDecalAssetDocumentManager();
 
   virtual void AddEntriesToAssetTable(
-    ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const override;
-  virtual ezString GetAssetTableEntry(
-    const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
+    WStringView sDataDirectory, const WPlatformProfile* pAssetProfile, WDelegate<void(WStringView sGuid, WStringView sPath, WStringView sType)> addEntry) const override;
+  virtual WString GetAssetTableEntry(
+    const WSubAsset* pSubAsset, WStringView sDataDirectory, const WPlatformProfile* pAssetProfile) const override;
 
   /// There is only a single decal texture per project. This function creates it, in case any decal asset was modified.
-  ezStatus GenerateDecalTexture(const ezPlatformProfile* pAssetProfile);
-  ezString GetDecalTexturePath(const ezPlatformProfile* pAssetProfile) const;
+  WStatus GenerateDecalTexture(const WPlatformProfile* pAssetProfile);
+  WString GetDecalTexturePath(const WPlatformProfile* pAssetProfile) const;
 
 private:
-  void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
-  bool IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiAssetHash, ezUInt16 uiAssetVersion) const;
-  ezStatus RunTexConv(const char* szTargetFile, const char* szInputFile, const ezAssetFileHeader& AssetHeader);
+  void OnDocumentManagerEvent(const WDocumentManager::Event& e);
+  bool IsDecalTextureUpToDate(const char* szDecalFile, WUInt64 uiAssetHash, WUInt16 uiAssetVersion) const;
+  WStatus RunTexConv(const char* szTargetFile, const char* szInputFile, const WAssetFileHeader& AssetHeader);
 
   virtual void InternalCreateDocument(
-    ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
-  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
+    WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext) override;
+  virtual void InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }
 
-  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
+  virtual WUInt64 ComputeAssetProfileHashImpl(const WPlatformProfile* pAssetProfile) const override;
 
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
+  WAssetDocumentTypeDescriptor m_DocTypeDesc;
 };

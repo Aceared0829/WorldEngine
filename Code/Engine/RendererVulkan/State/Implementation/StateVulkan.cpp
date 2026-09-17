@@ -4,87 +4,87 @@
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/State/StateVulkan.h>
 
-// Mapping tables to map ezGAL constants to Vulkan constants
+// Mapping tables to map WGAL constants to Vulkan constants
 #include <RendererVulkan/State/Implementation/StateVulkan_MappingTables.inl>
 
 // Blend state
 
-ezGALBlendStateVulkan::ezGALBlendStateVulkan(const ezGALBlendStateCreationDescription& Description)
-  : ezGALBlendState(Description)
+WGALBlendStateVulkan::WGALBlendStateVulkan(const WGALBlendStateCreationDescription& Description)
+  : WGALBlendState(Description)
 {
   m_BlendState.pAttachments = m_blendAttachmentState;
 }
 
-ezGALBlendStateVulkan::~ezGALBlendStateVulkan() = default;
+WGALBlendStateVulkan::~WGALBlendStateVulkan() = default;
 
-static vk::BlendOp ToVulkanBlendOp(ezGALBlendOp::Enum e)
+static vk::BlendOp ToVulkanBlendOp(WGALBlendOp::Enum e)
 {
   switch (e)
   {
-    case ezGALBlendOp::Add:
+    case WGALBlendOp::Add:
       return vk::BlendOp::eAdd;
-    case ezGALBlendOp::Max:
+    case WGALBlendOp::Max:
       return vk::BlendOp::eMax;
-    case ezGALBlendOp::Min:
+    case WGALBlendOp::Min:
       return vk::BlendOp::eMin;
-    case ezGALBlendOp::RevSubtract:
+    case WGALBlendOp::RevSubtract:
       return vk::BlendOp::eReverseSubtract;
-    case ezGALBlendOp::Subtract:
+    case WGALBlendOp::Subtract:
       return vk::BlendOp::eSubtract;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   return vk::BlendOp::eAdd;
 }
 
-static vk::BlendFactor ToVulkanBlendFactor(ezGALBlend::Enum e)
+static vk::BlendFactor ToVulkanBlendFactor(WGALBlend::Enum e)
 {
   switch (e)
   {
-    case ezGALBlend::BlendFactor:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+    case WGALBlend::BlendFactor:
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::BlendFactor::eZero;
-    case ezGALBlend::DestAlpha:
+    case WGALBlend::DestAlpha:
       return vk::BlendFactor::eDstAlpha;
-    case ezGALBlend::DestColor:
+    case WGALBlend::DestColor:
       return vk::BlendFactor::eDstColor;
-    case ezGALBlend::InvBlendFactor:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+    case WGALBlend::InvBlendFactor:
+      W_ASSERT_NOT_IMPLEMENTED;
       return vk::BlendFactor::eZero;
-    case ezGALBlend::InvDestAlpha:
+    case WGALBlend::InvDestAlpha:
       return vk::BlendFactor::eOneMinusDstAlpha;
-    case ezGALBlend::InvDestColor:
+    case WGALBlend::InvDestColor:
       return vk::BlendFactor::eOneMinusDstColor;
-    case ezGALBlend::InvSrcAlpha:
+    case WGALBlend::InvSrcAlpha:
       return vk::BlendFactor::eOneMinusSrcAlpha;
-    case ezGALBlend::InvSrcColor:
+    case WGALBlend::InvSrcColor:
       return vk::BlendFactor::eOneMinusSrcColor;
-    case ezGALBlend::One:
+    case WGALBlend::One:
       return vk::BlendFactor::eOne;
-    case ezGALBlend::SrcAlpha:
+    case WGALBlend::SrcAlpha:
       return vk::BlendFactor::eSrcAlpha;
-    case ezGALBlend::SrcAlphaSaturated:
+    case WGALBlend::SrcAlphaSaturated:
       return vk::BlendFactor::eSrcAlphaSaturate;
-    case ezGALBlend::SrcColor:
+    case WGALBlend::SrcColor:
       return vk::BlendFactor::eSrcColor;
-    case ezGALBlend::Zero:
+    case WGALBlend::Zero:
       return vk::BlendFactor::eZero;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   return vk::BlendFactor::eOne;
 }
 
-ezResult ezGALBlendStateVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALBlendStateVulkan::InitPlatform(WGALDevice* pDevice)
 {
   // TODO attachment count has to be set when render targets are known
   // TODO alpha2coverage needs to be implemented in MultisampleStateCreateInfo
   // TODO independent blend is a device feature that is always enabled if present
 
-  for (ezInt32 i = 0; i < 8; ++i)
+  for (WInt32 i = 0; i < 8; ++i)
   {
     m_blendAttachmentState[i].blendEnable = m_Description.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled ? VK_TRUE : VK_FALSE;
     m_blendAttachmentState[i].colorBlendOp = ToVulkanBlendOp(m_Description.m_RenderTargetBlendDescriptions[i].m_BlendOp);
@@ -96,24 +96,24 @@ ezResult ezGALBlendStateVulkan::InitPlatform(ezGALDevice* pDevice)
     m_blendAttachmentState[i].colorWriteMask = (vk::ColorComponentFlags)(m_Description.m_RenderTargetBlendDescriptions[i].m_uiWriteMask & 0x0F);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALBlendStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALBlendStateVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // Depth Stencil state
 
-ezGALDepthStencilStateVulkan::ezGALDepthStencilStateVulkan(const ezGALDepthStencilStateCreationDescription& Description)
-  : ezGALDepthStencilState(Description)
+WGALDepthStencilStateVulkan::WGALDepthStencilStateVulkan(const WGALDepthStencilStateCreationDescription& Description)
+  : WGALDepthStencilState(Description)
 {
 }
 
-ezGALDepthStencilStateVulkan::~ezGALDepthStencilStateVulkan() = default;
+WGALDepthStencilStateVulkan::~WGALDepthStencilStateVulkan() = default;
 
-ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALDepthStencilStateVulkan::InitPlatform(WGALDevice* pDevice)
 {
   m_DepthStencilState.depthBoundsTestEnable = VK_FALSE;
   m_DepthStencilState.depthCompareOp = GALCompareFuncToVulkan[m_Description.m_DepthTestFunc];
@@ -130,7 +130,7 @@ ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
   m_DepthStencilState.front.failOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_FailOp];
   m_DepthStencilState.front.passOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_PassOp];
 
-  const ezGALStencilOpDescription& backFaceStencilOp = m_Description.m_BackFaceStencilOp;
+  const WGALStencilOpDescription& backFaceStencilOp = m_Description.m_BackFaceStencilOp;
   m_DepthStencilState.back.compareMask = m_Description.m_uiStencilReadMask;
   m_DepthStencilState.back.writeMask = m_Description.m_uiStencilWriteMask;
   m_DepthStencilState.back.compareOp = GALCompareFuncToVulkan[backFaceStencilOp.m_StencilFunc];
@@ -138,38 +138,38 @@ ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
   m_DepthStencilState.back.failOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_FailOp];
   m_DepthStencilState.back.passOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_PassOp];
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALDepthStencilStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALDepthStencilStateVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
 // Rasterizer state
 
-ezGALRasterizerStateVulkan::ezGALRasterizerStateVulkan(const ezGALRasterizerStateCreationDescription& Description)
-  : ezGALRasterizerState(Description)
+WGALRasterizerStateVulkan::WGALRasterizerStateVulkan(const WGALRasterizerStateCreationDescription& Description)
+  : WGALRasterizerState(Description)
 {
 }
 
-ezGALRasterizerStateVulkan::~ezGALRasterizerStateVulkan() = default;
+WGALRasterizerStateVulkan::~WGALRasterizerStateVulkan() = default;
 
 
 
-ezResult ezGALRasterizerStateVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALRasterizerStateVulkan::InitPlatform(WGALDevice* pDevice)
 {
   // TODO scissor test is always enabled for vulkan
 
-  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  auto pVulkanDevice = static_cast<WGALDeviceVulkan*>(pDevice);
 
   if (m_Description.m_bConservativeRasterization)
   {
     if (!pVulkanDevice->GetCapabilities().m_bSupportsConservativeRasterization)
     {
-      ezLog::Error("Rasterizer state description enables conservative rasterization which is not available!");
-      return EZ_FAILURE;
+      WLog::Error("Rasterizer state description enables conservative rasterization which is not available!");
+      return W_FAILURE;
     }
 
     // Overestimation is what D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON does. Any overestimation beyond the hardware minimum is not requested.
@@ -191,58 +191,58 @@ ezResult ezGALRasterizerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   m_RasterizerState.lineWidth = 1.f;
   m_RasterizerState.polygonMode = m_Description.m_bWireFrame ? vk::PolygonMode::eLine : vk::PolygonMode::eFill;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-ezResult ezGALRasterizerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALRasterizerStateVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // Sampler state
 
-ezGALSamplerStateVulkan::ezGALSamplerStateVulkan(const ezGALSamplerStateCreationDescription& Description)
-  : ezGALSamplerState(Description)
+WGALSamplerStateVulkan::WGALSamplerStateVulkan(const WGALSamplerStateCreationDescription& Description)
+  : WGALSamplerState(Description)
 {
 }
 
-ezGALSamplerStateVulkan::~ezGALSamplerStateVulkan() = default;
+WGALSamplerStateVulkan::~WGALSamplerStateVulkan() = default;
 
-ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALSamplerStateVulkan::InitPlatform(WGALDevice* pDevice)
 {
-  ezGALSamplerStateCreationDescription desc = this->GetDescription();
+  WGALSamplerStateCreationDescription desc = this->GetDescription();
   pDevice->AdjustSamplerStateDescription(desc);
 
-  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  auto pVulkanDevice = static_cast<WGALDeviceVulkan*>(pDevice);
 
   vk::SamplerCreateInfo samplerCreateInfo = {};
   samplerCreateInfo.addressModeU = GALTextureAddressModeToVulkan[desc.m_AddressU];
   samplerCreateInfo.addressModeV = GALTextureAddressModeToVulkan[desc.m_AddressV];
   samplerCreateInfo.addressModeW = GALTextureAddressModeToVulkan[desc.m_AddressW];
-  if (desc.m_MagFilter == ezGALTextureFilterMode::Anisotropic || desc.m_MinFilter == ezGALTextureFilterMode::Anisotropic || desc.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
+  if (desc.m_MagFilter == WGALTextureFilterMode::Anisotropic || desc.m_MinFilter == WGALTextureFilterMode::Anisotropic || desc.m_MipFilter == WGALTextureFilterMode::Anisotropic)
   {
     const float fMaxAnisotropy = pVulkanDevice->GetPhysicalDeviceProperties().limits.maxSamplerAnisotropy;
     if (pVulkanDevice->GetPhysicalDeviceFeatures().features.samplerAnisotropy && fMaxAnisotropy > 1.0f)
     {
       samplerCreateInfo.anisotropyEnable = VK_TRUE;
-      samplerCreateInfo.maxAnisotropy = ezMath::Clamp(static_cast<float>(desc.m_uiMaxAnisotropy), 1.0f, fMaxAnisotropy);
+      samplerCreateInfo.maxAnisotropy = WMath::Clamp(static_cast<float>(desc.m_uiMaxAnisotropy), 1.0f, fMaxAnisotropy);
     }
   }
 
   vk::SamplerCustomBorderColorCreateInfoEXT customBorderColor;
   if (samplerCreateInfo.addressModeU == vk::SamplerAddressMode::eClampToBorder || samplerCreateInfo.addressModeV == vk::SamplerAddressMode::eClampToBorder || samplerCreateInfo.addressModeW == vk::SamplerAddressMode::eClampToBorder)
   {
-    const ezColor col = desc.m_BorderColor;
-    if (col == ezColor(0, 0, 0, 0))
+    const WColor col = desc.m_BorderColor;
+    if (col == WColor(0, 0, 0, 0))
     {
       samplerCreateInfo.borderColor = vk::BorderColor::eFloatTransparentBlack;
     }
-    else if (col == ezColor(0, 0, 0, 1))
+    else if (col == WColor(0, 0, 0, 1))
     {
       samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueBlack;
     }
-    else if (col == ezColor(1, 1, 1, 1))
+    else if (col == WColor(1, 1, 1, 1))
     {
       samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueWhite;
     }
@@ -267,7 +267,7 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
       }
     }
   }
-  samplerCreateInfo.compareEnable = desc.m_SampleCompareFunc == ezGALCompareFunc::Never ? VK_FALSE : VK_TRUE;
+  samplerCreateInfo.compareEnable = desc.m_SampleCompareFunc == WGALCompareFunc::Never ? VK_FALSE : VK_TRUE;
   samplerCreateInfo.compareOp = GALCompareFuncToVulkan[desc.m_SampleCompareFunc];
   samplerCreateInfo.magFilter = GALFilterToVulkanFilter[desc.m_MagFilter];
   samplerCreateInfo.minFilter = GALFilterToVulkanFilter[desc.m_MinFilter];
@@ -277,14 +277,14 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.mipmapMode = GALFilterToVulkanMipmapMode[desc.m_MipFilter];
 
   m_ResourceImageInfo.imageLayout = vk::ImageLayout::eUndefined;
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createSampler(&samplerCreateInfo, nullptr, &m_ResourceImageInfo.sampler));
-  return EZ_SUCCESS;
+  VK_SUCCEED_OR_RETURN_W_FAILURE(pVulkanDevice->GetVulkanDevice().createSampler(&samplerCreateInfo, nullptr, &m_ResourceImageInfo.sampler));
+  return W_SUCCESS;
 }
 
 
-ezResult ezGALSamplerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALSamplerStateVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  WGALDeviceVulkan* pVulkanDevice = static_cast<WGALDeviceVulkan*>(pDevice);
   pVulkanDevice->DeleteLater(m_ResourceImageInfo.sampler);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

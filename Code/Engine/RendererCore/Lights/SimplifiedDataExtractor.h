@@ -6,58 +6,58 @@
 ///
 /// Used when clustered rendering is not needed or available. Contains only basic
 /// lighting information like sky irradiance.
-class ezSimplifiedDataCPU : public ezRenderData
+class WSimplifiedDataCPU : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimplifiedDataCPU, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WSimplifiedDataCPU, WRenderData);
 
 public:
-  ezSimplifiedDataCPU();
-  ~ezSimplifiedDataCPU();
+  WSimplifiedDataCPU();
+  ~WSimplifiedDataCPU();
 
-  ezUInt32 m_uiSkyIrradianceIndex = 0;
-  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
+  WUInt32 m_uiSkyIrradianceIndex = 0;
+  WEnum<WCameraUsageHint> m_cameraUsageHint = WCameraUsageHint::Default;
 };
 
 /// Minimal GPU-side lighting data for simplified rendering.
 ///
-/// Contains only essential lighting data uploaded to the GPU. Used with ezSimplifiedDataExtractor
+/// Contains only essential lighting data uploaded to the GPU. Used with WSimplifiedDataExtractor
 /// for rendering paths that don't require full clustered lighting.
-struct EZ_RENDERERCORE_DLL ezSimplifiedDataGPU
+struct W_RENDERERCORE_DLL WSimplifiedDataGPU
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezSimplifiedDataGPU);
+  W_DISALLOW_COPY_AND_ASSIGN(WSimplifiedDataGPU);
 
 public:
-  ezSimplifiedDataGPU();
-  ~ezSimplifiedDataGPU();
+  WSimplifiedDataGPU();
+  ~WSimplifiedDataGPU();
 
-  ezUInt32 m_uiSkyIrradianceIndex = 0;
-  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
-  ezGALBufferHandle m_hConstantBuffer;
+  WUInt32 m_uiSkyIrradianceIndex = 0;
+  WEnum<WCameraUsageHint> m_cameraUsageHint = WCameraUsageHint::Default;
+  WGALBufferHandle m_hConstantBuffer;
 };
 
 /// Extracts minimal lighting data for simplified rendering.
 ///
-/// Alternative to ezClusteredDataExtractor for cases where full clustered rendering
+/// Alternative to WClusteredDataExtractor for cases where full clustered rendering
 /// is not required. Provides basic lighting information without the overhead of
 /// spatial clustering. Used for lower-end rendering paths or specific view types.
-class EZ_RENDERERCORE_DLL ezSimplifiedDataExtractor : public ezExtractor
+class W_RENDERERCORE_DLL WSimplifiedDataExtractor : public WExtractor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimplifiedDataExtractor, ezExtractor);
+  W_ADD_DYNAMIC_REFLECTION(WSimplifiedDataExtractor, WExtractor);
 
 public:
-  ezSimplifiedDataExtractor(const char* szName = "SimplifiedDataExtractor");
-  ~ezSimplifiedDataExtractor();
+  WSimplifiedDataExtractor(const char* szName = "SimplifiedDataExtractor");
+  ~WSimplifiedDataExtractor();
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
-
-private:
-  void UpdateGpuData(const ezView& view, const ezSimplifiedDataCPU* pData);
-  void AddGpuData(const ezView& view, ezExtractedRenderData& ref_extractedRenderData);
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 private:
-  ezSimplifiedDataGPU m_DataGPU;
+  void UpdateGpuData(const WView& view, const WSimplifiedDataCPU* pData);
+  void AddGpuData(const WView& view, WExtractedRenderData& ref_extractedRenderData);
+
+private:
+  WSimplifiedDataGPU m_DataGPU;
 };

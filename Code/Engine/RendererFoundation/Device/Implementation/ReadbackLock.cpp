@@ -4,7 +4,7 @@
 #include <RendererFoundation/Device/ReadbackLock.h>
 
 
-ezReadbackBufferLock::ezReadbackBufferLock(ezGALDevice* pDevice, const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_memory)
+WReadbackBufferLock::WReadbackBufferLock(WGALDevice* pDevice, const WGALReadbackBuffer* pBuffer, WArrayPtr<const WUInt8>& out_memory)
   : m_pDevice(pDevice)
   , m_pBuffer(pBuffer)
 {
@@ -16,7 +16,7 @@ ezReadbackBufferLock::ezReadbackBufferLock(ezGALDevice* pDevice, const ezGALRead
 }
 
 
-ezReadbackBufferLock::~ezReadbackBufferLock()
+WReadbackBufferLock::~WReadbackBufferLock()
 {
   if (m_pDevice)
   {
@@ -24,7 +24,7 @@ ezReadbackBufferLock::~ezReadbackBufferLock()
   }
 }
 
-void ezReadbackBufferLock::operator=(ezReadbackBufferLock&& rhs)
+void WReadbackBufferLock::operator=(WReadbackBufferLock&& rhs)
 {
   if (m_pDevice)
   {
@@ -39,7 +39,7 @@ void ezReadbackBufferLock::operator=(ezReadbackBufferLock&& rhs)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezReadbackTextureLock::ezReadbackTextureLock(ezGALDevice* pDevice, const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory)
+WReadbackTextureLock::WReadbackTextureLock(WGALDevice* pDevice, const WGALReadbackTexture* pTexture, const WArrayPtr<const WGALTextureSubresource>& subResources, WDynamicArray<WGALSystemMemoryDescription>& out_memory)
   : m_pDevice(pDevice)
   , m_pTexture(pTexture)
   , m_SubResources(subResources)
@@ -52,7 +52,7 @@ ezReadbackTextureLock::ezReadbackTextureLock(ezGALDevice* pDevice, const ezGALRe
   }
 }
 
-ezReadbackTextureLock::~ezReadbackTextureLock()
+WReadbackTextureLock::~WReadbackTextureLock()
 {
   if (m_pDevice)
   {
@@ -60,7 +60,7 @@ ezReadbackTextureLock::~ezReadbackTextureLock()
   }
 }
 
-void ezReadbackTextureLock::operator=(ezReadbackTextureLock&& rhs)
+void WReadbackTextureLock::operator=(WReadbackTextureLock&& rhs)
 {
   if (m_pDevice)
   {

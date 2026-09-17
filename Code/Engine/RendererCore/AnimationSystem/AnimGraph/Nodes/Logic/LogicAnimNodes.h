@@ -6,61 +6,61 @@
 ///
 /// This node combines multiple boolean inputs using AND logic. Useful for combining multiple
 /// conditions before triggering animations or state transitions.
-class EZ_RENDERERCORE_DLL ezLogicAndAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WLogicAndAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogicAndAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WLogicAndAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLogicAndAnimNode
+  // WLogicAndAnimNode
 
 public:
-  ezLogicAndAnimNode();
-  ~ezLogicAndAnimNode();
+  WLogicAndAnimNode();
+  ~WLogicAndAnimNode();
 
 private:
-  ezUInt8 m_uiBoolCount = 2;                          // [ property ]
-  ezHybridArray<ezAnimGraphBoolInputPin, 2> m_InBool; // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;               // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsFalse;              // [ property ]
+  WUInt8 m_uiBoolCount = 2;                          // [ property ]
+  WHybridArray<WAnimGraphBoolInputPin, 2> m_InBool; // [ property ]
+  WAnimGraphBoolOutputPin m_OutIsTrue;               // [ property ]
+  WAnimGraphBoolOutputPin m_OutIsFalse;              // [ property ]
 };
 
 /// Forwards a trigger event only when a boolean condition is true.
 ///
 /// This node gates trigger events based on a boolean input. The trigger is only forwarded
 /// when the boolean condition is satisfied. Useful for conditional event routing.
-class EZ_RENDERERCORE_DLL ezLogicEventAndAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WLogicEventAndAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogicEventAndAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WLogicEventAndAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLogicEventAndAnimNode
+  // WLogicEventAndAnimNode
 
 public:
-  ezLogicEventAndAnimNode();
-  ~ezLogicEventAndAnimNode();
+  WLogicEventAndAnimNode();
+  ~WLogicEventAndAnimNode();
 
 private:
-  ezAnimGraphTriggerInputPin m_InActivate;      // [ property ]
-  ezAnimGraphBoolInputPin m_InBool;             // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnActivated; // [ property ]
+  WAnimGraphTriggerInputPin m_InActivate;      // [ property ]
+  WAnimGraphBoolInputPin m_InBool;             // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnActivated; // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,58 +71,58 @@ private:
 ///
 /// This node combines multiple boolean inputs using OR logic. Useful for triggering animations
 /// when any of several conditions are met.
-class EZ_RENDERERCORE_DLL ezLogicOrAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WLogicOrAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogicOrAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WLogicOrAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLogicOrAnimNode
+  // WLogicOrAnimNode
 
 public:
-  ezLogicOrAnimNode();
-  ~ezLogicOrAnimNode();
+  WLogicOrAnimNode();
+  ~WLogicOrAnimNode();
 
 private:
-  ezUInt8 m_uiBoolCount = 2;                          // [ property ]
-  ezHybridArray<ezAnimGraphBoolInputPin, 2> m_InBool; // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;               // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsFalse;              // [ property ]
+  WUInt8 m_uiBoolCount = 2;                          // [ property ]
+  WHybridArray<WAnimGraphBoolInputPin, 2> m_InBool; // [ property ]
+  WAnimGraphBoolOutputPin m_OutIsTrue;               // [ property ]
+  WAnimGraphBoolOutputPin m_OutIsFalse;              // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RENDERERCORE_DLL ezLogicNotAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WLogicNotAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogicNotAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WLogicNotAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLogicNotAnimNode
+  // WLogicNotAnimNode
 
 public:
-  ezLogicNotAnimNode();
-  ~ezLogicNotAnimNode();
+  WLogicNotAnimNode();
+  ~WLogicNotAnimNode();
 
 private:
-  ezAnimGraphBoolInputPin m_InBool;   // [ property ]
-  ezAnimGraphBoolOutputPin m_OutBool; // [ property ]
+  WAnimGraphBoolInputPin m_InBool;   // [ property ]
+  WAnimGraphBoolOutputPin m_OutBool; // [ property ]
 };

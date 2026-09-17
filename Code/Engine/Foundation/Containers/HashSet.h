@@ -24,15 +24,15 @@
 /// - Memory efficiency is important
 /// - You have a good hash function for your key type
 ///
-/// Consider ezSet instead when:
+/// Consider WSet instead when:
 /// - You need sorted iteration
 /// - You need stable element addresses (no reallocation)
 /// - Predictable O(log n) performance is more important than average O(1)
 ///
-/// The hash function can be customized by providing a Hasher helper class like ezHashHelper.
-/// \see ezHashHelper
+/// The hash function can be customized by providing a Hasher helper class like WHashHelper.
+/// \see WHashHelper
 template <typename KeyType, typename Hasher>
-class ezHashSetBase
+class WHashSetBase
 {
 public:
   /// Const iterator.
@@ -43,15 +43,15 @@ public:
     bool IsValid() const; // [tested]
 
     /// Checks whether the two iterators point to the same element.
-    bool operator==(const typename ezHashSetBase<KeyType, Hasher>::ConstIterator& rhs) const;
+    bool operator==(const typename WHashSetBase<KeyType, Hasher>::ConstIterator& rhs) const;
 
-    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename ezHashSetBase<KeyType, Hasher>::ConstIterator&);
+    W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename WHashSetBase<KeyType, Hasher>::ConstIterator&);
 
     /// Returns the 'key' of the element that this iterator points to.
     const KeyType& Key() const; // [tested]
 
     /// Returns the 'key' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE const KeyType& operator*() const { return Key(); } // [tested]
+    W_ALWAYS_INLINE const KeyType& operator*() const { return Key(); } // [tested]
 
     /// Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -60,44 +60,44 @@ public:
     void operator++(); // [tested]
 
   protected:
-    friend class ezHashSetBase<KeyType, Hasher>;
+    friend class WHashSetBase<KeyType, Hasher>;
 
-    explicit ConstIterator(const ezHashSetBase<KeyType, Hasher>& hashSet);
+    explicit ConstIterator(const WHashSetBase<KeyType, Hasher>& hashSet);
     void SetToBegin();
     void SetToEnd();
 
-    const ezHashSetBase<KeyType, Hasher>* m_pHashSet = nullptr;
-    ezUInt32 m_uiCurrentIndex = 0; // current element index that this iterator points to.
-    ezUInt32 m_uiCurrentCount = 0; // current number of valid elements that this iterator has found so far.
+    const WHashSetBase<KeyType, Hasher>* m_pHashSet = nullptr;
+    WUInt32 m_uiCurrentIndex = 0; // current element index that this iterator points to.
+    WUInt32 m_uiCurrentCount = 0; // current number of valid elements that this iterator has found so far.
   };
 
 protected:
   /// Creates an empty hashset. Does not allocate any data yet.
-  explicit ezHashSetBase(ezAllocator* pAllocator); // [tested]
+  explicit WHashSetBase(WAllocator* pAllocator); // [tested]
 
   /// Creates a copy of the given hashset.
-  ezHashSetBase(const ezHashSetBase<KeyType, Hasher>& rhs, ezAllocator* pAllocator); // [tested]
+  WHashSetBase(const WHashSetBase<KeyType, Hasher>& rhs, WAllocator* pAllocator); // [tested]
 
   /// Moves data from an existing hashtable into this one.
-  ezHashSetBase(ezHashSetBase<KeyType, Hasher>&& rhs, ezAllocator* pAllocator); // [tested]
+  WHashSetBase(WHashSetBase<KeyType, Hasher>&& rhs, WAllocator* pAllocator); // [tested]
 
   /// Destructor.
-  ~ezHashSetBase(); // [tested]
+  ~WHashSetBase(); // [tested]
 
   /// Copies the data from another hashset into this one.
-  void operator=(const ezHashSetBase<KeyType, Hasher>& rhs); // [tested]
+  void operator=(const WHashSetBase<KeyType, Hasher>& rhs); // [tested]
 
   /// Moves data from an existing hashset into this one.
-  void operator=(ezHashSetBase<KeyType, Hasher>&& rhs); // [tested]
+  void operator=(WHashSetBase<KeyType, Hasher>&& rhs); // [tested]
 
 public:
   /// Compares this table to another table.
-  bool operator==(const ezHashSetBase<KeyType, Hasher>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezHashSetBase<KeyType, Hasher>&);
+  bool operator==(const WHashSetBase<KeyType, Hasher>& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WHashSetBase<KeyType, Hasher>&);
 
   /// Expands the hashset by over-allocating the internal storage so that the load factor is lower or equal to 60% when inserting the
   /// given number of entries.
-  void Reserve(ezUInt32 uiCapacity); // [tested]
+  void Reserve(WUInt32 uiCapacity); // [tested]
 
   /// Tries to compact the hashset to avoid wasting memory.
   ///
@@ -106,7 +106,7 @@ public:
   void Compact(); // [tested]
 
   /// Returns the number of active entries in the table.
-  ezUInt32 GetCount() const; // [tested]
+  WUInt32 GetCount() const; // [tested]
 
   /// Returns true, if the hashset does not contain any elements.
   bool IsEmpty() const; // [tested]
@@ -130,16 +130,16 @@ public:
   bool Contains(const CompatibleKeyType& key) const; // [tested]
 
   /// Checks whether all keys of the given set are in the container.
-  bool ContainsSet(const ezHashSetBase<KeyType, Hasher>& operand) const; // [tested]
+  bool ContainsSet(const WHashSetBase<KeyType, Hasher>& operand) const; // [tested]
 
   /// Makes this set the union of itself and the operand.
-  void Union(const ezHashSetBase<KeyType, Hasher>& operand); // [tested]
+  void Union(const WHashSetBase<KeyType, Hasher>& operand); // [tested]
 
   /// Makes this set the difference of itself and the operand, i.e. subtracts operand.
-  void Difference(const ezHashSetBase<KeyType, Hasher>& operand); // [tested]
+  void Difference(const WHashSetBase<KeyType, Hasher>& operand); // [tested]
 
   /// Makes this set the intersection of itself and the operand.
-  void Intersection(const ezHashSetBase<KeyType, Hasher>& operand); // [tested]
+  void Intersection(const WHashSetBase<KeyType, Hasher>& operand); // [tested]
 
   /// Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
@@ -149,13 +149,13 @@ public:
   ConstIterator GetEndIterator() const;
 
   /// Returns the allocator that is used by this instance.
-  ezAllocator* GetAllocator() const;
+  WAllocator* GetAllocator() const;
 
   /// Returns the amount of bytes that are currently allocated on the heap.
-  ezUInt64 GetHeapMemoryUsage() const; // [tested]
+  WUInt64 GetHeapMemoryUsage() const; // [tested]
 
   /// Swaps this map with the other one.
-  void Swap(ezHashSetBase<KeyType, Hasher>& other); // [tested]
+  void Swap(WHashSetBase<KeyType, Hasher>& other); // [tested]
 
   /// Searches for key, returns a ConstIterator to it or an invalid iterator, if no such key is found. O(1) operation.
   template <typename CompatibleKeyType>
@@ -163,12 +163,12 @@ public:
 
 private:
   KeyType* m_pEntries;
-  ezUInt32* m_pEntryFlags;
+  WUInt32* m_pEntryFlags;
 
-  ezUInt32 m_uiCount;
-  ezUInt32 m_uiCapacity;
+  WUInt32 m_uiCount;
+  WUInt32 m_uiCapacity;
 
-  ezAllocator* m_pAllocator;
+  WAllocator* m_pAllocator;
 
   enum
   {
@@ -179,70 +179,70 @@ private:
     CAPACITY_ALIGNMENT = 32
   };
 
-  void SetCapacity(ezUInt32 uiCapacity);
+  void SetCapacity(WUInt32 uiCapacity);
 
-  void RemoveInternal(ezUInt32 uiIndex);
-
-  template <typename CompatibleKeyType>
-  ezUInt32 FindEntry(const CompatibleKeyType& key) const;
+  void RemoveInternal(WUInt32 uiIndex);
 
   template <typename CompatibleKeyType>
-  ezUInt32 FindEntry(ezUInt32 uiHash, const CompatibleKeyType& key) const;
+  WUInt32 FindEntry(const CompatibleKeyType& key) const;
 
-  ezUInt32 GetFlagsCapacity() const;
-  ezUInt32 GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const;
-  void SetFlags(ezUInt32 uiEntryIndex, ezUInt32 uiFlags);
+  template <typename CompatibleKeyType>
+  WUInt32 FindEntry(WUInt32 uiHash, const CompatibleKeyType& key) const;
 
-  bool IsFreeEntry(ezUInt32 uiEntryIndex) const;
-  bool IsValidEntry(ezUInt32 uiEntryIndex) const;
-  bool IsDeletedEntry(ezUInt32 uiEntryIndex) const;
+  WUInt32 GetFlagsCapacity() const;
+  WUInt32 GetFlags(WUInt32* pFlags, WUInt32 uiEntryIndex) const;
+  void SetFlags(WUInt32 uiEntryIndex, WUInt32 uiFlags);
 
-  void MarkEntryAsFree(ezUInt32 uiEntryIndex);
-  void MarkEntryAsValid(ezUInt32 uiEntryIndex);
-  void MarkEntryAsDeleted(ezUInt32 uiEntryIndex);
+  bool IsFreeEntry(WUInt32 uiEntryIndex) const;
+  bool IsValidEntry(WUInt32 uiEntryIndex) const;
+  bool IsDeletedEntry(WUInt32 uiEntryIndex) const;
+
+  void MarkEntryAsFree(WUInt32 uiEntryIndex);
+  void MarkEntryAsValid(WUInt32 uiEntryIndex);
+  void MarkEntryAsDeleted(WUInt32 uiEntryIndex);
 };
 
-/// \see ezHashSetBase
-template <typename KeyType, typename Hasher = ezHashHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezHashSet : public ezHashSetBase<KeyType, Hasher>
+/// \see WHashSetBase
+template <typename KeyType, typename Hasher = WHashHelper<KeyType>, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+class WHashSet : public WHashSetBase<KeyType, Hasher>
 {
 public:
-  ezHashSet();
-  explicit ezHashSet(ezAllocator* pAllocator);
+  WHashSet();
+  explicit WHashSet(WAllocator* pAllocator);
 
-  ezHashSet(const ezHashSet<KeyType, Hasher, AllocatorWrapper>& other);
-  ezHashSet(const ezHashSetBase<KeyType, Hasher>& other);
+  WHashSet(const WHashSet<KeyType, Hasher, AllocatorWrapper>& other);
+  WHashSet(const WHashSetBase<KeyType, Hasher>& other);
 
-  ezHashSet(ezHashSet<KeyType, Hasher, AllocatorWrapper>&& other);
-  ezHashSet(ezHashSetBase<KeyType, Hasher>&& other);
+  WHashSet(WHashSet<KeyType, Hasher, AllocatorWrapper>&& other);
+  WHashSet(WHashSetBase<KeyType, Hasher>&& other);
 
-  void operator=(const ezHashSet<KeyType, Hasher, AllocatorWrapper>& rhs);
-  void operator=(const ezHashSetBase<KeyType, Hasher>& rhs);
+  void operator=(const WHashSet<KeyType, Hasher, AllocatorWrapper>& rhs);
+  void operator=(const WHashSetBase<KeyType, Hasher>& rhs);
 
-  void operator=(ezHashSet<KeyType, Hasher, AllocatorWrapper>&& rhs);
-  void operator=(ezHashSetBase<KeyType, Hasher>&& rhs);
+  void operator=(WHashSet<KeyType, Hasher, AllocatorWrapper>&& rhs);
+  void operator=(WHashSetBase<KeyType, Hasher>&& rhs);
 };
 
 template <typename KeyType, typename Hasher>
-typename ezHashSetBase<KeyType, Hasher>::ConstIterator begin(const ezHashSetBase<KeyType, Hasher>& set)
+typename WHashSetBase<KeyType, Hasher>::ConstIterator begin(const WHashSetBase<KeyType, Hasher>& set)
 {
   return set.GetIterator();
 }
 
 template <typename KeyType, typename Hasher>
-typename ezHashSetBase<KeyType, Hasher>::ConstIterator cbegin(const ezHashSetBase<KeyType, Hasher>& set)
+typename WHashSetBase<KeyType, Hasher>::ConstIterator cbegin(const WHashSetBase<KeyType, Hasher>& set)
 {
   return set.GetIterator();
 }
 
 template <typename KeyType, typename Hasher>
-typename ezHashSetBase<KeyType, Hasher>::ConstIterator end(const ezHashSetBase<KeyType, Hasher>& set)
+typename WHashSetBase<KeyType, Hasher>::ConstIterator end(const WHashSetBase<KeyType, Hasher>& set)
 {
   return set.GetEndIterator();
 }
 
 template <typename KeyType, typename Hasher>
-typename ezHashSetBase<KeyType, Hasher>::ConstIterator cend(const ezHashSetBase<KeyType, Hasher>& set)
+typename WHashSetBase<KeyType, Hasher>::ConstIterator cend(const WHashSetBase<KeyType, Hasher>& set)
 {
   return set.GetEndIterator();
 }

@@ -8,16 +8,16 @@
 /// Split the same way as the prefab tools: 'mesh_lod_info' reports what a mesh would get and what it
 /// already has, 'mesh_lod_create' performs it. Creating with the defaults needs no info call.
 ///
-/// The LODs are what makes 'mesh_prefab_create' build an ezLodMeshComponent, so this runs before it.
-class ezMcpMeshLodTool : public ezMcpToolProvider
+/// The LODs are what makes 'mesh_prefab_create' build an WLodMeshComponent, so this runs before it.
+class WMcpMeshLodTool : public WMcpToolProvider
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMcpMeshLodTool, ezMcpToolProvider);
+  W_ADD_DYNAMIC_REFLECTION(WMcpMeshLodTool, WMcpToolProvider);
 
 public:
-  virtual void GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const override;
-  virtual void Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result) override;
+  virtual void GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const override;
+  virtual void Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result) override;
 
 private:
-  void ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteCreate(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
+  void ExecuteInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteCreate(const WVariantDictionary& arguments, WMcpToolResult& out_result);
 };

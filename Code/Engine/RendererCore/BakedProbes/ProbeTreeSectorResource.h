@@ -4,52 +4,52 @@
 #include <Core/ResourceManager/Resource.h>
 #include <RendererCore/BakedProbes/BakingUtils.h>
 
-using ezProbeTreeSectorResourceHandle = ezTypedResourceHandle<class ezProbeTreeSectorResource>;
+using WProbeTreeSectorResourceHandle = WTypedResourceHandle<class WProbeTreeSectorResource>;
 
-struct EZ_RENDERERCORE_DLL ezProbeTreeSectorResourceDescriptor
+struct W_RENDERERCORE_DLL WProbeTreeSectorResourceDescriptor
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezProbeTreeSectorResourceDescriptor);
+  W_DISALLOW_COPY_AND_ASSIGN(WProbeTreeSectorResourceDescriptor);
 
-  ezProbeTreeSectorResourceDescriptor();
-  ~ezProbeTreeSectorResourceDescriptor();
-  ezProbeTreeSectorResourceDescriptor& operator=(ezProbeTreeSectorResourceDescriptor&& other);
+  WProbeTreeSectorResourceDescriptor();
+  ~WProbeTreeSectorResourceDescriptor();
+  WProbeTreeSectorResourceDescriptor& operator=(WProbeTreeSectorResourceDescriptor&& other);
 
-  ezVec3 m_vGridOrigin;
-  ezVec3 m_vProbeSpacing;
-  ezVec3U32 m_vProbeCount;
+  WVec3 m_vGridOrigin;
+  WVec3 m_vProbeSpacing;
+  WVec3U32 m_vProbeCount;
 
-  ezDynamicArray<ezVec3> m_ProbePositions;
-  ezDynamicArray<ezCompressedSkyVisibility> m_SkyVisibility;
+  WDynamicArray<WVec3> m_ProbePositions;
+  WDynamicArray<WCompressedSkyVisibility> m_SkyVisibility;
 
   void Clear();
-  ezUInt64 GetHeapMemoryUsage() const;
+  WUInt64 GetHeapMemoryUsage() const;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-class EZ_RENDERERCORE_DLL ezProbeTreeSectorResource : public ezResource
+class W_RENDERERCORE_DLL WProbeTreeSectorResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProbeTreeSectorResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezProbeTreeSectorResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezProbeTreeSectorResource, ezProbeTreeSectorResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WProbeTreeSectorResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WProbeTreeSectorResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WProbeTreeSectorResource, WProbeTreeSectorResourceDescriptor);
 
 public:
-  ezProbeTreeSectorResource();
-  ~ezProbeTreeSectorResource();
+  WProbeTreeSectorResource();
+  ~WProbeTreeSectorResource();
 
-  const ezVec3& GetGridOrigin() const { return m_Desc.m_vGridOrigin; }
-  const ezVec3& GetProbeSpacing() const { return m_Desc.m_vProbeSpacing; }
-  const ezVec3U32& GetProbeCount() const { return m_Desc.m_vProbeCount; }
+  const WVec3& GetGridOrigin() const { return m_Desc.m_vGridOrigin; }
+  const WVec3& GetProbeSpacing() const { return m_Desc.m_vProbeSpacing; }
+  const WVec3U32& GetProbeCount() const { return m_Desc.m_vProbeCount; }
 
-  ezArrayPtr<const ezVec3> GetProbePositions() const { return m_Desc.m_ProbePositions; }
-  ezArrayPtr<const ezCompressedSkyVisibility> GetSkyVisibility() const { return m_Desc.m_SkyVisibility; }
+  WArrayPtr<const WVec3> GetProbePositions() const { return m_Desc.m_ProbePositions; }
+  WArrayPtr<const WCompressedSkyVisibility> GetSkyVisibility() const { return m_Desc.m_SkyVisibility; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezProbeTreeSectorResourceDescriptor m_Desc;
+  WProbeTreeSectorResourceDescriptor m_Desc;
 };

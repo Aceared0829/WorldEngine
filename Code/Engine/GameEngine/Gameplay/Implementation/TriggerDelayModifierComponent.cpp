@@ -7,40 +7,40 @@
 #include <GameEngine/Gameplay/TriggerDelayModifierComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTriggerDelayModifierComponent, 1 /* version */, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WTriggerDelayModifierComponent, 1 /* version */, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ActivationDelay", m_ActivationDelay),
-    EZ_MEMBER_PROPERTY("DeactivationDelay", m_DeactivationDelay),
+    W_MEMBER_PROPERTY("ActivationDelay", m_ActivationDelay),
+    W_MEMBER_PROPERTY("DeactivationDelay", m_DeactivationDelay),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnMsgComponentInternalTrigger),
-    EZ_MESSAGE_HANDLER(ezMsgTriggerTriggered, OnMsgTriggerTriggered),
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnMsgComponentInternalTrigger),
+    W_MESSAGE_HANDLER(WMsgTriggerTriggered, OnMsgTriggerTriggered),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
+    new WCategoryAttribute("Logic"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezTriggerDelayModifierComponent::ezTriggerDelayModifierComponent() = default;
-ezTriggerDelayModifierComponent::~ezTriggerDelayModifierComponent() = default;
+WTriggerDelayModifierComponent::WTriggerDelayModifierComponent() = default;
+WTriggerDelayModifierComponent::~WTriggerDelayModifierComponent() = default;
 
-void ezTriggerDelayModifierComponent::Initialize()
+void WTriggerDelayModifierComponent::Initialize()
 {
   SUPER::Initialize();
 }
 
-void ezTriggerDelayModifierComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WTriggerDelayModifierComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -49,19 +49,19 @@ void ezTriggerDelayModifierComponent::SerializeComponent(ezWorldWriter& inout_st
   s << m_DeactivationDelay;
 }
 
-void ezTriggerDelayModifierComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WTriggerDelayModifierComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_ActivationDelay;
   s >> m_DeactivationDelay;
 }
 
-void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
+void WTriggerDelayModifierComponent::OnMsgTriggerTriggered(WMsgTriggerTriggered& msg)
 {
-  if (msg.m_TriggerState == ezTriggerState::Activated)
+  if (msg.m_TriggerState == WTriggerState::Activated)
   {
     if (m_iElementsInside++ == 0) // was 0 before the increment
     {
@@ -76,11 +76,11 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
         // store the original trigger message for later
         m_sMessage = msg.m_sMessage;
 
-        ezMsgComponentInternalTrigger intMsg;
+        WMsgComponentInternalTrigger intMsg;
         intMsg.m_sMessage.Assign("Activate");
         intMsg.m_iPayload = m_iValidActivationToken;
 
-        PostMessage(intMsg, m_ActivationDelay, ezObjectMsgQueueType::PostTransform);
+        PostMessage(intMsg, m_ActivationDelay, WObjectMsgQueueType::PostTransform);
       }
       else
       {
@@ -95,7 +95,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
     return;
   }
 
-  if (msg.m_TriggerState == ezTriggerState::Deactivated)
+  if (msg.m_TriggerState == WTriggerState::Deactivated)
   {
     if (--m_iElementsInside == 0) // 0 after the decrement
     {
@@ -110,11 +110,11 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
         // store the original trigger message for later
         m_sMessage = msg.m_sMessage;
 
-        ezMsgComponentInternalTrigger intMsg;
+        WMsgComponentInternalTrigger intMsg;
         intMsg.m_sMessage.Assign("Deactivate");
         intMsg.m_iPayload = m_iValidDeactivationToken;
 
-        PostMessage(intMsg, m_DeactivationDelay, ezObjectMsgQueueType::PostTransform);
+        PostMessage(intMsg, m_DeactivationDelay, WObjectMsgQueueType::PostTransform);
       }
       else
       {
@@ -127,35 +127,35 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
   }
 }
 
-void ezTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& msg)
+void WTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(WMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_sMessage == ezTempHashedString("Activate"))
+  if (msg.m_sMessage == WTempHashedString("Activate"))
   {
     if (msg.m_iPayload == m_iValidActivationToken && !m_bIsActivated)
     {
       m_bIsActivated = true;
 
-      ezMsgTriggerTriggered newMsg;
+      WMsgTriggerTriggered newMsg;
       newMsg.m_sMessage = m_sMessage;
-      newMsg.m_TriggerState = ezTriggerState::Activated;
+      newMsg.m_TriggerState = WTriggerState::Activated;
 
-      m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
+      m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), WTime::MakeZero(), WObjectMsgQueueType::PostTransform);
     }
   }
-  else if (msg.m_sMessage == ezTempHashedString("Deactivate"))
+  else if (msg.m_sMessage == WTempHashedString("Deactivate"))
   {
     if (msg.m_iPayload == m_iValidDeactivationToken && m_bIsActivated)
     {
       m_bIsActivated = false;
 
-      ezMsgTriggerTriggered newMsg;
+      WMsgTriggerTriggered newMsg;
       newMsg.m_sMessage = m_sMessage;
-      newMsg.m_TriggerState = ezTriggerState::Deactivated;
+      newMsg.m_TriggerState = WTriggerState::Deactivated;
 
-      m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
+      m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), WTime::MakeZero(), WObjectMsgQueueType::PostTransform);
     }
   }
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_TriggerDelayModifierComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_TriggerDelayModifierComponent);

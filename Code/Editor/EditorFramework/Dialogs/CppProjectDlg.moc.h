@@ -7,13 +7,13 @@
 #include <Foundation/Strings/String.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtCppProjectDlg : public ezQtDialog, public Ui_ezQtCppProjectDlg
+class W_EDITORFRAMEWORK_DLL WQtCppProjectDlg : public WQtDialog, public Ui_WQtCppProjectDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtCppProjectDlg(QWidget* pParent);
+  WQtCppProjectDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_OpenPluginLocation_clicked();
@@ -25,6 +25,6 @@ private Q_SLOTS:
 private:
   void UpdateUI();
 
-  ezCppSettings m_OldCppSettings;
-  ezCppSettings m_CppSettings;
+  WCppSettings m_OldCppSettings;
+  WCppSettings m_CppSettings;
 };

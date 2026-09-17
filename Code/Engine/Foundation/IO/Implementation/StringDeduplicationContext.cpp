@@ -2,28 +2,28 @@
 
 #include <Foundation/IO/StringDeduplicationContext.h>
 
-static constexpr ezTypeVersion s_uiStringDeduplicationVersion = 1;
+static constexpr WTypeVersion s_uiStringDeduplicationVersion = 1;
 
-EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezStringDeduplicationWriteContext)
+W_IMPLEMENT_SERIALIZATION_CONTEXT(WStringDeduplicationWriteContext)
 
-ezStringDeduplicationWriteContext::ezStringDeduplicationWriteContext(ezStreamWriter& ref_originalStream)
-  : ezSerializationContext()
+WStringDeduplicationWriteContext::WStringDeduplicationWriteContext(WStreamWriter& ref_originalStream)
+  : WSerializationContext()
   , m_OriginalStream(ref_originalStream)
 {
 }
 
-ezStringDeduplicationWriteContext::~ezStringDeduplicationWriteContext() = default;
+WStringDeduplicationWriteContext::~WStringDeduplicationWriteContext() = default;
 
-ezStreamWriter& ezStringDeduplicationWriteContext::Begin()
+WStreamWriter& WStringDeduplicationWriteContext::Begin()
 {
-  EZ_ASSERT_DEV(m_TempStreamStorage.GetStorageSize64() == 0, "Begin() can only be called once on a string deduplication context.");
+  W_ASSERT_DEV(m_TempStreamStorage.GetStorageSize64() == 0, "Begin() can only be called once on a string deduplication context.");
 
   m_TempStreamWriter.SetStorage(&m_TempStreamStorage);
 
   return m_TempStreamWriter;
 }
 
-ezResult ezStringDeduplicationWriteContext::End()
+WResult WStringDeduplicationWriteContext::End()
 {
   // We set the context manual to null here since we need normal
   // string serialization to write the de-duplicated map
@@ -31,10 +31,10 @@ ezResult ezStringDeduplicationWriteContext::End()
 
   m_OriginalStream.WriteVersion(s_uiStringDeduplicationVersion);
 
-  const ezUInt64 uiNumEntries = m_DeduplicatedStrings.GetCount();
+  const WUInt64 uiNumEntries = m_DeduplicatedStrings.GetCount();
   m_OriginalStream << uiNumEntries;
 
-  ezMap<ezUInt32, ezHybridString<64>> StringsSortedByIndex;
+  WMap<WUInt32, WHybridString<64>> StringsSortedByIndex;
 
   // Build a new map from index to string so we can use a plain
   // array for serialization and lookup purposes
@@ -50,12 +50,12 @@ ezResult ezStringDeduplicationWriteContext::End()
   }
 
   // Now append the original stream
-  EZ_SUCCEED_OR_RETURN(m_TempStreamStorage.CopyToStream(m_OriginalStream));
+  W_SUCCEED_OR_RETURN(m_TempStreamStorage.CopyToStream(m_OriginalStream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezStringDeduplicationWriteContext::SerializeString(const ezStringView& sString, ezStreamWriter& ref_writer)
+void WStringDeduplicationWriteContext::SerializeString(const WStringView& sString, WStreamWriter& ref_writer)
 {
   bool bAlreadDeduplicated = false;
   auto it = m_DeduplicatedStrings.FindOrAdd(sString, &bAlreadDeduplicated);
@@ -68,16 +68,16 @@ void ezStringDeduplicationWriteContext::SerializeString(const ezStringView& sStr
   ref_writer << it.Value();
 }
 
-ezUInt32 ezStringDeduplicationWriteContext::GetUniqueStringCount() const
+WUInt32 WStringDeduplicationWriteContext::GetUniqueStringCount() const
 {
   return m_DeduplicatedStrings.GetCount();
 }
 
 
-EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezStringDeduplicationReadContext)
+W_IMPLEMENT_SERIALIZATION_CONTEXT(WStringDeduplicationReadContext)
 
-ezStringDeduplicationReadContext::ezStringDeduplicationReadContext(ezStreamReader& inout_stream)
-  : ezSerializationContext()
+WStringDeduplicationReadContext::WStringDeduplicationReadContext(WStreamReader& inout_stream)
+  : WSerializationContext()
 {
   // We set the context manually to nullptr to get the original string table
   SetContext(nullptr);
@@ -85,14 +85,14 @@ ezStringDeduplicationReadContext::ezStringDeduplicationReadContext(ezStreamReade
   // Read the string table first
   /*auto version =*/inout_stream.ReadVersion(s_uiStringDeduplicationVersion);
 
-  ezUInt64 uiNumEntries = 0;
+  WUInt64 uiNumEntries = 0;
   inout_stream >> uiNumEntries;
 
-  m_DeduplicatedStrings.Reserve(static_cast<ezUInt32>(uiNumEntries));
+  m_DeduplicatedStrings.Reserve(static_cast<WUInt32>(uiNumEntries));
 
-  for (ezUInt64 i = 0; i < uiNumEntries; ++i)
+  for (WUInt64 i = 0; i < uiNumEntries; ++i)
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     inout_stream >> s;
 
     m_DeduplicatedStrings.PushBackUnchecked(std::move(s));
@@ -101,16 +101,16 @@ ezStringDeduplicationReadContext::ezStringDeduplicationReadContext(ezStreamReade
   SetContext(this);
 }
 
-ezStringDeduplicationReadContext::~ezStringDeduplicationReadContext() = default;
+WStringDeduplicationReadContext::~WStringDeduplicationReadContext() = default;
 
-ezStringView ezStringDeduplicationReadContext::DeserializeString(ezStreamReader& ref_reader)
+WStringView WStringDeduplicationReadContext::DeserializeString(WStreamReader& ref_reader)
 {
-  ezUInt32 uiIndex = ezInvalidIndex;
+  WUInt32 uiIndex = WInvalidIndex;
   ref_reader >> uiIndex;
 
   if (uiIndex >= m_DeduplicatedStrings.GetCount())
   {
-    EZ_ASSERT_DEBUG(uiIndex < m_DeduplicatedStrings.GetCount(), "Failed to read data from file.");
+    W_ASSERT_DEBUG(uiIndex < m_DeduplicatedStrings.GetCount(), "Failed to read data from file.");
     return {};
   }
 

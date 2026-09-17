@@ -1,11 +1,11 @@
 #include <InspectorPlugin/InspectorPluginPCH.h>
 
-EZ_STATICLINK_LIBRARY(InspectorPlugin)
+W_STATICLINK_LIBRARY(InspectorPlugin)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(InspectorPlugin_InspectorPlugin);
-  EZ_STATICLINK_REFERENCE(InspectorPlugin_RenderGraphObserver);
-  EZ_STATICLINK_REFERENCE(InspectorPlugin_Startup);
+  W_STATICLINK_REFERENCE(InspectorPlugin_InspectorPlugin);
+  W_STATICLINK_REFERENCE(InspectorPlugin_RenderGraphObserver);
+  W_STATICLINK_REFERENCE(InspectorPlugin_Startup);
 }

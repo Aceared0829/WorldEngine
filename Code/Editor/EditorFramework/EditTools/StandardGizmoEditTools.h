@@ -7,32 +7,32 @@
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 
-class ezQtGameObjectDocumentWindow;
-class ezPreferences;
+class WQtGameObjectDocumentWindow;
+class WPreferences;
 
-class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmoEditTool : public ezGameObjectGizmoEditTool
+class W_EDITORFRAMEWORK_DLL WTranslateGizmoEditTool : public WGameObjectGizmoEditTool
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmoEditTool, ezGameObjectGizmoEditTool);
+  W_ADD_DYNAMIC_REFLECTION(WTranslateGizmoEditTool, WGameObjectGizmoEditTool);
 
 public:
-  ezTranslateGizmoEditTool();
-  ~ezTranslateGizmoEditTool();
+  WTranslateGizmoEditTool();
+  ~WTranslateGizmoEditTool();
 
-  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalAndWorldSpace; }
+  virtual WEditToolSupportedSpaces GetSupportedSpaces() const override { return WEditToolSupportedSpaces::LocalAndWorldSpace; }
   virtual bool GetSupportsMoveParentOnly() const override { return true; }
-  virtual void GetGridSettings(ezGridSettingsMsgToEngine& out_gridSettings) override;
+  virtual void GetGridSettings(WGridSettingsMsgToEngine& out_gridSettings) override;
 
 protected:
   virtual void OnConfigured() override;
   virtual void ApplyGizmoVisibleState(bool visible) override;
-  virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
-  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+  virtual void ApplyGizmoTransformation(const WTransform& transform) override;
+  virtual void TransformationGizmoEventHandlerImpl(const WGizmoEvent& e) override;
   virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
-  void OnPreferenceChange(ezPreferences* pref);
+  void OnPreferenceChange(WPreferences* pref);
 
-  ezTranslateGizmo m_TranslateGizmo;
+  WTranslateGizmo m_TranslateGizmo;
   enum GridPlane
   {
     X,
@@ -45,71 +45,71 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORFRAMEWORK_DLL ezRotateGizmoEditTool : public ezGameObjectGizmoEditTool
+class W_EDITORFRAMEWORK_DLL WRotateGizmoEditTool : public WGameObjectGizmoEditTool
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRotateGizmoEditTool, ezGameObjectGizmoEditTool);
+  W_ADD_DYNAMIC_REFLECTION(WRotateGizmoEditTool, WGameObjectGizmoEditTool);
 
 public:
-  ezRotateGizmoEditTool();
-  ~ezRotateGizmoEditTool();
+  WRotateGizmoEditTool();
+  ~WRotateGizmoEditTool();
 
-  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalAndWorldSpace; }
+  virtual WEditToolSupportedSpaces GetSupportedSpaces() const override { return WEditToolSupportedSpaces::LocalAndWorldSpace; }
   virtual bool GetSupportsMoveParentOnly() const override { return true; }
 
 protected:
   virtual void OnConfigured() override;
   virtual void ApplyGizmoVisibleState(bool visible) override;
-  virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
-  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+  virtual void ApplyGizmoTransformation(const WTransform& transform) override;
+  virtual void TransformationGizmoEventHandlerImpl(const WGizmoEvent& e) override;
   virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
-  ezRotateGizmo m_RotateGizmo;
+  WRotateGizmo m_RotateGizmo;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORFRAMEWORK_DLL ezScaleGizmoEditTool : public ezGameObjectGizmoEditTool
+class W_EDITORFRAMEWORK_DLL WScaleGizmoEditTool : public WGameObjectGizmoEditTool
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScaleGizmoEditTool, ezGameObjectGizmoEditTool);
+  W_ADD_DYNAMIC_REFLECTION(WScaleGizmoEditTool, WGameObjectGizmoEditTool);
 
 public:
-  ezScaleGizmoEditTool();
-  ~ezScaleGizmoEditTool();
+  WScaleGizmoEditTool();
+  ~WScaleGizmoEditTool();
 
-  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalSpaceOnly; }
+  virtual WEditToolSupportedSpaces GetSupportedSpaces() const override { return WEditToolSupportedSpaces::LocalSpaceOnly; }
 
 protected:
   virtual void OnConfigured() override;
   virtual void ApplyGizmoVisibleState(bool visible) override;
-  virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
-  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+  virtual void ApplyGizmoTransformation(const WTransform& transform) override;
+  virtual void TransformationGizmoEventHandlerImpl(const WGizmoEvent& e) override;
   virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
-  ezScaleGizmo m_ScaleGizmo;
+  WScaleGizmo m_ScaleGizmo;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORFRAMEWORK_DLL ezDragToPositionGizmoEditTool : public ezGameObjectGizmoEditTool
+class W_EDITORFRAMEWORK_DLL WDragToPositionGizmoEditTool : public WGameObjectGizmoEditTool
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDragToPositionGizmoEditTool, ezGameObjectGizmoEditTool);
+  W_ADD_DYNAMIC_REFLECTION(WDragToPositionGizmoEditTool, WGameObjectGizmoEditTool);
 
 public:
-  ezDragToPositionGizmoEditTool();
-  ~ezDragToPositionGizmoEditTool();
+  WDragToPositionGizmoEditTool();
+  ~WDragToPositionGizmoEditTool();
 
-  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalSpaceOnly; }
+  virtual WEditToolSupportedSpaces GetSupportedSpaces() const override { return WEditToolSupportedSpaces::LocalSpaceOnly; }
   virtual bool GetSupportsMoveParentOnly() const override { return true; }
 
 protected:
   virtual void OnConfigured() override;
   virtual void ApplyGizmoVisibleState(bool visible) override;
-  virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
-  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+  virtual void ApplyGizmoTransformation(const WTransform& transform) override;
+  virtual void TransformationGizmoEventHandlerImpl(const WGizmoEvent& e) override;
   virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
-  ezDragToPositionGizmo m_DragToPosGizmo;
+  WDragToPositionGizmo m_DragToPosGizmo;
 };

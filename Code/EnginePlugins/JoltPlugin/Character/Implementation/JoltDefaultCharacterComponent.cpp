@@ -13,87 +13,87 @@
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezCVarBool cvar_JoltCcFootCheck("Jolt.CC.FootCheck", true, ezCVarFlags::Default, "Stay down");
+WCVarBool cvar_JoltCcFootCheck("Jolt.CC.FootCheck", true, WCVarFlags::Default, "Stay down");
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WJoltDefaultCharacterComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ShapeRadius", m_fShapeRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
-    EZ_MEMBER_PROPERTY("CrouchHeight", m_fCylinderHeightCrouch)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("StandHeight", m_fCylinderHeightStand)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("FootRadius", m_fFootRadius)->AddAttributes(new ezDefaultValueAttribute(0.15f)),
-    EZ_MEMBER_PROPERTY("WalkSpeedCrouching", m_fWalkSpeedCrouching)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("WalkSpeedStanding", m_fWalkSpeedStanding)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("WalkSpeedRunning", m_fWalkSpeedRunning)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_MEMBER_PROPERTY("MaxStepUp", m_fMaxStepUp)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("MaxStepDown", m_fMaxStepDown)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1.0f), ezAngle::MakeFromDegree(360.0f))),
-    EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum"), new ezDefaultValueAttribute(ezStringView("Footstep"))),
-    EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
-    EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
-    EZ_ACCESSOR_PROPERTY("HeadObject", DummyGetter, SetHeadObjectReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    W_MEMBER_PROPERTY("ShapeRadius", m_fShapeRadius)->AddAttributes(new WDefaultValueAttribute(0.25f)),
+    W_MEMBER_PROPERTY("CrouchHeight", m_fCylinderHeightCrouch)->AddAttributes(new WDefaultValueAttribute(0.2f), new WClampValueAttribute(0.0f, 10.0f)),
+    W_MEMBER_PROPERTY("StandHeight", m_fCylinderHeightStand)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 10.0f)),
+    W_MEMBER_PROPERTY("FootRadius", m_fFootRadius)->AddAttributes(new WDefaultValueAttribute(0.15f)),
+    W_MEMBER_PROPERTY("WalkSpeedCrouching", m_fWalkSpeedCrouching)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("WalkSpeedStanding", m_fWalkSpeedStanding)->AddAttributes(new WDefaultValueAttribute(2.5f), new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("WalkSpeedRunning", m_fWalkSpeedRunning)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new WDefaultValueAttribute(2.5f), new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1.0f)),
+    W_MEMBER_PROPERTY("MaxStepUp", m_fMaxStepUp)->AddAttributes(new WDefaultValueAttribute(0.25f), new WClampValueAttribute(0.0f, 10.0f)),
+    W_MEMBER_PROPERTY("MaxStepDown", m_fMaxStepDown)->AddAttributes(new WDefaultValueAttribute(0.25f), new WClampValueAttribute(0.0f, 10.0f)),
+    W_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.0f, 1000.0f)),
+    W_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(90.0f)), new WClampValueAttribute(WAngle::MakeFromDegree(1.0f), WAngle::MakeFromDegree(360.0f))),
+    W_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new WDynamicStringEnumAttribute("SurfaceInteractionTypeEnum"), new WDefaultValueAttribute(WStringView("Footstep"))),
+    W_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new WDefaultValueAttribute(3.0f)),
+    W_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
+    W_ACCESSOR_PROPERTY("HeadObject", DummyGetter, SetHeadObjectReference)->AddAttributes(new WGameObjectReferenceAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCapsuleVisualizerAttribute("StandHeight", "ShapeRadius", ezColor::WhiteSmoke, nullptr, ezVisualizerAnchor::NegZ),
-    new ezCapsuleVisualizerAttribute("CrouchHeight", "ShapeRadius", ezColor::LightSlateGrey, nullptr, ezVisualizerAnchor::NegZ),
+    new WCapsuleVisualizerAttribute("StandHeight", "ShapeRadius", WColor::WhiteSmoke, nullptr, WVisualizerAnchor::NegZ),
+    new WCapsuleVisualizerAttribute("CrouchHeight", "ShapeRadius", WColor::LightSlateGrey, nullptr, WVisualizerAnchor::NegZ),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgMoveCharacterController, SetInputState),
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgApplyRootMotion, OnApplyRootMotion),
+    W_MESSAGE_HANDLER(WMsgMoveCharacterController, SetInputState),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgApplyRootMotion, OnApplyRootMotion),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_FUNCTIONS
   {
-    //EZ_SCRIPT_FUNCTION_PROPERTY(IsDestinationUnobstructed, In, "globalFootPosition", In, "characterHeight"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(TeleportCharacter, In, "globalFootPosition"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsStandingOnGround),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsSlidingOnGround),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsInAir),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Jump),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Run),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Crouch),
-    EZ_SCRIPT_FUNCTION_PROPERTY(RotateZ, In, "Amount"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Move, In, "Forward", In, "Right"),
+    //W_SCRIPT_FUNCTION_PROPERTY(IsDestinationUnobstructed, In, "globalFootPosition", In, "characterHeight"),
+    W_SCRIPT_FUNCTION_PROPERTY(TeleportCharacter, In, "globalFootPosition"),
+    W_SCRIPT_FUNCTION_PROPERTY(IsStandingOnGround),
+    W_SCRIPT_FUNCTION_PROPERTY(IsSlidingOnGround),
+    W_SCRIPT_FUNCTION_PROPERTY(IsInAir),
+    W_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
+    W_SCRIPT_FUNCTION_PROPERTY(Jump),
+    W_SCRIPT_FUNCTION_PROPERTY(Run),
+    W_SCRIPT_FUNCTION_PROPERTY(Crouch),
+    W_SCRIPT_FUNCTION_PROPERTY(RotateZ, In, "Amount"),
+    W_SCRIPT_FUNCTION_PROPERTY(Move, In, "Forward", In, "Right"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-/// Custom contact listener to send ezMsgPhysicCharacterContact to objects that the CC touches.
-class ezJoltDefaultCharacterContactListener : public JPH::CharacterContactListener
+/// Custom contact listener to send WMsgPhysicCharacterContact to objects that the CC touches.
+class WJoltDefaultCharacterContactListener : public JPH::CharacterContactListener
 {
 public:
   JPH::PhysicsSystem* m_pSystem = nullptr;
-  ezJoltDefaultCharacterComponent* m_pCharacter = nullptr;
+  WJoltDefaultCharacterComponent* m_pCharacter = nullptr;
 
   virtual void OnContactAdded(const JPH::CharacterVirtual* pCharacter, const JPH::CharacterContact& contact, JPH::CharacterContactSettings& ref_settings) override
   {
     JPH::BodyLockRead lock(m_pSystem->GetBodyLockInterface(), contact.mBodyB);
     if (lock.Succeeded())
     {
-      if (ezComponent* pComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(lock.GetBody().GetUserData())))
+      if (WComponent* pComponent = WJoltUserData::GetComponent(reinterpret_cast<const void*>(lock.GetBody().GetUserData())))
       {
-        ezMsgPhysicCharacterContact msg;
+        WMsgPhysicCharacterContact msg;
         msg.m_hCharacter = m_pCharacter->GetHandle();
-        msg.m_vGlobalPosition = ezJoltConversionUtils::ToVec3(contact.mPosition);
-        msg.m_vNormal = ezJoltConversionUtils::ToVec3(contact.mContactNormal);
-        msg.m_vCharacterVelocity = ezJoltConversionUtils::ToVec3(pCharacter->GetLinearVelocity());
-        msg.m_fImpact = ezMath::Abs(msg.m_vNormal.Dot(msg.m_vCharacterVelocity));
+        msg.m_vGlobalPosition = WJoltConversionUtils::ToVec3(contact.mPosition);
+        msg.m_vNormal = WJoltConversionUtils::ToVec3(contact.mContactNormal);
+        msg.m_vCharacterVelocity = WJoltConversionUtils::ToVec3(pCharacter->GetLinearVelocity());
+        msg.m_fImpact = WMath::Abs(msg.m_vNormal.Dot(msg.m_vCharacterVelocity));
 
         pComponent->SendMessage(msg);
       }
@@ -103,22 +103,22 @@ public:
   }
 };
 
-ezJoltDefaultCharacterComponent::ezJoltDefaultCharacterComponent() = default;
-ezJoltDefaultCharacterComponent::~ezJoltDefaultCharacterComponent() = default;
+WJoltDefaultCharacterComponent::WJoltDefaultCharacterComponent() = default;
+WJoltDefaultCharacterComponent::~WJoltDefaultCharacterComponent() = default;
 
-void ezJoltDefaultCharacterComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void WJoltDefaultCharacterComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
-  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, GetCurrentCapsuleHeight() - GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
+  msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3(0, 0, GetShapeRadius()), GetShapeRadius()), WInvalidSpatialDataCategory);
+  msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3(0, 0, GetCurrentCapsuleHeight() - GetShapeRadius()), GetShapeRadius()), WInvalidSpatialDataCategory);
 }
 
-void ezJoltDefaultCharacterComponent::OnApplyRootMotion(ezMsgApplyRootMotion& msg)
+void WJoltDefaultCharacterComponent::OnApplyRootMotion(WMsgApplyRootMotion& msg)
 {
   m_vAbsoluteRootMotion += msg.m_vTranslation;
   m_InputRotateZ += msg.m_RotationZ;
 }
 
-void ezJoltDefaultCharacterComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltDefaultCharacterComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -144,10 +144,10 @@ void ezJoltDefaultCharacterComponent::SerializeComponent(ezWorldWriter& inout_st
   inout_stream.WriteGameObjectHandle(m_hHeadObject);
 }
 
-void ezJoltDefaultCharacterComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltDefaultCharacterComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_RotateSpeed;
@@ -173,14 +173,14 @@ void ezJoltDefaultCharacterComponent::DeserializeComponent(ezWorldReader& inout_
   ResetInternalState();
 }
 
-void ezJoltDefaultCharacterComponent::ResetInternalState()
+void WJoltDefaultCharacterComponent::ResetInternalState()
 {
-  m_fShapeRadius = ezMath::Clamp(m_fShapeRadius, 0.05f, 5.0f);
-  m_fFootRadius = ezMath::Clamp(m_fFootRadius, 0.01f, m_fShapeRadius);
-  m_fCylinderHeightCrouch = ezMath::Max(m_fCylinderHeightCrouch, 0.01f);
-  m_fCylinderHeightStand = ezMath::Max(m_fCylinderHeightStand, m_fCylinderHeightCrouch);
-  m_fMaxStepUp = ezMath::Clamp(m_fMaxStepUp, 0.0f, m_fCylinderHeightStand);
-  m_fMaxStepDown = ezMath::Clamp(m_fMaxStepDown, 0.0f, m_fCylinderHeightStand);
+  m_fShapeRadius = WMath::Clamp(m_fShapeRadius, 0.05f, 5.0f);
+  m_fFootRadius = WMath::Clamp(m_fFootRadius, 0.01f, m_fShapeRadius);
+  m_fCylinderHeightCrouch = WMath::Max(m_fCylinderHeightCrouch, 0.01f);
+  m_fCylinderHeightStand = WMath::Max(m_fCylinderHeightStand, m_fCylinderHeightCrouch);
+  m_fMaxStepUp = WMath::Clamp(m_fMaxStepUp, 0.0f, m_fCylinderHeightStand);
+  m_fMaxStepDown = WMath::Clamp(m_fMaxStepDown, 0.0f, m_fCylinderHeightStand);
 
   m_fNextCylinderHeight = m_fCylinderHeightStand;
   m_fCurrentCylinderHeight = m_fNextCylinderHeight;
@@ -191,17 +191,17 @@ void ezJoltDefaultCharacterComponent::ResetInternalState()
   m_fAccumulatedWalkDistance = 0;
 }
 
-void ezJoltDefaultCharacterComponent::ResetInputState()
+void WJoltDefaultCharacterComponent::ResetInputState()
 {
   m_vInputDirection.SetZero();
-  m_InputRotateZ = ezAngle();
+  m_InputRotateZ = WAngle();
   m_uiInputCrouchBit = 0;
   m_uiInputRunBit = 0;
   m_uiInputJumpBit = 0;
   m_vAbsoluteRootMotion.SetZero();
 }
 
-void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController& ref_msg)
+void WJoltDefaultCharacterComponent::SetInputState(WMsgMoveCharacterController& ref_msg)
 {
   Move(static_cast<float>(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), static_cast<float>(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
 
@@ -223,51 +223,51 @@ void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController
   }
 }
 
-float ezJoltDefaultCharacterComponent::GetCurrentCylinderHeight() const
+float WJoltDefaultCharacterComponent::GetCurrentCylinderHeight() const
 {
   return m_fCurrentCylinderHeight;
 }
 
-float ezJoltDefaultCharacterComponent::GetCurrentCapsuleHeight() const
+float WJoltDefaultCharacterComponent::GetCurrentCapsuleHeight() const
 {
   return GetCurrentCylinderHeight() + 2.0f * GetShapeRadius();
 }
 
-float ezJoltDefaultCharacterComponent::GetShapeRadius() const
+float WJoltDefaultCharacterComponent::GetShapeRadius() const
 {
   return m_fShapeRadius;
 }
 
-void ezJoltDefaultCharacterComponent::Jump()
+void WJoltDefaultCharacterComponent::Jump()
 {
   m_uiInputJumpBit = 1;
 }
 
-void ezJoltDefaultCharacterComponent::Run()
+void WJoltDefaultCharacterComponent::Run()
 {
   m_uiInputRunBit = 1;
 }
 
-void ezJoltDefaultCharacterComponent::Crouch()
+void WJoltDefaultCharacterComponent::Crouch()
 {
   m_uiInputCrouchBit = 1;
 }
 
-void ezJoltDefaultCharacterComponent::Move(float fForward, float fRight)
+void WJoltDefaultCharacterComponent::Move(float fForward, float fRight)
 {
-  const float fDistanceToMove = ezMath::Max(ezMath::Abs(fForward), ezMath::Abs(fRight));
+  const float fDistanceToMove = WMath::Max(WMath::Abs(fForward), WMath::Abs(fRight));
 
-  m_vInputDirection += ezVec2(fForward, fRight);
-  m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
+  m_vInputDirection += WVec2(fForward, fRight);
+  m_vInputDirection.NormalizeIfNotZero(WVec2::MakeZero()).IgnoreResult();
   m_vInputDirection *= fDistanceToMove;
 }
 
-void ezJoltDefaultCharacterComponent::RotateZ(float fAmount)
+void WJoltDefaultCharacterComponent::RotateZ(float fAmount)
 {
   m_InputRotateZ += m_RotateSpeed * fAmount;
 }
 
-void ezJoltDefaultCharacterComponent::TeleportCharacter(const ezVec3& vGlobalFootPosition)
+void WJoltDefaultCharacterComponent::TeleportCharacter(const WVec3& vGlobalFootPosition)
 {
   m_vVelocityLateral.SetZero();
   m_fVelocityUp = 0;
@@ -275,7 +275,7 @@ void ezJoltDefaultCharacterComponent::TeleportCharacter(const ezVec3& vGlobalFoo
   TeleportToPosition(vGlobalFootPosition);
 }
 
-void ezJoltDefaultCharacterComponent::OnActivated()
+void WJoltDefaultCharacterComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -284,14 +284,14 @@ void ezJoltDefaultCharacterComponent::OnActivated()
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezJoltDefaultCharacterComponent::OnDeactivated()
+void WJoltDefaultCharacterComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
   m_pContactListener.Clear();
 }
 
-JPH::Ref<JPH::Shape> ezJoltDefaultCharacterComponent::MakeNextCharacterShape()
+JPH::Ref<JPH::Shape> WJoltDefaultCharacterComponent::MakeNextCharacterShape()
 {
   const float fTotalCapsuleHeight = m_fNextCylinderHeight + 2.0f * GetShapeRadius();
 
@@ -307,7 +307,7 @@ JPH::Ref<JPH::Shape> ezJoltDefaultCharacterComponent::MakeNextCharacterShape()
   return up.Create().Get();
 }
 
-void ezJoltDefaultCharacterComponent::SetHeadObjectReference(const char* szReference)
+void WJoltDefaultCharacterComponent::SetHeadObjectReference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -317,7 +317,7 @@ void ezJoltDefaultCharacterComponent::SetHeadObjectReference(const char* szRefer
   m_hHeadObject = resolver(szReference, GetHandle(), "HeadObject");
 }
 
-void ezJoltDefaultCharacterComponent::OnSimulationStarted()
+void WJoltDefaultCharacterComponent::OnSimulationStarted()
 {
   ResetInternalState();
 
@@ -326,17 +326,17 @@ void ezJoltDefaultCharacterComponent::OnSimulationStarted()
 
   if (m_pContactListener == nullptr)
   {
-    m_pContactListener = EZ_DEFAULT_NEW(ezJoltDefaultCharacterContactListener);
-    ezJoltDefaultCharacterContactListener* pListener = (ezJoltDefaultCharacterContactListener*)m_pContactListener.Borrow();
-    pListener->m_pSystem = GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem();
+    m_pContactListener = W_DEFAULT_NEW(WJoltDefaultCharacterContactListener);
+    WJoltDefaultCharacterContactListener* pListener = (WJoltDefaultCharacterContactListener*)m_pContactListener.Borrow();
+    pListener->m_pSystem = GetWorld()->GetModule<WJoltWorldModule>()->GetJoltSystem();
     pListener->m_pCharacter = this;
   }
 
-  // the default CC uses a custom contact listener to send ezMsgPhysicCharacterContact messages to whatever it hits,
+  // the default CC uses a custom contact listener to send WMsgPhysicCharacterContact messages to whatever it hits,
   // so that those objects can react to it (e.g. by breaking apart)
   GetJoltCharacter()->SetListener(m_pContactListener.Borrow());
 
-  ezGameObject* pHeadObject;
+  WGameObject* pHeadObject;
   if (!m_hHeadObject.IsInvalidated() && GetWorld()->TryGetObject(m_hHeadObject, pHeadObject))
   {
     m_fHeadHeightOffset = pHeadObject->GetLocalPosition().z;
@@ -344,22 +344,22 @@ void ezJoltDefaultCharacterComponent::OnSimulationStarted()
   }
 }
 
-void ezJoltDefaultCharacterComponent::ApplyRotationZ()
+void WJoltDefaultCharacterComponent::ApplyRotationZ()
 {
   if (m_InputRotateZ.GetRadian() == 0.0f)
     return;
 
-  ezQuat qRotZ = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), m_InputRotateZ);
+  WQuat qRotZ = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), m_InputRotateZ);
   m_InputRotateZ.SetRadian(0.0);
 
   GetOwner()->SetGlobalRotation(qRotZ * GetOwner()->GetGlobalRotation());
 }
 
-void ezJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(ezStringView sFile)
+void WJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(WStringView sFile)
 {
   if (!sFile.IsEmpty())
   {
-    m_hFallbackWalkSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+    m_hFallbackWalkSurface = WResourceManager::LoadResource<WSurfaceResource>(sFile);
   }
   else
   {
@@ -367,15 +367,15 @@ void ezJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(ezStringView sF
   }
 
   if (m_hFallbackWalkSurface.IsValid())
-    ezResourceManager::PreloadResource(m_hFallbackWalkSurface);
+    WResourceManager::PreloadResource(m_hFallbackWalkSurface);
 }
 
-ezStringView ezJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
+WStringView WJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
 {
   return m_hFallbackWalkSurface.GetResourceID();
 }
 
-void ezJoltDefaultCharacterComponent::ApplyCrouchState()
+void WJoltDefaultCharacterComponent::ApplyCrouchState()
 {
   if (m_uiInputCrouchBit == m_uiIsCrouchingBit)
     return;
@@ -389,20 +389,20 @@ void ezJoltDefaultCharacterComponent::ApplyCrouchState()
   }
 }
 
-void ezJoltDefaultCharacterComponent::StoreLateralVelocity()
+void WJoltDefaultCharacterComponent::StoreLateralVelocity()
 {
-  const ezVec3 endPosition = GetOwner()->GetGlobalPosition();
-  const ezVec3 vVelocity = (endPosition - m_PreviousTransform.m_vPosition) * GetInverseUpdateTimeDelta();
+  const WVec3 endPosition = GetOwner()->GetGlobalPosition();
+  const WVec3 vVelocity = (endPosition - m_PreviousTransform.m_vPosition) * GetInverseUpdateTimeDelta();
 
   m_vVelocityLateral.Set(vVelocity.x, vVelocity.y);
 }
 
-void ezJoltDefaultCharacterComponent::ClampLateralVelocity()
+void WJoltDefaultCharacterComponent::ClampLateralVelocity()
 {
-  const ezVec3 endPosition = GetOwner()->GetGlobalPosition();
-  const ezVec3 vVelocity = (endPosition - m_PreviousTransform.m_vPosition) * GetInverseUpdateTimeDelta();
+  const WVec3 endPosition = GetOwner()->GetGlobalPosition();
+  const WVec3 vVelocity = (endPosition - m_PreviousTransform.m_vPosition) * GetInverseUpdateTimeDelta();
 
-  ezVec2 vRealDirLateral(vVelocity.x, vVelocity.y);
+  WVec2 vRealDirLateral(vVelocity.x, vVelocity.y);
 
   if (!vRealDirLateral.IsZero())
   {
@@ -416,15 +416,15 @@ void ezJoltDefaultCharacterComponent::ClampLateralVelocity()
     m_vVelocityLateral.SetZero();
 }
 
-void ezJoltDefaultCharacterComponent::ClampUpVelocity()
+void WJoltDefaultCharacterComponent::ClampUpVelocity()
 {
-  const ezVec3 endPosition = GetOwner()->GetGlobalPosition();
-  const ezVec3 vVelocity = (endPosition - m_PreviousTransform.m_vPosition) * GetInverseUpdateTimeDelta();
+  const WVec3 endPosition = GetOwner()->GetGlobalPosition();
+  const WVec3 vVelocity = (endPosition - m_PreviousTransform.m_vPosition) * GetInverseUpdateTimeDelta();
 
-  m_fVelocityUp = ezMath::Min(m_fVelocityUp, vVelocity.z);
+  m_fVelocityUp = WMath::Min(m_fVelocityUp, vVelocity.z);
 }
 
-void ezJoltDefaultCharacterComponent::InteractWithSurfaces(const ContactPoint& contact, const Config& cfg)
+void WJoltDefaultCharacterComponent::InteractWithSurfaces(const ContactPoint& contact, const Config& cfg)
 {
   if (cfg.m_sGroundInteraction.IsEmpty())
   {
@@ -432,12 +432,12 @@ void ezJoltDefaultCharacterComponent::InteractWithSurfaces(const ContactPoint& c
     return;
   }
 
-  const ezVec2 vIntendedWalkAmount = (cfg.m_vVelocity * GetUpdateTimeDelta()).GetAsVec2() + m_vAbsoluteRootMotion.GetAsVec2();
+  const WVec2 vIntendedWalkAmount = (cfg.m_vVelocity * GetUpdateTimeDelta()).GetAsVec2() + m_vAbsoluteRootMotion.GetAsVec2();
 
-  const ezVec3 vOldPos = m_PreviousTransform.m_vPosition;
-  const ezVec3 vNewPos = GetOwner()->GetGlobalPosition();
+  const WVec3 vOldPos = m_PreviousTransform.m_vPosition;
+  const WVec3 vNewPos = GetOwner()->GetGlobalPosition();
 
-  m_fAccumulatedWalkDistance += ezMath::Min(vIntendedWalkAmount.GetLength(), (vNewPos - vOldPos).GetLength());
+  m_fAccumulatedWalkDistance += WMath::Min(vIntendedWalkAmount.GetLength(), (vNewPos - vOldPos).GetLength());
 
   if (m_fAccumulatedWalkDistance < cfg.m_fGroundInteractionDistanceThreshold)
     return;
@@ -447,9 +447,9 @@ void ezJoltDefaultCharacterComponent::InteractWithSurfaces(const ContactPoint& c
   SpawnContactInteraction(contact, cfg.m_sGroundInteraction, m_hFallbackWalkSurface);
 }
 
-void ezJoltDefaultCharacterComponent::MoveHeadObject()
+void WJoltDefaultCharacterComponent::MoveHeadObject()
 {
-  ezGameObject* pHeadObject;
+  WGameObject* pHeadObject;
   if (!m_hHeadObject.IsInvalidated() && GetWorld()->TryGetObject(m_hHeadObject, pHeadObject))
   {
     m_fHeadTargetHeight = m_fHeadHeightOffset;
@@ -459,68 +459,68 @@ void ezJoltDefaultCharacterComponent::MoveHeadObject()
       m_fHeadTargetHeight -= (m_fCylinderHeightStand - m_fCylinderHeightCrouch);
     }
 
-    ezVec3 pos = pHeadObject->GetLocalPosition();
+    WVec3 pos = pHeadObject->GetLocalPosition();
 
-    const float fTimeDiff = ezMath::Max(GetUpdateTimeDelta(), 0.005f); // prevent stuff from breaking at high frame rates
-    const float fFactor = 1.0f - ezMath::Pow(0.001f, fTimeDiff);
-    pos.z = ezMath::Lerp(pos.z, m_fHeadTargetHeight, fFactor);
+    const float fTimeDiff = WMath::Max(GetUpdateTimeDelta(), 0.005f); // prevent stuff from breaking at high frame rates
+    const float fFactor = 1.0f - WMath::Pow(0.001f, fTimeDiff);
+    pos.z = WMath::Lerp(pos.z, m_fHeadTargetHeight, fFactor);
 
     pHeadObject->SetLocalPosition(pos);
   }
 }
 
-void ezJoltDefaultCharacterComponent::DebugVisualizations()
+void WJoltDefaultCharacterComponent::DebugVisualizations()
 {
-  if (m_DebugFlags.IsSet(ezJoltCharacterDebugFlags::PrintState))
+  if (m_DebugFlags.IsSet(WJoltCharacterDebugFlags::PrintState))
   {
     switch (GetJoltCharacter()->GetGroundState())
     {
       case JPH::CharacterBase::EGroundState::OnGround:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: On Ground", ezColor::Brown);
+        WDebugRenderer::DrawInfoText(GetWorld(), WDebugTextPlacement::TopLeft, "JCC", "Jolt: On Ground", WColor::Brown);
         break;
       case JPH::CharacterBase::EGroundState::InAir:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: In Air", ezColor::CornflowerBlue);
+        WDebugRenderer::DrawInfoText(GetWorld(), WDebugTextPlacement::TopLeft, "JCC", "Jolt: In Air", WColor::CornflowerBlue);
         break;
       case JPH::CharacterBase::EGroundState::NotSupported:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: Not Supported", ezColor::Yellow);
+        WDebugRenderer::DrawInfoText(GetWorld(), WDebugTextPlacement::TopLeft, "JCC", "Jolt: Not Supported", WColor::Yellow);
         break;
       case JPH::CharacterBase::EGroundState::OnSteepGround:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: Steep", ezColor::OrangeRed);
+        WDebugRenderer::DrawInfoText(GetWorld(), WDebugTextPlacement::TopLeft, "JCC", "Jolt: Steep", WColor::OrangeRed);
         break;
     }
 
-    // const ezTransform newTransform = GetOwner()->GetGlobalTransform();
+    // const WTransform newTransform = GetOwner()->GetGlobalTransform();
     // const float fDistTraveled = (m_PreviousTransform.m_vPosition - newTransform.m_vPosition).GetLength();
     // const float fSpeedTraveled = fDistTraveled * GetInverseUpdateTimeDelta();
     // const float fSpeedTraveledLateral = fDistTraveled * GetInverseUpdateTimeDelta();
-    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", ezFmt("Speed 1: {} m/s", fSpeedTraveled), ezColor::WhiteSmoke);
-    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", ezFmt("Speed 2: {} m/s", fSpeedTraveledLateral), ezColor::WhiteSmoke);
+    // WDebugRenderer::DrawInfoText(GetWorld(), WDebugTextPlacement::TopLeft, "JCC", WFmt("Speed 1: {} m/s", fSpeedTraveled), WColor::WhiteSmoke);
+    // WDebugRenderer::DrawInfoText(GetWorld(), WDebugTextPlacement::TopLeft, "JCC", WFmt("Speed 2: {} m/s", fSpeedTraveledLateral), WColor::WhiteSmoke);
   }
 
-  if (m_DebugFlags.IsSet(ezJoltCharacterDebugFlags::VisGroundContact))
+  if (m_DebugFlags.IsSet(WJoltCharacterDebugFlags::VisGroundContact))
   {
-    ezVec3 gpos = ezJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundPosition());
-    ezVec3 gnom = ezJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundNormal());
+    WVec3 gpos = WJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundPosition());
+    WVec3 gnom = WJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundNormal());
 
     if (!gnom.IsZero(0.01f))
     {
-      ezQuat rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
+      WQuat rot = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), gnom);
 
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), ezColor::Aquamarine, ezTransform(gpos, rot));
+      WDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, WColor::MakeZero(), WColor::Aquamarine, WTransform(gpos, rot));
     }
   }
 
-  if (m_DebugFlags.IsSet(ezJoltCharacterDebugFlags::VisShape))
+  if (m_DebugFlags.IsSet(WJoltCharacterDebugFlags::VisShape))
   {
-    ezTransform shapeTrans = GetOwner()->GetGlobalTransform();
+    WTransform shapeTrans = GetOwner()->GetGlobalTransform();
 
     shapeTrans.m_vPosition.z += GetCurrentCapsuleHeight() * 0.5f;
 
-    ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), GetCurrentCylinderHeight(), GetShapeRadius(), ezColor::CornflowerBlue, shapeTrans);
+    WDebugRenderer::DrawLineCapsuleZ(GetWorld(), GetCurrentCylinderHeight(), GetShapeRadius(), WColor::CornflowerBlue, shapeTrans);
   }
 }
 
-void ezJoltDefaultCharacterComponent::CheckFeet()
+void WJoltDefaultCharacterComponent::CheckFeet()
 {
   if (!cvar_JoltCcFootCheck)
   {
@@ -534,60 +534,60 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
   m_bFeetOnSolidGround = false;
 
-  ezTransform shapeTrans = GetOwner()->GetGlobalTransform();
-  ezQuat shapeRot = ezQuat::MakeShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
+  WTransform shapeTrans = GetOwner()->GetGlobalTransform();
+  WQuat shapeRot = WQuat::MakeShortestRotation(WVec3(0, 1, 0), WVec3(0, 0, 1));
 
   const float radius = m_fFootRadius;
-  const float halfHeight = ezMath::Max(0.01f, m_fMaxStepDown - radius);
+  const float halfHeight = WMath::Max(0.01f, m_fMaxStepDown - radius);
 
   JPH::CapsuleShape shape(halfHeight, radius);
   shapeTrans.m_vPosition.z += halfHeight + radius;
 
-  ezTempHybridArray<ContactPoint, 32> contacts;
+  WTempHybridArray<ContactPoint, 32> contacts;
   CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, m_fMaxStepDown);
 
   for (const auto& contact : contacts)
   {
-    ezVec3 gpos = contact.m_vPosition;
-    ezVec3 gnom = contact.m_vSurfaceNormal;
+    WVec3 gpos = contact.m_vPosition;
+    WVec3 gnom = contact.m_vSurfaceNormal;
 
     // if the object is not penetrated and stands further than foot radius then skip this object
     float fXYDistanceSquared = contact.m_fPenetrationDepth < 0 ? (contact.m_fPenetrationDepth * gnom).GetAsVec2().GetLengthSquared() : 0.f;
     if (fXYDistanceSquared > radius * radius)
       continue;
 
-    ezColor color = ezColor::LightYellow;
-    ezQuat rot;
+    WColor color = WColor::LightYellow;
+    WQuat rot;
 
     if (gnom.IsZero(0.01f))
     {
-      rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
-      color = ezColor::OrangeRed;
+      rot = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), WVec3::MakeAxisZ());
+      color = WColor::OrangeRed;
     }
     else
     {
-      rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
+      rot = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), gnom);
 
-      if (gnom.Dot(ezVec3::MakeAxisZ()) > ezMath::Cos(ezAngle::MakeFromDegree(40)))
+      if (gnom.Dot(WVec3::MakeAxisZ()) > WMath::Cos(WAngle::MakeFromDegree(40)))
       {
         m_bFeetOnSolidGround = true;
-        color = ezColor::GreenYellow;
+        color = WColor::GreenYellow;
       }
     }
 
-    if (m_DebugFlags.IsAnySet(ezJoltCharacterDebugFlags::VisFootCheck))
+    if (m_DebugFlags.IsAnySet(WJoltCharacterDebugFlags::VisFootCheck))
     {
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), color, ezTransform(gpos, rot));
+      WDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, WColor::MakeZero(), color, WTransform(gpos, rot));
     }
   }
 
-  if (m_DebugFlags.IsAnySet(ezJoltCharacterDebugFlags::VisFootCheck))
+  if (m_DebugFlags.IsAnySet(WJoltCharacterDebugFlags::VisFootCheck))
   {
-    ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), halfHeight * 2.0f, radius, ezColor::YellowGreen, ezTransform(shapeTrans.m_vPosition));
+    WDebugRenderer::DrawLineCapsuleZ(GetWorld(), halfHeight * 2.0f, radius, WColor::YellowGreen, WTransform(shapeTrans.m_vPosition));
   }
 }
 
-void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_inputs)
+void WJoltDefaultCharacterComponent::DetermineConfig(Config& out_inputs)
 {
   // velocity
   {
@@ -595,7 +595,7 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_inputs)
 
     switch (GetGroundState())
     {
-      case ezJoltDefaultCharacterComponent::GroundState::OnGround:
+      case WJoltDefaultCharacterComponent::GroundState::OnGround:
         fSpeed = m_fWalkSpeedStanding;
 
         if (m_uiIsCrouchingBit)
@@ -608,7 +608,7 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_inputs)
         }
         break;
 
-      case ezJoltDefaultCharacterComponent::GroundState::Sliding:
+      case WJoltDefaultCharacterComponent::GroundState::Sliding:
         fSpeed = m_fWalkSpeedStanding;
 
         if (m_uiIsCrouchingBit)
@@ -617,7 +617,7 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_inputs)
         }
         break;
 
-      case ezJoltDefaultCharacterComponent::GroundState::InAir:
+      case WJoltDefaultCharacterComponent::GroundState::InAir:
         fSpeed = m_fAirSpeed;
         break;
     }
@@ -629,12 +629,12 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_inputs)
   {
     switch (GetGroundState())
     {
-      case ezJoltDefaultCharacterComponent::GroundState::OnGround:
+      case WJoltDefaultCharacterComponent::GroundState::OnGround:
         out_inputs.m_sGroundInteraction = (m_uiInputRunBit == 1) ? m_sWalkSurfaceInteraction : m_sWalkSurfaceInteraction; // TODO: run interaction
         out_inputs.m_fGroundInteractionDistanceThreshold = (m_uiInputRunBit == 1) ? m_fRunInteractionDistance : m_fWalkInteractionDistance;
         break;
 
-      case ezJoltDefaultCharacterComponent::GroundState::Sliding:
+      case WJoltDefaultCharacterComponent::GroundState::Sliding:
         // TODO: slide interaction
         break;
 
@@ -651,9 +651,9 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_inputs)
   out_inputs.m_fMaxStepDown = ((GetGroundState() == GroundState::OnGround) || (GetGroundState() == GroundState::Sliding)) && m_bFeetOnSolidGround ? m_fMaxStepDown : 0.0f;
 }
 
-void ezJoltDefaultCharacterComponent::UpdateCharacter()
+void WJoltDefaultCharacterComponent::UpdateCharacter()
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   m_PreviousTransform = GetOwner()->GetGlobalTransform();
 
   switch (GetJoltCharacter()->GetGroundState())
@@ -687,12 +687,12 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     cfg.m_fMaxStepDown = 0;
   }
 
-  ezVec3 vGroundVelocity = ezVec3::MakeZero();
+  WVec3 vGroundVelocity = WVec3::MakeZero();
 
   ContactPoint groundContact;
   {
-    groundContact.m_vPosition = ezJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundPosition());
-    groundContact.m_vContactNormal = ezJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundNormal());
+    groundContact.m_vPosition = WJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundPosition());
+    groundContact.m_vContactNormal = WJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundNormal());
     groundContact.m_vSurfaceNormal = groundContact.m_vContactNormal;
     groundContact.m_BodyID = GetJoltCharacter()->GetGroundBodyID();
     groundContact.m_SubShapeID = GetJoltCharacter()->GetGroundSubShapeID();
@@ -700,7 +700,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     /*vGroundVelocity =*/GetContactVelocityAndPushAway(groundContact, cfg.m_fPushDownForce);
 
     // TODO: on rotating surfaces I see the same error with this value and the one returned above
-    vGroundVelocity = ezJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundVelocity());
+    vGroundVelocity = WJoltConversionUtils::ToVec3(GetJoltCharacter()->GetGroundVelocity());
     vGroundVelocity.z = 0.0f;
 
     if (!cfg.m_bApplyGroundVelocity)
@@ -715,16 +715,16 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
   }
 
   // AIR: apply 'drag' to the lateral velocity
-  m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, GetUpdateTimeDelta());
+  m_vVelocityLateral *= WMath::Pow(1.0f - m_fAirFriction, GetUpdateTimeDelta());
 
-  ezVec3 vRootVelocity = GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
+  WVec3 vRootVelocity = GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
 
-  if (!m_vVelocityLateral.IsZero(ezMath::FloatEpsilon<float>()))
+  if (!m_vVelocityLateral.IsZero(WMath::FloatEpsilon<float>()))
   {
     // remove the lateral velocity component from the root motion
     // to prevent root motion being amplified when both values are active
-    ezVec3 vLatDir = m_vVelocityLateral.GetNormalized().GetAsVec3(0);
-    float fProj = ezMath::Max(0.0f, vLatDir.Dot(vRootVelocity));
+    WVec3 vLatDir = m_vVelocityLateral.GetNormalized().GetAsVec3(0);
+    float fProj = WMath::Max(0.0f, vLatDir.Dot(vRootVelocity));
     vRootVelocity -= vLatDir * fProj;
   }
 
@@ -736,7 +736,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     m_fVelocityUp = groundVerticalVelocity;
   }
 
-  ezVec3 vVelocityToApply = cfg.m_vVelocity + vGroundVelocity;
+  WVec3 vVelocityToApply = cfg.m_vVelocity + vGroundVelocity;
   vVelocityToApply += m_vVelocityLateral.GetAsVec3(0);
   vVelocityToApply += vRootVelocity;
   vVelocityToApply.z = m_fVelocityUp;
@@ -774,4 +774,4 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltDefaultCharacterComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltDefaultCharacterComponent);

@@ -5,37 +5,37 @@
 #include <GameEngine/Input/InputDebugVis.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-void ezInputDebugVis::DebugRender(const ezDebugRendererContext& context, const ezVec2& vResolution, const ezVirtualThumbStick& stick)
+void WInputDebugVis::DebugRender(const WDebugRendererContext& context, const WVec2& vResolution, const WVirtualThumbStick& stick)
 {
   if (!stick.IsEnabled())
     return;
 
   const bool bActive = stick.IsActive();
 
-  ezVec2 vLL, vUR;
+  WVec2 vLL, vUR;
   stick.GetInputArea(vLL, vUR);
-  const ezVec2 vAreaSize = vUR - vLL;
+  const WVec2 vAreaSize = vUR - vLL;
 
-  const ezVec2 vCenter = stick.GetCurrentCenter();
-  const ezVec2 vTouchPos = stick.GetCurrentTouchPos();
+  const WVec2 vCenter = stick.GetCurrentCenter();
+  const WVec2 vTouchPos = stick.GetCurrentTouchPos();
   const float fRadius = stick.GetThumbstickRadius();
   const float fStrength = stick.GetInputStrength();
   const float fAspect = stick.GetInputCoordinateAspectRatio();
 
 
-  ezRectFloat area;
+  WRectFloat area;
   area.x = vLL.x * vResolution.x;
   area.y = vLL.y * vResolution.y;
   area.width = vAreaSize.x * vResolution.x;
   area.height = vAreaSize.y * vResolution.y;
 
-  ezDebugRenderer::Draw2DLineRectangle(context, area, 0.0f, bActive ? ezColor::Yellow : ezColor::Grey);
+  WDebugRenderer::Draw2DLineRectangle(context, area, 0.0f, bActive ? WColor::Yellow : WColor::Grey);
 
   area.x = (vCenter.x - fRadius) * vResolution.x;
   area.y = (vCenter.y * vResolution.y) - (fRadius * vResolution.y * fAspect);
   area.width = fRadius * 2 * vResolution.x;
   area.height = fRadius * 2 * vResolution.y * fAspect;
-  ezDebugRenderer::Draw2DLineRectangle(context, area, 0.0f, bActive ? ezColor::GreenYellow : ezColor::Yellow);
+  WDebugRenderer::Draw2DLineRectangle(context, area, 0.0f, bActive ? WColor::GreenYellow : WColor::Yellow);
 
   if (bActive)
   {
@@ -44,13 +44,13 @@ void ezInputDebugVis::DebugRender(const ezDebugRendererContext& context, const e
     area.y = (vTouchPos.y * vResolution.y) - (size * vResolution.y * fAspect);
     area.width = size * 2 * vResolution.x;
     area.height = size * 2 * vResolution.y * fAspect;
-    ezDebugRenderer::Draw2DRectangle(context, area, 0.0f, ezColor::OrangeRed);
+    WDebugRenderer::Draw2DRectangle(context, area, 0.0f, WColor::OrangeRed);
 
 
-    ezVec2I32 pos;
-    pos.x = ezMath::RoundToInt(vCenter.x * vResolution.x);
-    pos.y = ezMath::RoundToInt(vCenter.y * vResolution.y);
+    WVec2I32 pos;
+    pos.x = WMath::RoundToInt(vCenter.x * vResolution.x);
+    pos.y = WMath::RoundToInt(vCenter.y * vResolution.y);
 
-    ezDebugRenderer::Draw2DText(context, ezFmt("{}", ezArgF(fStrength, 2)), pos, ezColor::OrangeRed, 16, ezDebugTextHAlign::Center, ezDebugTextVAlign::Center);
+    WDebugRenderer::Draw2DText(context, WFmt("{}", WArgF(fStrength, 2)), pos, WColor::OrangeRed, 16, WDebugTextHAlign::Center, WDebugTextVAlign::Center);
   }
 }

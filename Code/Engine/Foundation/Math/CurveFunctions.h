@@ -11,9 +11,9 @@
 /// - EaseIn: Indicates a slow transition from the zero strength to full strength.
 /// - EaseOut: Indicates a fast transition from the zero strength to full strength.
 /// - EaseInOut: A transition from zero to one that starts out slow, continues fast in the middle and finishes slow again.
-struct ezCurveFunction
+struct WCurveFunction
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -81,9 +81,9 @@ struct ezCurveFunction
   static double GetValue(Enum function, double x, bool bInverse);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezCurveFunction);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WCurveFunction);
 
-namespace ezMath
+namespace WMath
 {
   double GetCurveValue_Linear(double t);
   double GetCurveValue_ConstantZero(double t);
@@ -123,6 +123,6 @@ namespace ezMath
   double GetCurveValue_FadeInFadeOut(double t);
   double GetCurveValue_Bell(double t);
 
-} // namespace ezMath
+} // namespace WMath
 
 #include <Foundation/Math/Implementation/CurveFunctions_inl.h>

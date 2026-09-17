@@ -7,42 +7,42 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTwoBoneIKComponent, 3, ezComponentMode::Dynamic);
+W_BEGIN_COMPONENT_TYPE(WTwoBoneIKComponent, 3, WComponentMode::Dynamic);
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("DebugVisScale", GetDebugVisScale, SetDebugVisScale)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("JointStart", m_sJointStart),
-    EZ_MEMBER_PROPERTY("JointMiddle", m_sJointMiddle),
-    EZ_MEMBER_PROPERTY("JointEnd", m_sJointEnd),
-    EZ_ENUM_MEMBER_PROPERTY("MidAxis", ezBasisAxis, m_MidAxis)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
-    EZ_ACCESSOR_PROPERTY("PoleVector", DummyGetter, SetPoleVectorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_MEMBER_PROPERTY("Order", m_uiOrder),
-    //EZ_MEMBER_PROPERTY("Soften", m_fSoften)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-    //EZ_MEMBER_PROPERTY("TwistAngle", m_TwistAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(-180), ezAngle::MakeFromDegree(180))),
+    W_ACCESSOR_PROPERTY("DebugVisScale", GetDebugVisScale, SetDebugVisScale)->AddAttributes(new WClampValueAttribute(0.0f, 10.0f)),
+    W_MEMBER_PROPERTY("JointStart", m_sJointStart),
+    W_MEMBER_PROPERTY("JointMiddle", m_sJointMiddle),
+    W_MEMBER_PROPERTY("JointEnd", m_sJointEnd),
+    W_ENUM_MEMBER_PROPERTY("MidAxis", WBasisAxis, m_MidAxis)->AddAttributes(new WDefaultValueAttribute(WBasisAxis::PositiveZ)),
+    W_ACCESSOR_PROPERTY("PoleVector", DummyGetter, SetPoleVectorReference)->AddAttributes(new WGameObjectReferenceAttribute()),
+    W_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
+    W_MEMBER_PROPERTY("Order", m_uiOrder),
+    //W_MEMBER_PROPERTY("Soften", m_fSoften)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
+    //W_MEMBER_PROPERTY("TwistAngle", m_TwistAngle)->AddAttributes(new WClampValueAttribute(WAngle::MakeFromDegree(-180), WAngle::MakeFromDegree(180))),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Animation"),
+      new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgInjectPoseCommands, OnInjectPoseCommands)
+    W_MESSAGE_HANDLER(WMsgInjectPoseCommands, OnInjectPoseCommands)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezTwoBoneIKComponent::ezTwoBoneIKComponent() = default;
-ezTwoBoneIKComponent::~ezTwoBoneIKComponent() = default;
+WTwoBoneIKComponent::WTwoBoneIKComponent() = default;
+WTwoBoneIKComponent::~WTwoBoneIKComponent() = default;
 
-void ezTwoBoneIKComponent::SetPoleVectorReference(const char* szReference)
+void WTwoBoneIKComponent::SetPoleVectorReference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -52,19 +52,19 @@ void ezTwoBoneIKComponent::SetPoleVectorReference(const char* szReference)
   m_hPoleVector = resolver(szReference, GetHandle(), "PoleVector");
 }
 
-void ezTwoBoneIKComponent::SetDebugVisScale(float fScale)
+void WTwoBoneIKComponent::SetDebugVisScale(float fScale)
 {
   // allow scales from 0.05f to 10.0f
   // map them to range 0 to 200
-  m_uiDebugVisScale = static_cast<ezUInt8>(ezMath::Clamp(ezMath::RoundToInt(fScale * 20.0f), 0, 200));
+  m_uiDebugVisScale = static_cast<WUInt8>(WMath::Clamp(WMath::RoundToInt(fScale * 20.0f), 0, 200));
 }
 
-float ezTwoBoneIKComponent::GetDebugVisScale() const
+float WTwoBoneIKComponent::GetDebugVisScale() const
 {
   return m_uiDebugVisScale / 20.0f;
 }
 
-void ezTwoBoneIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WTwoBoneIKComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -86,10 +86,10 @@ void ezTwoBoneIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_uiOrder;
 }
 
-void ezTwoBoneIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WTwoBoneIKComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fWeight;
@@ -113,7 +113,7 @@ void ezTwoBoneIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezTwoBoneIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const
+void WTwoBoneIKComponent::OnInjectPoseCommands(WMsgInjectPoseCommands& msg) const
 {
   if (m_fWeight <= 0.0f && m_uiDebugVisScale == 0)
     return;
@@ -125,25 +125,25 @@ void ezTwoBoneIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) co
   // if we haven't reached this yet, put it in the queue
   if (m_uiOrder > msg.m_uiOrderNow)
   {
-    msg.m_uiOrderNext = ezMath::Min(msg.m_uiOrderNext, m_uiOrder);
+    msg.m_uiOrderNext = WMath::Min(msg.m_uiOrderNext, m_uiOrder);
     return;
   }
 
-  const ezTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
-  const ezTransform ownerTransform = ezTransform::MakeGlobalTransform(targetTrans, msg.m_pGenerator->GetSkeleton()->GetDescriptor().m_RootTransform);
-  const ezTransform localTarget = ezTransform::MakeLocalTransform(ownerTransform, GetOwner()->GetGlobalTransform());
+  const WTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
+  const WTransform ownerTransform = WTransform::MakeGlobalTransform(targetTrans, msg.m_pGenerator->GetSkeleton()->GetDescriptor().m_RootTransform);
+  const WTransform localTarget = WTransform::MakeLocalTransform(ownerTransform, GetOwner()->GetGlobalTransform());
 
-  ezVec3 vPoleVectorPos;
+  WVec3 vPoleVectorPos;
 
-  const ezGameObject* pPoleVector;
+  const WGameObject* pPoleVector;
   if (!m_hPoleVector.IsInvalidated() && GetWorld()->TryGetObject(m_hPoleVector, pPoleVector))
   {
-    vPoleVectorPos = ezTransform::MakeLocalTransform(ownerTransform, ezTransform(pPoleVector->GetGlobalPosition())).m_vPosition;
+    vPoleVectorPos = WTransform::MakeLocalTransform(ownerTransform, WTransform(pPoleVector->GetGlobalPosition())).m_vPosition;
   }
   else
   {
     // hard-coded "up vector" as pole target
-    vPoleVectorPos = ezTransform::MakeLocalTransform(ownerTransform, ezTransform(targetTrans * ezVec3(0, 0, 10))).m_vPosition;
+    vPoleVectorPos = WTransform::MakeLocalTransform(ownerTransform, WTransform(targetTrans * WVec3(0, 0, 10))).m_vPosition;
   }
 
   if (m_uiJointIdxStart == 0 && m_uiJointIdxMiddle == 0)
@@ -154,7 +154,7 @@ void ezTwoBoneIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) co
     m_uiJointIdxEnd = skel.FindJointByName(m_sJointEnd);
   }
 
-  if (m_uiJointIdxStart != ezInvalidJointIndex && m_uiJointIdxMiddle != ezInvalidJointIndex && m_uiJointIdxEnd != ezInvalidJointIndex)
+  if (m_uiJointIdxStart != WInvalidJointIndex && m_uiJointIdxMiddle != WInvalidJointIndex && m_uiJointIdxEnd != WInvalidJointIndex)
   {
     auto& cmdIk = msg.m_pGenerator->AllocCommandTwoBoneIK();
     cmdIk.m_fDebugVisScale = GetDebugVisScale();
@@ -164,14 +164,14 @@ void ezTwoBoneIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) co
     cmdIk.m_Inputs.PushBack(msg.m_pGenerator->GetFinalCommand());
     cmdIk.m_vTargetPosition = localTarget.m_vPosition;
     cmdIk.m_vPoleVectorPosition = vPoleVectorPos;
-    cmdIk.m_vMidAxis = ezBasisAxis::GetBasisVector(m_MidAxis);
+    cmdIk.m_vMidAxis = WBasisAxis::GetBasisVector(m_MidAxis);
     cmdIk.m_fWeight = m_fWeight;
     cmdIk.m_fSoften = 1.0f;                   // m_fSoften;
-    cmdIk.m_TwistAngle = ezAngle::MakeZero(); // m_TwistAngle;
+    cmdIk.m_TwistAngle = WAngle::MakeZero(); // m_TwistAngle;
 
     msg.m_pGenerator->SetFinalCommand(cmdIk.GetCommandID());
   }
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_TwoBoneIKComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_TwoBoneIKComponent);

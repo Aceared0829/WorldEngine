@@ -15,7 +15,7 @@ class PageDownloader : public QObject
 public:
   explicit PageDownloader(const QString& sUrl);
 
-  ezStringView GetDownloadedData() const { return m_sDownloadedPage; }
+  WStringView GetDownloadedData() const { return m_sDownloadedPage; }
 
 signals:
   void FinishedDownload();
@@ -24,17 +24,17 @@ private slots:
   void DownloadDone(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-  ezUniquePtr<QProcess> m_pProcess;
-  ezStringBuilder m_sDownloadedPage;
+  WUniquePtr<QProcess> m_pProcess;
+  WStringBuilder m_sDownloadedPage;
 };
 
 /// Downloads a web page and checks whether the latest version online is newer than the current one
-class ezQtVersionChecker : public QObject
+class WQtVersionChecker : public QObject
 {
   Q_OBJECT
 
 public:
-  ezQtVersionChecker();
+  WQtVersionChecker();
 
   void Initialize();
 
@@ -51,13 +51,13 @@ Q_SIGNALS:
 private slots:
   void PageDownloaded();
 
-  ezResult StoreKnownVersion();
+  WResult StoreKnownVersion();
 
 private:
   bool m_bRequireOnlineCheck = true;
   bool m_bForceCheck = false;
   bool m_bCheckInProgresss = false;
-  ezString m_sConfigFile;
-  ezString m_sKnownLatestVersion;
-  ezUniquePtr<PageDownloader> m_pVersionPage;
+  WString m_sConfigFile;
+  WString m_sKnownLatestVersion;
+  WUniquePtr<PageDownloader> m_pVersionPage;
 };

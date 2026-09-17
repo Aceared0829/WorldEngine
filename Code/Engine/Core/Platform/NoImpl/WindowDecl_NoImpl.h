@@ -1,5 +1,5 @@
 #include <InputDevice_Platform.h>
 
-using ezWindowHandle = void*;
-using ezWindowInternalHandle = ezWindowHandle;
+using WWindowHandle = void*;
+using WWindowInternalHandle = WWindowHandle;
 #define INVALID_WINDOW_HANDLE_VALUE nullptr

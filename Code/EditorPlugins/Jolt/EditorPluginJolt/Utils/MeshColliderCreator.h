@@ -8,36 +8,36 @@
 #include <Foundation/Types/Variant.h>
 
 /// Which kind of collision mesh asset to generate from a mesh asset.
-struct ezMeshColliderKind
+struct WMeshColliderKind
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
-    /// ezJoltConvexCollisionMeshAsset. Required for dynamic actors.
+    /// WJoltConvexCollisionMeshAsset. Required for dynamic actors.
     ConvexHull,
 
-    /// ezJoltCollisionMeshAsset. Concave, but only usable for static geometry.
+    /// WJoltCollisionMeshAsset. Concave, but only usable for static geometry.
     TriangleMesh,
 
     Default = ConvexHull
   };
 };
 
-/// \see ezMeshColliderCreator::CreateMeshCollider()
-struct ezMeshColliderOptions
+/// \see WMeshColliderCreator::CreateMeshCollider()
+struct WMeshColliderOptions
 {
   /// Where to write the asset. Absolute, or relative to the parent of a data directory
-  /// ("Testing Chambers/Objects/Barrel.ezJoltCollisionMeshAsset"). Empty means the suggested path,
+  /// ("Testing Chambers/Objects/Barrel.WJoltCollisionMeshAsset"). Empty means the suggested path,
   /// which is what creating colliders for several meshes at once uses.
-  /// \see ezMeshColliderCreator::SuggestColliderPath()
-  ezString m_sColliderPath;
+  /// \see WMeshColliderCreator::SuggestColliderPath()
+  WString m_sColliderPath;
 
-  ezEnum<ezMeshColliderKind> m_Kind;
+  WEnum<WMeshColliderKind> m_Kind;
 
   /// The surface asset to assign, as a guid or an asset path. Only convex meshes have a single
   /// surface; a triangle mesh gets one per material slot at transform time, so this is ignored there.
-  ezString m_sSurface;
+  WString m_sSurface;
 
   /// Overwrites a collision mesh asset that already exists instead of refusing.
   ///
@@ -54,71 +54,71 @@ struct ezMeshColliderOptions
 /// same name, so that neither side's C++ type has to be known here. Values that the mesh asset does
 /// not have (an animated mesh has no transform options) are invalid variants and are then left at
 /// the collision mesh asset's own default.
-struct EZ_EDITORPLUGINJOLT_DLL ezMeshColliderSource
+struct W_EDITORPLUGINJOLT_DLL WMeshColliderSource
 {
-  ezUuid m_MeshAssetGuid;
-  ezString m_sMeshAssetPath;
+  WUuid m_MeshAssetGuid;
+  WString m_sMeshAssetPath;
 
   /// The mesh asset's "MeshFile". Empty if it could not be read or the mesh is a primitive rather
   /// than an imported file, in which case no collision mesh can be generated from it.
-  ezString m_sMeshFile;
+  WString m_sMeshFile;
 
-  /// True for a primitive mesh (ezMeshPrimitive other than File), which has no source file to import.
+  /// True for a primitive mesh (WMeshPrimitive other than File), which has no source file to import.
   /// Kept separate from an empty m_sMeshFile so that the reason can be reported.
   bool m_bIsPrimitive = false;
 
   bool m_bAnimated = false;
 
   /// The import options shared with the collision mesh asset, keyed by property name.
-  ezVariantDictionary m_ImportProperties;
+  WVariantDictionary m_ImportProperties;
 
   /// An existing collision mesh asset of that kind built from the same source file, if there is one.
-  ezUuid m_ExistingTriangleColMesh;
-  ezUuid m_ExistingConvexColMesh;
+  WUuid m_ExistingTriangleColMesh;
+  WUuid m_ExistingConvexColMesh;
 
   /// The existing collision mesh asset of the given kind, or an invalid uuid.
-  ezUuid GetExisting(ezEnum<ezMeshColliderKind> kind) const;
+  WUuid GetExisting(WEnum<WMeshColliderKind> kind) const;
 };
 
-/// Creates Jolt collision mesh assets from mesh assets. \see ezMeshColliderUtils
+/// Creates Jolt collision mesh assets from mesh assets. \see WMeshColliderUtils
 ///
 /// Only settings that both asset types have are transferred, everything else stays at the collision
 /// mesh asset's default.
-class EZ_EDITORPLUGINJOLT_DLL ezMeshColliderCreator
+class W_EDITORPLUGINJOLT_DLL WMeshColliderCreator
 {
 public:
   /// Fails if the guid does not belong to a mesh asset.
   ///
   /// Opens the mesh asset document to read its properties, if it is not open already.
-  static ezResult GatherMeshColliderSource(const ezUuid& meshAssetGuid, ezMeshColliderSource& out_source);
+  static WResult GatherMeshColliderSource(const WUuid& meshAssetGuid, WMeshColliderSource& out_source);
 
   /// Creates and saves the collision mesh asset document.
   ///
-  /// Fails if a file already exists at the target path, unless ezMeshColliderOptions::m_bOverwriteExisting
+  /// Fails if a file already exists at the target path, unless WMeshColliderOptions::m_bOverwriteExisting
   /// is set. Reusing an existing collider is otherwise up to the caller.
-  /// \see ezMeshColliderSource::GetExisting()
-  static ezStatus CreateMeshCollider(const ezMeshColliderSource& source, const ezMeshColliderOptions& options);
+  /// \see WMeshColliderSource::GetExisting()
+  static WStatus CreateMeshCollider(const WMeshColliderSource& source, const WMeshColliderOptions& options);
 
   /// Creates a collider for each of the given mesh assets, each at its suggested path.
   ///
   /// Meshes that already have a collider at that path, and ones no collider can be built from, are
   /// skipped with a log message rather than failing the whole run. Only an outright error, such as a
   /// document that cannot be written, is reported back.
-  static ezStatus CreateMeshColliders(ezArrayPtr<const ezUuid> meshAssetGuids, const ezMeshColliderOptions& options, ezUInt32& out_uiCreated, ezUInt32& out_uiSkipped);
+  static WStatus CreateMeshColliders(WArrayPtr<const WUuid> meshAssetGuids, const WMeshColliderOptions& options, WUInt32& out_uiCreated, WUInt32& out_uiSkipped);
 
   /// Whether the given guid refers to a mesh or animated mesh asset.
-  static bool IsMeshAsset(const ezUuid& assetGuid);
+  static bool IsMeshAsset(const WUuid& assetGuid);
 
   /// The default absolute path for a collider of that kind, next to the mesh asset.
   ///
   /// Appends a number if that file is already taken, unless bAllowExisting is set.
-  static ezString SuggestColliderPath(const ezMeshColliderSource& source, ezEnum<ezMeshColliderKind> kind, bool bAllowExisting = false);
+  static WString SuggestColliderPath(const WMeshColliderSource& source, WEnum<WMeshColliderKind> kind, bool bAllowExisting = false);
 
   /// Turns an absolute path into one relative to the parent of its data directory, for display.
   /// Returns the input unchanged if it is not inside a data directory.
-  static ezString MakeDisplayPath(ezStringView sAbsolutePath);
+  static WString MakeDisplayPath(WStringView sAbsolutePath);
 
   /// Resolves what MakeDisplayPath() produced, or any absolute path, back to an absolute path.
   /// Fails if the path names no known data directory.
-  static ezResult ResolveDisplayPath(ezStringView sPath, ezStringBuilder& out_sAbsolutePath);
+  static WResult ResolveDisplayPath(WStringView sPath, WStringBuilder& out_sAbsolutePath);
 };

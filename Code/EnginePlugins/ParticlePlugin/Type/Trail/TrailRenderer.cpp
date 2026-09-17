@@ -12,39 +12,39 @@
 #include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/ParticleSystemConstants.h>
 
 //clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTrailRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTrailRenderData, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTrailRenderer, 1, ezRTTIDefaultAllocator<ezParticleTrailRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTrailRenderer, 1, WRTTIDefaultAllocator<WParticleTrailRenderer>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-bool ezParticleTrailRenderData::CanBatch(const ezRenderData& other0) const
+bool WParticleTrailRenderData::CanBatch(const WRenderData& other0) const
 {
-  const auto& other = ezStaticCast<const ezParticleTrailRenderData&>(other0);
+  const auto& other = WStaticCast<const WParticleTrailRenderData&>(other0);
 
   return m_RenderMode == other.m_RenderMode && m_hTexture == other.m_hTexture && m_uiMaxTrailPoints == other.m_uiMaxTrailPoints && m_hCustomMaterial == other.m_hCustomMaterial;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleTrailRenderer::ezParticleTrailRenderer()
+WParticleTrailRenderer::WParticleTrailRenderer()
 {
-  CreateParticleDataBuffer(m_BaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_TrailDataBuffer, sizeof(ezTrailParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_BaseDataBuffer, sizeof(WBaseParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_TrailDataBuffer, sizeof(WTrailParticleShaderData), s_uiParticlesPerBatch);
 
   // this is kinda stupid, apparently due to stride enforcement I cannot reuse the same buffer for different sizes
   // and instead have to create one buffer with every size ...
 
-  CreateParticleDataBuffer(m_TrailPointsDataBuffer8, sizeof(ezTrailParticlePointsData8), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_TrailPointsDataBuffer16, sizeof(ezTrailParticlePointsData16), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_TrailPointsDataBuffer32, sizeof(ezTrailParticlePointsData32), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_TrailPointsDataBuffer64, sizeof(ezTrailParticlePointsData64), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_TrailPointsDataBuffer8, sizeof(WTrailParticlePointsData8), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_TrailPointsDataBuffer16, sizeof(WTrailParticlePointsData16), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_TrailPointsDataBuffer32, sizeof(WTrailParticlePointsData32), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_TrailPointsDataBuffer64, sizeof(WTrailParticlePointsData64), s_uiParticlesPerBatch);
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/DefaultTrailParticle.ezShader");
+  m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Particles/DefaultTrailParticle.WShader");
 }
 
-ezParticleTrailRenderer::~ezParticleTrailRenderer()
+WParticleTrailRenderer::~WParticleTrailRenderer()
 {
   DestroyParticleDataBuffer(m_BaseDataBuffer);
   DestroyParticleDataBuffer(m_TrailDataBuffer);
@@ -54,31 +54,31 @@ ezParticleTrailRenderer::~ezParticleTrailRenderer()
   DestroyParticleDataBuffer(m_TrailPointsDataBuffer64);
 }
 
-void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WParticleTrailRenderer::GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  out_types.PushBack(ezGetStaticRTTI<ezParticleTrailRenderData>());
+  out_types.PushBack(WGetStaticRTTI<WParticleTrailRenderData>());
 }
 
-void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void WParticleTrailRenderer::RenderBatch(const WRenderViewContext& renderViewContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const
 {
-  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
+  WRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
+  WGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   TempSystemCB systemConstants(pRenderContext);
 
   bool bBindShader = true;
 
-  ezBindGroupBuilder& bindGroupMaterial = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+  WBindGroupBuilder& bindGroupMaterial = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
 
   // now render all particle effects of type Trail
-  for (auto it = batch.GetIterator<ezParticleTrailRenderData>(0, batch.GetDataCount()); it.IsValid(); ++it)
+  for (auto it = batch.GetIterator<WParticleTrailRenderData>(0, batch.GetDataCount()); it.IsValid(); ++it)
   {
-    const ezParticleTrailRenderData* pRenderData = it;
+    const WParticleTrailRenderData* pRenderData = it;
 
     if (pRenderData->m_hCustomMaterial.IsValid())
     {
-      ezResourceLock<ezMaterialResource> pMat(pRenderData->m_hCustomMaterial, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-      if (pMat.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WMaterialResource> pMat(pRenderData->m_hCustomMaterial, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
+      if (pMat.GetAcquireResult() != WResourceAcquireResult::Final)
       {
         // skip rendering this particle effect in case the custom material is not yet loaded (or fails to load)
         // otherwise we would get the fallback material, which doesn't work with particle vertex streams
@@ -102,49 +102,49 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     if (!ConfigureShader(pRenderData, renderViewContext))
       continue;
 
-    const ezUInt32 uiBucketSize = ezParticleTypeTrail::ComputeTrailPointBucketSize(pRenderData->m_uiMaxTrailPoints);
-    const ezUInt32 uiMaxTrailSegments = uiBucketSize - 1;
-    const ezUInt32 uiPrimFactor = 2;
-    const ezUInt32 uiMaxPrimitivesToRender = s_uiParticlesPerBatch * uiMaxTrailSegments * uiPrimFactor;
+    const WUInt32 uiBucketSize = WParticleTypeTrail::ComputeTrailPointBucketSize(pRenderData->m_uiMaxTrailPoints);
+    const WUInt32 uiMaxTrailSegments = uiBucketSize - 1;
+    const WUInt32 uiPrimFactor = 2;
+    const WUInt32 uiMaxPrimitivesToRender = s_uiParticlesPerBatch * uiMaxTrailSegments * uiPrimFactor;
 
 
-    pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, uiMaxPrimitivesToRender);
+    pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, uiMaxPrimitivesToRender);
 
-    const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
-    const ezTrailParticleShaderData* pParticleTrailData = pRenderData->m_TrailParticleData.GetPtr();
+    const WBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
+    const WTrailParticleShaderData* pParticleTrailData = pRenderData->m_TrailParticleData.GetPtr();
 
 
-    const ezVec4* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
+    const WVec4* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
 
     bindGroupMaterial.BindTexture("ParticleTexture", pRenderData->m_hTexture);
 
     systemConstants.SetGenericData(pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fNormalCurvature, pRenderData->m_fLightDirectionality, 0.1f, 0.5f, pRenderData->m_TextureAtlasOrientation.GetValue());
     systemConstants.SetTrailData(pRenderData->m_fSnapshotFraction, pRenderData->m_uiMaxTrailPoints);
 
-    ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
+    WUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
     while (uiNumParticles > 0)
     {
       // Request and bind new buffers for this batch
-      ezGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
-      ezGALBufferHandle hTrailDataBuffer = m_TrailDataBuffer.GetNewBuffer();
-      ezGALBufferHandle hActiveTrailPointsDataBuffer = m_pActiveTrailPointsDataBuffer->GetNewBuffer();
+      WGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
+      WGALBufferHandle hTrailDataBuffer = m_TrailDataBuffer.GetNewBuffer();
+      WGALBufferHandle hActiveTrailPointsDataBuffer = m_pActiveTrailPointsDataBuffer->GetNewBuffer();
 
-      ezBindGroupBuilder& bindGroupDraw = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+      WBindGroupBuilder& bindGroupDraw = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
       bindGroupDraw.BindBuffer("particleBaseData", hBaseDataBuffer);
       bindGroupDraw.BindBuffer("particleTrailData", hTrailDataBuffer);
       bindGroupDraw.BindBuffer("particlePointsData", hActiveTrailPointsDataBuffer);
 
       // upload this batch of particle data
-      const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
+      const WUInt32 uiNumParticlesInBatch = WMath::Min<WUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       uiNumParticles -= uiNumParticlesInBatch;
 
-      pGALCommandEncoder->UpdateBuffer(hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+      pGALCommandEncoder->UpdateBuffer(hBaseDataBuffer, 0, WMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray(), WGALUpdateMode::AheadOfTime);
       pParticleBaseData += uiNumParticlesInBatch;
 
-      pGALCommandEncoder->UpdateBuffer(hTrailDataBuffer, 0, ezMakeArrayPtr(pParticleTrailData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+      pGALCommandEncoder->UpdateBuffer(hTrailDataBuffer, 0, WMakeArrayPtr(pParticleTrailData, uiNumParticlesInBatch).ToByteArray(), WGALUpdateMode::AheadOfTime);
       pParticleTrailData += uiNumParticlesInBatch;
 
-      pGALCommandEncoder->UpdateBuffer(hActiveTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+      pGALCommandEncoder->UpdateBuffer(hActiveTrailPointsDataBuffer, 0, WMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray(), WGALUpdateMode::AheadOfTime);
       pParticlePointsData += uiNumParticlesInBatch * uiBucketSize;
 
       // do one drawcall
@@ -153,42 +153,42 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
   }
 }
 
-bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext& renderViewContext) const
+bool WParticleTrailRenderer::ConfigureShader(const WParticleTrailRenderData* pRenderData, const WRenderViewContext& renderViewContext) const
 {
   auto pRenderContext = renderViewContext.m_pRenderContext;
 
   switch (pRenderData->m_RenderMode)
   {
-    case ezParticleTypeRenderMode::Additive:
+    case WParticleTypeRenderMode::Additive:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_ADDITIVE");
       break;
-    case ezParticleTypeRenderMode::Blended:
-    case ezParticleTypeRenderMode::BlendedForeground:
-    case ezParticleTypeRenderMode::BlendedBackground:
+    case WParticleTypeRenderMode::Blended:
+    case WParticleTypeRenderMode::BlendedForeground:
+    case WParticleTypeRenderMode::BlendedBackground:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDED");
       break;
-    case ezParticleTypeRenderMode::Opaque:
+    case WParticleTypeRenderMode::Opaque:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
       break;
 
-    case ezParticleTypeRenderMode::Unused:
-    case ezParticleTypeRenderMode::Unused2:
+    case WParticleTypeRenderMode::Unused:
+    case WParticleTypeRenderMode::Unused2:
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   switch (pRenderData->m_LightingMode)
   {
-    case ezParticleLightingMode::Fullbright:
+    case WParticleLightingMode::Fullbright:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_LIGHTING_MODE", "PARTICLE_LIGHTING_MODE_FULLBRIGHT");
       break;
-    case ezParticleLightingMode::VertexLit:
+    case WParticleLightingMode::VertexLit:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_LIGHTING_MODE", "PARTICLE_LIGHTING_MODE_VERTEX_LIT");
       break;
   }
 
-  switch (ezParticleTypeTrail::ComputeTrailPointBucketSize(pRenderData->m_uiMaxTrailPoints))
+  switch (WParticleTypeTrail::ComputeTrailPointBucketSize(pRenderData->m_uiMaxTrailPoints))
   {
     case 8:
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "PARTICLE_TRAIL_POINTS_COUNT8");
@@ -214,4 +214,4 @@ bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* p
   return true;
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Trail_TrailRenderer);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Trail_TrailRenderer);

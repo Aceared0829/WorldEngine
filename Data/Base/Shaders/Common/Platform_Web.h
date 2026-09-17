@@ -1,14 +1,14 @@
 #pragma once
 
-#define PLATFORM_WEB EZ_OFF
+#define PLATFORM_WEB W_OFF
 
 #if defined(WGSL)
 
 #  undef PLATFORM_SHADER
-#  define PLATFORM_SHADER EZ_ON
+#  define PLATFORM_SHADER W_ON
 
 #  undef PLATFORM_WEB
-#  define PLATFORM_WEB EZ_ON
+#  define PLATFORM_WEB W_ON
 
 #  define BEGIN_PUSH_CONSTANTS(Name) cbuffer Name BIND_GROUP(BG_DRAW_CALL)
 #  define END_PUSH_CONSTANTS(Name) ;
@@ -18,10 +18,10 @@
 #  define END_MATERIAL_CONSTANTS ;
 #  define GetMaterialData(x) x
 
-#  define SUPPORTS_TEXEL_BUFFER EZ_OFF
-#  define SUPPORTS_MSAA_ARRAYS EZ_OFF
+#  define SUPPORTS_TEXEL_BUFFER W_OFF
+#  define SUPPORTS_MSAA_ARRAYS W_OFF
 
-#  define EZ_IMAGE_FORMAT(fmt)
+#  define W_IMAGE_FORMAT(fmt)
 
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.
 // https://learn.microsoft.com/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels
@@ -67,30 +67,30 @@ static const float2 offsets[] =
 
 // Workaround for error: EvaluateAttributeAtSample intrinsic function unimplemented
 // See https://github.com/microsoft/DirectXShaderCompiler/issues/3649
-float ezEvaluateAttributeAtSample(float Attribute, uint SampleIndex, uint NumMsaaSamples)
+float WEvaluateAttributeAtSample(float Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   float2 sampleOffset = offsets[NumMsaaSamples + SampleIndex - 1] * 0.125f;
   return Attribute + ddx(Attribute) * sampleOffset.x + ddy(Attribute) * sampleOffset.y;
 }
 
-float2 ezEvaluateAttributeAtSample(float2 Attribute, uint SampleIndex, uint NumMsaaSamples)
+float2 WEvaluateAttributeAtSample(float2 Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   float2 sampleOffset = offsets[NumMsaaSamples + SampleIndex - 1] * 0.125f;
   return Attribute + ddx(Attribute) * sampleOffset.x + ddy(Attribute) * sampleOffset.y;
 }
 
-float3 ezEvaluateAttributeAtSample(float3 Attribute, uint SampleIndex, uint NumMsaaSamples)
+float3 WEvaluateAttributeAtSample(float3 Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   float2 sampleOffset = offsets[NumMsaaSamples + SampleIndex - 1] * 0.125f;
   return Attribute + ddx(Attribute) * sampleOffset.x + ddy(Attribute) * sampleOffset.y;
 }
-float4 ezEvaluateAttributeAtSample(float4 Attribute, uint SampleIndex, uint NumMsaaSamples)
+float4 WEvaluateAttributeAtSample(float4 Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   float2 sampleOffset = offsets[NumMsaaSamples + SampleIndex - 1] * 0.125f;
   return Attribute + ddx(Attribute) * sampleOffset.x + ddy(Attribute) * sampleOffset.y;
 }
 
-float4 ezSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState DepthSampler, float2 SamplePos, int ArrayIndex, int MipLevel, float4 BorderColor)
+float4 WSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState DepthSampler, float2 SamplePos, int ArrayIndex, int MipLevel, float4 BorderColor)
 {
   // Get the texture size at the specified mip level
   uint width, height, elements, levels;

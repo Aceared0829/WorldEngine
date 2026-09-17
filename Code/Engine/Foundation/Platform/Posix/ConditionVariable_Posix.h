@@ -1,5 +1,5 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Time/Time.h>
@@ -8,38 +8,38 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <pthread.h>
 #include <sys/time.h>
 
-ezConditionVariable::ezConditionVariable()
+WConditionVariable::WConditionVariable()
 {
   pthread_cond_init(&m_Data.m_ConditionVariable, nullptr);
 }
 
-ezConditionVariable::~ezConditionVariable()
+WConditionVariable::~WConditionVariable()
 {
-  EZ_ASSERT_DEV(m_iLockCount == 0, "Thread-signal must be unlocked during destruction.");
+  W_ASSERT_DEV(m_iLockCount == 0, "Thread-signal must be unlocked during destruction.");
 
   pthread_cond_destroy(&m_Data.m_ConditionVariable);
 }
 
-void ezConditionVariable::SignalOne()
+void WConditionVariable::SignalOne()
 {
   pthread_cond_signal(&m_Data.m_ConditionVariable);
 }
 
-void ezConditionVariable::SignalAll()
+void WConditionVariable::SignalAll()
 {
   pthread_cond_broadcast(&m_Data.m_ConditionVariable);
 }
 
-void ezConditionVariable::UnlockWaitForSignalAndLock() const
+void WConditionVariable::UnlockWaitForSignalAndLock() const
 {
-  EZ_ASSERT_DEV(m_iLockCount > 0, "ezConditionVariable must be locked when calling UnlockWaitForSignalAndLock.");
+  W_ASSERT_DEV(m_iLockCount > 0, "WConditionVariable must be locked when calling UnlockWaitForSignalAndLock.");
 
   pthread_cond_wait(&m_Data.m_ConditionVariable, &m_Mutex.GetMutexHandle());
 }
 
-ezConditionVariable::WaitResult ezConditionVariable::UnlockWaitForSignalAndLock(ezTime timeout) const
+WConditionVariable::WaitResult WConditionVariable::UnlockWaitForSignalAndLock(WTime timeout) const
 {
-  EZ_ASSERT_DEV(m_iLockCount > 0, "ezConditionVariable must be locked when calling UnlockWaitForSignalAndLock.");
+  W_ASSERT_DEV(m_iLockCount > 0, "WConditionVariable must be locked when calling UnlockWaitForSignalAndLock.");
 
   // inside the lock
   --m_iLockCount;
@@ -50,10 +50,10 @@ ezConditionVariable::WaitResult ezConditionVariable::UnlockWaitForSignalAndLock(
   // pthread_cond_timedwait needs an absolute time value, so compute it from the current time.
   struct timespec timeToWait;
 
-  const ezInt64 iNanoSecondsPerSecond = 1000000000LL;
-  const ezInt64 iMicroSecondsPerNanoSecond = 1000LL;
+  const WInt64 iNanoSecondsPerSecond = 1000000000LL;
+  const WInt64 iMicroSecondsPerNanoSecond = 1000LL;
 
-  ezInt64 endTime = now.tv_sec * iNanoSecondsPerSecond + now.tv_usec * iMicroSecondsPerNanoSecond + static_cast<ezInt64>(timeout.GetNanoseconds());
+  WInt64 endTime = now.tv_sec * iNanoSecondsPerSecond + now.tv_usec * iMicroSecondsPerNanoSecond + static_cast<WInt64>(timeout.GetNanoseconds());
 
   timeToWait.tv_sec = endTime / iNanoSecondsPerSecond;
   timeToWait.tv_nsec = endTime % iNanoSecondsPerSecond;

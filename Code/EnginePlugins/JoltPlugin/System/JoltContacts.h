@@ -5,11 +5,11 @@
 #include <Jolt/Physics/Collision/ContactListener.h>
 #include <Jolt/Physics/SoftBody/SoftBodyContactListener.h>
 
-class ezWorld;
-class ezJoltTriggerComponent;
-class ezJoltContactEvents;
-class ezSurfaceResource;
-struct ezOnJoltContact;
+class WWorld;
+class WJoltTriggerComponent;
+class WJoltContactEvents;
+class WSurfaceResource;
+struct WOnJoltContact;
 
 namespace JPH
 {
@@ -19,15 +19,15 @@ namespace JPH
   class Body;
 } // namespace JPH
 
-class ezJoltContactEvents
+class WJoltContactEvents
 {
 public:
   struct InteractionContact
   {
-    ezVec3 m_vPosition;
-    ezVec3 m_vNormal;
-    const ezSurfaceResource* m_pSurface;
-    ezTempHashedString m_sInteraction;
+    WVec3 m_vPosition;
+    WVec3 m_vNormal;
+    const WSurfaceResource* m_pSurface;
+    WTempHashedString m_sInteraction;
     float m_fImpulseSqr;
     float m_fDistanceSqr;
   };
@@ -39,50 +39,50 @@ public:
     bool m_bStillRolling = false;
 
     float m_fDistanceSqr;
-    ezVec3 m_vContactPosition;
-    ezGameObjectHandle m_hSlidePrefab;
-    ezGameObjectHandle m_hRollPrefab;
-    ezHashedString m_sSlideInteractionPrefab;
-    ezHashedString m_sRollInteractionPrefab;
+    WVec3 m_vContactPosition;
+    WGameObjectHandle m_hSlidePrefab;
+    WGameObjectHandle m_hRollPrefab;
+    WHashedString m_sSlideInteractionPrefab;
+    WHashedString m_sRollInteractionPrefab;
   };
 
-  ezMutex m_Mutex;
-  ezWorld* m_pWorld = nullptr;
-  ezVec3 m_vMainCameraPosition = ezVec3::MakeZero();
-  ezHybridArray<InteractionContact, 8> m_InteractionContacts; // these are spawned PER FRAME, so only a low number is necessary
-  ezHybridArray<SlideAndRollInfo, 4> m_SlidingOrRollingActors;
+  WMutex m_Mutex;
+  WWorld* m_pWorld = nullptr;
+  WVec3 m_vMainCameraPosition = WVec3::MakeZero();
+  WHybridArray<InteractionContact, 8> m_InteractionContacts; // these are spawned PER FRAME, so only a low number is necessary
+  WHybridArray<SlideAndRollInfo, 4> m_SlidingOrRollingActors;
 
-  SlideAndRollInfo* FindSlideOrRollInfo(const JPH::Body* pBody, const ezVec3& vAvgPos);
+  SlideAndRollInfo* FindSlideOrRollInfo(const JPH::Body* pBody, const WVec3& vAvgPos);
 
-  void OnContact_SlideReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal);
+  void OnContact_SlideReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, WBitflags<WOnJoltContact> onContact0, WBitflags<WOnJoltContact> onContact1, const WVec3& vAvgPos, const WVec3& vAvgNormal);
 
-  void OnContact_RollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0);
+  void OnContact_RollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, WBitflags<WOnJoltContact> onContact0, WBitflags<WOnJoltContact> onContact1, const WVec3& vAvgPos, const WVec3& vAvgNormal0);
 
-  void OnContact_ImpactReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const ezSurfaceResource* pSurface1, const ezSurfaceResource* pSurface2, bool bActor1StaticOrKinematic);
-  void OnContact_SlideAndRollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnJoltContact> combinedContactFlags);
+  void OnContact_ImpactReaction(const WVec3& vAvgPos, const WVec3& vAvgNormal, float fMaxImpactSqr, const WSurfaceResource* pSurface1, const WSurfaceResource* pSurface2, bool bActor1StaticOrKinematic);
+  void OnContact_SlideAndRollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, WBitflags<WOnJoltContact> onContact0, WBitflags<WOnJoltContact> onContact1, const WVec3& vAvgPos, const WVec3& vAvgNormal, WBitflags<WOnJoltContact> combinedContactFlags);
 
   void SpawnPhysicsImpactReactions();
   void UpdatePhysicsSlideReactions();
   void UpdatePhysicsRollReactions();
 };
 
-class ezJoltContactListener : public JPH::ContactListener
+class WJoltContactListener : public JPH::ContactListener
 {
 public:
-  ezWorld* m_pWorld = nullptr;
-  ezJoltContactEvents m_ContactEvents;
+  WWorld* m_pWorld = nullptr;
+  WJoltContactEvents m_ContactEvents;
 
   struct TriggerObj
   {
-    const ezJoltTriggerComponent* m_pTrigger = nullptr;
-    ezGameObjectHandle m_hTarget;
-    ezInt32 m_iTriggerCount = 0;
+    const WJoltTriggerComponent* m_pTrigger = nullptr;
+    WGameObjectHandle m_hTarget;
+    WInt32 m_iTriggerCount = 0;
   };
 
-  ezMutex m_TriggerMutex;
-  ezMap<ezUInt64, TriggerObj> m_Trigs;
+  WMutex m_TriggerMutex;
+  WMap<WUInt64, TriggerObj> m_Trigs;
 
-  void RemoveTrigger(const ezJoltTriggerComponent* pTrigger);
+  void RemoveTrigger(const WJoltTriggerComponent* pTrigger);
 
   virtual void OnContactAdded(const JPH::Body& body1, const JPH::Body& body2, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings) override;
   virtual void OnContactPersisted(const JPH::Body& body1, const JPH::Body& body2, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings) override;
@@ -91,12 +91,12 @@ public:
 
   void OnContact(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings, bool bPersistent, bool bIsDebrisContact);
 
-  bool ActivateTrigger(const JPH::Body& body1, const JPH::Body& body2, ezUInt64 uiBody1id, ezUInt64 uiBody2id);
+  bool ActivateTrigger(const JPH::Body& body1, const JPH::Body& body2, WUInt64 uiBody1id, WUInt64 uiBody2id);
 
-  void DeactivateTrigger(ezUInt64 uiBody1id, ezUInt64 uiBody2id);
+  void DeactivateTrigger(WUInt64 uiBody1id, WUInt64 uiBody2id);
 };
 
-class ezJoltSoftBodyContactListener : public JPH::SoftBodyContactListener
+class WJoltSoftBodyContactListener : public JPH::SoftBodyContactListener
 {
 public:
   virtual JPH::SoftBodyValidateResult OnSoftBodyContactValidate(const JPH::Body& softBody, const JPH::Body& otherBody, JPH::SoftBodyContactSettings& ref_settings) override;

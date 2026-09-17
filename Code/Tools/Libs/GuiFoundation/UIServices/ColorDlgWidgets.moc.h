@@ -4,11 +4,11 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QWidget>
 
-class EZ_GUIFOUNDATION_DLL ezQtColorAreaWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtColorAreaWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtColorAreaWidget(QWidget* pParent);
+  WQtColorAreaWidget(QWidget* pParent);
 
   float GetHue() const { return m_fHue; }
   void SetHue(float fHue);
@@ -35,11 +35,11 @@ protected:
   float m_fValue;
 };
 
-class EZ_GUIFOUNDATION_DLL ezQtColorRangeWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtColorRangeWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtColorRangeWidget(QWidget* pParent);
+  WQtColorRangeWidget(QWidget* pParent);
 
   float GetHue() const { return m_fHue; }
   void SetHue(float fHue);
@@ -58,18 +58,18 @@ protected:
   float m_fHue;
 };
 
-class EZ_GUIFOUNDATION_DLL ezQtColorCompareWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtColorCompareWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtColorCompareWidget(QWidget* pParent);
+  WQtColorCompareWidget(QWidget* pParent);
 
-  void SetNewColor(const ezColor& color);
-  void SetInitialColor(const ezColor& color);
+  void SetNewColor(const WColor& color);
+  void SetInitialColor(const WColor& color);
 
 protected:
   virtual void paintEvent(QPaintEvent*) override;
 
-  ezColor m_InitialColor;
-  ezColor m_NewColor;
+  WColor m_InitialColor;
+  WColor m_NewColor;
 };

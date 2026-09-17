@@ -16,49 +16,49 @@
 #include <ozz/base/span.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodAnimatedMeshLod, ezNoBase, 2, ezRTTIDefaultAllocator<ezLodAnimatedMeshLod>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WLodAnimatedMeshLod, WNoBase, 2, WRTTIDefaultAllocator<WLodAnimatedMeshLod>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Mesh", m_hMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned"), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("Threshold", m_fThreshold)
+    W_RESOURCE_MEMBER_PROPERTY("Mesh", m_hMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned"), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("Threshold", m_fThreshold)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezLodAnimatedMeshComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WLodAnimatedMeshComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
-    EZ_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
-    EZ_MEMBER_PROPERTY("BoundsOffset", m_vBoundsOffset),
-    EZ_MEMBER_PROPERTY("BoundsRadius", m_fBoundsRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
-    EZ_ACCESSOR_PROPERTY("OverlapRanges", GetOverlapRanges, SetOverlapRanges)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ARRAY_MEMBER_PROPERTY("Meshes", m_Meshes),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new WDefaultValueAttribute(WVec4(0, 1, 0, 1))),
+    W_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
+    W_MEMBER_PROPERTY("BoundsOffset", m_vBoundsOffset),
+    W_MEMBER_PROPERTY("BoundsRadius", m_fBoundsRadius)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, 100.0f)),
+    W_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    W_ACCESSOR_PROPERTY("OverlapRanges", GetOverlapRanges, SetOverlapRanges)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ARRAY_MEMBER_PROPERTY("Meshes", m_Meshes),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Animation"),
-    new ezSphereVisualizerAttribute("BoundsRadius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "BoundsOffset"),
-    new ezTransformManipulatorAttribute("BoundsOffset"),
+    new WCategoryAttribute("Animation"),
+    new WSphereVisualizerAttribute("BoundsRadius", WColor::MediumVioletRed, nullptr, WVisualizerAnchor::Center, WVec3(1.0f), "BoundsOffset"),
+    new WTransformManipulatorAttribute("BoundsOffset"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
-    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
-    EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgSetColor, OnMsgSetColor),
+    W_MESSAGE_HANDLER(WMsgSetCustomData, OnMsgSetCustomData),
+    W_MESSAGE_HANDLER(WMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
+    W_MESSAGE_HANDLER(WMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
 struct LodAnimatedMeshCompFlags
@@ -70,33 +70,33 @@ struct LodAnimatedMeshCompFlags
   };
 };
 
-ezLodAnimatedMeshComponent::ezLodAnimatedMeshComponent() = default;
-ezLodAnimatedMeshComponent::~ezLodAnimatedMeshComponent() = default;
+WLodAnimatedMeshComponent::WLodAnimatedMeshComponent() = default;
+WLodAnimatedMeshComponent::~WLodAnimatedMeshComponent() = default;
 
-void ezLodAnimatedMeshComponent::SetShowDebugInfo(bool bShow)
+void WLodAnimatedMeshComponent::SetShowDebugInfo(bool bShow)
 {
   SetUserFlag(LodAnimatedMeshCompFlags::ShowDebugInfo, bShow);
 }
 
-bool ezLodAnimatedMeshComponent::GetShowDebugInfo() const
+bool WLodAnimatedMeshComponent::GetShowDebugInfo() const
 {
   return GetUserFlag(LodAnimatedMeshCompFlags::ShowDebugInfo);
 }
 
-void ezLodAnimatedMeshComponent::SetOverlapRanges(bool bShow)
+void WLodAnimatedMeshComponent::SetOverlapRanges(bool bShow)
 {
   SetUserFlag(LodAnimatedMeshCompFlags::OverlapRanges, bShow);
 }
 
-bool ezLodAnimatedMeshComponent::GetOverlapRanges() const
+bool WLodAnimatedMeshComponent::GetOverlapRanges() const
 {
   return GetUserFlag(LodAnimatedMeshCompFlags::OverlapRanges);
 }
 
-void ezLodAnimatedMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WLodAnimatedMeshComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_Meshes.GetCount();
   for (const auto& mesh : m_Meshes)
@@ -114,14 +114,14 @@ void ezLodAnimatedMeshComponent::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_vCustomData;
 }
 
-void ezLodAnimatedMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WLodAnimatedMeshComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
-  ezUInt32 uiMeshes = 0;
+  WUInt32 uiMeshes = 0;
   s >> uiMeshes;
 
   m_Meshes.SetCount(uiMeshes);
@@ -144,24 +144,24 @@ void ezLodAnimatedMeshComponent::DeserializeComponent(ezWorldReader& inout_strea
   }
 }
 
-ezResult ezLodAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WLodAnimatedMeshComponent::GetLocalBounds(WBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
-  out_bounds = ezBoundingSphere::MakeFromCenterAndRadius(m_vBoundsOffset, m_fBoundsRadius);
+  out_bounds = WBoundingSphere::MakeFromCenterAndRadius(m_vBoundsOffset, m_fBoundsRadius);
   out_bAlwaysVisible = false;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WLodAnimatedMeshComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (m_Meshes.IsEmpty())
     return;
 
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::EditorView || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::MainView)
   {
     UpdateSelectedLod(*msg.m_pView);
   }
 
-  if (m_iCurLod >= (ezInt32)m_Meshes.GetCount())
+  if (m_iCurLod >= (WInt32)m_Meshes.GetCount())
     return;
 
   auto hMesh = m_Meshes[m_iCurLod].m_hMesh;
@@ -171,24 +171,24 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
 
   // Force dynamic instance data buffer since the render data is not cached, so we would trash the static instance data buffer every frame.
   const bool bDynamic = true;
-  const ezTransform finalTransform = GetOwner()->GetGlobalTransform() * m_RootTransform;
+  const WTransform finalTransform = GetOwner()->GetGlobalTransform() * m_RootTransform;
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, finalTransform, m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color, m_vCustomData);
 
-  ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
+  WResourceLock<WMeshResource> pMesh(hMesh, WResourceAcquireMode::AllowLoadingFallback);
+  WArrayPtr<const WMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
-  for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
+  for (WUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
-    const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-    ezMaterialResourceHandle hMaterial;
+    const WUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
+    WMaterialResourceHandle hMaterial;
 
     hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezSkinnedMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+    WSkinnedMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WSkinnedMeshRenderData>(GetOwner());
     {
       // Already done in CreateRenderDataForThisFrame but only with the owner's transform. We need to use the final transform here.
       pRenderData->m_vGlobalPosition = finalTransform.m_vPosition;
-      pRenderData->m_Flags.AddOrRemove(ezRenderData::Flags::FlipWinding, finalTransform.HasMirrorScaling());
+      pRenderData->m_Flags.AddOrRemove(WRenderData::Flags::FlipWinding, finalTransform.HasMirrorScaling());
 
       pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
       pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
@@ -198,13 +198,13 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
       pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiMaterialIndex, uiPartIndex);
     }
 
-    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial);
+    WRenderData::Category category = WMaterialResource::GetRenderDataCategory(hMaterial);
 
-    msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+    msg.AddRenderData(pRenderData, category, WRenderData::Caching::Never);
   }
 }
 
-void ezLodAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds)
+void WLodAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const WHashTable<WHashedString, WMeshResourceDescriptor::BoneData>& bones, const WSkeleton& skeleton, WArrayPtr<const WMat4> modelSpaceTransforms, WBoundingBox* bounds)
 {
   auto boneTransforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, bones.GetCount());
 
@@ -212,9 +212,9 @@ void ezLodAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTa
   {
     for (auto itBone : bones)
     {
-      const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+      const WUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
 
-      if (uiJointIdx == ezInvalidJointIndex)
+      if (uiJointIdx == WInvalidJointIndex)
         continue;
 
       bounds->ExpandToInclude(modelSpaceTransforms[uiJointIdx].GetTranslationVector());
@@ -225,9 +225,9 @@ void ezLodAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTa
   {
     for (auto itBone : bones)
     {
-      const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+      const WUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
 
-      if (uiJointIdx == ezInvalidJointIndex)
+      if (uiJointIdx == WInvalidJointIndex)
         continue;
 
       boneTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
@@ -235,57 +235,57 @@ void ezLodAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTa
   }
 }
 
-void ezLodAnimatedMeshComponent::SetColor(const ezColor& color)
+void WLodAnimatedMeshComponent::SetColor(const WColor& color)
 {
   m_Color = color;
 
   InvalidateCachedRenderData();
 }
 
-const ezColor& ezLodAnimatedMeshComponent::GetColor() const
+const WColor& WLodAnimatedMeshComponent::GetColor() const
 {
   return m_Color;
 }
 
-void ezLodAnimatedMeshComponent::SetCustomData(const ezVec4& vData)
+void WLodAnimatedMeshComponent::SetCustomData(const WVec4& vData)
 {
   m_vCustomData = vData;
 
   InvalidateCachedRenderData();
 }
 
-const ezVec4& ezLodAnimatedMeshComponent::GetCustomData() const
+const WVec4& WLodAnimatedMeshComponent::GetCustomData() const
 {
   return m_vCustomData;
 }
 
-void ezLodAnimatedMeshComponent::SetSortingDepthOffset(float fOffset)
+void WLodAnimatedMeshComponent::SetSortingDepthOffset(float fOffset)
 {
   m_fSortingDepthOffset = fOffset;
 
   InvalidateCachedRenderData();
 }
 
-float ezLodAnimatedMeshComponent::GetSortingDepthOffset() const
+float WLodAnimatedMeshComponent::GetSortingDepthOffset() const
 {
   return m_fSortingDepthOffset;
 }
 
-void ezLodAnimatedMeshComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
+void WLodAnimatedMeshComponent::OnMsgSetColor(WMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_Color);
 
   InvalidateCachedRenderData();
 }
 
-void ezLodAnimatedMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
+void WLodAnimatedMeshComponent::OnMsgSetCustomData(WMsgSetCustomData& ref_msg)
 {
   m_vCustomData = ref_msg.m_vData;
 
   InvalidateCachedRenderData();
 }
 
-void ezLodAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton)
+void WLodAnimatedMeshComponent::RetrievePose(WDynamicArray<WMat4>& out_modelTransforms, WTransform& out_rootTransform, const WSkeleton& skeleton)
 {
   out_modelTransforms.Clear();
 
@@ -299,48 +299,48 @@ void ezLodAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelT
 
   out_rootTransform = m_RootTransform;
 
-  ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WMeshResource> pMesh(hMesh, WResourceAcquireMode::BlockTillLoaded);
 
-  const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
+  const WHashTable<WHashedString, WMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
   auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
 
-  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
+  out_modelTransforms.SetCount(skeleton.GetJointCount(), WMat4::MakeIdentity());
 
   for (auto itBone : bones)
   {
-    const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+    const WUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
 
-    if (uiJointIdx == ezInvalidJointIndex)
+    if (uiJointIdx == WInvalidJointIndex)
       continue;
 
     out_modelTransforms[uiJointIdx] = boneTransforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
   }
 }
 
-static float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)
+static float CalculateSphereScreenSpaceCoverage(const WBoundingSphere& sphere, const WCamera& camera)
 {
   if (camera.IsPerspective())
   {
-    return ezGraphicsUtils::CalculateSphereScreenCoverage(sphere, camera.GetCenterPosition(), camera.GetFovY(1.0f));
+    return WGraphicsUtils::CalculateSphereScreenCoverage(sphere, camera.GetCenterPosition(), camera.GetFovY(1.0f));
   }
   else
   {
-    return ezGraphicsUtils::CalculateSphereScreenCoverage(sphere.m_fRadius, camera.GetDimensionY(1.0f));
+    return WGraphicsUtils::CalculateSphereScreenCoverage(sphere.m_fRadius, camera.GetDimensionY(1.0f));
   }
 }
 
-void ezLodAnimatedMeshComponent::UpdateSelectedLod(const ezView& view) const
+void WLodAnimatedMeshComponent::UpdateSelectedLod(const WView& view) const
 {
-  const ezInt32 iNumLods = (ezInt32)m_Meshes.GetCount();
+  const WInt32 iNumLods = (WInt32)m_Meshes.GetCount();
 
-  const ezVec3 vScale = GetOwner()->GetGlobalScaling();
-  const float fScale = ezMath::Max(vScale.x, vScale.y, vScale.z);
-  const ezVec3 vCenter = GetOwner()->GetGlobalTransform() * m_vBoundsOffset;
+  const WVec3 vScale = GetOwner()->GetGlobalScaling();
+  const float fScale = WMath::Max(vScale.x, vScale.y, vScale.z);
+  const WVec3 vCenter = GetOwner()->GetGlobalTransform() * m_vBoundsOffset;
 
-  const float fCoverage = CalculateSphereScreenSpaceCoverage(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *view.GetLodCamera()) * ezMath::Max(0.0f, (float)cvar_RenderingLodCoverageScale);
+  const float fCoverage = CalculateSphereScreenSpaceCoverage(WBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *view.GetLodCamera()) * WMath::Max(0.0f, (float)cvar_RenderingLodCoverageScale);
 
   // clamp the input value, this is to prevent issues while editing the threshold array
-  ezInt32 iNewLod = ezMath::Clamp<ezInt32>(m_iCurLod, 0, iNumLods);
+  WInt32 iNewLod = WMath::Clamp<WInt32>(m_iCurLod, 0, iNumLods);
 
   float fCoverageP = 1;
   float fCoverageN = 0;
@@ -380,34 +380,34 @@ void ezLodAnimatedMeshComponent::UpdateSelectedLod(const ezView& view) const
     --iNewLod;
   }
 
-  iNewLod = ezMath::Clamp(iNewLod, 0, iNumLods);
+  iNewLod = WMath::Clamp(iNewLod, 0, iNumLods);
 
   if (cvar_RenderingLodForce >= 0)
   {
-    iNewLod = ezMath::Min<ezInt32>(cvar_RenderingLodForce, iNumLods - 1);
+    iNewLod = WMath::Min<WInt32>(cvar_RenderingLodForce, iNumLods - 1);
   }
 
   m_iCurLod = iNewLod;
 
   if (GetShowDebugInfo())
   {
-    ezStringBuilder sb;
-    sb.SetFormat("Coverage: {}\nLOD {}\nRange: {} - {}", ezArgF(fCoverage, 3), iNewLod, ezArgF(fCoverageP, 3), ezArgF(fCoverageN, 3));
-    ezDebugRenderer::Draw3DText(view.GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::White);
+    WStringBuilder sb;
+    sb.SetFormat("Coverage: {}\nLOD {}\nRange: {} - {}", WArgF(fCoverage, 3), iNewLod, WArgF(fCoverageP, 3), WArgF(fCoverageN, 3));
+    WDebugRenderer::Draw3DText(view.GetHandle(), sb, GetOwner()->GetGlobalPosition(), WColor::White);
   }
 }
 
-void ezLodAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
+void WLodAnimatedMeshComponent::OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& msg)
 {
   if (m_Meshes.IsEmpty() || !m_Meshes[0].m_hMesh.IsValid())
     return;
 
   m_RootTransform = *msg.m_pRootTransform;
 
-  ezResourceLock<ezMeshResource> pMesh(m_Meshes[0].m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WMeshResource> pMesh(m_Meshes[0].m_hMesh, WResourceAcquireMode::BlockTillLoaded);
 
-  ezBoundingBox poseBounds;
-  poseBounds = ezBoundingBox::MakeInvalid();
+  WBoundingBox poseBounds;
+  poseBounds = WBoundingBox::MakeInvalid();
   MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
 
   if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
@@ -415,56 +415,56 @@ void ezLodAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdate
     m_MaxBounds.ExpandToInclude(poseBounds);
     TriggerLocalBoundsUpdate();
   }
-  else if (((ezRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (EZ_BIT(10) - 1)) == 0) // reset the bbox every once in a while
+  else if (((WRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (W_BIT(10) - 1)) == 0) // reset the bbox every once in a while
   {
     m_MaxBounds = poseBounds;
     TriggerLocalBoundsUpdate();
   }
 }
 
-void ezLodAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
+void WLodAnimatedMeshComponent::OnQueryAnimationSkeleton(WMsgQueryAnimationSkeleton& msg)
 {
   if (m_Meshes.IsEmpty() || !m_Meshes[0].m_hMesh.IsValid())
     return;
 
   if (!msg.m_hSkeleton.IsValid())
   {
-    // only overwrite, if no one else had a better skeleton (e.g. the ezSkeletonComponent)
+    // only overwrite, if no one else had a better skeleton (e.g. the WSkeletonComponent)
 
-    ezResourceLock<ezMeshResource> pMesh(m_Meshes[0].m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
-    if (pMesh.GetAcquireResult() == ezResourceAcquireResult::Final)
+    WResourceLock<WMeshResource> pMesh(m_Meshes[0].m_hMesh, WResourceAcquireMode::BlockTillLoaded);
+    if (pMesh.GetAcquireResult() == WResourceAcquireResult::Final)
     {
       msg.m_hSkeleton = pMesh->m_hDefaultSkeleton;
     }
   }
 }
 
-void ezLodAnimatedMeshComponent::OnActivated()
+void WLodAnimatedMeshComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   InitializeAnimationPose();
 }
 
-void ezLodAnimatedMeshComponent::OnDeactivated()
+void WLodAnimatedMeshComponent::OnDeactivated()
 {
   m_SkinningState.Clear();
 
-  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  WRenderDataManager* pRenderDataManager = GetWorld()->GetModule<WRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   SUPER::OnDeactivated();
 }
 
-void ezLodAnimatedMeshComponent::InitializeAnimationPose()
+void WLodAnimatedMeshComponent::InitializeAnimationPose()
 {
-  m_MaxBounds = ezBoundingBox::MakeInvalid();
+  m_MaxBounds = WBoundingBox::MakeInvalid();
 
   if (m_Meshes.IsEmpty() || !m_Meshes[0].m_hMesh.IsValid())
     return;
 
-  ezResourceLock<ezMeshResource> pMesh(m_Meshes[0].m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
-  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WMeshResource> pMesh(m_Meshes[0].m_hMesh, WResourceAcquireMode::BlockTillLoaded);
+  if (pMesh.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   m_hDefaultSkeleton = pMesh->m_hDefaultSkeleton;
@@ -473,17 +473,17 @@ void ezLodAnimatedMeshComponent::InitializeAnimationPose()
   if (!hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WSkeletonResource> pSkeleton(hSkeleton, WResourceAcquireMode::BlockTillLoaded);
+  if (pSkeleton.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   {
     const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-    const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
+    const WUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
 
-    ezTempArray<ozz::math::Float4x4> poseMatrices;
+    WTempArray<ozz::math::Float4x4> poseMatrices;
     poseMatrices.SetCountUninitialized(uiNumSkeletonJoints);
-    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
+    W_ASSERT_DEBUG(WMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
     {
       ozz::animation::LocalToModelJob job;
       job.input = pOzzSkeleton->joint_rest_poses();
@@ -492,8 +492,8 @@ void ezLodAnimatedMeshComponent::InitializeAnimationPose()
       job.Run();
     }
 
-    ezMsgAnimationPoseUpdated msg;
-    msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const ezMat4>();
+    WMsgAnimationPoseUpdated msg;
+    msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const WMat4>();
     msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
 
@@ -506,31 +506,31 @@ void ezLodAnimatedMeshComponent::InitializeAnimationPose()
 //////////////////////////////////////////////////////////////////////////
 
 
-ezLodAnimatedMeshComponentManager::ezLodAnimatedMeshComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
+WLodAnimatedMeshComponentManager::WLodAnimatedMeshComponentManager(WWorld* pWorld)
+  : WComponentManager<ComponentType, WBlockStorageType::FreeList>(pWorld)
 {
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezLodAnimatedMeshComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WLodAnimatedMeshComponentManager::ResourceEventHandler, this));
 }
 
-ezLodAnimatedMeshComponentManager::~ezLodAnimatedMeshComponentManager()
+WLodAnimatedMeshComponentManager::~WLodAnimatedMeshComponentManager()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezLodAnimatedMeshComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WLodAnimatedMeshComponentManager::ResourceEventHandler, this));
 }
 
-void ezLodAnimatedMeshComponentManager::Initialize()
+void WLodAnimatedMeshComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezLodAnimatedMeshComponentManager::Update, this);
+  auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WLodAnimatedMeshComponentManager::Update, this);
 
   RegisterUpdateFunction(desc);
 }
 
-void ezLodAnimatedMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+void WLodAnimatedMeshComponentManager::ResourceEventHandler(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading)
   {
-    if (ezMeshResource* pResource = ezDynamicCast<ezMeshResource*>(e.m_pResource))
+    if (WMeshResource* pResource = WDynamicCast<WMeshResource*>(e.m_pResource))
     {
-      ezMeshResourceHandle hMesh(pResource);
+      WMeshResourceHandle hMesh(pResource);
 
       for (auto it = GetComponents(); it.IsValid(); it.Next())
       {
@@ -544,9 +544,9 @@ void ezLodAnimatedMeshComponentManager::ResourceEventHandler(const ezResourceEve
       }
     }
 
-    if (ezSkeletonResource* pResource = ezDynamicCast<ezSkeletonResource*>(e.m_pResource))
+    if (WSkeletonResource* pResource = WDynamicCast<WSkeletonResource*>(e.m_pResource))
     {
-      ezSkeletonResourceHandle hSkeleton(pResource);
+      WSkeletonResourceHandle hSkeleton(pResource);
 
       for (auto it = GetComponents(); it.IsValid(); it.Next())
       {
@@ -559,11 +559,11 @@ void ezLodAnimatedMeshComponentManager::ResourceEventHandler(const ezResourceEve
   }
 }
 
-void ezLodAnimatedMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WLodAnimatedMeshComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
   for (auto hComp : m_ComponentsToUpdate)
   {
-    ezLodAnimatedMeshComponent* pComponent = nullptr;
+    WLodAnimatedMeshComponent* pComponent = nullptr;
     if (!TryGetComponent(hComp, pComponent))
       continue;
 
@@ -576,15 +576,15 @@ void ezLodAnimatedMeshComponentManager::Update(const ezWorldModule::UpdateContex
   m_ComponentsToUpdate.Clear();
 }
 
-void ezLodAnimatedMeshComponentManager::AddToUpdateList(ezLodAnimatedMeshComponent* pComponent)
+void WLodAnimatedMeshComponentManager::AddToUpdateList(WLodAnimatedMeshComponent* pComponent)
 {
-  ezComponentHandle hComponent = pComponent->GetHandle();
+  WComponentHandle hComponent = pComponent->GetHandle();
 
-  if (m_ComponentsToUpdate.IndexOf(hComponent) == ezInvalidIndex)
+  if (m_ComponentsToUpdate.IndexOf(hComponent) == WInvalidIndex)
   {
     m_ComponentsToUpdate.PushBack(hComponent);
   }
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_LodAnimatedMeshComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_LodAnimatedMeshComponent);

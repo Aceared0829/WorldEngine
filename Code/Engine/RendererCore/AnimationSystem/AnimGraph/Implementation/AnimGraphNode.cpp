@@ -6,38 +6,38 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNode, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimGraphNode, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CustomTitle", GetCustomNodeTitle, SetCustomNodeTitle),
+    W_ACCESSOR_PROPERTY("CustomTitle", GetCustomNodeTitle, SetCustomNodeTitle),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimGraphNode::ezAnimGraphNode() = default;
-ezAnimGraphNode::~ezAnimGraphNode() = default;
+WAnimGraphNode::WAnimGraphNode() = default;
+WAnimGraphNode::~WAnimGraphNode() = default;
 
-ezResult ezAnimGraphNode::SerializeNode(ezStreamWriter& stream) const
+WResult WAnimGraphNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
   // no need to serialize this, not used at runtime
   // stream << m_CustomNodeTitle;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezAnimGraphNode::DeserializeNode(ezStreamReader& stream)
+WResult WAnimGraphNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
   // no need to serialize this, not used at runtime
   // stream >> m_CustomNodeTitle;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphNode);

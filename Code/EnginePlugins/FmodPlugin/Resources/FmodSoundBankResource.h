@@ -3,34 +3,34 @@
 #include <Core/ResourceManager/Resource.h>
 #include <FmodPlugin/FmodPluginDLL.h>
 
-using ezFmodSoundBankResourceHandle = ezTypedResourceHandle<class ezFmodSoundBankResource>;
+using WFmodSoundBankResourceHandle = WTypedResourceHandle<class WFmodSoundBankResource>;
 
-struct EZ_FMODPLUGIN_DLL ezFmodSoundBankResourceDescriptor
+struct W_FMODPLUGIN_DLL WFmodSoundBankResourceDescriptor
 {
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_FMODPLUGIN_DLL ezFmodSoundBankResource : public ezResource
+class W_FMODPLUGIN_DLL WFmodSoundBankResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFmodSoundBankResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezFmodSoundBankResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezFmodSoundBankResource, ezFmodSoundBankResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WFmodSoundBankResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WFmodSoundBankResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WFmodSoundBankResource, WFmodSoundBankResourceDescriptor);
 
 public:
-  ezFmodSoundBankResource();
-  ~ezFmodSoundBankResource();
+  WFmodSoundBankResource();
+  ~WFmodSoundBankResource();
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
   FMOD::Studio::Bank* m_pSoundBank = nullptr;
-  ezDataBuffer* m_pSoundBankData = nullptr;
+  WDataBuffer* m_pSoundBankData = nullptr;
 };
 
-class EZ_FMODPLUGIN_DLL ezFmodSoundBankResourceLoader : public ezResourceTypeLoader
+class W_FMODPLUGIN_DLL WFmodSoundBankResourceLoader : public WResourceTypeLoader
 {
 public:
   struct LoadedData
@@ -40,13 +40,13 @@ public:
     {
     }
 
-    ezDefaultMemoryStreamStorage m_Storage;
-    ezMemoryStreamReader m_Reader;
+    WDefaultMemoryStreamStorage m_Storage;
+    WMemoryStreamReader m_Reader;
     FMOD::Studio::Bank* m_pSoundBank = nullptr;
-    ezDataBuffer* m_pSoundbankData = nullptr;
+    WDataBuffer* m_pSoundbankData = nullptr;
   };
 
-  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
-  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
+  virtual WResourceLoadData OpenDataStream(const WResource* pResource) override;
+  virtual void CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData) override;
+  virtual bool IsResourceOutdated(const WResource* pResource) const override;
 };

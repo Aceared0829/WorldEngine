@@ -72,12 +72,12 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "FileDescription", "ezEngine Editor"
+            VALUE "FileDescription", "WorldEngine Editor"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "ezEditor"
+            VALUE "InternalName", "WEditor"
             VALUE "LegalCopyright", "Copyright (C) ezEngine Project"
-            VALUE "OriginalFilename", "ezEditor.exe"
-            VALUE "ProductName", "ezEditor"
+            VALUE "OriginalFilename", "WEditor.exe"
+            VALUE "ProductName", "WorldEngine"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END

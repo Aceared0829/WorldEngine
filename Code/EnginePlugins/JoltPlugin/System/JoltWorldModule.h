@@ -16,14 +16,14 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 
-class ezJoltCharacterControllerComponent;
-class ezJoltContactListener;
-class ezJoltMaterial;
-class ezJoltSoftBodyContactListener;
-class ezJoltRagdollComponent;
-class ezJoltRopeComponent;
-class ezJoltBreakableSlabComponent;
-class ezView;
+class WJoltCharacterControllerComponent;
+class WJoltContactListener;
+class WJoltMaterial;
+class WJoltSoftBodyContactListener;
+class WJoltRagdollComponent;
+class WJoltRopeComponent;
+class WJoltBreakableSlabComponent;
+class WView;
 
 namespace JPH
 {
@@ -36,13 +36,13 @@ namespace JPH
   class BodyInterface;
 } // namespace JPH
 
-struct ezJoltImpulse
+struct WJoltImpulse
 {
-  ezUInt32 m_uiBodyID;
-  ezVec3 m_vImpulse;
-  ezVec3 m_vGlobalPosition;
+  WUInt32 m_uiBodyID;
+  WVec3 m_vImpulse;
+  WVec3 m_vGlobalPosition;
 
-  enum class Type : ezUInt8
+  enum class Type : WUInt8
   {
     Center,
     AtGlobalPos,
@@ -52,23 +52,23 @@ struct ezJoltImpulse
   Type m_Type;
 };
 
-struct ezJoltForce
+struct WJoltForce
 {
-  ezUInt32 m_uiBodyID;
-  ezTime m_tDisable;
-  ezVec3 m_vForce;
+  WUInt32 m_uiBodyID;
+  WTime m_tDisable;
+  WVec3 m_vForce;
 };
 
-using ezJoltForceId = ezGenericId<24, 8>;
+using WJoltForceId = WGenericId<24, 8>;
 
-class EZ_JOLTPLUGIN_DLL ezJoltWorldModule : public ezPhysicsWorldModuleInterface
+class W_JOLTPLUGIN_DLL WJoltWorldModule : public WPhysicsWorldModuleInterface
 {
-  EZ_DECLARE_WORLD_MODULE();
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltWorldModule, ezPhysicsWorldModuleInterface);
+  W_DECLARE_WORLD_MODULE();
+  W_ADD_DYNAMIC_REFLECTION(WJoltWorldModule, WPhysicsWorldModuleInterface);
 
 public:
-  ezJoltWorldModule(ezWorld* pWorld);
-  ~ezJoltWorldModule();
+  WJoltWorldModule(WWorld* pWorld);
+  ~WJoltWorldModule();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
@@ -79,25 +79,25 @@ public:
 
   JPH::BodyInterface& GetBodyInterface() { return m_pSystem->GetBodyInterface(); }
 
-  ezUInt32 CreateObjectFilterID();
-  void DeleteObjectFilterID(ezUInt32& ref_uiObjectFilterID);
+  WUInt32 CreateObjectFilterID();
+  void DeleteObjectFilterID(WUInt32& ref_uiObjectFilterID);
 
-  ezUInt32 AllocateUserData(ezJoltUserData*& out_pUserData);
-  void DeallocateUserData(ezUInt32& ref_uiUserDataId);
-  const ezJoltUserData& GetUserData(ezUInt32 uiUserDataId) const;
+  WUInt32 AllocateUserData(WJoltUserData*& out_pUserData);
+  void DeallocateUserData(WUInt32& ref_uiUserDataId);
+  const WJoltUserData& GetUserData(WUInt32 uiUserDataId) const;
 
-  void SetGravity(const ezVec3& vObjectGravity, const ezVec3& vCharacterGravity);
-  virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
-  ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
-
-  /// Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
-  void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition);
+  void SetGravity(const WVec3& vObjectGravity, const WVec3& vCharacterGravity);
+  virtual WVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
+  WVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
 
   /// Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
-  void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse);
+  void AddImpulse(WUInt32 uiBodyID, const WVec3& vImpulse, const WVec3& vGlobalPosition);
+
+  /// Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  void AddImpulse(WUInt32 uiBodyID, const WVec3& vImpulse);
 
   /// Queues an angular impulse to be applied on the given body as soon as that body is added to the Jolt scene.
-  void AddTorque(ezUInt32 uiBodyID, const ezVec3& vImpulse);
+  void AddTorque(WUInt32 uiBodyID, const WVec3& vImpulse);
 
   /// Creates a force that acts upon the given Jolt body for a limited time.
   ///
@@ -106,67 +106,67 @@ public:
   ///
   /// If an invalid ID is passed in, a new force is created and a valid ID is returned.
   /// If a valid ID is passed in, the existing force gets updated, and the same ID is returned.
-  ezJoltForceId AddOrUpdateForce(ezJoltForceId forceId, ezUInt32 uiBodyID, ezTime duration, const ezVec3& vForce);
+  WJoltForceId AddOrUpdateForce(WJoltForceId forceId, WUInt32 uiBodyID, WTime duration, const WVec3& vForce);
 
   /// Removes a previously added force. See AddOrUpdateForce().
-  void ClearForce(ezJoltForceId id);
+  void ClearForce(WJoltForceId id);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPhysicsWorldModuleInterface
+  // WPhysicsWorldModuleInterface
   //
 
-  virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const override;
-  virtual ezUInt8 GetWeightCategoryByName(ezStringView sName) const override;
-  virtual ezUInt8 GetImpulseTypeByName(ezStringView sName) const override;
+  virtual WUInt32 GetCollisionLayerByName(WStringView sName) const override;
+  virtual WUInt8 GetWeightCategoryByName(WStringView sName) const override;
+  virtual WUInt8 GetImpulseTypeByName(WStringView sName) const override;
 
-  virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool Raycast(WPhysicsCastResult& out_result, const WVec3& vStart, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const override;
 
-  virtual bool RaycastAll(ezPhysicsCastResultArray& out_results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const override;
+  virtual bool RaycastAll(WPhysicsCastResultArray& out_results, const WVec3& vStart, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params) const override;
 
-  virtual bool SweepTestSphere(ezPhysicsCastResult& out_result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestSphere(WPhysicsCastResult& out_result, float fSphereRadius, const WVec3& vStart, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestBox(ezPhysicsCastResult& out_result, const ezVec3& vBoxExtents, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestBox(WPhysicsCastResult& out_result, const WVec3& vBoxExtents, const WTransform& transform, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestCapsule(WPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const WTransform& transform, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestCylinder(ezPhysicsCastResult& out_result, float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestCylinder(WPhysicsCastResult& out_result, float fCylinderRadius, float fCylinderHeight, const WTransform& transform, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const override;
 
-  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
+  virtual bool OverlapTestSphere(float fSphereRadius, const WVec3& vPosition, const WPhysicsQueryParameters& params) const override;
 
-  virtual bool OverlapTestBox(const ezVec3& vBoxExtents, const ezVec3& vPosition, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+  virtual bool OverlapTestBox(const WVec3& vBoxExtents, const WVec3& vPosition, const WTransform& transform, const WPhysicsQueryParameters& params) const override;
 
-  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const WTransform& transform, const WPhysicsQueryParameters& params) const override;
 
-  virtual bool OverlapTestCylinder(float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+  virtual bool OverlapTestCylinder(float fCylinderRadius, float fCylinderHeight, const WTransform& transform, const WPhysicsQueryParameters& params) const override;
 
-  virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
+  virtual void QueryShapesInSphere(WPhysicsOverlapResultArray& out_results, float fSphereRadius, const WVec3& vPosition, const WPhysicsQueryParameters& params) const override;
 
-  virtual void QueryShapesInBox(ezPhysicsOverlapResultArray& out_results, const ezVec3& vBoxExtents, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+  virtual void QueryShapesInBox(WPhysicsOverlapResultArray& out_results, const WVec3& vBoxExtents, const WTransform& transform, const WPhysicsQueryParameters& params) const override;
 
-  virtual void QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+  virtual void QueryShapesInCapsule(WPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const WTransform& transform, const WPhysicsQueryParameters& params) const override;
 
-  virtual void QueryShapesInCylinder(ezPhysicsOverlapResultArray& out_results, float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+  virtual void QueryShapesInCylinder(WPhysicsOverlapResultArray& out_results, float fCylinderRadius, float fCylinderHeight, const WTransform& transform, const WPhysicsQueryParameters& params) const override;
 
-  virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize) override;
+  virtual void AddStaticCollisionBox(WGameObject* pObject, WVec3 vBoxSize) override;
 
-  virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) override;
+  virtual void AddFixedJointComponent(WGameObject* pOwner, const WPhysicsWorldModuleInterface::FixedJointConfig& cfg) override;
 
-  virtual ezBoundingBoxSphere GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const override;
+  virtual WBoundingBoxSphere GetWorldSpaceBounds(WGameObject* pOwner, WUInt32 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const override;
 
-  virtual ezResult TrySetHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier) override;
+  virtual WResult TrySetHeightfieldCollider(WGameObject* pOwner, WStringView sIdentifier) override;
 
-  virtual void CreateHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, const HeightfieldColliderData& data) override;
+  virtual void CreateHeightfieldCollider(WGameObject* pOwner, WStringView sIdentifier, const HeightfieldColliderData& data) override;
 
-  virtual void RemoveHeightfieldCollider(ezGameObject* pOwner) override;
+  virtual void RemoveHeightfieldCollider(WGameObject* pOwner) override;
 
-  ezDeque<ezComponentHandle> m_RequireUpdate;
+  WDeque<WComponentHandle> m_RequireUpdate;
 
-  const ezSet<ezJoltDynamicActorComponent*>& GetActiveActors() const { return m_ActiveActors; }
-  const ezMap<ezJoltRopeComponent*, ezInt32>& GetActiveRopes() const { return m_ActiveRopes; }
-  const ezMap<ezJoltRagdollComponent*, ezInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
-  ezArrayPtr<ezJoltRagdollComponent*> GetRagdollsPutToSleep() { return m_RagdollsPutToSleep.GetArrayPtr(); }
-  const ezMap<ezJoltBreakableSlabComponent*, ezInt32>& GetActiveSlabs() const { return m_ActiveSlabs; }
-  ezArrayPtr<ezJoltBreakableSlabComponent*> GetSlabsPutToSleep() { return m_SlabsPutToSleep.GetArrayPtr(); }
+  const WSet<WJoltDynamicActorComponent*>& GetActiveActors() const { return m_ActiveActors; }
+  const WMap<WJoltRopeComponent*, WInt32>& GetActiveRopes() const { return m_ActiveRopes; }
+  const WMap<WJoltRagdollComponent*, WInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
+  WArrayPtr<WJoltRagdollComponent*> GetRagdollsPutToSleep() { return m_RagdollsPutToSleep.GetArrayPtr(); }
+  const WMap<WJoltBreakableSlabComponent*, WInt32>& GetActiveSlabs() const { return m_ActiveSlabs; }
+  WArrayPtr<WJoltBreakableSlabComponent*> GetSlabsPutToSleep() { return m_SlabsPutToSleep.GetArrayPtr(); }
 
   void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
   void RemoveBodyFromQueue(JPH::BodyID bodyId);
@@ -174,43 +174,43 @@ public:
   JPH::GroupFilter* GetGroupFilter() const { return m_pGroupFilter; }
   JPH::GroupFilter* GetGroupFilterIgnoreSame() const { return m_pGroupFilterIgnoreSame; }
 
-  void EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable);
+  void EnableJoinedBodiesCollisions(WUInt32 uiObjectFilterID1, WUInt32 uiObjectFilterID2, bool bEnable);
 
   JPH::TempAllocator* GetTempAllocator() const { return m_pTempAllocator.get(); }
 
-  void ActivateCharacterController(ezJoltCharacterControllerComponent* pCharacter, bool bActivate);
+  void ActivateCharacterController(WJoltCharacterControllerComponent* pCharacter, bool bActivate);
 
-  ezJoltContactListener* GetContactListener()
+  WJoltContactListener* GetContactListener()
   {
-    return reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
+    return reinterpret_cast<WJoltContactListener*>(m_pContactListener);
   }
 
-  ezJoltSoftBodyContactListener* GetSoftBodyContactListener()
+  WJoltSoftBodyContactListener* GetSoftBodyContactListener()
   {
-    return reinterpret_cast<ezJoltSoftBodyContactListener*>(m_pSoftBodyContactListener);
+    return reinterpret_cast<WJoltSoftBodyContactListener*>(m_pSoftBodyContactListener);
   }
 
   void CheckBreakableConstraints();
 
-  ezSet<ezComponentHandle> m_BreakableConstraints;
+  WSet<WComponentHandle> m_BreakableConstraints;
 
-  void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const;
+  void QueryGeometryInBox(const WPhysicsQueryParameters& params, WBoundingBox box, WDynamicArray<WNavmeshTriangle>& out_triangles) const;
 
   /// Returns the counter of the last Jolt update.
   /// Can be used to detect when no physics update was done (at high frame rates) to skip duplicate physics modifications.
-  ezUInt64 GetJoltUpdateCounter() const { return m_uiJoltUpdateCounter; }
+  WUInt64 GetJoltUpdateCounter() const { return m_uiJoltUpdateCounter; }
 
 private:
-  bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
+  bool SweepTest(WPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection) const;
 
-  static void AttachHeightfieldBody(ezJoltWorldModule* pModule, ezGameObject* pOwner, const ezJoltHeightfieldResourceHandle& hRes);
-  bool OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
-  void QueryShapes(ezPhysicsOverlapResultArray& out_results, const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
+  static void AttachHeightfieldBody(WJoltWorldModule* pModule, WGameObject* pOwner, const WJoltHeightfieldResourceHandle& hRes);
+  bool OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const WPhysicsQueryParameters& params) const;
+  void QueryShapes(WPhysicsOverlapResultArray& out_results, const JPH::Shape& shape, const JPH::Mat44& transform, const WPhysicsQueryParameters& params) const;
 
   void FreeUserDataAfterSimulationStep();
 
-  void StartSimulation(const ezWorldModule::UpdateContext& context);
-  void FetchResults(const ezWorldModule::UpdateContext& context);
+  void StartSimulation(const WWorldModule::UpdateContext& context);
+  void FetchResults(const WWorldModule::UpdateContext& context);
 
   void Simulate();
 
@@ -222,15 +222,15 @@ private:
 
   void UpdateConstraints();
 
-  ezTime CalculateUpdateSteps();
+  WTime CalculateUpdateSteps();
 
   void DebugDrawGeometry();
-  void DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag, bool bSurfaceColors);
+  void DebugDrawGeometry(const WVec3& vCenter, float fRadius, WPhysicsShapeType::Enum shapeType, const WTag& tag, bool bSurfaceColors);
 
   struct DebugGeo
   {
-    ezGameObjectHandle m_hObject;
-    ezUInt32 m_uiLastSeenCounter = 0;
+    WGameObjectHandle m_hObject;
+    WUInt32 m_uiLastSeenCounter = 0;
     bool m_bMutableGeometry = false;
   };
 
@@ -238,24 +238,24 @@ private:
   /// so shapes whose triangles use different surfaces are split into several of these.
   struct DebugGeoShapePart
   {
-    ezDynamicMeshBufferResourceHandle m_hMesh;
-    ezColorGammaUB m_SurfaceColor = ezColor::White;
+    WDynamicMeshBufferResourceHandle m_hMesh;
+    WColorGammaUB m_SurfaceColor = WColor::White;
   };
 
   struct DebugGeoShape
   {
-    ezSmallArray<DebugGeoShapePart, 1> m_Parts;
-    ezBoundingBox m_Bounds;
-    ezUInt32 m_uiLastSeenCounter = 0;
+    WSmallArray<DebugGeoShapePart, 1> m_Parts;
+    WBoundingBox m_Bounds;
+    WUInt32 m_uiLastSeenCounter = 0;
   };
 
   struct DebugBodyShapeKey
   {
-    ezUInt32 m_uiBodyID;
+    WUInt32 m_uiBodyID;
     /// Identifies the sub-shape within the body. Necessary because the same shape instance can be
     /// referenced multiple times by a compound shape (e.g. several colliders using the same mesh resource),
     /// in which case the shape pointer alone is not unique.
-    ezUInt32 m_uiSubShapeID;
+    WUInt32 m_uiSubShapeID;
     const void* m_pShapePtr;
 
     bool operator<(const DebugBodyShapeKey& rhs) const
@@ -275,77 +275,77 @@ private:
     }
   };
 
-  ezUInt64 m_uiJoltUpdateCounter = 0;
+  WUInt64 m_uiJoltUpdateCounter = 0;
 
-  ezUInt32 m_uiDebugGeoLastSeenCounter = 0;
+  WUInt32 m_uiDebugGeoLastSeenCounter = 0;
   bool m_bDebugGeoSurfaceColors = false; ///< which of the two visualizations the cached debug geometry was built for
-  ezMap<DebugBodyShapeKey, DebugGeo> m_DebugDrawComponents;
-  ezMap<const void*, DebugGeoShape> m_DebugDrawShapeGeo;
+  WMap<DebugBodyShapeKey, DebugGeo> m_DebugDrawComponents;
+  WMap<const void*, DebugGeoShape> m_DebugDrawShapeGeo;
 
-  ezUInt32 m_uiNextObjectFilterID = 1;
-  ezDynamicArray<ezUInt32> m_FreeObjectFilterIDs;
+  WUInt32 m_uiNextObjectFilterID = 1;
+  WDynamicArray<WUInt32> m_FreeObjectFilterIDs;
 
-  ezDeque<ezJoltUserData> m_AllocatedUserData;
-  ezDynamicArray<ezUInt32> m_FreeUserData;
-  ezDynamicArray<ezUInt32> m_FreeUserDataAfterSimulationStep;
+  WDeque<WJoltUserData> m_AllocatedUserData;
+  WDynamicArray<WUInt32> m_FreeUserData;
+  WDynamicArray<WUInt32> m_FreeUserDataAfterSimulationStep;
 
-  ezTime m_AccumulatedTimeSinceUpdate;
+  WTime m_AccumulatedTimeSinceUpdate;
 
-  ezJoltSettings m_Settings;
+  WJoltSettings m_Settings;
 
-  ezSharedPtr<ezTask> m_pSimulateTask;
-  ezTaskGroupID m_SimulateTaskGroupId;
-  ezTime m_SimulatedTimeStep;
+  WSharedPtr<WTask> m_pSimulateTask;
+  WTaskGroupID m_SimulateTaskGroupId;
+  WTime m_SimulatedTimeStep;
 
   std::unique_ptr<JPH::PhysicsSystem> m_pSystem;
   std::unique_ptr<JPH::TempAllocator> m_pTempAllocator;
 
-  ezJoltObjectToBroadphaseLayer m_ObjectToBroadphase;
-  ezJoltObjectVsBroadPhaseLayerFilter m_ObjectVsBroadphaseFilter;
-  ezJoltObjectLayerPairFilter m_ObjectLayerPairFilter;
+  WJoltObjectToBroadphaseLayer m_ObjectToBroadphase;
+  WJoltObjectVsBroadPhaseLayerFilter m_ObjectVsBroadphaseFilter;
+  WJoltObjectLayerPairFilter m_ObjectLayerPairFilter;
 
   void* m_pContactListener = nullptr;
   void* m_pSoftBodyContactListener = nullptr;
   void* m_pActivationListener = nullptr;
-  ezSet<ezJoltDynamicActorComponent*> m_ActiveActors;
-  ezMap<ezJoltRopeComponent*, ezInt32> m_ActiveRopes;
-  ezMap<ezJoltRagdollComponent*, ezInt32> m_ActiveRagdolls;
-  ezDynamicArray<ezJoltRagdollComponent*> m_RagdollsPutToSleep;
-  ezMap<ezJoltBreakableSlabComponent*, ezInt32> m_ActiveSlabs;
-  ezDynamicArray<ezJoltBreakableSlabComponent*> m_SlabsPutToSleep;
+  WSet<WJoltDynamicActorComponent*> m_ActiveActors;
+  WMap<WJoltRopeComponent*, WInt32> m_ActiveRopes;
+  WMap<WJoltRagdollComponent*, WInt32> m_ActiveRagdolls;
+  WDynamicArray<WJoltRagdollComponent*> m_RagdollsPutToSleep;
+  WMap<WJoltBreakableSlabComponent*, WInt32> m_ActiveSlabs;
+  WDynamicArray<WJoltBreakableSlabComponent*> m_SlabsPutToSleep;
 
   JPH::GroupFilter* m_pGroupFilter = nullptr;
   JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;
 
-  ezUInt32 m_uiBodiesAddedSinceOptimize = 100;
-  ezDeque<ezUInt32> m_BodiesToAdd;
-  ezDeque<ezUInt32> m_BodiesToAddAndActivate;
+  WUInt32 m_uiBodiesAddedSinceOptimize = 100;
+  WDeque<WUInt32> m_BodiesToAdd;
+  WDeque<WUInt32> m_BodiesToAddAndActivate;
 
-  ezHybridArray<ezTime, 4> m_UpdateSteps;
-  ezHybridArray<ezJoltCharacterControllerComponent*, 4> m_ActiveCharacters;
+  WHybridArray<WTime, 4> m_UpdateSteps;
+  WHybridArray<WJoltCharacterControllerComponent*, 4> m_ActiveCharacters;
 
   // Tracks identifiers of runtime-created heightfield resources for TrySetHeightfieldCollider existence checks.
-  ezSet<ezString> m_RuntimeHeightfieldIDs;
+  WSet<WString> m_RuntimeHeightfieldIDs;
 
-  ezMutex m_ImpulsesMutex;
-  ezDeque<ezJoltImpulse> m_Impulses;
+  WMutex m_ImpulsesMutex;
+  WDeque<WJoltImpulse> m_Impulses;
 
-  ezMutex m_ForcesMutex;
-  ezIdTable<ezJoltForceId, ezJoltForce> m_Forces;
+  WMutex m_ForcesMutex;
+  WIdTable<WJoltForceId, WJoltForce> m_Forces;
 };
 
-/// Implementation of the ezNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry
+/// Implementation of the WNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry
 /// from which to generate a navmesh.
-class EZ_JOLTPLUGIN_DLL ezJoltNavmeshGeoWorldModule : public ezNavmeshGeoWorldModuleInterface
+class W_JOLTPLUGIN_DLL WJoltNavmeshGeoWorldModule : public WNavmeshGeoWorldModuleInterface
 {
-  EZ_DECLARE_WORLD_MODULE();
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltNavmeshGeoWorldModule, ezNavmeshGeoWorldModuleInterface);
+  W_DECLARE_WORLD_MODULE();
+  W_ADD_DYNAMIC_REFLECTION(WJoltNavmeshGeoWorldModule, WNavmeshGeoWorldModuleInterface);
 
 public:
-  ezJoltNavmeshGeoWorldModule(ezWorld* pWorld);
+  WJoltNavmeshGeoWorldModule(WWorld* pWorld);
 
-  virtual void RetrieveGeometryInArea(ezUInt32 uiCollisionLayer, const ezBoundingBox& box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const override;
+  virtual void RetrieveGeometryInArea(WUInt32 uiCollisionLayer, const WBoundingBox& box, WDynamicArray<WNavmeshTriangle>& out_triangles) const override;
 
 private:
-  ezJoltWorldModule* m_pJoltModule = nullptr;
+  WJoltWorldModule* m_pJoltModule = nullptr;
 };

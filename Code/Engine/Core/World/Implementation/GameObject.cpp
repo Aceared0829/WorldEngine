@@ -9,138 +9,138 @@
 
 namespace
 {
-  static ezVariantArray GetDefaultTags()
+  static WVariantArray GetDefaultTags()
   {
-    ezVariantArray value(ezStaticsAllocatorWrapper::GetAllocator());
+    WVariantArray value(WStaticsAllocatorWrapper::GetAllocator());
     value.PushBack("CastShadow");
     return value;
   }
 } // namespace
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTransformPreservation, 1)
-  EZ_ENUM_CONSTANTS(ezTransformPreservation::PreserveLocal, ezTransformPreservation::PreserveGlobal)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTransformPreservation, 1)
+  W_ENUM_CONSTANTS(WTransformPreservation::PreserveLocal, WTransformPreservation::PreserveGlobal)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGameObject, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Name", GetNameInternal, SetNameInternal),
-    EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKeyInternal, SetGlobalKeyInternal),
-    EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezObjectMode, Reflection_GetMode, Reflection_SetMode),
-    EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
-    EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f, 1.0f, 1.0f))),
-    EZ_ACCESSOR_PROPERTY("LocalUniformScaling", GetLocalUniformScaling, SetLocalUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_SET_ACCESSOR_PROPERTY("Tags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new ezTagSetWidgetAttribute("Default"), new ezDefaultValueAttribute(GetDefaultTags())),
-    EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_ACCESSOR_PROPERTY("Name", GetNameInternal, SetNameInternal),
+    W_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKeyInternal, SetGlobalKeyInternal),
+    W_ENUM_ACCESSOR_PROPERTY("Mode", WObjectMode, Reflection_GetMode, Reflection_SetMode),
+    W_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new WSuffixAttribute(" m")),
+    W_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
+    W_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new WDefaultValueAttribute(WVec3(1.0f, 1.0f, 1.0f))),
+    W_ACCESSOR_PROPERTY("LocalUniformScaling", GetLocalUniformScaling, SetLocalUniformScaling)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_SET_ACCESSOR_PROPERTY("Tags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new WTagSetWidgetAttribute("Default"), new WDefaultValueAttribute(GetDefaultTags())),
+    W_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(WPropertyFlags::PointerOwner | WPropertyFlags::Hidden),
+    W_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsActive),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetCreatedByPrefab),
-    EZ_SCRIPT_FUNCTION_PROPERTY(WasCreatedByPrefab),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetHideShapeIcon),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsShapeIconHidden),
+    W_SCRIPT_FUNCTION_PROPERTY(IsActive),
+    W_SCRIPT_FUNCTION_PROPERTY(SetCreatedByPrefab),
+    W_SCRIPT_FUNCTION_PROPERTY(WasCreatedByPrefab),
+    W_SCRIPT_FUNCTION_PROPERTY(SetHideShapeIcon),
+    W_SCRIPT_FUNCTION_PROPERTY(IsShapeIconHidden),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(HasName, In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(HasName, In, "Name"),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(HasTag, In, "TagName"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetTag, In, "TagName"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_RemoveTag, In, "TagName"),
+    W_SCRIPT_FUNCTION_PROPERTY(HasTag, In, "TagName"),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_SetTag, In, "TagName"),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_RemoveTag, In, "TagName"),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetParent),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::PureFunction),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByPath, In, "Path")->AddFlags(ezPropertyFlags::PureFunction),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ActivateChildByName, In, "Name", In, "DeactivateOthers")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_GetParent),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByName, In, "Name", In, "Recursive")->AddFlags(WPropertyFlags::PureFunction),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByPath, In, "Path")->AddFlags(WPropertyFlags::PureFunction),
+    W_SCRIPT_FUNCTION_PROPERTY(ActivateChildByName, In, "Name", In, "DeactivateOthers")->AddAttributes(new WFunctionArgumentAttributes(1, new WDefaultValueAttribute(true))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalPosition, In, "Position"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalPosition),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalRotation, In, "Rotation"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalRotation),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalScaling, In, "Scaling"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalScaling),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalTransform, In, "Transform"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalTransform),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalPosition, In, "Position"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetGlobalPosition),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalRotation, In, "Rotation"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetGlobalRotation),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalScaling, In, "Scaling"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetGlobalScaling),
+    W_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalTransform, In, "Transform"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetGlobalTransform),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirForwards),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirRight),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirUp),
+    W_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirForwards),
+    W_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirRight),
+    W_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirUp),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetGlobalRotationToLookAt, In, "TargetPosition", In, "Up")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(ezVec3::MakeAxisZ()))),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetGlobalTransformToLookAt, In, "OwnPosition", In, "TargetPosition", In, "Up")->AddAttributes(new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(ezVec3::MakeAxisZ()))),
+    W_SCRIPT_FUNCTION_PROPERTY(SetGlobalRotationToLookAt, In, "TargetPosition", In, "Up")->AddAttributes(new WFunctionArgumentAttributes(1, new WDefaultValueAttribute(WVec3::MakeAxisZ()))),
+    W_SCRIPT_FUNCTION_PROPERTY(SetGlobalTransformToLookAt, In, "OwnPosition", In, "TargetPosition", In, "Up")->AddAttributes(new WFunctionArgumentAttributes(2, new WDefaultValueAttribute(WVec3::MakeAxisZ()))),
 
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetLinearVelocity),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetAngularVelocity),
+#if W_ENABLED(W_GAMEOBJECT_VELOCITY)
+    W_SCRIPT_FUNCTION_PROPERTY(GetLinearVelocity),
+    W_SCRIPT_FUNCTION_PROPERTY(GetAngularVelocity),
 #endif
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetTeamID, In, "Id"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetTeamID),
+    W_SCRIPT_FUNCTION_PROPERTY(SetTeamID, In, "Id"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetTeamID),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetStableRandomSeed),
+    W_SCRIPT_FUNCTION_PROPERTY(GetStableRandomSeed),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_FUNCTIONS;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
+    W_MESSAGE_HANDLER(WMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezGameObject::Reflection_SetTag(const char* szTagName)
+void WGameObject::Reflection_SetTag(const char* szTagName)
 {
-  if (ezStringUtils::IsNullOrEmpty(szTagName))
+  if (WStringUtils::IsNullOrEmpty(szTagName))
     return;
 
-  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTagName);
+  const WTag& tag = WTagRegistry::GetGlobalRegistry().RegisterTag(szTagName);
   SetTag(tag);
 }
 
-void ezGameObject::Reflection_RemoveTag(const char* szTagName)
+void WGameObject::Reflection_RemoveTag(const char* szTagName)
 {
-  if (ezStringUtils::IsNullOrEmpty(szTagName))
+  if (WStringUtils::IsNullOrEmpty(szTagName))
     return;
 
-  if (const ezTag* pTag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTagName)))
+  if (const WTag* pTag = WTagRegistry::GetGlobalRegistry().GetTagByName(WTempHashedString(szTagName)))
   {
     RemoveTag(*pTag);
   }
 }
 
-void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
+void WGameObject::Reflection_AddChild(WGameObject* pChild)
 {
   if (IsDynamic())
   {
     pChild->MakeDynamic();
   }
 
-  AddChild(pChild->GetHandle(), ezTransformPreservation::PreserveLocal);
+  AddChild(pChild->GetHandle(), WTransformPreservation::PreserveLocal);
 
   // Check whether the child object was only dynamic because of its old parent
   // If that's the case make it static now.
   pChild->ConditionalMakeStatic();
 }
 
-void ezGameObject::Reflection_DetachChild(ezGameObject* pChild)
+void WGameObject::Reflection_DetachChild(WGameObject* pChild)
 {
-  DetachChild(pChild->GetHandle(), ezTransformPreservation::PreserveLocal);
+  DetachChild(pChild->GetHandle(), WTransformPreservation::PreserveLocal);
 
   // The child object is now a top level object, check whether it should be static now.
   pChild->ConditionalMakeStatic();
 }
 
-ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
+WHybridArray<WGameObject*, 8> WGameObject::Reflection_GetChildren() const
 {
   ConstChildIterator it = GetChildren();
 
-  ezHybridArray<ezGameObject*, 8> all;
+  WHybridArray<WGameObject*, 8> all;
   all.Reserve(GetChildCount());
 
   while (it.IsValid())
@@ -152,7 +152,7 @@ ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
   return all;
 }
 
-void ezGameObject::Reflection_AddComponent(ezComponent* pComponent)
+void WGameObject::Reflection_AddComponent(WComponent* pComponent)
 {
   if (pComponent == nullptr)
     return;
@@ -165,7 +165,7 @@ void ezGameObject::Reflection_AddComponent(ezComponent* pComponent)
   AddComponent(pComponent);
 }
 
-void ezGameObject::Reflection_RemoveComponent(ezComponent* pComponent)
+void WGameObject::Reflection_RemoveComponent(WComponent* pComponent)
 {
   if (pComponent == nullptr)
     return;
@@ -178,68 +178,68 @@ void ezGameObject::Reflection_RemoveComponent(ezComponent* pComponent)
   }
 }
 
-ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS> ezGameObject::Reflection_GetComponents() const
+WHybridArray<WComponent*, WGameObject::NUM_INPLACE_COMPONENTS> WGameObject::Reflection_GetComponents() const
 {
-  return ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS>(m_Components);
+  return WHybridArray<WComponent*, WGameObject::NUM_INPLACE_COMPONENTS>(m_Components);
 }
 
-ezObjectMode::Enum ezGameObject::Reflection_GetMode() const
+WObjectMode::Enum WGameObject::Reflection_GetMode() const
 {
-  return m_Flags.IsSet(ezObjectFlags::ForceDynamic) ? ezObjectMode::ForceDynamic : ezObjectMode::Automatic;
+  return m_Flags.IsSet(WObjectFlags::ForceDynamic) ? WObjectMode::ForceDynamic : WObjectMode::Automatic;
 }
 
-void ezGameObject::Reflection_SetMode(ezObjectMode::Enum mode)
+void WGameObject::Reflection_SetMode(WObjectMode::Enum mode)
 {
   if (Reflection_GetMode() == mode)
   {
     return;
   }
 
-  if (mode == ezObjectMode::ForceDynamic)
+  if (mode == WObjectMode::ForceDynamic)
   {
-    m_Flags.Add(ezObjectFlags::ForceDynamic);
+    m_Flags.Add(WObjectFlags::ForceDynamic);
     MakeDynamic();
   }
   else
   {
-    m_Flags.Remove(ezObjectFlags::ForceDynamic);
+    m_Flags.Remove(WObjectFlags::ForceDynamic);
     ConditionalMakeStatic();
   }
 }
 
-ezGameObject* ezGameObject::Reflection_GetParent() const
+WGameObject* WGameObject::Reflection_GetParent() const
 {
   return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
 }
 
-void ezGameObject::Reflection_SetGlobalPosition(const ezVec3& vPosition)
+void WGameObject::Reflection_SetGlobalPosition(const WVec3& vPosition)
 {
   SetGlobalPosition(vPosition);
 }
 
-void ezGameObject::Reflection_SetGlobalRotation(const ezQuat& qRotation)
+void WGameObject::Reflection_SetGlobalRotation(const WQuat& qRotation)
 {
   SetGlobalRotation(qRotation);
 }
 
-void ezGameObject::Reflection_SetGlobalScaling(const ezVec3& vScaling)
+void WGameObject::Reflection_SetGlobalScaling(const WVec3& vScaling)
 {
   SetGlobalScaling(vScaling);
 }
 
-void ezGameObject::Reflection_SetGlobalTransform(const ezTransform& transform)
+void WGameObject::Reflection_SetGlobalTransform(const WTransform& transform)
 {
   SetGlobalTransform(transform);
 }
 
-bool ezGameObject::DetermineDynamicMode(ezComponent* pComponentToIgnore /*= nullptr*/) const
+bool WGameObject::DetermineDynamicMode(WComponent* pComponentToIgnore /*= nullptr*/) const
 {
-  if (m_Flags.IsSet(ezObjectFlags::ForceDynamic))
+  if (m_Flags.IsSet(WObjectFlags::ForceDynamic))
   {
     return true;
   }
 
-  const ezGameObject* pParent = GetParent();
+  const WGameObject* pParent = GetParent();
   if (pParent != nullptr && pParent->IsDynamic())
   {
     return true;
@@ -256,7 +256,7 @@ bool ezGameObject::DetermineDynamicMode(ezComponent* pComponentToIgnore /*= null
   return false;
 }
 
-void ezGameObject::ConditionalMakeStatic(ezComponent* pComponentToIgnore /*= nullptr*/)
+void WGameObject::ConditionalMakeStatic(WComponent* pComponentToIgnore /*= nullptr*/)
 {
   if (!DetermineDynamicMode(pComponentToIgnore))
   {
@@ -269,30 +269,30 @@ void ezGameObject::ConditionalMakeStatic(ezComponent* pComponentToIgnore /*= nul
   }
 }
 
-void ezGameObject::MakeStaticInternal()
+void WGameObject::MakeStaticInternal()
 {
   if (IsStatic())
   {
     return;
   }
 
-  m_Flags.Remove(ezObjectFlags::Dynamic);
+  m_Flags.Remove(WObjectFlags::Dynamic);
 
   GetWorld()->RecreateHierarchyData(this, true);
 }
 
-void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
+void WGameObject::UpdateGlobalTransformAndBoundsRecursive()
 {
   if (IsStatic() && GetWorld()->ReportErrorWhenStaticObjectMoves())
   {
-    ezLog::Error("Static object '{0}' was moved during runtime.", GetName());
+    WLog::Error("Static object '{0}' was moved during runtime.", GetName());
   }
 
-  ezSimdTransform oldGlobalTransform = GetGlobalTransformSimd();
+  WSimdTransform oldGlobalTransform = GetGlobalTransformSimd();
 
   m_pTransformationData->UpdateGlobalTransformNonRecursive(GetWorld()->GetUpdateCounter());
 
-  if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  if (WSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
     m_pTransformationData->UpdateGlobalBoundsAndSpatialData(*pSpatialSystem);
   }
@@ -301,10 +301,10 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
     m_pTransformationData->UpdateGlobalBounds();
   }
 
-  if (IsStatic() && m_Flags.IsSet(ezObjectFlags::StaticTransformChangesNotifications) && oldGlobalTransform != GetGlobalTransformSimd())
+  if (IsStatic() && m_Flags.IsSet(WObjectFlags::StaticTransformChangesNotifications) && oldGlobalTransform != GetGlobalTransformSimd())
   {
-    ezMsgTransformChanged msg;
-    msg.m_OldGlobalTransform = ezSimdConversion::ToTransform(oldGlobalTransform);
+    WMsgTransformChanged msg;
+    msg.m_OldGlobalTransform = WSimdConversion::ToTransform(oldGlobalTransform);
     msg.m_NewGlobalTransform = GetGlobalTransform();
 
     SendMessage(msg);
@@ -316,26 +316,26 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
   }
 }
 
-void ezGameObject::UpdateLastGlobalTransform()
+void WGameObject::UpdateLastGlobalTransform()
 {
   m_pTransformationData->UpdateLastGlobalTransform(GetWorld()->GetUpdateCounter());
 }
 
-void ezGameObject::ConstChildIterator::Next()
+void WGameObject::ConstChildIterator::Next()
 {
   m_pObject = m_pWorld->GetObjectUnchecked(m_pObject->m_uiNextSiblingIndex);
 }
 
-ezGameObject::~ezGameObject()
+WGameObject::~WGameObject()
 {
   // Since we are using the small array base class for components we have to cleanup ourself with the correct allocator.
   m_Components.Clear();
   m_Components.Compact(GetWorld()->GetAllocator());
 }
 
-void ezGameObject::operator=(const ezGameObject& other)
+void WGameObject::operator=(const WGameObject& other)
 {
-  EZ_ASSERT_DEV(m_InternalId.m_WorldIndex == other.m_InternalId.m_WorldIndex, "Cannot copy between worlds.");
+  W_ASSERT_DEV(m_InternalId.m_WorldIndex == other.m_InternalId.m_WorldIndex, "Cannot copy between worlds.");
 
   m_InternalId = other.m_InternalId;
   m_Flags = other.m_Flags;
@@ -357,28 +357,28 @@ void ezGameObject::operator=(const ezGameObject& other)
 
   if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
-    ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
+    WSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
     pSpatialSystem->UpdateSpatialDataObject(m_pTransformationData->m_hSpatialData, this);
   }
 
   m_Components.CopyFrom(other.m_Components, GetWorld()->GetAllocator());
-  for (ezComponent* pComponent : m_Components)
+  for (WComponent* pComponent : m_Components)
   {
-    EZ_ASSERT_DEV(pComponent->m_pOwner == &other, "");
+    W_ASSERT_DEV(pComponent->m_pOwner == &other, "");
     pComponent->m_pOwner = this;
   }
 
   m_Tags = other.m_Tags;
 }
 
-void ezGameObject::MakeDynamic()
+void WGameObject::MakeDynamic()
 {
   if (IsDynamic())
   {
     return;
   }
 
-  m_Flags.Add(ezObjectFlags::Dynamic);
+  m_Flags.Add(WObjectFlags::Dynamic);
 
   GetWorld()->RecreateHierarchyData(this, false);
 
@@ -388,32 +388,32 @@ void ezGameObject::MakeDynamic()
   }
 }
 
-void ezGameObject::MakeStatic()
+void WGameObject::MakeStatic()
 {
-  EZ_ASSERT_DEV(!DetermineDynamicMode(), "This object can't be static because it has a dynamic parent or dynamic component(s) attached.");
+  W_ASSERT_DEV(!DetermineDynamicMode(), "This object can't be static because it has a dynamic parent or dynamic component(s) attached.");
 
   MakeStaticInternal();
 }
 
-void ezGameObject::SetActiveFlag(bool bEnabled)
+void WGameObject::SetActiveFlag(bool bEnabled)
 {
-  if (m_Flags.IsSet(ezObjectFlags::ActiveFlag) == bEnabled)
+  if (m_Flags.IsSet(WObjectFlags::ActiveFlag) == bEnabled)
     return;
 
-  m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, bEnabled);
+  m_Flags.AddOrRemove(WObjectFlags::ActiveFlag, bEnabled);
 
   UpdateActiveState(GetParent() == nullptr ? true : GetParent()->IsActive());
 }
 
-void ezGameObject::UpdateActiveState(bool bParentActive)
+void WGameObject::UpdateActiveState(bool bParentActive)
 {
-  const bool bSelfActive = bParentActive && m_Flags.IsSet(ezObjectFlags::ActiveFlag);
+  const bool bSelfActive = bParentActive && m_Flags.IsSet(WObjectFlags::ActiveFlag);
 
-  if (bSelfActive != m_Flags.IsSet(ezObjectFlags::ActiveState))
+  if (bSelfActive != m_Flags.IsSet(WObjectFlags::ActiveState))
   {
-    m_Flags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
+    m_Flags.AddOrRemove(WObjectFlags::ActiveState, bSelfActive);
 
-    for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
     {
       m_Components[i]->UpdateActiveState(bSelfActive);
     }
@@ -426,57 +426,57 @@ void ezGameObject::UpdateActiveState(bool bParentActive)
   }
 }
 
-void ezGameObject::SetGlobalKey(const ezHashedString& sName)
+void WGameObject::SetGlobalKey(const WHashedString& sName)
 {
   GetWorld()->SetObjectGlobalKey(this, sName);
 }
 
-ezStringView ezGameObject::GetGlobalKey() const
+WStringView WGameObject::GetGlobalKey() const
 {
   return GetWorld()->GetObjectGlobalKey(this);
 }
 
-const char* ezGameObject::GetGlobalKeyInternal() const
+const char* WGameObject::GetGlobalKeyInternal() const
 {
   return GetWorld()->GetObjectGlobalKey(this).GetStartPointer(); // we know that it's zero terminated
 }
 
-void ezGameObject::SetParent(const ezGameObjectHandle& hParent, ezTransformPreservation::Enum preserve)
+void WGameObject::SetParent(const WGameObjectHandle& hParent, WTransformPreservation::Enum preserve)
 {
-  ezWorld* pWorld = GetWorld();
+  WWorld* pWorld = GetWorld();
 
-  ezGameObject* pParent = nullptr;
+  WGameObject* pParent = nullptr;
   bool _ = pWorld->TryGetObject(hParent, pParent);
-  EZ_IGNORE_UNUSED(_);
+  W_IGNORE_UNUSED(_);
   pWorld->SetParent(this, pParent, preserve);
 }
 
-ezGameObject* ezGameObject::GetParent()
+WGameObject* WGameObject::GetParent()
 {
   return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
 }
 
-const ezGameObject* ezGameObject::GetParent() const
+const WGameObject* WGameObject::GetParent() const
 {
   return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
 }
 
-void ezGameObject::AddChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve)
+void WGameObject::AddChild(const WGameObjectHandle& hChild, WTransformPreservation::Enum preserve)
 {
-  ezWorld* pWorld = GetWorld();
+  WWorld* pWorld = GetWorld();
 
-  ezGameObject* pChild = nullptr;
+  WGameObject* pChild = nullptr;
   if (pWorld->TryGetObject(hChild, pChild))
   {
     pWorld->SetParent(pChild, this, preserve);
   }
 }
 
-void ezGameObject::DetachChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve)
+void WGameObject::DetachChild(const WGameObjectHandle& hChild, WTransformPreservation::Enum preserve)
 {
-  ezWorld* pWorld = GetWorld();
+  WWorld* pWorld = GetWorld();
 
-  ezGameObject* pChild = nullptr;
+  WGameObject* pChild = nullptr;
   if (pWorld->TryGetObject(hChild, pChild))
   {
     if (pChild->GetParent() == this)
@@ -486,19 +486,19 @@ void ezGameObject::DetachChild(const ezGameObjectHandle& hChild, ezTransformPres
   }
 }
 
-ezGameObject::ChildIterator ezGameObject::GetChildren()
+WGameObject::ChildIterator WGameObject::GetChildren()
 {
-  ezWorld* pWorld = GetWorld();
+  WWorld* pWorld = GetWorld();
   return ChildIterator(pWorld->GetObjectUnchecked(m_uiFirstChildIndex), pWorld);
 }
 
-ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
+WGameObject::ConstChildIterator WGameObject::GetChildren() const
 {
-  const ezWorld* pWorld = GetWorld();
+  const WWorld* pWorld = GetWorld();
   return ConstChildIterator(pWorld->GetObjectUnchecked(m_uiFirstChildIndex), pWorld);
 }
 
-ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sName, bool bRecursive /*= true*/)
+WGameObject* WGameObject::FindChildByName(const WTempHashedString& sName, bool bRecursive /*= true*/)
 {
   for (auto it = GetChildren(); it.IsValid(); ++it)
   {
@@ -512,7 +512,7 @@ ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sName, boo
   {
     for (auto it = GetChildren(); it.IsValid(); ++it)
     {
-      ezGameObject* pChild = it->FindChildByName(sName, bRecursive);
+      WGameObject* pChild = it->FindChildByName(sName, bRecursive);
 
       if (pChild != nullptr)
         return pChild;
@@ -522,47 +522,47 @@ ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sName, boo
   return nullptr;
 }
 
-const ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sName, bool bRecursive /*= true*/) const
+const WGameObject* WGameObject::FindChildByName(const WTempHashedString& sName, bool bRecursive /*= true*/) const
 {
-  ezGameObject* pThis = const_cast<ezGameObject*>(this);
+  WGameObject* pThis = const_cast<WGameObject*>(this);
   return pThis->FindChildByName(sName, bRecursive);
 }
 
-ezGameObject* ezGameObject::FindChildByPath(ezStringView sPath)
+WGameObject* WGameObject::FindChildByPath(WStringView sPath)
 {
   if (sPath.IsEmpty())
     return this;
 
   const char* szSep = sPath.FindSubString("/");
-  ezUInt64 uiNameHash = 0;
+  WUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
-    uiNameHash = ezHashingUtils::StringHash(sPath);
+    uiNameHash = WHashingUtils::StringHash(sPath);
   else
-    uiNameHash = ezHashingUtils::StringHash(ezStringView(sPath.GetStartPointer(), szSep));
+    uiNameHash = WHashingUtils::StringHash(WStringView(sPath.GetStartPointer(), szSep));
 
-  ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash), false);
+  WGameObject* pNextChild = FindChildByName(WTempHashedString(uiNameHash), false);
 
   if (szSep == nullptr || pNextChild == nullptr)
     return pNextChild;
 
-  return pNextChild->FindChildByPath(ezStringView(szSep + 1, sPath.GetEndPointer()));
+  return pNextChild->FindChildByPath(WStringView(szSep + 1, sPath.GetEndPointer()));
 }
 
-const ezGameObject* ezGameObject::FindChildByPath(ezStringView sPath) const
+const WGameObject* WGameObject::FindChildByPath(WStringView sPath) const
 {
-  ezGameObject* pThis = const_cast<ezGameObject*>(this);
+  WGameObject* pThis = const_cast<WGameObject*>(this);
   return pThis->FindChildByPath(sPath);
 }
 
-ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent /*= nullptr*/)
+WGameObject* WGameObject::SearchForChildByNameSequence(WStringView sObjectSequence, const WRTTI* pExpectedComponent /*= nullptr*/)
 {
   if (sObjectSequence.IsEmpty())
   {
     // in case we are searching for a specific component type, verify that it exists on this object
     if (pExpectedComponent != nullptr)
     {
-      const ezComponent* pComp = nullptr;
+      const WComponent* pComp = nullptr;
       if (!TryGetComponentOfBaseType(pExpectedComponent, pComp))
         return nullptr;
     }
@@ -571,20 +571,20 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSeq
   }
 
   const char* szSep = sObjectSequence.FindSubString("/");
-  ezStringView sNextSequence;
-  ezUInt64 uiNameHash = 0;
+  WStringView sNextSequence;
+  WUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
   {
-    uiNameHash = ezHashingUtils::StringHash(sObjectSequence);
+    uiNameHash = WHashingUtils::StringHash(sObjectSequence);
   }
   else
   {
-    uiNameHash = ezHashingUtils::StringHash(ezStringView(sObjectSequence.GetStartPointer(), szSep));
-    sNextSequence = ezStringView(szSep + 1, sObjectSequence.GetEndPointer());
+    uiNameHash = WHashingUtils::StringHash(WStringView(sObjectSequence.GetStartPointer(), szSep));
+    sNextSequence = WStringView(szSep + 1, sObjectSequence.GetEndPointer());
   }
 
-  const ezTempHashedString name(uiNameHash);
+  const WTempHashedString name(uiNameHash);
 
   // first go through all direct children an see if any of them actually matches the current name
   // if so, continue the recursion from there and give them the remaining search path to continue
@@ -592,7 +592,7 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSeq
   {
     if (it->m_sName == name)
     {
-      ezGameObject* res = it->SearchForChildByNameSequence(sNextSequence, pExpectedComponent);
+      WGameObject* res = it->SearchForChildByNameSequence(sNextSequence, pExpectedComponent);
       if (res != nullptr)
         return res;
     }
@@ -605,7 +605,7 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSeq
   {
     if (it->m_sName != name)
     {
-      ezGameObject* res = it->SearchForChildByNameSequence(sObjectSequence, pExpectedComponent);
+      WGameObject* res = it->SearchForChildByNameSequence(sObjectSequence, pExpectedComponent);
       if (res != nullptr)
         return res;
     }
@@ -614,20 +614,20 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSeq
   return nullptr;
 }
 
-const ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent /*= nullptr*/) const
+const WGameObject* WGameObject::SearchForChildByNameSequence(WStringView sObjectSequence, const WRTTI* pExpectedComponent /*= nullptr*/) const
 {
-  ezGameObject* pThis = const_cast<ezGameObject*>(this);
+  WGameObject* pThis = const_cast<WGameObject*>(this);
   return pThis->SearchForChildByNameSequence(sObjectSequence, pExpectedComponent);
 }
 
-void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezDynamicArray<ezGameObject*>& out_objects)
+void WGameObject::SearchForChildrenByNameSequence(WStringView sObjectSequence, const WRTTI* pExpectedComponent, WDynamicArray<WGameObject*>& out_objects)
 {
   if (sObjectSequence.IsEmpty())
   {
     // in case we are searching for a specific component type, verify that it exists on this object
     if (pExpectedComponent != nullptr)
     {
-      ezComponent* pComp = nullptr;
+      WComponent* pComp = nullptr;
       if (!TryGetComponentOfBaseType(pExpectedComponent, pComp))
         return;
     }
@@ -637,20 +637,20 @@ void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence,
   }
 
   const char* szSep = sObjectSequence.FindSubString("/");
-  ezStringView sNextSequence;
-  ezUInt64 uiNameHash = 0;
+  WStringView sNextSequence;
+  WUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
   {
-    uiNameHash = ezHashingUtils::StringHash(sObjectSequence);
+    uiNameHash = WHashingUtils::StringHash(sObjectSequence);
   }
   else
   {
-    uiNameHash = ezHashingUtils::StringHash(ezStringView(sObjectSequence.GetStartPointer(), szSep));
-    sNextSequence = ezStringView(szSep + 1, sObjectSequence.GetEndPointer());
+    uiNameHash = WHashingUtils::StringHash(WStringView(sObjectSequence.GetStartPointer(), szSep));
+    sNextSequence = WStringView(szSep + 1, sObjectSequence.GetEndPointer());
   }
 
-  const ezTempHashedString name(uiNameHash);
+  const WTempHashedString name(uiNameHash);
 
   // first go through all direct children an see if any of them actually matches the current name
   // if so, continue the recursion from there and give them the remaining search path to continue
@@ -674,7 +674,7 @@ void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence,
   }
 }
 
-void ezGameObject::ActivateChildByName(const ezTempHashedString& sName, bool bDeactivateOthers)
+void WGameObject::ActivateChildByName(const WTempHashedString& sName, bool bDeactivateOthers)
 {
   for (auto it = GetChildren(); it.IsValid(); ++it)
   {
@@ -689,117 +689,117 @@ void ezGameObject::ActivateChildByName(const ezTempHashedString& sName, bool bDe
   }
 }
 
-ezWorld* ezGameObject::GetWorld()
+WWorld* WGameObject::GetWorld()
 {
-  return ezWorld::GetWorld(m_InternalId.m_WorldIndex);
+  return WWorld::GetWorld(m_InternalId.m_WorldIndex);
 }
 
-const ezWorld* ezGameObject::GetWorld() const
+const WWorld* WGameObject::GetWorld() const
 {
-  return ezWorld::GetWorld(m_InternalId.m_WorldIndex);
+  return WWorld::GetWorld(m_InternalId.m_WorldIndex);
 }
 
-void ezGameObject::SetGlobalRotationToLookAt(const ezVec3& vTargetPosition, const ezVec3& vUp /*= ezVec3::MakeAxisZ()*/)
+void WGameObject::SetGlobalRotationToLookAt(const WVec3& vTargetPosition, const WVec3& vUp /*= WVec3::MakeAxisZ()*/)
 {
-  const ezVec3 vDir = vTargetPosition - GetGlobalPosition();
-  EZ_ASSERT_DEV(!vDir.IsZero(0.0001f), "Own position and target position must differ.");
+  const WVec3 vDir = vTargetPosition - GetGlobalPosition();
+  W_ASSERT_DEV(!vDir.IsZero(0.0001f), "Own position and target position must differ.");
 
-  const ezVec3 vFwd = vDir.GetNormalized();
-  const ezVec3 vRight = vUp.CrossRH(vFwd).GetNormalized();
-  const ezVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
+  const WVec3 vFwd = vDir.GetNormalized();
+  const WVec3 vRight = vUp.CrossRH(vFwd).GetNormalized();
+  const WVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
 
-  ezMat3 mLook;
+  WMat3 mLook;
   mLook.SetColumn(0, vFwd);
   mLook.SetColumn(1, vRight);
   mLook.SetColumn(2, vUp2);
 
-  SetGlobalRotation(ezQuat::MakeFromMat3(mLook));
+  SetGlobalRotation(WQuat::MakeFromMat3(mLook));
 }
 
-void ezGameObject::SetGlobalTransformToLookAt(const ezVec3& vOwnPosition, const ezVec3& vTargetPosition, const ezVec3& vUp /*= ezVec3::MakeAxisZ()*/)
+void WGameObject::SetGlobalTransformToLookAt(const WVec3& vOwnPosition, const WVec3& vTargetPosition, const WVec3& vUp /*= WVec3::MakeAxisZ()*/)
 {
-  const ezVec3 vDir = vTargetPosition - vOwnPosition;
-  EZ_ASSERT_DEV(!vDir.IsZero(0.0001f), "Own position and target position must differ.");
+  const WVec3 vDir = vTargetPosition - vOwnPosition;
+  W_ASSERT_DEV(!vDir.IsZero(0.0001f), "Own position and target position must differ.");
 
-  const ezVec3 vFwd = vDir.GetNormalized();
-  const ezVec3 vRight = vUp.CrossRH(vFwd).GetNormalized();
-  const ezVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
+  const WVec3 vFwd = vDir.GetNormalized();
+  const WVec3 vRight = vUp.CrossRH(vFwd).GetNormalized();
+  const WVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
 
-  ezMat3 mLook;
+  WMat3 mLook;
   mLook.SetColumn(0, vFwd);
   mLook.SetColumn(1, vRight);
   mLook.SetColumn(2, vUp2);
 
-  SetGlobalTransform(ezTransform(vOwnPosition, ezQuat::MakeFromMat3(mLook)));
+  SetGlobalTransform(WTransform(vOwnPosition, WQuat::MakeFromMat3(mLook)));
 }
 
-ezVec3 ezGameObject::GetGlobalDirForwards() const
+WVec3 WGameObject::GetGlobalDirForwards() const
 {
-  ezCoordinateSystem coordinateSystem;
+  WCoordinateSystem coordinateSystem;
   GetWorld()->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);
 
   return GetGlobalRotation() * coordinateSystem.m_vForwardDir;
 }
 
-ezVec3 ezGameObject::GetGlobalDirRight() const
+WVec3 WGameObject::GetGlobalDirRight() const
 {
-  ezCoordinateSystem coordinateSystem;
+  WCoordinateSystem coordinateSystem;
   GetWorld()->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);
 
   return GetGlobalRotation() * coordinateSystem.m_vRightDir;
 }
 
-ezVec3 ezGameObject::GetGlobalDirUp() const
+WVec3 WGameObject::GetGlobalDirUp() const
 {
-  ezCoordinateSystem coordinateSystem;
+  WCoordinateSystem coordinateSystem;
   GetWorld()->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);
 
   return GetGlobalRotation() * coordinateSystem.m_vUpDir;
 }
 
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-void ezGameObject::SetLastGlobalTransform(const ezSimdTransform& transform)
+#if W_ENABLED(W_GAMEOBJECT_VELOCITY)
+void WGameObject::SetLastGlobalTransform(const WSimdTransform& transform)
 {
   m_pTransformationData->m_lastGlobalTransform = transform;
   m_pTransformationData->m_uiLastGlobalTransformUpdateCounter = GetWorld()->GetUpdateCounter();
 }
 
-ezVec3 ezGameObject::GetLinearVelocity() const
+WVec3 WGameObject::GetLinearVelocity() const
 {
-  const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
-  const ezSimdVec4f linearVelocity = (m_pTransformationData->m_globalTransform.m_Position - m_pTransformationData->m_lastGlobalTransform.m_Position) * invDeltaSeconds;
-  return ezSimdConversion::ToVec3(linearVelocity);
+  const WSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
+  const WSimdVec4f linearVelocity = (m_pTransformationData->m_globalTransform.m_Position - m_pTransformationData->m_lastGlobalTransform.m_Position) * invDeltaSeconds;
+  return WSimdConversion::ToVec3(linearVelocity);
 }
 
-ezVec3 ezGameObject::GetAngularVelocity() const
+WVec3 WGameObject::GetAngularVelocity() const
 {
-  const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
-  const ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
-  ezSimdVec4f angularVelocity = ezSimdVec4f::MakeZero();
+  const WSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
+  const WSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
+  WSimdVec4f angularVelocity = WSimdVec4f::MakeZero();
 
-  ezSimdVec4f axis;
-  ezSimdFloat angle;
+  WSimdVec4f axis;
+  WSimdFloat angle;
   if (q.GetRotationAxisAndAngle(axis, angle).Succeeded())
   {
     angularVelocity = axis * (angle * invDeltaSeconds);
   }
-  return ezSimdConversion::ToVec3(angularVelocity);
+  return WSimdConversion::ToVec3(angularVelocity);
 }
 #endif
 
-void ezGameObject::UpdateGlobalTransform()
+void WGameObject::UpdateGlobalTransform()
 {
   m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
 }
 
-void ezGameObject::UpdateLocalBounds()
+void WGameObject::UpdateLocalBounds()
 {
-  ezMsgUpdateLocalBounds msg;
-  msg.m_ResultingLocalBounds = ezBoundingBoxSphere::MakeInvalid();
+  WMsgUpdateLocalBounds msg;
+  msg.m_ResultingLocalBounds = WBoundingBoxSphere::MakeInvalid();
 
   SendMessage(msg);
 
-  const bool bIsAlwaysVisible = m_pTransformationData->m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
+  const bool bIsAlwaysVisible = m_pTransformationData->m_localBounds.m_BoxHalfExtents.w() != WSimdFloat::MakeZero();
   bool bRecreateSpatialData = false;
 
   if (m_pTransformationData->m_hSpatialData.IsInvalidated() == false)
@@ -814,11 +814,11 @@ void ezGameObject::UpdateLocalBounds()
     bRecreateSpatialData |= msg.m_bAlwaysVisible == false && msg.m_ResultingLocalBounds.IsValid() == false;
   }
 
-  m_pTransformationData->m_localBounds = ezSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
+  m_pTransformationData->m_localBounds = WSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
   m_pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(msg.m_bAlwaysVisible ? 1.0f : 0.0f);
   m_pTransformationData->m_uiSpatialDataCategoryBitmask = msg.m_uiSpatialDataCategoryBitmask;
 
-  ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
+  WSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
   if (pSpatialSystem != nullptr && (bRecreateSpatialData || m_pTransformationData->m_hSpatialData.IsInvalidated()))
   {
     // UpdateGlobalBounds is called internally by RecreateSpatialData
@@ -830,27 +830,27 @@ void ezGameObject::UpdateLocalBounds()
   }
 }
 
-void ezGameObject::QueueLocalBoundsUpdate()
+void WGameObject::QueueLocalBoundsUpdate()
 {
   GetWorld()->QueueLocalBoundsUpdate(GetHandle());
 }
 
-void ezGameObject::UpdateGlobalTransformAndBounds()
+void WGameObject::UpdateGlobalTransformAndBounds()
 {
   m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
   m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
 }
 
-void ezGameObject::UpdateGlobalBounds()
+void WGameObject::UpdateGlobalBounds()
 {
   m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
 }
 
-bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent)
+bool WGameObject::TryGetComponentOfBaseType(const WRTTI* pType, WComponent*& out_pComponent)
 {
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    WComponent* pComponent = m_Components[i];
     if (pComponent->IsInstanceOf(pType))
     {
       out_pComponent = pComponent;
@@ -862,11 +862,11 @@ bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& 
   return false;
 }
 
-bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, const ezComponent*& out_pComponent) const
+bool WGameObject::TryGetComponentOfBaseType(const WRTTI* pType, const WComponent*& out_pComponent) const
 {
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    WComponent* pComponent = m_Components[i];
     if (pComponent->IsInstanceOf(pType))
     {
       out_pComponent = pComponent;
@@ -879,13 +879,13 @@ bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, const ezCompon
 }
 
 
-void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<ezComponent*>& out_components)
+void WGameObject::TryGetComponentsOfBaseType(const WRTTI* pType, WDynamicArray<WComponent*>& out_components)
 {
   out_components.Clear();
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    WComponent* pComponent = m_Components[i];
     if (pComponent->IsInstanceOf(pType))
     {
       out_components.PushBack(pComponent);
@@ -893,13 +893,13 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArra
   }
 }
 
-void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<const ezComponent*>& out_components) const
+void WGameObject::TryGetComponentsOfBaseType(const WRTTI* pType, WDynamicArray<const WComponent*>& out_components) const
 {
   out_components.Clear();
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    WComponent* pComponent = m_Components[i];
     if (pComponent->IsInstanceOf(pType))
     {
       out_components.PushBack(pComponent);
@@ -907,7 +907,7 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArra
   }
 }
 
-void ezGameObject::SetTeamID(ezUInt16 uiId)
+void WGameObject::SetTeamID(WUInt16 uiId)
 {
   m_uiTeamID = uiId;
 
@@ -917,26 +917,26 @@ void ezGameObject::SetTeamID(ezUInt16 uiId)
   }
 }
 
-ezVisibilityState::Enum ezGameObject::GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible) const
+WVisibilityState::Enum WGameObject::GetVisibilityState(WUInt32 uiNumFramesBeforeInvisible) const
 {
   if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
-    const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
+    const WSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
     return pSpatialSystem->GetVisibilityState(m_pTransformationData->m_hSpatialData, uiNumFramesBeforeInvisible);
   }
 
-  return ezVisibilityState::Direct;
+  return WVisibilityState::Direct;
 }
 
-void ezGameObject::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
+void WGameObject::OnMsgDeleteGameObject(WMsgDeleteGameObject& msg)
 {
   GetWorld()->DeleteObjectNow(GetHandle(), msg.m_bDeleteEmptyParents);
 }
 
-void ezGameObject::AddComponent(ezComponent* pComponent)
+void WGameObject::AddComponent(WComponent* pComponent)
 {
-  EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
-  EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(), "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
+  W_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
+  W_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(), "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
 
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent, GetWorld()->GetAllocator());
@@ -944,10 +944,10 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
 
   pComponent->UpdateActiveState(IsActive());
 
-  if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
+  if (m_Flags.IsSet(WObjectFlags::ComponentChangesNotifications))
   {
-    ezMsgComponentsChanged msg;
-    msg.m_Type = ezMsgComponentsChanged::Type::ComponentAdded;
+    WMsgComponentsChanged msg;
+    msg.m_Type = WMsgComponentsChanged::Type::ComponentAdded;
     msg.m_hOwner = GetHandle();
     msg.m_hComponent = pComponent->GetHandle();
 
@@ -955,19 +955,19 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
   }
 }
 
-void ezGameObject::RemoveComponent(ezComponent* pComponent)
+void WGameObject::RemoveComponent(WComponent* pComponent)
 {
-  ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
-  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Component not found");
+  WUInt32 uiIndex = m_Components.IndexOf(pComponent);
+  W_ASSERT_DEV(uiIndex != WInvalidIndex, "Component not found");
 
   pComponent->m_pOwner = nullptr;
   m_Components.RemoveAtAndSwap(uiIndex);
   m_Components.GetUserData<ComponentUserData>().m_uiVersion++;
 
-  if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
+  if (m_Flags.IsSet(WObjectFlags::ComponentChangesNotifications))
   {
-    ezMsgComponentsChanged msg;
-    msg.m_Type = ezMsgComponentsChanged::Type::ComponentRemoved;
+    WMsgComponentsChanged msg;
+    msg.m_Type = WMsgComponentsChanged::Type::ComponentRemoved;
     msg.m_hOwner = GetHandle();
     msg.m_hComponent = pComponent->GetHandle();
 
@@ -975,45 +975,45 @@ void ezGameObject::RemoveComponent(ezComponent* pComponent)
   }
 }
 
-bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
+bool WGameObject::SendMessageInternal(WMessage& msg, bool bWasPostedMsg)
 {
   bool bSentToAny = false;
 
-  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  const WRTTI* pRtti = WGetStaticRTTI<WGameObject>();
   if (pRtti->DispatchMessage(this, msg))
   {
     bSentToAny = true;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
     {
-      ezLog::Success("ezGameObject::SendMessage: Messages of type {0} was delivered to ezGameObject.", msg.GetId());
+      WLog::Success("WGameObject::SendMessage: Messages of type {0} was delivered to WGameObject.", msg.GetId());
     }
 #endif
   }
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    WComponent* pComponent = m_Components[i];
     if (pComponent->SendMessageInternal(msg, bWasPostedMsg))
     {
       bSentToAny = true;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
       if (msg.GetDebugMessageRouting())
       {
-        ezLog::Success("ezGameObject::SendMessage: Messages of type {0} was delivered to '{}'.", msg.GetId(), pComponent->GetDynamicRTTI()->GetTypeName());
+        WLog::Success("WGameObject::SendMessage: Messages of type {0} was delivered to '{}'.", msg.GetId(), pComponent->GetDynamicRTTI()->GetTypeName());
       }
 #endif
     }
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   if (msg.GetDebugMessageRouting())
   {
     if (!bSentToAny)
     {
-      ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+      WLog::Warning("WGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
     }
   }
 #endif
@@ -1021,40 +1021,40 @@ bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
+bool WGameObject::SendMessageInternal(WMessage& msg, bool bWasPostedMsg) const
 {
   bool bSentToAny = false;
 
-  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  const WRTTI* pRtti = WGetStaticRTTI<WGameObject>();
   bSentToAny |= pRtti->DispatchMessage(this, msg);
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     // forward only to 'const' message handlers
-    const ezComponent* pComponent = m_Components[i];
+    const WComponent* pComponent = m_Components[i];
     bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
-    ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+    WLog::Warning("WGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
   }
 #endif
 
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg)
+bool WGameObject::SendMessageRecursiveInternal(WMessage& msg, bool bWasPostedMsg)
 {
   bool bSentToAny = false;
 
-  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  const WRTTI* pRtti = WGetStaticRTTI<WGameObject>();
   bSentToAny |= pRtti->DispatchMessage(this, msg);
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    WComponent* pComponent = m_Components[i];
     bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
@@ -1064,10 +1064,10 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
   }
 
   // should only be evaluated at the top function call
-  // #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // #if W_ENABLED(W_COMPILE_FOR_DEBUG)
   //  if (!bSentToAny && msg.GetDebugMessageRouting())
   //  {
-  //    ezLog::Warning("ezGameObject::SendMessageRecursive: None of the target object's components had a handler for messages of type {0}.",
+  //    WLog::Warning("WGameObject::SendMessageRecursive: None of the target object's components had a handler for messages of type {0}.",
   //    msg.GetId());
   //  }
   // #endif
@@ -1075,17 +1075,17 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg) const
+bool WGameObject::SendMessageRecursiveInternal(WMessage& msg, bool bWasPostedMsg) const
 {
   bool bSentToAny = false;
 
-  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  const WRTTI* pRtti = WGetStaticRTTI<WGameObject>();
   bSentToAny |= pRtti->DispatchMessage(this, msg);
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     // forward only to 'const' message handlers
-    const ezComponent* pComponent = m_Components[i];
+    const WComponent* pComponent = m_Components[i];
     bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
@@ -1095,10 +1095,10 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
   }
 
   // should only be evaluated at the top function call
-  // #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // #if W_ENABLED(W_COMPILE_FOR_DEBUG)
   //  if (!bSentToAny && msg.GetDebugMessageRouting())
   //  {
-  //    ezLog::Warning("ezGameObject::SendMessageRecursive(const): None of the target object's components had a handler for messages of type
+  //    WLog::Warning("WGameObject::SendMessageRecursive(const): None of the target object's components had a handler for messages of type
   //    {0}.", msg.GetId());
   //  }
   // #endif
@@ -1106,27 +1106,27 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
   return bSentToAny;
 }
 
-void ezGameObject::PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+void WGameObject::PostMessage(const WMessage& msg, WTime delay, WObjectMsgQueueType::Enum queueType) const
 {
   GetWorld()->PostMessage(GetHandle(), msg, delay, queueType);
 }
 
-void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+void WGameObject::PostMessageRecursive(const WMessage& msg, WTime delay, WObjectMsgQueueType::Enum queueType) const
 {
   GetWorld()->PostMessageRecursive(GetHandle(), msg, delay, queueType);
 }
 
-bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent)
+bool WGameObject::SendEventMessage(WMessage& ref_msg, const WComponent* pSenderComponent)
 {
-  ezTempHybridArray<ezComponent*, 4> eventMsgHandlers;
+  WTempHybridArray<WComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(ref_msg, pSenderComponent, this, eventMsgHandlers);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   if (ref_msg.GetDebugMessageRouting())
   {
     if (eventMsgHandlers.IsEmpty())
     {
-      ezLog::Warning("ezGameObject::SendEventMessage: None of the target object's components had a handler for messages of type {0}.", ref_msg.GetId());
+      WLog::Warning("WGameObject::SendEventMessage: None of the target object's components had a handler for messages of type {0}.", ref_msg.GetId());
     }
   }
 #endif
@@ -1139,9 +1139,9 @@ bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSend
   return bResult;
 }
 
-bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const
+bool WGameObject::SendEventMessage(WMessage& ref_msg, const WComponent* pSenderComponent) const
 {
-  ezTempHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  WTempHybridArray<const WComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(ref_msg, pSenderComponent, this, eventMsgHandlers);
 
   bool bResult = false;
@@ -1152,9 +1152,9 @@ bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSend
   return bResult;
 }
 
-void ezGameObject::PostEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+void WGameObject::PostEventMessage(WMessage& ref_msg, const WComponent* pSenderComponent, WTime delay, WObjectMsgQueueType::Enum queueType) const
 {
-  ezTempHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  WTempHybridArray<const WComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(ref_msg, pSenderComponent, this, eventMsgHandlers);
 
   for (auto pEventMsgHandler : eventMsgHandlers)
@@ -1163,9 +1163,9 @@ void ezGameObject::PostEventMessage(ezMessage& ref_msg, const ezComponent* pSend
   }
 }
 
-void ezGameObject::SetTags(const ezTagSet& tags)
+void WGameObject::SetTags(const WTagSet& tags)
 {
-  if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  if (WSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
     if (m_Tags != tags)
     {
@@ -1179,9 +1179,9 @@ void ezGameObject::SetTags(const ezTagSet& tags)
   }
 }
 
-void ezGameObject::SetTag(const ezTag& tag)
+void WGameObject::SetTag(const WTag& tag)
 {
-  if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  if (WSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
     if (m_Tags.IsSet(tag) == false)
     {
@@ -1195,9 +1195,9 @@ void ezGameObject::SetTag(const ezTag& tag)
   }
 }
 
-void ezGameObject::RemoveTag(const ezTag& tag)
+void WGameObject::RemoveTag(const WTag& tag)
 {
-  if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  if (WSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
     if (m_Tags.IsSet(tag))
     {
@@ -1211,16 +1211,16 @@ void ezGameObject::RemoveTag(const ezTag& tag)
   }
 }
 
-void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
+void WGameObject::FixComponentPointer(WComponent* pOldPtr, WComponent* pNewPtr)
 {
-  ezUInt32 uiIndex = m_Components.IndexOf(pOldPtr);
-  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Memory corruption?");
+  WUInt32 uiIndex = m_Components.IndexOf(pOldPtr);
+  W_ASSERT_DEV(uiIndex != WInvalidIndex, "Memory corruption?");
   m_Components[uiIndex] = pNewPtr;
 }
 
-void ezGameObject::SendNotificationMessage(ezMessage& msg)
+void WGameObject::SendNotificationMessage(WMessage& msg)
 {
-  ezGameObject* pObject = this;
+  WGameObject* pObject = this;
   while (pObject != nullptr)
   {
     pObject->SendMessage(msg);
@@ -1231,13 +1231,13 @@ void ezGameObject::SendNotificationMessage(ezMessage& msg)
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameObject::TransformationData::UpdateLocalTransform()
+void WGameObject::TransformationData::UpdateLocalTransform()
 {
-  ezSimdTransform tLocal;
+  WSimdTransform tLocal;
 
   if (m_pParentData != nullptr)
   {
-    tLocal = ezSimdTransform::MakeLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
+    tLocal = WSimdTransform::MakeLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
   }
   else
   {
@@ -1250,7 +1250,7 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
   m_localScaling.SetW(1.0f);
 }
 
-void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive(ezUInt32 uiUpdateCounter)
+void WGameObject::TransformationData::UpdateGlobalTransformNonRecursive(WUInt32 uiUpdateCounter)
 {
   if (m_pParentData != nullptr)
   {
@@ -1262,7 +1262,7 @@ void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive(ezUInt3
   }
 }
 
-void ezGameObject::TransformationData::UpdateGlobalTransformRecursive(ezUInt32 uiUpdateCounter)
+void WGameObject::TransformationData::UpdateGlobalTransformRecursive(WUInt32 uiUpdateCounter)
 {
   if (m_pParentData != nullptr)
   {
@@ -1275,7 +1275,7 @@ void ezGameObject::TransformationData::UpdateGlobalTransformRecursive(ezUInt32 u
   }
 }
 
-void ezGameObject::TransformationData::UpdateGlobalBounds(ezSpatialSystem* pSpatialSystem)
+void WGameObject::TransformationData::UpdateGlobalBounds(WSpatialSystem* pSpatialSystem)
 {
   if (pSpatialSystem == nullptr)
   {
@@ -1287,20 +1287,20 @@ void ezGameObject::TransformationData::UpdateGlobalBounds(ezSpatialSystem* pSpat
   }
 }
 
-void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& ref_spatialSystem)
+void WGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(WSpatialSystem& ref_spatialSystem)
 {
-  ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
+  WSimdBBoxSphere oldGlobalBounds = m_globalBounds;
 
   UpdateGlobalBounds();
 
-  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != WSimdFloat::MakeZero();
   if (m_hSpatialData.IsInvalidated() == false && bIsAlwaysVisible == false && m_globalBounds != oldGlobalBounds)
   {
     ref_spatialSystem.UpdateSpatialDataBounds(m_hSpatialData, m_globalBounds);
   }
 }
 
-void ezGameObject::TransformationData::RecreateSpatialData(ezSpatialSystem& ref_spatialSystem)
+void WGameObject::TransformationData::RecreateSpatialData(WSpatialSystem& ref_spatialSystem)
 {
   if (m_hSpatialData.IsInvalidated() == false)
   {
@@ -1308,7 +1308,7 @@ void ezGameObject::TransformationData::RecreateSpatialData(ezSpatialSystem& ref_
     m_hSpatialData.Invalidate();
   }
 
-  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != WSimdFloat::MakeZero();
   if (bIsAlwaysVisible)
   {
     m_hSpatialData = ref_spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);
@@ -1320,4 +1320,4 @@ void ezGameObject::TransformationData::RecreateSpatialData(ezSpatialSystem& ref_
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_GameObject);
+W_STATICLINK_FILE(Core, Core_World_Implementation_GameObject);

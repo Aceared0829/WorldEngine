@@ -4,7 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-void ezOpenDdlWriter::OutputEscapedString(const ezStringView& string)
+void WOpenDdlWriter::OutputEscapedString(const WStringView& string)
 {
   m_sTemp = string;
   m_sTemp.ReplaceAll("\\", "\\\\");
@@ -20,12 +20,12 @@ void ezOpenDdlWriter::OutputEscapedString(const ezStringView& string)
   OutputString("\"", 1);
 }
 
-void ezOpenDdlWriter::OutputIndentation()
+void WOpenDdlWriter::OutputIndentation()
 {
   if (m_bCompactMode)
     return;
 
-  ezInt32 iIndentation = m_iIndentation;
+  WInt32 iIndentation = m_iIndentation;
 
   // I need my space!
   const char* szIndentation = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
@@ -42,163 +42,163 @@ void ezOpenDdlWriter::OutputIndentation()
   }
 }
 
-void ezOpenDdlWriter::OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType type)
+void WOpenDdlWriter::OutputPrimitiveTypeNameCompliant(WOpenDdlPrimitiveType type)
 {
   switch (type)
   {
-    case ezOpenDdlPrimitiveType::Bool:
+    case WOpenDdlPrimitiveType::Bool:
       OutputString("bool", 4);
       break;
-    case ezOpenDdlPrimitiveType::Int8:
+    case WOpenDdlPrimitiveType::Int8:
       OutputString("int8", 4);
       break;
-    case ezOpenDdlPrimitiveType::Int16:
+    case WOpenDdlPrimitiveType::Int16:
       OutputString("int16", 5);
       break;
-    case ezOpenDdlPrimitiveType::Int32:
+    case WOpenDdlPrimitiveType::Int32:
       OutputString("int32", 5);
       break;
-    case ezOpenDdlPrimitiveType::Int64:
+    case WOpenDdlPrimitiveType::Int64:
       OutputString("int64", 5);
       break;
-    case ezOpenDdlPrimitiveType::UInt8:
+    case WOpenDdlPrimitiveType::UInt8:
       OutputString("unsigned_int8", 13);
       break;
-    case ezOpenDdlPrimitiveType::UInt16:
+    case WOpenDdlPrimitiveType::UInt16:
       OutputString("unsigned_int16", 14);
       break;
-    case ezOpenDdlPrimitiveType::UInt32:
+    case WOpenDdlPrimitiveType::UInt32:
       OutputString("unsigned_int32", 14);
       break;
-    case ezOpenDdlPrimitiveType::UInt64:
+    case WOpenDdlPrimitiveType::UInt64:
       OutputString("unsigned_int64", 14);
       break;
-    case ezOpenDdlPrimitiveType::Float:
+    case WOpenDdlPrimitiveType::Float:
       OutputString("float", 5);
       break;
-    case ezOpenDdlPrimitiveType::Double:
+    case WOpenDdlPrimitiveType::Double:
       OutputString("double", 6);
       break;
-    case ezOpenDdlPrimitiveType::String:
+    case WOpenDdlPrimitiveType::String:
       OutputString("string", 6);
       break;
 
     default:
-      EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
+      W_REPORT_FAILURE("Unknown DDL primitive type {0}", (WUInt32)type);
       break;
   }
 }
-void ezOpenDdlWriter::OutputPrimitiveTypeNameShort(ezOpenDdlPrimitiveType type)
+void WOpenDdlWriter::OutputPrimitiveTypeNameShort(WOpenDdlPrimitiveType type)
 {
   // Change to OpenDDL: We write uint8 etc. instead of unsigned_int
 
   switch (type)
   {
-    case ezOpenDdlPrimitiveType::Bool:
+    case WOpenDdlPrimitiveType::Bool:
       OutputString("bool", 4);
       break;
-    case ezOpenDdlPrimitiveType::Int8:
+    case WOpenDdlPrimitiveType::Int8:
       OutputString("int8", 4);
       break;
-    case ezOpenDdlPrimitiveType::Int16:
+    case WOpenDdlPrimitiveType::Int16:
       OutputString("int16", 5);
       break;
-    case ezOpenDdlPrimitiveType::Int32:
+    case WOpenDdlPrimitiveType::Int32:
       OutputString("int32", 5);
       break;
-    case ezOpenDdlPrimitiveType::Int64:
+    case WOpenDdlPrimitiveType::Int64:
       OutputString("int64", 5);
       break;
-    case ezOpenDdlPrimitiveType::UInt8:
+    case WOpenDdlPrimitiveType::UInt8:
       OutputString("uint8", 5);
       break;
-    case ezOpenDdlPrimitiveType::UInt16:
+    case WOpenDdlPrimitiveType::UInt16:
       OutputString("uint16", 6);
       break;
-    case ezOpenDdlPrimitiveType::UInt32:
+    case WOpenDdlPrimitiveType::UInt32:
       OutputString("uint32", 6);
       break;
-    case ezOpenDdlPrimitiveType::UInt64:
+    case WOpenDdlPrimitiveType::UInt64:
       OutputString("uint64", 6);
       break;
-    case ezOpenDdlPrimitiveType::Float:
+    case WOpenDdlPrimitiveType::Float:
       OutputString("float", 5);
       break;
-    case ezOpenDdlPrimitiveType::Double:
+    case WOpenDdlPrimitiveType::Double:
       OutputString("double", 6);
       break;
-    case ezOpenDdlPrimitiveType::String:
+    case WOpenDdlPrimitiveType::String:
       OutputString("string", 6);
       break;
 
     default:
-      EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
+      W_REPORT_FAILURE("Unknown DDL primitive type {0}", (WUInt32)type);
       break;
   }
 }
 
-void ezOpenDdlWriter::OutputPrimitiveTypeNameShortest(ezOpenDdlPrimitiveType type)
+void WOpenDdlWriter::OutputPrimitiveTypeNameShortest(WOpenDdlPrimitiveType type)
 {
   // Change to OpenDDL: We write super short type strings
 
   switch (type)
   {
-    case ezOpenDdlPrimitiveType::Bool:
+    case WOpenDdlPrimitiveType::Bool:
       OutputString("b", 1);
       break;
-    case ezOpenDdlPrimitiveType::Int8:
+    case WOpenDdlPrimitiveType::Int8:
       OutputString("i1", 2);
       break;
-    case ezOpenDdlPrimitiveType::Int16:
+    case WOpenDdlPrimitiveType::Int16:
       OutputString("i2", 2);
       break;
-    case ezOpenDdlPrimitiveType::Int32:
+    case WOpenDdlPrimitiveType::Int32:
       OutputString("i3", 2);
       break;
-    case ezOpenDdlPrimitiveType::Int64:
+    case WOpenDdlPrimitiveType::Int64:
       OutputString("i4", 2);
       break;
-    case ezOpenDdlPrimitiveType::UInt8:
+    case WOpenDdlPrimitiveType::UInt8:
       OutputString("u1", 2);
       break;
-    case ezOpenDdlPrimitiveType::UInt16:
+    case WOpenDdlPrimitiveType::UInt16:
       OutputString("u2", 2);
       break;
-    case ezOpenDdlPrimitiveType::UInt32:
+    case WOpenDdlPrimitiveType::UInt32:
       OutputString("u3", 2);
       break;
-    case ezOpenDdlPrimitiveType::UInt64:
+    case WOpenDdlPrimitiveType::UInt64:
       OutputString("u4", 2);
       break;
-    case ezOpenDdlPrimitiveType::Float:
+    case WOpenDdlPrimitiveType::Float:
       OutputString("f", 1);
       break;
-    case ezOpenDdlPrimitiveType::Double:
+    case WOpenDdlPrimitiveType::Double:
       OutputString("d", 1);
       break;
-    case ezOpenDdlPrimitiveType::String:
+    case WOpenDdlPrimitiveType::String:
       OutputString("s", 1);
       break;
 
     default:
-      EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
+      W_REPORT_FAILURE("Unknown DDL primitive type {0}", (WUInt32)type);
       break;
   }
 }
 
-ezOpenDdlWriter::ezOpenDdlWriter()
+WOpenDdlWriter::WOpenDdlWriter()
 {
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesBool == (int)ezOpenDdlPrimitiveType::Bool);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesInt8 == (int)ezOpenDdlPrimitiveType::Int8);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesInt16 == (int)ezOpenDdlPrimitiveType::Int16);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesInt32 == (int)ezOpenDdlPrimitiveType::Int32);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesInt64 == (int)ezOpenDdlPrimitiveType::Int64);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesUInt8 == (int)ezOpenDdlPrimitiveType::UInt8);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesUInt16 == (int)ezOpenDdlPrimitiveType::UInt16);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesUInt32 == (int)ezOpenDdlPrimitiveType::UInt32);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesUInt64 == (int)ezOpenDdlPrimitiveType::UInt64);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesFloat == (int)ezOpenDdlPrimitiveType::Float);
-  static_assert((int)ezOpenDdlWriter::State::PrimitivesString == (int)ezOpenDdlPrimitiveType::String);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesBool == (int)WOpenDdlPrimitiveType::Bool);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesInt8 == (int)WOpenDdlPrimitiveType::Int8);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesInt16 == (int)WOpenDdlPrimitiveType::Int16);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesInt32 == (int)WOpenDdlPrimitiveType::Int32);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesInt64 == (int)WOpenDdlPrimitiveType::Int64);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesUInt8 == (int)WOpenDdlPrimitiveType::UInt8);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesUInt16 == (int)WOpenDdlPrimitiveType::UInt16);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesUInt32 == (int)WOpenDdlPrimitiveType::UInt32);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesUInt64 == (int)WOpenDdlPrimitiveType::UInt64);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesFloat == (int)WOpenDdlPrimitiveType::Float);
+  static_assert((int)WOpenDdlWriter::State::PrimitivesString == (int)WOpenDdlPrimitiveType::String);
 
   m_StateStack.ExpandAndGetRef().m_State = State::Invalid;
   m_StateStack.ExpandAndGetRef().m_State = State::Empty;
@@ -211,12 +211,12 @@ ezOpenDdlWriter::ezOpenDdlWriter()
 // None,             ///< No whitespace, not even newlines, is output. This should be used when DDL is used for data exchange, but probably not read
 // by humans.
 
-void ezOpenDdlWriter::BeginObject(ezStringView sType, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/, bool bSingleLine /*= false*/)
+void WOpenDdlWriter::BeginObject(WStringView sType, WStringView sName /*= {}*/, bool bGlobalName /*= false*/, bool bSingleLine /*= false*/)
 {
   {
     const auto state = m_StateStack.PeekBack().m_State;
-    EZ_IGNORE_UNUSED(state);
-    EZ_ASSERT_DEBUG(state == State::Empty || state == State::ObjectMultiLine || state == State::ObjectStart,
+    W_IGNORE_UNUSED(state);
+    W_ASSERT_DEBUG(state == State::Empty || state == State::ObjectMultiLine || state == State::ObjectStart,
       "DDL Writer is in a state where no further objects may be created");
   }
 
@@ -224,9 +224,9 @@ void ezOpenDdlWriter::BeginObject(ezStringView sType, ezStringView sName /*= {}*
 
   {
     const auto state = m_StateStack.PeekBack().m_State;
-    EZ_IGNORE_UNUSED(state);
-    EZ_ASSERT_DEBUG(state != State::ObjectSingleLine, "Cannot put an object into another single-line object");
-    EZ_ASSERT_DEBUG(state != State::ObjectStart, "Object beginning should have been written");
+    W_IGNORE_UNUSED(state);
+    W_ASSERT_DEBUG(state != State::ObjectSingleLine, "Cannot put an object into another single-line object");
+    W_ASSERT_DEBUG(state != State::ObjectStart, "Object beginning should have been written");
   }
 
   OutputIndentation();
@@ -247,7 +247,7 @@ void ezOpenDdlWriter::BeginObject(ezStringView sType, ezStringView sName /*= {}*
 }
 
 
-void ezOpenDdlWriter::OutputObjectBeginning()
+void WOpenDdlWriter::OutputObjectBeginning()
 {
   if (m_StateStack.PeekBack().m_State != State::ObjectStart)
     return;
@@ -280,13 +280,13 @@ void ezOpenDdlWriter::OutputObjectBeginning()
   m_iIndentation++;
 }
 
-bool IsDdlIdentifierCharacter(ezUInt32 uiByte);
+bool IsDdlIdentifierCharacter(WUInt32 uiByte);
 
-void ezOpenDdlWriter::OutputObjectName(ezStringView sName, bool bGlobalName)
+void WOpenDdlWriter::OutputObjectName(WStringView sName, bool bGlobalName)
 {
   if (!sName.IsEmpty())
   {
-    // EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '{0}'", szName);
+    // W_ASSERT_DEBUG(WStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '{0}'", szName);
 
 
     /// \test This code path is untested
@@ -327,10 +327,10 @@ void ezOpenDdlWriter::OutputObjectName(ezStringView sName, bool bGlobalName)
   }
 }
 
-void ezOpenDdlWriter::EndObject()
+void WOpenDdlWriter::EndObject()
 {
   const auto state = m_StateStack.PeekBack().m_State;
-  EZ_ASSERT_DEBUG(state == State::ObjectSingleLine || state == State::ObjectMultiLine || state == State::ObjectStart, "No object is open");
+  W_ASSERT_DEBUG(state == State::ObjectSingleLine || state == State::ObjectMultiLine || state == State::ObjectStart, "No object is open");
 
   if (state == State::ObjectStart)
   {
@@ -340,8 +340,8 @@ void ezOpenDdlWriter::EndObject()
     m_StateStack.PopBack();
 
     const auto newState = m_StateStack.PeekBack().m_State;
-    EZ_IGNORE_UNUSED(newState);
-    EZ_ASSERT_DEBUG(newState == State::ObjectSingleLine || newState == State::ObjectMultiLine, "No object is open");
+    W_IGNORE_UNUSED(newState);
+    W_ASSERT_DEBUG(newState == State::ObjectSingleLine || newState == State::ObjectMultiLine, "No object is open");
   }
   else
   {
@@ -367,12 +367,12 @@ void ezOpenDdlWriter::EndObject()
   m_StateStack.PopBack();
 }
 
-void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlWriter::BeginPrimitiveList(WOpenDdlPrimitiveType type, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   OutputObjectBeginning();
 
   const auto state = m_StateStack.PeekBack().m_State;
-  EZ_ASSERT_DEBUG(state == State::Empty || state == State::ObjectSingleLine || state == State::ObjectMultiLine,
+  W_ASSERT_DEBUG(state == State::Empty || state == State::ObjectSingleLine || state == State::ObjectMultiLine,
     "DDL Writer is in a state where no primitive list may be created");
 
   if (state == State::ObjectMultiLine)
@@ -398,11 +398,11 @@ void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringVi
   m_StateStack.ExpandAndGetRef().m_State = static_cast<State>(type);
 }
 
-void ezOpenDdlWriter::EndPrimitiveList()
+void WOpenDdlWriter::EndPrimitiveList()
 {
   const auto state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEBUG(state >= State::PrimitivesBool && state <= State::PrimitivesString, "No primitive list is open");
+  W_IGNORE_UNUSED(state);
+  W_ASSERT_DEBUG(state >= State::PrimitivesBool && state <= State::PrimitivesString, "No primitive list is open");
 
   m_StateStack.PopBack();
 
@@ -417,12 +417,12 @@ void ezOpenDdlWriter::EndPrimitiveList()
   }
 }
 
-void ezOpenDdlWriter::WritePrimitiveType(ezOpenDdlWriter::State exp)
+void WOpenDdlWriter::WritePrimitiveType(WOpenDdlWriter::State exp)
 {
-  EZ_IGNORE_UNUSED(exp);
+  W_IGNORE_UNUSED(exp);
 
   auto& state = m_StateStack.PeekBack();
-  EZ_ASSERT_DEBUG(state.m_State == exp, "Cannot write thie primitive type without have the correct primitive list open");
+  W_ASSERT_DEBUG(state.m_State == exp, "Cannot write thie primitive type without have the correct primitive list open");
 
   if (state.m_bPrimitivesWritten)
   {
@@ -434,25 +434,25 @@ void ezOpenDdlWriter::WritePrimitiveType(ezOpenDdlWriter::State exp)
 }
 
 
-void ezOpenDdlWriter::WriteBinaryAsHex(const void* pData, ezUInt32 uiBytes)
+void WOpenDdlWriter::WriteBinaryAsHex(const void* pData, WUInt32 uiBytes)
 {
   char tmp[4];
 
-  ezUInt8* pBytes = (ezUInt8*)pData;
+  WUInt8* pBytes = (WUInt8*)pData;
 
-  for (ezUInt32 i = 0; i < uiBytes; ++i)
+  for (WUInt32 i = 0; i < uiBytes; ++i)
   {
-    ezStringUtils::snprintf(tmp, 4, "%02X", (ezUInt32)*pBytes);
+    WStringUtils::snprintf(tmp, 4, "%02X", (WUInt32)*pBytes);
     ++pBytes;
 
     OutputString(tmp, 2);
   }
 }
 
-void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteBool(const bool* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesBool);
 
@@ -465,7 +465,7 @@ void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 uiCount /*= 1*/)
     else
       OutputString("0", 1);
 
-    for (ezUInt32 i = 1; i < uiCount; ++i)
+    for (WUInt32 i = 1; i < uiCount; ++i)
     {
       if (pValues[i])
         OutputString(",1", 2);
@@ -480,7 +480,7 @@ void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 uiCount /*= 1*/)
     else
       OutputString("false", 5);
 
-    for (ezUInt32 i = 1; i < uiCount; ++i)
+    for (WUInt32 i = 1; i < uiCount; ++i)
     {
       if (pValues[i])
         OutputString(",true", 5);
@@ -490,68 +490,68 @@ void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 uiCount /*= 1*/)
   }
 }
 
-void ezOpenDdlWriter::WriteInt8(const ezInt8* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteInt8(const WInt8* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesInt8);
 
   m_sTemp.SetFormat("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < uiCount; ++i)
+  for (WUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.SetFormat(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteInt16(const ezInt16* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteInt16(const WInt16* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesInt16);
 
   m_sTemp.SetFormat("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < uiCount; ++i)
+  for (WUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.SetFormat(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteInt32(const ezInt32* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteInt32(const WInt32* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesInt32);
 
   m_sTemp.SetFormat("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < uiCount; ++i)
+  for (WUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.SetFormat(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteInt64(const ezInt64* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteInt64(const WInt64* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesInt64);
 
   m_sTemp.SetFormat("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < uiCount; ++i)
+  for (WUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.SetFormat(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
@@ -559,78 +559,78 @@ void ezOpenDdlWriter::WriteInt64(const ezInt64* pValues, ezUInt32 uiCount /*= 1*
 }
 
 
-void ezOpenDdlWriter::WriteUInt8(const ezUInt8* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteUInt8(const WUInt8* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesUInt8);
 
   m_sTemp.SetFormat("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < uiCount; ++i)
+  for (WUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.SetFormat(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteUInt16(const ezUInt16* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteUInt16(const WUInt16* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesUInt16);
 
   m_sTemp.SetFormat("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < uiCount; ++i)
+  for (WUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.SetFormat(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteUInt32(const ezUInt32* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteUInt32(const WUInt32* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesUInt32);
 
   m_sTemp.SetFormat("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < uiCount; ++i)
+  for (WUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.SetFormat(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteUInt64(const ezUInt64* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteUInt64(const WUInt64* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesUInt64);
 
   m_sTemp.SetFormat("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < uiCount; ++i)
+  for (WUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.SetFormat(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteFloat(const float* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesFloat);
 
@@ -639,7 +639,7 @@ void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 uiCount /*= 1*/)
     m_sTemp.SetFormat("{0}", pValues[0]);
     OutputString(m_sTemp.GetData());
 
-    for (ezUInt32 i = 1; i < uiCount; ++i)
+    for (WUInt32 i = 1; i < uiCount; ++i)
     {
       m_sTemp.SetFormat(",{0}", pValues[i]);
       OutputString(m_sTemp.GetData());
@@ -659,7 +659,7 @@ void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 uiCount /*= 1*/)
       WriteBinaryAsHex(&pValues[0], 4);
     }
 
-    for (ezUInt32 i = 1; i < uiCount; ++i)
+    for (WUInt32 i = 1; i < uiCount; ++i)
     {
       if (pValues[i] == 0)
       {
@@ -674,10 +674,10 @@ void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 uiCount /*= 1*/)
   }
 }
 
-void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 uiCount /*= 1*/)
+void WOpenDdlWriter::WriteDouble(const double* pValues, WUInt32 uiCount /*= 1*/)
 {
-  EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
+  W_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
+  W_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesDouble);
 
@@ -686,7 +686,7 @@ void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 uiCount /*= 1*
     m_sTemp.SetFormat("{0}", pValues[0]);
     OutputString(m_sTemp.GetData());
 
-    for (ezUInt32 i = 1; i < uiCount; ++i)
+    for (WUInt32 i = 1; i < uiCount; ++i)
     {
       m_sTemp.SetFormat(",{0}", pValues[i]);
       OutputString(m_sTemp.GetData());
@@ -706,7 +706,7 @@ void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 uiCount /*= 1*
       WriteBinaryAsHex(&pValues[0], 8);
     }
 
-    for (ezUInt32 i = 1; i < uiCount; ++i)
+    for (WUInt32 i = 1; i < uiCount; ++i)
     {
       if (pValues[i] == 0)
       {
@@ -721,16 +721,16 @@ void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 uiCount /*= 1*
   }
 }
 
-void ezOpenDdlWriter::WriteString(const ezStringView& sString)
+void WOpenDdlWriter::WriteString(const WStringView& sString)
 {
   WritePrimitiveType(State::PrimitivesString);
 
   OutputEscapedString(sString);
 }
 
-void ezOpenDdlWriter::WriteBinaryAsString(const void* pData, ezUInt32 uiBytes)
+void WOpenDdlWriter::WriteBinaryAsString(const void* pData, WUInt32 uiBytes)
 {
-  /// \test ezOpenDdlWriter::WriteBinaryAsString
+  /// \test WOpenDdlWriter::WriteBinaryAsString
 
   WritePrimitiveType(State::PrimitivesString);
 

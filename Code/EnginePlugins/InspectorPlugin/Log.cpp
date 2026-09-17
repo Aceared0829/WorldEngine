@@ -3,45 +3,45 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Logging/Log.h>
 
-namespace ezLogWriter
+namespace WLogWriter
 {
-  /// This log-writer will broadcast all messages through ezTelemetry, such that external applications can display the log messages.
+  /// This log-writer will broadcast all messages through WTelemetry, such that external applications can display the log messages.
   class Telemetry
   {
   public:
-    /// Register this at ezLog to broadcast all log messages through ezTelemetry.
-    static void LogMessageHandler(const ezLoggingEventData& eventData)
+    /// Register this at WLog to broadcast all log messages through WTelemetry.
+    static void LogMessageHandler(const WLoggingEventData& eventData)
     {
-      ezTelemetryMessage msg;
+      WTelemetryMessage msg;
       msg.SetMessageID(' LOG', ' MSG');
 
-      msg.GetWriter() << (ezInt8)eventData.m_EventType;
-      msg.GetWriter() << (ezUInt8)eventData.m_uiIndentation;
+      msg.GetWriter() << (WInt8)eventData.m_EventType;
+      msg.GetWriter() << (WUInt8)eventData.m_uiIndentation;
       msg.GetWriter() << eventData.m_sTag;
       msg.GetWriter() << eventData.m_sText;
 
-      if (eventData.m_EventType == ezLogMsgType::EndGroup)
+      if (eventData.m_EventType == WLogMsgType::EndGroup)
       {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
         msg.GetWriter() << eventData.m_fSeconds;
 #else
         msg.GetWriter() << 0.0f;
 #endif
       }
 
-      ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+      WTelemetry::Broadcast(WTelemetry::Reliable, msg);
     }
   };
-} // namespace ezLogWriter
+} // namespace WLogWriter
 
 void AddLogWriter()
 {
-  ezGlobalLog::AddLogWriter(&ezLogWriter::Telemetry::LogMessageHandler);
+  WGlobalLog::AddLogWriter(&WLogWriter::Telemetry::LogMessageHandler);
 }
 
 void RemoveLogWriter()
 {
-  ezGlobalLog::RemoveLogWriter(&ezLogWriter::Telemetry::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(&WLogWriter::Telemetry::LogMessageHandler);
 }
 
 

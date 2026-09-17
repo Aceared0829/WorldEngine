@@ -7,51 +7,51 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 
 // this injects the main function
-EZ_APPLICATION_ENTRY_POINT(ezPlayerApplication);
+W_APPLICATION_ENTRY_POINT(WPlayerApplication);
 
-// these command line options may not all be directly used in ezPlayer, but the ezFallbackGameState reads those options to determine which scene to load
-ezCommandLineOptionString opt_Project("_Player", "-project", "Path to the project folder.\nUsually an absolute path, though relative paths will work for projects that are located inside the EZ SDK directory.", "");
-ezCommandLineOptionString opt_Scene("_Player", "-scene", "Path to a scene file.\nUsually given relative to the corresponding project data directory where it resides, but can also be given as an absolute path.", "");
+// these command line options may not all be directly used in WPlayer, but the WFallbackGameState reads those options to determine which scene to load
+WCommandLineOptionString opt_Project("_Player", "-project", "Path to the project folder.\nUsually an absolute path, though relative paths will work for projects that are located inside the W SDK directory.", "");
+WCommandLineOptionString opt_Scene("_Player", "-scene", "Path to a scene file.\nUsually given relative to the corresponding project data directory where it resides, but can also be given as an absolute path.", "");
 
 
-ezPlayerApplication::ezPlayerApplication()
-  : ezGameApplication("ezPlayer", nullptr) // we don't have a fixed project path in this app, so we need to pass that in a bit later
+WPlayerApplication::WPlayerApplication()
+  : WGameApplication("WPlayer", nullptr) // we don't have a fixed project path in this app, so we need to pass that in a bit later
 {
 }
 
-ezResult ezPlayerApplication::BeforeCoreSystemsStartup()
+WResult WPlayerApplication::BeforeCoreSystemsStartup()
 {
   // show the command line options, if help is requested
   {
     // since this is a GUI application (not a console app), printf has no effect
     // therefore we have to show the command line options with a message box
 
-    ezStringBuilder cmdHelp;
-    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested))
+    WStringBuilder cmdHelp;
+    if (WCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, WCommandLineOption::LogAvailableModes::IfHelpRequested))
     {
-      ezLog::OsMessageBox(cmdHelp);
+      WLog::OsMessageBox(cmdHelp);
       SetReturnCode(-1);
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
-  ezStartup::AddApplicationTag("player");
+  WStartup::AddApplicationTag("player");
 
-  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
+  W_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   DetermineProjectPath();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezPlayerApplication::DetermineProjectPath()
+void WPlayerApplication::DetermineProjectPath()
 {
-  ezStringBuilder sProjectPath = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
+  WStringBuilder sProjectPath = opt_Project.GetOptionValue(WCommandLineOption::LogMode::FirstTime);
 
-#if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
-  // We can't specify command line arguments on many platforms so the project must be defined by ezFileserve.
-  // ezFileserve must be started with the project special dir set. For example:
-  // -specialdirs project ".../ezEngine/Data/Samples/Testing Chambers
+#if W_DISABLED(W_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+  // We can't specify command line arguments on many platforms so the project must be defined by WFileserve.
+  // WFileserve must be started with the project special dir set. For example:
+  // -specialdirs project ".../WorldEngine/Data/Samples/Testing Chambers
 
   if (sProjectPath.IsEmpty())
   {
@@ -62,38 +62,38 @@ void ezPlayerApplication::DetermineProjectPath()
 
   if (sProjectPath.IsEmpty())
   {
-    const ezStringBuilder sScenePath = opt_Scene.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
+    const WStringBuilder sScenePath = opt_Scene.GetOptionValue(WCommandLineOption::LogMode::FirstTime);
 
     // project path is empty, need to extract it from the scene path
 
     if (!sScenePath.IsAbsolutePath())
     {
       // scene path is not absolute -> can't extract project path
-      m_sAppProjectPath = ezFileSystem::GetSdkRootDirectory();
+      m_sAppProjectPath = WFileSystem::GetSdkRootDirectory();
       SetReturnCode(1);
       return;
     }
 
-    if (ezFileSystem::FindFolderWithSubPath(sProjectPath, sScenePath, "ezProject", "ezSdkRoot.txt").Failed())
+    if (WFileSystem::FindFolderWithSubPath(sProjectPath, sScenePath, "WProject", "WSdkRoot.txt").Failed())
     {
-      // couldn't find the 'ezProject' file in any parent folder of the scene
-      m_sAppProjectPath = ezFileSystem::GetSdkRootDirectory();
+      // couldn't find the 'WProject' file in any parent folder of the scene
+      m_sAppProjectPath = WFileSystem::GetSdkRootDirectory();
       SetReturnCode(1);
       return;
     }
   }
-  else if (!ezPathUtils::IsAbsolutePath(sProjectPath))
+  else if (!WPathUtils::IsAbsolutePath(sProjectPath))
   {
     // project path is not absolute, so must be relative to the SDK directory
-    sProjectPath.Prepend(ezFileSystem::GetSdkRootDirectory(), "/");
+    sProjectPath.Prepend(WFileSystem::GetSdkRootDirectory(), "/");
   }
 
   sProjectPath.MakeCleanPath();
-  sProjectPath.TrimWordEnd("/ezProject");
+  sProjectPath.TrimWordEnd("/WProject");
 
   if (sProjectPath.IsEmpty())
   {
-    m_sAppProjectPath = ezFileSystem::GetSdkRootDirectory();
+    m_sAppProjectPath = WFileSystem::GetSdkRootDirectory();
     SetReturnCode(1);
     return;
   }

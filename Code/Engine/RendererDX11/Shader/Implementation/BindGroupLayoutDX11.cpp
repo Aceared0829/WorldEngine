@@ -3,19 +3,19 @@
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Shader/BindGroupLayoutDX11.h>
 
-ezGALBindGroupLayoutDX11::ezGALBindGroupLayoutDX11(const ezGALBindGroupLayoutCreationDescription& Description)
-  : ezGALBindGroupLayout(Description)
+WGALBindGroupLayoutDX11::WGALBindGroupLayoutDX11(const WGALBindGroupLayoutCreationDescription& Description)
+  : WGALBindGroupLayout(Description)
 {
 }
 
-ezGALBindGroupLayoutDX11::~ezGALBindGroupLayoutDX11() = default;
+WGALBindGroupLayoutDX11::~WGALBindGroupLayoutDX11() = default;
 
-ezResult ezGALBindGroupLayoutDX11::InitPlatform(ezGALDevice*)
+WResult WGALBindGroupLayoutDX11::InitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALBindGroupLayoutDX11::DeInitPlatform(ezGALDevice*)
+WResult WGALBindGroupLayoutDX11::DeInitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

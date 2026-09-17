@@ -164,56 +164,56 @@ namespace
     "",
   };
 
-  static_assert(EZ_ARRAY_SIZE(s_szOpCodeNames) == ezExpressionByteCode::OpCode::Count);
-  static_assert(ezExpressionByteCode::OpCode::LastBinary - ezExpressionByteCode::OpCode::FirstBinary == ezExpressionByteCode::OpCode::LastBinaryWithConstant - ezExpressionByteCode::OpCode::FirstBinaryWithConstant);
+  static_assert(W_ARRAY_SIZE(s_szOpCodeNames) == WExpressionByteCode::OpCode::Count);
+  static_assert(WExpressionByteCode::OpCode::LastBinary - WExpressionByteCode::OpCode::FirstBinary == WExpressionByteCode::OpCode::LastBinaryWithConstant - WExpressionByteCode::OpCode::FirstBinaryWithConstant);
 
 
-  static constexpr ezUInt32 GetMaxOpCodeLength()
+  static constexpr WUInt32 GetMaxOpCodeLength()
   {
-    ezUInt32 uiMaxLength = 0;
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_szOpCodeNames); ++i)
+    WUInt32 uiMaxLength = 0;
+    for (WUInt32 i = 0; i < W_ARRAY_SIZE(s_szOpCodeNames); ++i)
     {
-      uiMaxLength = ezMath::Max(uiMaxLength, ezStringUtils::GetStringElementCount(s_szOpCodeNames[i]));
+      uiMaxLength = WMath::Max(uiMaxLength, WStringUtils::GetStringElementCount(s_szOpCodeNames[i]));
     }
     return uiMaxLength;
   }
 
-  static constexpr ezUInt32 s_uiMaxOpCodeLength = GetMaxOpCodeLength();
+  static constexpr WUInt32 s_uiMaxOpCodeLength = GetMaxOpCodeLength();
 
 } // namespace
 
-const char* ezExpressionByteCode::OpCode::GetName(Enum code)
+const char* WExpressionByteCode::OpCode::GetName(Enum code)
 {
-  EZ_ASSERT_DEBUG(code >= 0 && static_cast<ezUInt32>(code) < EZ_ARRAY_SIZE(s_szOpCodeNames), "Out of bounds access");
+  W_ASSERT_DEBUG(code >= 0 && static_cast<WUInt32>(code) < W_ARRAY_SIZE(s_szOpCodeNames), "Out of bounds access");
   return s_szOpCodeNames[code];
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 //clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExpressionByteCode, ezNoBase, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WExpressionByteCode, WNoBase, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 //clang-format on
 
-ezExpressionByteCode::ezExpressionByteCode() = default;
+WExpressionByteCode::WExpressionByteCode() = default;
 
-ezExpressionByteCode::ezExpressionByteCode(const ezExpressionByteCode& other)
+WExpressionByteCode::WExpressionByteCode(const WExpressionByteCode& other)
 {
   *this = other;
 }
 
-ezExpressionByteCode::~ezExpressionByteCode()
+WExpressionByteCode::~WExpressionByteCode()
 {
   Clear();
 }
 
-void ezExpressionByteCode::operator=(const ezExpressionByteCode& other)
+void WExpressionByteCode::operator=(const WExpressionByteCode& other)
 {
   Clear();
   Init(other.GetByteCode(), other.GetInputs(), other.GetOutputs(), other.GetFunctions(), other.GetNumTempRegisters(), other.GetNumInstructions());
 }
 
-bool ezExpressionByteCode::operator==(const ezExpressionByteCode& other) const
+bool WExpressionByteCode::operator==(const WExpressionByteCode& other) const
 {
   return GetByteCode() == other.GetByteCode() &&
          GetInputs() == other.GetInputs() &&
@@ -221,11 +221,11 @@ bool ezExpressionByteCode::operator==(const ezExpressionByteCode& other) const
          GetFunctions() == other.GetFunctions();
 }
 
-void ezExpressionByteCode::Clear()
+void WExpressionByteCode::Clear()
 {
-  ezMemoryUtils::Destruct(m_pInputs, m_uiNumInputs);
-  ezMemoryUtils::Destruct(m_pOutputs, m_uiNumOutputs);
-  ezMemoryUtils::Destruct(m_pFunctions, m_uiNumFunctions);
+  WMemoryUtils::Destruct(m_pInputs, m_uiNumInputs);
+  WMemoryUtils::Destruct(m_pOutputs, m_uiNumOutputs);
+  WMemoryUtils::Destruct(m_pFunctions, m_uiNumFunctions);
 
   m_pInputs = nullptr;
   m_pOutputs = nullptr;
@@ -243,28 +243,28 @@ void ezExpressionByteCode::Clear()
   m_Data.Clear();
 }
 
-void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
+void WExpressionByteCode::Disassemble(WStringBuilder& out_sDisassembly) const
 {
   out_sDisassembly.Append("// Inputs:\n");
-  for (ezUInt32 i = 0; i < m_uiNumInputs; ++i)
+  for (WUInt32 i = 0; i < m_uiNumInputs; ++i)
   {
-    out_sDisassembly.AppendFormat("//  {}: {}({})\n", i, m_pInputs[i].m_sName, ezProcessingStream::GetDataTypeName(m_pInputs[i].m_DataType));
+    out_sDisassembly.AppendFormat("//  {}: {}({})\n", i, m_pInputs[i].m_sName, WProcessingStream::GetDataTypeName(m_pInputs[i].m_DataType));
   }
 
   out_sDisassembly.Append("\n// Outputs:\n");
-  for (ezUInt32 i = 0; i < m_uiNumOutputs; ++i)
+  for (WUInt32 i = 0; i < m_uiNumOutputs; ++i)
   {
-    out_sDisassembly.AppendFormat("//  {}: {}({})\n", i, m_pOutputs[i].m_sName, ezProcessingStream::GetDataTypeName(m_pOutputs[i].m_DataType));
+    out_sDisassembly.AppendFormat("//  {}: {}({})\n", i, m_pOutputs[i].m_sName, WProcessingStream::GetDataTypeName(m_pOutputs[i].m_DataType));
   }
 
   out_sDisassembly.Append("\n// Functions:\n");
-  for (ezUInt32 i = 0; i < m_uiNumFunctions; ++i)
+  for (WUInt32 i = 0; i < m_uiNumFunctions; ++i)
   {
-    out_sDisassembly.AppendFormat("//  {}: {} {}(", i, ezExpression::RegisterType::GetName(m_pFunctions[i].m_OutputType), m_pFunctions[i].m_sName);
-    const ezUInt32 uiNumArguments = m_pFunctions[i].m_InputTypes.GetCount();
-    for (ezUInt32 j = 0; j < uiNumArguments; ++j)
+    out_sDisassembly.AppendFormat("//  {}: {} {}(", i, WExpression::RegisterType::GetName(m_pFunctions[i].m_OutputType), m_pFunctions[i].m_sName);
+    const WUInt32 uiNumArguments = m_pFunctions[i].m_InputTypes.GetCount();
+    for (WUInt32 j = 0; j < uiNumArguments; ++j)
     {
-      out_sDisassembly.Append(ezExpression::RegisterType::GetName(m_pFunctions[i].m_InputTypes[j]));
+      out_sDisassembly.Append(WExpression::RegisterType::GetName(m_pFunctions[i].m_InputTypes[j]));
       if (j < uiNumArguments - 1)
       {
         out_sDisassembly.Append(", ");
@@ -276,9 +276,9 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
   out_sDisassembly.AppendFormat("\n// Temp Registers: {}\n", GetNumTempRegisters());
   out_sDisassembly.AppendFormat("// Instructions: {}\n\n", GetNumInstructions());
 
-  auto AppendConstant = [](ezUInt32 x, ezStringBuilder& out_sString)
+  auto AppendConstant = [](WUInt32 x, WStringBuilder& out_sString)
   {
-    out_sString.AppendFormat("0x{}({})", ezArgU(x, 8, true, 16), ezArgF(*reinterpret_cast<float*>(&x), 6));
+    out_sString.AppendFormat("0x{}({})", WArgU(x, 8, true, 16), WArgF(*reinterpret_cast<float*>(&x), 6));
   };
 
   const StorageType* pByteCode = GetByteCodeStart();
@@ -289,10 +289,10 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
     OpCode::Enum opCode = GetOpCode(pByteCode);
     {
       const char* szOpCode = OpCode::GetName(opCode);
-      ezUInt32 uiOpCodeLength = ezStringUtils::GetStringElementCount(szOpCode);
+      WUInt32 uiOpCodeLength = WStringUtils::GetStringElementCount(szOpCode);
 
       out_sDisassembly.Append(szOpCode);
-      for (ezUInt32 i = uiOpCodeLength; i < s_uiMaxOpCodeLength + 1; ++i)
+      for (WUInt32 i = uiOpCodeLength; i < s_uiMaxOpCodeLength + 1; ++i)
       {
         out_sDisassembly.Append(" ");
       }
@@ -300,24 +300,24 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
 
     if (opCode > OpCode::FirstUnary && opCode < OpCode::LastUnary)
     {
-      ezUInt32 r = GetRegisterIndex(pByteCode);
-      ezUInt32 x = GetRegisterIndex(pByteCode);
+      WUInt32 r = GetRegisterIndex(pByteCode);
+      WUInt32 x = GetRegisterIndex(pByteCode);
 
       out_sDisassembly.AppendFormat("r{} r{}\n", r, x);
     }
     else if (opCode > OpCode::FirstBinary && opCode < OpCode::LastBinary)
     {
-      ezUInt32 r = GetRegisterIndex(pByteCode);
-      ezUInt32 a = GetRegisterIndex(pByteCode);
-      ezUInt32 b = GetRegisterIndex(pByteCode);
+      WUInt32 r = GetRegisterIndex(pByteCode);
+      WUInt32 a = GetRegisterIndex(pByteCode);
+      WUInt32 b = GetRegisterIndex(pByteCode);
 
       out_sDisassembly.AppendFormat("r{} r{} r{}\n", r, a, b);
     }
     else if (opCode > OpCode::FirstBinaryWithConstant && opCode < OpCode::LastBinaryWithConstant)
     {
-      ezUInt32 r = GetRegisterIndex(pByteCode);
-      ezUInt32 a = GetRegisterIndex(pByteCode);
-      ezUInt32 b = GetRegisterIndex(pByteCode);
+      WUInt32 r = GetRegisterIndex(pByteCode);
+      WUInt32 a = GetRegisterIndex(pByteCode);
+      WUInt32 b = GetRegisterIndex(pByteCode);
 
       out_sDisassembly.AppendFormat("r{} r{} ", r, a);
       AppendConstant(b, out_sDisassembly);
@@ -325,17 +325,17 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
     }
     else if (opCode > OpCode::FirstTernary && opCode < OpCode::LastTernary)
     {
-      ezUInt32 r = GetRegisterIndex(pByteCode);
-      ezUInt32 a = GetRegisterIndex(pByteCode);
-      ezUInt32 b = GetRegisterIndex(pByteCode);
-      ezUInt32 c = GetRegisterIndex(pByteCode);
+      WUInt32 r = GetRegisterIndex(pByteCode);
+      WUInt32 a = GetRegisterIndex(pByteCode);
+      WUInt32 b = GetRegisterIndex(pByteCode);
+      WUInt32 c = GetRegisterIndex(pByteCode);
 
       out_sDisassembly.AppendFormat("r{} r{} r{} r{}\n", r, a, b, c);
     }
     else if (opCode == OpCode::MovX_C)
     {
-      ezUInt32 r = GetRegisterIndex(pByteCode);
-      ezUInt32 x = GetRegisterIndex(pByteCode);
+      WUInt32 r = GetRegisterIndex(pByteCode);
+      WUInt32 x = GetRegisterIndex(pByteCode);
 
       out_sDisassembly.AppendFormat("r{} ", r);
       AppendConstant(x, out_sDisassembly);
@@ -343,25 +343,25 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
     }
     else if (opCode == OpCode::LoadF || opCode == OpCode::LoadI)
     {
-      ezUInt32 r = GetRegisterIndex(pByteCode);
-      ezUInt32 i = GetRegisterIndex(pByteCode);
+      WUInt32 r = GetRegisterIndex(pByteCode);
+      WUInt32 i = GetRegisterIndex(pByteCode);
 
       out_sDisassembly.AppendFormat("r{} i{}({})\n", r, i, m_pInputs[i].m_sName);
     }
     else if (opCode == OpCode::StoreF || opCode == OpCode::StoreI)
     {
-      ezUInt32 o = GetRegisterIndex(pByteCode);
-      ezUInt32 r = GetRegisterIndex(pByteCode);
+      WUInt32 o = GetRegisterIndex(pByteCode);
+      WUInt32 r = GetRegisterIndex(pByteCode);
 
       out_sDisassembly.AppendFormat("o{}({}) r{}\n", o, m_pOutputs[o].m_sName, r);
     }
     else if (opCode == OpCode::Call)
     {
-      ezUInt32 uiIndex = GetFunctionIndex(pByteCode);
+      WUInt32 uiIndex = GetFunctionIndex(pByteCode);
       const char* szName = m_pFunctions[uiIndex].m_sName;
 
-      ezStringBuilder sName;
-      if (ezStringUtils::IsNullOrEmpty(szName))
+      WStringBuilder sName;
+      if (WStringUtils::IsNullOrEmpty(szName))
       {
         sName.SetFormat("Unknown_{0}", uiIndex);
       }
@@ -370,14 +370,14 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
         sName = szName;
       }
 
-      ezUInt32 r = GetRegisterIndex(pByteCode);
+      WUInt32 r = GetRegisterIndex(pByteCode);
 
       out_sDisassembly.AppendFormat("{1} r{2}", sName, r);
 
-      ezUInt32 uiNumArgs = GetFunctionArgCount(pByteCode);
-      for (ezUInt32 uiArgIndex = 0; uiArgIndex < uiNumArgs; ++uiArgIndex)
+      WUInt32 uiNumArgs = GetFunctionArgCount(pByteCode);
+      for (WUInt32 uiArgIndex = 0; uiArgIndex < uiNumArgs; ++uiArgIndex)
       {
-        ezUInt32 x = GetRegisterIndex(pByteCode);
+        WUInt32 x = GetRegisterIndex(pByteCode);
         out_sDisassembly.AppendFormat(" r{0}", x);
       }
 
@@ -385,58 +385,58 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 }
 
-static constexpr ezTypeVersion s_uiByteCodeVersion = 6;
+static constexpr WTypeVersion s_uiByteCodeVersion = 6;
 
-ezResult ezExpressionByteCode::Save(ezStreamWriter& inout_stream) const
+WResult WExpressionByteCode::Save(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(s_uiByteCodeVersion);
 
-  ezUInt32 uiDataSize = static_cast<ezUInt32>(m_Data.GetByteBlobPtr().GetCount());
+  WUInt32 uiDataSize = static_cast<WUInt32>(m_Data.GetByteBlobPtr().GetCount());
 
   inout_stream << uiDataSize;
 
   inout_stream << m_uiNumInputs;
   for (auto& input : GetInputs())
   {
-    EZ_SUCCEED_OR_RETURN(input.Serialize(inout_stream));
+    W_SUCCEED_OR_RETURN(input.Serialize(inout_stream));
   }
 
   inout_stream << m_uiNumOutputs;
   for (auto& output : GetOutputs())
   {
-    EZ_SUCCEED_OR_RETURN(output.Serialize(inout_stream));
+    W_SUCCEED_OR_RETURN(output.Serialize(inout_stream));
   }
 
   inout_stream << m_uiNumFunctions;
   for (auto& function : GetFunctions())
   {
-    EZ_SUCCEED_OR_RETURN(function.Serialize(inout_stream));
+    W_SUCCEED_OR_RETURN(function.Serialize(inout_stream));
   }
 
   inout_stream << m_uiByteCodeCount;
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(m_pByteCode, m_uiByteCodeCount * sizeof(StorageType)));
+  W_SUCCEED_OR_RETURN(inout_stream.WriteBytes(m_pByteCode, m_uiByteCodeCount * sizeof(StorageType)));
 
   inout_stream << m_uiNumTempRegisters;
   inout_stream << m_uiNumInstructions;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream, ezByteArrayPtr externalMemory /*= ezByteArrayPtr()*/)
+WResult WExpressionByteCode::Load(WStreamReader& inout_stream, WByteArrayPtr externalMemory /*= WByteArrayPtr()*/)
 {
-  ezTypeVersion version = inout_stream.ReadVersion(s_uiByteCodeVersion);
+  WTypeVersion version = inout_stream.ReadVersion(s_uiByteCodeVersion);
   if (version != s_uiByteCodeVersion)
   {
-    ezLog::Error("Invalid expression byte code version {}. Expected {}", version, s_uiByteCodeVersion);
-    return EZ_FAILURE;
+    WLog::Error("Invalid expression byte code version {}. Expected {}", version, s_uiByteCodeVersion);
+    return W_FAILURE;
   }
 
-  ezUInt32 uiDataSize = 0;
+  WUInt32 uiDataSize = 0;
   inout_stream >> uiDataSize;
 
   void* pData = nullptr;
@@ -450,14 +450,14 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream, ezByteArrayPtr
   {
     if (externalMemory.GetCount() < uiDataSize)
     {
-      ezLog::Error("External memory is too small. Expected at least {} bytes but got {} bytes.", uiDataSize, externalMemory.GetCount());
-      return EZ_FAILURE;
+      WLog::Error("External memory is too small. Expected at least {} bytes but got {} bytes.", uiDataSize, externalMemory.GetCount());
+      return W_FAILURE;
     }
 
-    if (ezMemoryUtils::IsAligned(externalMemory.GetPtr(), alignof(ezExpression::StreamDesc)) == false)
+    if (WMemoryUtils::IsAligned(externalMemory.GetPtr(), alignof(WExpression::StreamDesc)) == false)
     {
-      ezLog::Error("External memory is not properly aligned. Expected an alignment of at least {} bytes.", alignof(ezExpression::StreamDesc));
-      return EZ_FAILURE;
+      WLog::Error("External memory is not properly aligned. Expected an alignment of at least {} bytes.", alignof(WExpression::StreamDesc));
+      return W_FAILURE;
     }
 
     pData = externalMemory.GetPtr();
@@ -466,44 +466,44 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream, ezByteArrayPtr
   // Inputs
   {
     inout_stream >> m_uiNumInputs;
-    m_pInputs = static_cast<ezExpression::StreamDesc*>(pData);
-    for (ezUInt32 i = 0; i < m_uiNumInputs; ++i)
+    m_pInputs = static_cast<WExpression::StreamDesc*>(pData);
+    for (WUInt32 i = 0; i < m_uiNumInputs; ++i)
     {
-      EZ_SUCCEED_OR_RETURN(m_pInputs[i].Deserialize(inout_stream));
+      W_SUCCEED_OR_RETURN(m_pInputs[i].Deserialize(inout_stream));
     }
 
-    pData = ezMemoryUtils::AddByteOffset(pData, GetInputs().ToByteArray().GetCount());
+    pData = WMemoryUtils::AddByteOffset(pData, GetInputs().ToByteArray().GetCount());
   }
 
   // Outputs
   {
     inout_stream >> m_uiNumOutputs;
-    m_pOutputs = static_cast<ezExpression::StreamDesc*>(pData);
-    for (ezUInt32 i = 0; i < m_uiNumOutputs; ++i)
+    m_pOutputs = static_cast<WExpression::StreamDesc*>(pData);
+    for (WUInt32 i = 0; i < m_uiNumOutputs; ++i)
     {
-      EZ_SUCCEED_OR_RETURN(m_pOutputs[i].Deserialize(inout_stream));
+      W_SUCCEED_OR_RETURN(m_pOutputs[i].Deserialize(inout_stream));
     }
 
-    pData = ezMemoryUtils::AddByteOffset(pData, GetOutputs().ToByteArray().GetCount());
+    pData = WMemoryUtils::AddByteOffset(pData, GetOutputs().ToByteArray().GetCount());
   }
 
   // Functions
   {
-    pData = ezMemoryUtils::AlignForwards(pData, alignof(ezExpression::FunctionDesc));
+    pData = WMemoryUtils::AlignForwards(pData, alignof(WExpression::FunctionDesc));
 
     inout_stream >> m_uiNumFunctions;
-    m_pFunctions = static_cast<ezExpression::FunctionDesc*>(pData);
-    for (ezUInt32 i = 0; i < m_uiNumFunctions; ++i)
+    m_pFunctions = static_cast<WExpression::FunctionDesc*>(pData);
+    for (WUInt32 i = 0; i < m_uiNumFunctions; ++i)
     {
-      EZ_SUCCEED_OR_RETURN(m_pFunctions[i].Deserialize(inout_stream));
+      W_SUCCEED_OR_RETURN(m_pFunctions[i].Deserialize(inout_stream));
     }
 
-    pData = ezMemoryUtils::AddByteOffset(pData, GetFunctions().ToByteArray().GetCount());
+    pData = WMemoryUtils::AddByteOffset(pData, GetFunctions().ToByteArray().GetCount());
   }
 
   // ByteCode
   {
-    pData = ezMemoryUtils::AlignForwards(pData, alignof(StorageType));
+    pData = WMemoryUtils::AlignForwards(pData, alignof(StorageType));
 
     inout_stream >> m_uiByteCodeCount;
     m_pByteCode = static_cast<StorageType*>(pData);
@@ -513,25 +513,25 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream, ezByteArrayPtr
   inout_stream >> m_uiNumTempRegisters;
   inout_stream >> m_uiNumInstructions;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezExpressionByteCode::Init(ezArrayPtr<const StorageType> byteCode, ezArrayPtr<const ezExpression::StreamDesc> inputs, ezArrayPtr<const ezExpression::StreamDesc> outputs, ezArrayPtr<const ezExpression::FunctionDesc> functions, ezUInt32 uiNumTempRegisters, ezUInt32 uiNumInstructions)
+void WExpressionByteCode::Init(WArrayPtr<const StorageType> byteCode, WArrayPtr<const WExpression::StreamDesc> inputs, WArrayPtr<const WExpression::StreamDesc> outputs, WArrayPtr<const WExpression::FunctionDesc> functions, WUInt32 uiNumTempRegisters, WUInt32 uiNumInstructions)
 {
-  ezUInt32 uiOutputsOffset = 0;
-  ezUInt32 uiFunctionsOffset = 0;
-  ezUInt32 uiByteCodeOffset = 0;
+  WUInt32 uiOutputsOffset = 0;
+  WUInt32 uiFunctionsOffset = 0;
+  WUInt32 uiByteCodeOffset = 0;
 
-  ezUInt32 uiDataSize = 0;
+  WUInt32 uiDataSize = 0;
   uiDataSize += inputs.ToByteArray().GetCount();
   uiOutputsOffset = uiDataSize;
   uiDataSize += outputs.ToByteArray().GetCount();
 
-  uiDataSize = ezMemoryUtils::AlignSize<ezUInt32>(uiDataSize, alignof(ezExpression::FunctionDesc));
+  uiDataSize = WMemoryUtils::AlignSize<WUInt32>(uiDataSize, alignof(WExpression::FunctionDesc));
   uiFunctionsOffset = uiDataSize;
   uiDataSize += functions.ToByteArray().GetCount();
 
-  uiDataSize = ezMemoryUtils::AlignSize<ezUInt32>(uiDataSize, alignof(StorageType));
+  uiDataSize = WMemoryUtils::AlignSize<WUInt32>(uiDataSize, alignof(StorageType));
   uiByteCodeOffset = uiDataSize;
   uiDataSize += byteCode.ToByteArray().GetCount();
 
@@ -540,29 +540,29 @@ void ezExpressionByteCode::Init(ezArrayPtr<const StorageType> byteCode, ezArrayP
 
   void* pData = m_Data.GetByteBlobPtr().GetPtr();
 
-  EZ_ASSERT_DEV(inputs.GetCount() < ezSmallInvalidIndex, "Too many inputs");
-  m_pInputs = static_cast<ezExpression::StreamDesc*>(pData);
-  m_uiNumInputs = static_cast<ezUInt16>(inputs.GetCount());
-  ezMemoryUtils::Copy(m_pInputs, inputs.GetPtr(), m_uiNumInputs);
+  W_ASSERT_DEV(inputs.GetCount() < WSmallInvalidIndex, "Too many inputs");
+  m_pInputs = static_cast<WExpression::StreamDesc*>(pData);
+  m_uiNumInputs = static_cast<WUInt16>(inputs.GetCount());
+  WMemoryUtils::Copy(m_pInputs, inputs.GetPtr(), m_uiNumInputs);
 
-  EZ_ASSERT_DEV(outputs.GetCount() < ezSmallInvalidIndex, "Too many outputs");
-  m_pOutputs = static_cast<ezExpression::StreamDesc*>(ezMemoryUtils::AddByteOffset(pData, uiOutputsOffset));
-  m_uiNumOutputs = static_cast<ezUInt16>(outputs.GetCount());
-  ezMemoryUtils::Copy(m_pOutputs, outputs.GetPtr(), m_uiNumOutputs);
+  W_ASSERT_DEV(outputs.GetCount() < WSmallInvalidIndex, "Too many outputs");
+  m_pOutputs = static_cast<WExpression::StreamDesc*>(WMemoryUtils::AddByteOffset(pData, uiOutputsOffset));
+  m_uiNumOutputs = static_cast<WUInt16>(outputs.GetCount());
+  WMemoryUtils::Copy(m_pOutputs, outputs.GetPtr(), m_uiNumOutputs);
 
-  EZ_ASSERT_DEV(functions.GetCount() < ezSmallInvalidIndex, "Too many functions");
-  m_pFunctions = static_cast<ezExpression::FunctionDesc*>(ezMemoryUtils::AddByteOffset(pData, uiFunctionsOffset));
-  m_uiNumFunctions = static_cast<ezUInt16>(functions.GetCount());
-  ezMemoryUtils::Copy(m_pFunctions, functions.GetPtr(), m_uiNumFunctions);
+  W_ASSERT_DEV(functions.GetCount() < WSmallInvalidIndex, "Too many functions");
+  m_pFunctions = static_cast<WExpression::FunctionDesc*>(WMemoryUtils::AddByteOffset(pData, uiFunctionsOffset));
+  m_uiNumFunctions = static_cast<WUInt16>(functions.GetCount());
+  WMemoryUtils::Copy(m_pFunctions, functions.GetPtr(), m_uiNumFunctions);
 
-  m_pByteCode = static_cast<StorageType*>(ezMemoryUtils::AddByteOffset(pData, uiByteCodeOffset));
+  m_pByteCode = static_cast<StorageType*>(WMemoryUtils::AddByteOffset(pData, uiByteCodeOffset));
   m_uiByteCodeCount = byteCode.GetCount();
-  ezMemoryUtils::Copy(m_pByteCode, byteCode.GetPtr(), m_uiByteCodeCount);
+  WMemoryUtils::Copy(m_pByteCode, byteCode.GetPtr(), m_uiByteCodeCount);
 
-  EZ_ASSERT_DEV(uiNumTempRegisters < ezSmallInvalidIndex, "Too many temp registers");
-  m_uiNumTempRegisters = static_cast<ezUInt16>(uiNumTempRegisters);
+  W_ASSERT_DEV(uiNumTempRegisters < WSmallInvalidIndex, "Too many temp registers");
+  m_uiNumTempRegisters = static_cast<WUInt16>(uiNumTempRegisters);
   m_uiNumInstructions = uiNumInstructions;
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionByteCode);
+W_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionByteCode);

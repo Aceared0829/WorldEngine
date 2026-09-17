@@ -2,46 +2,46 @@
 
 #include <Foundation/SimdMath/SimdBBox.h>
 
-class EZ_FOUNDATION_DLL ezSimdBBoxSphere
+class W_FOUNDATION_DLL WSimdBBoxSphere
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Default constructor does not initialize anything.
-  ezSimdBBoxSphere(); // [tested]
+  WSimdBBoxSphere(); // [tested]
 
   /// Constructs the bounds from the center position, the box half extends and the sphere radius.
-  [[deprecated("Use MakeFromCenterExtents() instead.")]] ezSimdBBoxSphere(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents, const ezSimdFloat& fSphereRadius); // [tested]
+  [[deprecated("Use MakeFromCenterExtents() instead.")]] WSimdBBoxSphere(const WSimdVec4f& vCenter, const WSimdVec4f& vBoxHalfExtents, const WSimdFloat& fSphereRadius); // [tested]
 
   /// Constructs the bounds from the given box and sphere.
-  [[deprecated("Use MakeFromBoxAndSphere() instead.")]] ezSimdBBoxSphere(const ezSimdBBox& box, const ezSimdBSphere& sphere); // [tested]
+  [[deprecated("Use MakeFromBoxAndSphere() instead.")]] WSimdBBoxSphere(const WSimdBBox& box, const WSimdBSphere& sphere); // [tested]
 
   /// Constructs the bounds from the given box. The sphere radius is calculated from the box extends.
-  ezSimdBBoxSphere(const ezSimdBBox& box); // [tested]
+  WSimdBBoxSphere(const WSimdBBox& box); // [tested]
 
   /// Constructs the bounds from the given sphere. The box extends are calculated from the sphere radius.
-  ezSimdBBoxSphere(const ezSimdBSphere& sphere); // [tested]
+  WSimdBBoxSphere(const WSimdBSphere& sphere); // [tested]
 
   /// Creates an object with all zero values. These are valid bounds around the origin with no volume.
-  [[nodiscard]] static ezSimdBBoxSphere MakeZero();
+  [[nodiscard]] static WSimdBBoxSphere MakeZero();
 
   /// Creates an 'invalid' object, ie one with negative extents/radius. Invalid objects can be made valid through ExpandToInclude().
-  [[nodiscard]] static ezSimdBBoxSphere MakeInvalid(); // [tested]
+  [[nodiscard]] static WSimdBBoxSphere MakeInvalid(); // [tested]
 
   /// Creates an object from the given center point and extents.
-  [[nodiscard]] static ezSimdBBoxSphere MakeFromCenterExtents(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents, const ezSimdFloat& fSphereRadius);
+  [[nodiscard]] static WSimdBBoxSphere MakeFromCenterExtents(const WSimdVec4f& vCenter, const WSimdVec4f& vBoxHalfExtents, const WSimdFloat& fSphereRadius);
 
   /// Creates an object that contains all the provided points.
-  [[nodiscard]] static ezSimdBBoxSphere MakeFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezSimdVec4f));
+  [[nodiscard]] static WSimdBBoxSphere MakeFromPoints(const WSimdVec4f* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride = sizeof(WSimdVec4f));
 
   /// Creates an object from another bounding box.
-  [[nodiscard]] static ezSimdBBoxSphere MakeFromBox(const ezSimdBBox& box);
+  [[nodiscard]] static WSimdBBoxSphere MakeFromBox(const WSimdBBox& box);
 
   /// Creates an object from another bounding sphere.
-  [[nodiscard]] static ezSimdBBoxSphere MakeFromSphere(const ezSimdBSphere& sphere);
+  [[nodiscard]] static WSimdBBoxSphere MakeFromSphere(const WSimdBSphere& sphere);
 
   /// Creates an object from another bounding box and a sphere.
-  [[nodiscard]] static ezSimdBBoxSphere MakeFromBoxAndSphere(const ezSimdBBox& box, const ezSimdBSphere& sphere);
+  [[nodiscard]] static WSimdBBoxSphere MakeFromBoxAndSphere(const WSimdBBox& box, const WSimdBSphere& sphere);
 
 
 public:
@@ -55,29 +55,29 @@ public:
   bool IsNaN() const; // [tested]
 
   /// Calculates the bounds from given set of points.
-  [[deprecated("Use MakeFromPoints() instead.")]] void SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezSimdVec4f)); // [tested]
+  [[deprecated("Use MakeFromPoints() instead.")]] void SetFromPoints(const WSimdVec4f* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride = sizeof(WSimdVec4f)); // [tested]
 
   /// Returns the bounding box.
-  ezSimdBBox GetBox() const; // [tested]
+  WSimdBBox GetBox() const; // [tested]
 
   /// Returns the bounding sphere.
-  ezSimdBSphere GetSphere() const; // [tested]
+  WSimdBSphere GetSphere() const; // [tested]
 
   /// Expands the bounds such that the given bounds are inside it.
-  void ExpandToInclude(const ezSimdBBoxSphere& rhs); // [tested]
+  void ExpandToInclude(const WSimdBBoxSphere& rhs); // [tested]
 
   /// Transforms the bounds in its local space.
-  void Transform(const ezSimdTransform& t); // [tested]
+  void Transform(const WSimdTransform& t); // [tested]
 
   /// Transforms the bounds in its local space.
-  void Transform(const ezSimdMat4f& mMat);                          // [tested]
+  void Transform(const WSimdMat4f& mMat);                          // [tested]
 
-  [[nodiscard]] bool operator==(const ezSimdBBoxSphere& rhs) const; // [tested]
-  [[nodiscard]] bool operator!=(const ezSimdBBoxSphere& rhs) const; // [tested]
+  [[nodiscard]] bool operator==(const WSimdBBoxSphere& rhs) const; // [tested]
+  [[nodiscard]] bool operator!=(const WSimdBBoxSphere& rhs) const; // [tested]
 
 public:
-  ezSimdVec4f m_CenterAndRadius;
-  ezSimdVec4f m_BoxHalfExtents;
+  WSimdVec4f m_CenterAndRadius;
+  WSimdVec4f m_BoxHalfExtents;
 };
 
 #include <Foundation/SimdMath/Implementation/SimdBBoxSphere_inl.h>

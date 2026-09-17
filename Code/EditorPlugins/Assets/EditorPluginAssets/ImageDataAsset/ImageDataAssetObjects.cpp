@@ -3,13 +3,13 @@
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAssetObjects.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageDataAssetProperties, 1, ezRTTIDefaultAllocator<ezImageDataAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WImageDataAssetProperties, 1, WRTTIDefaultAllocator<WImageDataAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Input", m_sInputFile)->AddAttributes(new ezFileBrowserAttribute("Select Image", ezFileBrowserAttribute::ImagesLdrAndHdr), new ezRequiredAttribute())
+    W_MEMBER_PROPERTY("Input", m_sInputFile)->AddAttributes(new WFileBrowserAttribute("Select Image", WFileBrowserAttribute::ImagesLdrAndHdr), new WRequiredAttribute())
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

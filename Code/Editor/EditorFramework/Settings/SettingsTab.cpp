@@ -7,32 +7,32 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <QDesktopServices>
 
-EZ_IMPLEMENT_SINGLETON(ezQtSettingsTab);
+W_IMPLEMENT_SINGLETON(WQtSettingsTab);
 
-ezString ezQtSettingsTab::GetWindowIcon() const
+WString WQtSettingsTab::GetWindowIcon() const
 {
-  return ""; //:/GuiFoundation/EZ-logo.svg";
+  return ""; //:/GuiFoundation/W-logo.svg";
 }
 
-ezString ezQtSettingsTab::GetDisplayNameShort() const
+WString WQtSettingsTab::GetDisplayNameShort() const
 {
   return "Settings";
 }
 
-void ezQtEditorApp::ShowSettingsDocument()
+void WQtEditorApp::ShowSettingsDocument()
 {
-  EZ_PROFILE_SCOPE("ShowSettingsDocument");
-  ezQtSettingsTab* pSettingsTab = ezQtSettingsTab::GetSingleton();
+  W_PROFILE_SCOPE("ShowSettingsDocument");
+  WQtSettingsTab* pSettingsTab = WQtSettingsTab::GetSingleton();
 
   if (pSettingsTab == nullptr)
   {
-    pSettingsTab = new ezQtSettingsTab();
+    pSettingsTab = new WQtSettingsTab();
   }
 }
 
-void ezQtEditorApp::CloseSettingsDocument()
+void WQtEditorApp::CloseSettingsDocument()
 {
-  ezQtSettingsTab* pSettingsTab = ezQtSettingsTab::GetSingleton();
+  WQtSettingsTab* pSettingsTab = WQtSettingsTab::GetSingleton();
 
   if (pSettingsTab != nullptr)
   {
@@ -40,12 +40,12 @@ void ezQtEditorApp::CloseSettingsDocument()
   }
 }
 
-ezQtSettingsTab::ezQtSettingsTab()
-  : ezQtDocumentWindow("Settings")
+WQtSettingsTab::WQtSettingsTab()
+  : WQtDocumentWindow("Settings")
   , m_SingletonRegistrar(this)
 {
-  ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-  ezActionContext context;
+  WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+  WActionContext context;
   context.m_sMapping = "SettingsTabMenuBar";
   context.m_pDocument = nullptr;
   pMenuBar->SetActionContext(context);
@@ -53,15 +53,15 @@ ezQtSettingsTab::ezQtSettingsTab()
   FinishWindowCreation();
 }
 
-ezQtSettingsTab::~ezQtSettingsTab() = default;
+WQtSettingsTab::~WQtSettingsTab() = default;
 
-bool ezQtSettingsTab::InternalCanCloseWindow()
+bool WQtSettingsTab::InternalCanCloseWindow()
 {
   // if this is the last window, prevent closing it
-  return ezQtDocumentWindow::GetAllDocumentWindows().GetCount() > 1;
+  return WQtDocumentWindow::GetAllDocumentWindows().GetCount() > 1;
 }
 
-void ezQtSettingsTab::InternalCloseDocumentWindow()
+void WQtSettingsTab::InternalCloseDocumentWindow()
 {
   // make sure this instance isn't used anymore
   UnregisterSingleton();

@@ -7,88 +7,88 @@
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
-class ezParticleEffectInstance;
-struct ezResourceEvent;
-class ezTaskGroupID;
-class ezParticleStream;
-class ezParticleStreamFactory;
+using WParticleEffectResourceHandle = WTypedResourceHandle<class WParticleEffectResource>;
+class WParticleEffectInstance;
+struct WResourceEvent;
+class WTaskGroupID;
+class WParticleStream;
+class WParticleStreamFactory;
 
-/// This world module stores all particle effect data that is active in a given ezWorld instance
+/// This world module stores all particle effect data that is active in a given WWorld instance
 ///
 /// It is used to update all effects in one world and also to render them.
 /// When an effect is stopped, it only stops emitting new particles, but it lives on until all particles are dead.
 /// Therefore particle effects need to be managed outside of components. When a component dies, it only tells the
 /// world module to 'destroy' it's effect, the rest is handled behind the scenes.
-class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule final : public ezWorldModule
+class W_PARTICLEPLUGIN_DLL WParticleWorldModule final : public WWorldModule
 {
-  EZ_DECLARE_WORLD_MODULE();
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleWorldModule, ezWorldModule);
+  W_DECLARE_WORLD_MODULE();
+  W_ADD_DYNAMIC_REFLECTION(WParticleWorldModule, WWorldModule);
 
 public:
-  ezParticleWorldModule(ezWorld* pWorld);
-  ~ezParticleWorldModule();
+  WParticleWorldModule(WWorld* pWorld);
+  ~WParticleWorldModule();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  WParticleEffectHandle CreateEffectInstance(const WParticleEffectResourceHandle& hResource, WUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner, WArrayPtr<WParticleEffectFloatParam> floatParams, WArrayPtr<WParticleEffectColorParam> colorParams);
 
   /// This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
-  void DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
+  void DestroyEffectInstance(const WParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
 
-  bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
-  bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const;
+  bool TryGetEffectInstance(const WParticleEffectHandle& hEffect, WParticleEffectInstance*& out_pEffect);
+  bool TryGetEffectInstance(const WParticleEffectHandle& hEffect, const WParticleEffectInstance*& out_pEffect) const;
 
   /// Extracts render data for the given effect.
-  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
+  void ExtractEffectRenderData(const WParticleEffectInstance* pEffect, WMsgExtractRenderData& ref_msg, const WTransform& systemTransform) const;
 
-  ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier);
-  void DestroySystemInstance(ezParticleSystemInstance* pInstance);
+  WParticleSystemInstance* CreateSystemInstance(WUInt32 uiMaxParticles, WWorld* pWorld, WParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier);
+  void DestroySystemInstance(WParticleSystemInstance* pInstance);
 
-  ezParticleStream* CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const;
+  WParticleStream* CreateStreamDefaultInitializer(WParticleSystemInstance* pOwner, const char* szFullStreamName) const;
 
-  /// Can be called at any time (e.g. during ezParticleBehaviorFactory::CopyBehaviorProperties()) to query a previously cached world module,
-  /// even if that happens on a thread which would not be allowed to query this from the ezWorld at that time.
-  ezWorldModule* GetCachedWorldModule(const ezRTTI* pRtti) const;
+  /// Can be called at any time (e.g. during WParticleBehaviorFactory::CopyBehaviorProperties()) to query a previously cached world module,
+  /// even if that happens on a thread which would not be allowed to query this from the WWorld at that time.
+  WWorldModule* GetCachedWorldModule(const WRTTI* pRtti) const;
 
-  /// Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
+  /// Should be called by WParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
   template <class T>
   void CacheWorldModule()
   {
-    CacheWorldModule(ezGetStaticRTTI<T>());
+    CacheWorldModule(WGetStaticRTTI<T>());
   }
 
-  /// Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
-  void CacheWorldModule(const ezRTTI* pRtti);
+  /// Should be called by WParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
+  void CacheWorldModule(const WRTTI* pRtti);
 
 private:
   virtual void WorldClear() override;
 
-  void UpdateEffects(const ezWorldModule::UpdateContext& context);
-  void EnsureUpdatesFinished(const ezWorldModule::UpdateContext& context);
+  void UpdateEffects(const WWorldModule::UpdateContext& context);
+  void EnsureUpdatesFinished(const WWorldModule::UpdateContext& context);
 
   void DestroyFinishedEffects();
-  void CreateFinisherComponent(ezParticleEffectInstance* pEffect);
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void CreateFinisherComponent(WParticleEffectInstance* pEffect);
+  void ResourceEventHandler(const WResourceEvent& e);
   void ReconfigureEffects();
-  ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
-  ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  WParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const WParticleEffectResourceHandle& hResource, WUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
+  WParticleEffectHandle InternalCreateEffectInstance(const WParticleEffectResourceHandle& hResource, WUInt64 uiRandomSeed, bool bIsShared, WArrayPtr<WParticleEffectFloatParam> floatParams, WArrayPtr<WParticleEffectColorParam> colorParams);
 
   void ConfigureParticleStreamFactories();
   void ClearParticleStreamFactories();
 
-  mutable ezMutex m_Mutex;
-  ezDeque<ezParticleEffectInstance> m_ParticleEffects;
-  ezDynamicArray<ezParticleEffectInstance*> m_FinishingEffects;
-  ezDynamicArray<ezParticleEffectInstance*> m_NeedFinisherComponent;
-  ezDynamicArray<ezParticleEffectInstance*> m_EffectsToReconfigure;
-  ezDynamicArray<ezParticleEffectInstance*> m_ParticleEffectsFreeList;
-  ezMap<ezString, ezParticleEffectHandle> m_SharedEffects;
-  ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
-  ezDeque<ezParticleSystemInstance> m_ParticleSystems;
-  ezDynamicArray<ezParticleSystemInstance*> m_ParticleSystemFreeList;
-  ezTaskGroupID m_EffectUpdateTaskGroup;
-  ezMap<ezString, ezParticleStreamFactory*> m_StreamFactories;
-  ezHashTable<const ezRTTI*, ezWorldModule*> m_WorldModuleCache;
+  mutable WMutex m_Mutex;
+  WDeque<WParticleEffectInstance> m_ParticleEffects;
+  WDynamicArray<WParticleEffectInstance*> m_FinishingEffects;
+  WDynamicArray<WParticleEffectInstance*> m_NeedFinisherComponent;
+  WDynamicArray<WParticleEffectInstance*> m_EffectsToReconfigure;
+  WDynamicArray<WParticleEffectInstance*> m_ParticleEffectsFreeList;
+  WMap<WString, WParticleEffectHandle> m_SharedEffects;
+  WIdTable<WParticleEffectId, WParticleEffectInstance*> m_ActiveEffects;
+  WDeque<WParticleSystemInstance> m_ParticleSystems;
+  WDynamicArray<WParticleSystemInstance*> m_ParticleSystemFreeList;
+  WTaskGroupID m_EffectUpdateTaskGroup;
+  WMap<WString, WParticleStreamFactory*> m_StreamFactories;
+  WHashTable<const WRTTI*, WWorldModule*> m_WorldModuleCache;
 };

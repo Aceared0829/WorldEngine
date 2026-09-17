@@ -4,11 +4,11 @@
 #include <ToolsFoundation/Reflection/PhantomProperty.h>
 #include <ToolsFoundation/Reflection/PhantomRtti.h>
 
-ezPhantomRTTI::ezPhantomRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
-  ezBitflags<ezTypeFlags> flags, ezStringView sPluginName)
-  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<const ezAbstractProperty*>(),
-      ezArrayPtr<const ezAbstractFunctionProperty*>(), ezArrayPtr<const ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(),
-      ezArrayPtr<ezMessageSenderInfo>(), nullptr)
+WPhantomRTTI::WPhantomRTTI(WStringView sName, const WRTTI* pParentType, WUInt32 uiTypeSize, WUInt32 uiTypeVersion, WUInt8 uiVariantType,
+  WBitflags<WTypeFlags> flags, WStringView sPluginName)
+  : WRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | WTypeFlags::Phantom, nullptr, WArrayPtr<const WAbstractProperty*>(),
+      WArrayPtr<const WAbstractFunctionProperty*>(), WArrayPtr<const WPropertyAttribute*>(), WArrayPtr<WAbstractMessageHandler*>(),
+      WArrayPtr<WMessageSenderInfo>(), nullptr)
 {
   m_sTypeNameStorage = sName;
   m_sPluginNameStorage = sPluginName;
@@ -19,75 +19,75 @@ ezPhantomRTTI::ezPhantomRTTI(ezStringView sName, const ezRTTI* pParentType, ezUI
   RegisterType();
 }
 
-ezPhantomRTTI::~ezPhantomRTTI()
+WPhantomRTTI::~WPhantomRTTI()
 {
   UnregisterType();
   m_sTypeName = nullptr;
 
   for (auto pProp : m_PropertiesStorage)
   {
-    EZ_DEFAULT_DELETE(pProp);
+    W_DEFAULT_DELETE(pProp);
   }
   m_PropertiesStorage.Clear();
   m_Properties.Clear();
 
   for (auto pFunc : m_FunctionsStorage)
   {
-    EZ_DEFAULT_DELETE(pFunc);
+    W_DEFAULT_DELETE(pFunc);
   }
   m_FunctionsStorage.Clear();
   m_Functions.Clear();
 
   for (auto pAttrib : m_AttributesStorage)
   {
-    auto pAttribNonConst = const_cast<ezPropertyAttribute*>(pAttrib);
-    EZ_DEFAULT_DELETE(pAttribNonConst);
+    auto pAttribNonConst = const_cast<WPropertyAttribute*>(pAttrib);
+    W_DEFAULT_DELETE(pAttribNonConst);
   }
   m_AttributesStorage.Clear();
   m_Attributes.Clear();
 }
 
-void ezPhantomRTTI::SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>& properties)
+void WPhantomRTTI::SetProperties(WDynamicArray<WReflectedPropertyDescriptor>& properties)
 {
   for (auto pProp : m_PropertiesStorage)
   {
-    EZ_DEFAULT_DELETE(pProp);
+    W_DEFAULT_DELETE(pProp);
   }
   m_PropertiesStorage.Clear();
 
-  const ezUInt32 iCount = properties.GetCount();
+  const WUInt32 iCount = properties.GetCount();
   m_PropertiesStorage.Reserve(iCount);
 
-  for (ezUInt32 i = 0; i < iCount; i++)
+  for (WUInt32 i = 0; i < iCount; i++)
   {
     switch (properties[i].m_Category)
     {
-      case ezPropertyCategory::Constant:
+      case WPropertyCategory::Constant:
       {
-        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomConstantProperty, &properties[i]));
+        m_PropertiesStorage.PushBack(W_DEFAULT_NEW(WPhantomConstantProperty, &properties[i]));
       }
       break;
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
       {
-        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMemberProperty, &properties[i]));
+        m_PropertiesStorage.PushBack(W_DEFAULT_NEW(WPhantomMemberProperty, &properties[i]));
       }
       break;
-      case ezPropertyCategory::Array:
+      case WPropertyCategory::Array:
       {
-        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomArrayProperty, &properties[i]));
+        m_PropertiesStorage.PushBack(W_DEFAULT_NEW(WPhantomArrayProperty, &properties[i]));
       }
       break;
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Set:
       {
-        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomSetProperty, &properties[i]));
+        m_PropertiesStorage.PushBack(W_DEFAULT_NEW(WPhantomSetProperty, &properties[i]));
       }
       break;
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
-        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMapProperty, &properties[i]));
+        m_PropertiesStorage.PushBack(W_DEFAULT_NEW(WPhantomMapProperty, &properties[i]));
       }
       break;
-      case ezPropertyCategory::Function:
+      case WPropertyCategory::Function:
         break; // Handled in SetFunctions
     }
   }
@@ -96,31 +96,31 @@ void ezPhantomRTTI::SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>&
 }
 
 
-void ezPhantomRTTI::SetFunctions(ezDynamicArray<ezReflectedFunctionDescriptor>& functions)
+void WPhantomRTTI::SetFunctions(WDynamicArray<WReflectedFunctionDescriptor>& functions)
 {
   for (auto pProp : m_FunctionsStorage)
   {
-    EZ_DEFAULT_DELETE(pProp);
+    W_DEFAULT_DELETE(pProp);
   }
   m_FunctionsStorage.Clear();
 
-  const ezUInt32 iCount = functions.GetCount();
+  const WUInt32 iCount = functions.GetCount();
   m_FunctionsStorage.Reserve(iCount);
 
-  for (ezUInt32 i = 0; i < iCount; i++)
+  for (WUInt32 i = 0; i < iCount; i++)
   {
-    m_FunctionsStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomFunctionProperty, &functions[i]));
+    m_FunctionsStorage.PushBack(W_DEFAULT_NEW(WPhantomFunctionProperty, &functions[i]));
   }
 
   m_Functions = m_FunctionsStorage.GetArrayPtr();
 }
 
-void ezPhantomRTTI::SetAttributes(ezDynamicArray<const ezPropertyAttribute*>& attributes)
+void WPhantomRTTI::SetAttributes(WDynamicArray<const WPropertyAttribute*>& attributes)
 {
   for (auto pAttrib : m_AttributesStorage)
   {
-    auto pAttribNonConst = const_cast<ezPropertyAttribute*>(pAttrib);
-    EZ_DEFAULT_DELETE(pAttribNonConst);
+    auto pAttribNonConst = const_cast<WPropertyAttribute*>(pAttrib);
+    W_DEFAULT_DELETE(pAttribNonConst);
   }
   m_AttributesStorage.Clear();
   m_AttributesStorage = attributes;
@@ -128,11 +128,11 @@ void ezPhantomRTTI::SetAttributes(ezDynamicArray<const ezPropertyAttribute*>& at
   attributes.Clear();
 }
 
-void ezPhantomRTTI::UpdateType(ezReflectedTypeDescriptor& desc)
+void WPhantomRTTI::UpdateType(WReflectedTypeDescriptor& desc)
 {
-  // ezRTTI::UpdateType overwrites the type flags, so Phantom has to be added here just like in the constructor,
+  // WRTTI::UpdateType overwrites the type flags, so Phantom has to be added here just like in the constructor,
   // otherwise a type would stop being phantom when it is registered a second time with a changed descriptor
-  ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), 0, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags | ezTypeFlags::Phantom);
+  WRTTI::UpdateType(WRTTI::FindTypeByName(desc.m_sParentTypeName), 0, desc.m_uiTypeVersion, WVariantType::Invalid, desc.m_Flags | WTypeFlags::Phantom);
 
   m_sPluginNameStorage = desc.m_sPluginName;
   m_sPluginName = m_sPluginNameStorage.GetData();
@@ -143,9 +143,9 @@ void ezPhantomRTTI::UpdateType(ezReflectedTypeDescriptor& desc)
   SetupParentHierarchy();
 }
 
-bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
+bool WPhantomRTTI::IsEqualToDescriptor(const WReflectedTypeDescriptor& desc)
 {
-  if ((desc.m_Flags.GetValue() & ~ezTypeFlags::Phantom) != (GetTypeFlags().GetValue() & ~ezTypeFlags::Phantom))
+  if ((desc.m_Flags.GetValue() & ~WTypeFlags::Phantom) != (GetTypeFlags().GetValue() & ~WTypeFlags::Phantom))
     return false;
 
   if (desc.m_sParentTypeName.IsEmpty() && GetParentType() != nullptr)
@@ -163,7 +163,7 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
   if (desc.m_Properties.GetCount() != GetProperties().GetCount())
     return false;
 
-  for (ezUInt32 i = 0; i < GetProperties().GetCount(); i++)
+  for (WUInt32 i = 0; i < GetProperties().GetCount(); i++)
   {
     if (desc.m_Properties[i].m_Category != GetProperties()[i]->GetCategory())
       return false;
@@ -171,73 +171,73 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
     if (desc.m_Properties[i].m_sName != GetProperties()[i]->GetPropertyName())
       return false;
 
-    if ((desc.m_Properties[i].m_Flags.GetValue() & ~ezPropertyFlags::Phantom) !=
-        (GetProperties()[i]->GetFlags().GetValue() & ~ezPropertyFlags::Phantom))
+    if ((desc.m_Properties[i].m_Flags.GetValue() & ~WPropertyFlags::Phantom) !=
+        (GetProperties()[i]->GetFlags().GetValue() & ~WPropertyFlags::Phantom))
       return false;
 
     switch (desc.m_Properties[i].m_Category)
     {
-      case ezPropertyCategory::Constant:
+      case WPropertyCategory::Constant:
       {
-        auto pProp = (ezPhantomConstantProperty*)GetProperties()[i];
+        auto pProp = (WPhantomConstantProperty*)GetProperties()[i];
 
-        if (pProp->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (pProp->GetSpecificType() != WRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
 
         if (pProp->GetConstant() != desc.m_Properties[i].m_ConstantValue)
           return false;
       }
       break;
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
       {
-        if (GetProperties()[i]->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (GetProperties()[i]->GetSpecificType() != WRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
       }
       break;
-      case ezPropertyCategory::Array:
+      case WPropertyCategory::Array:
       {
-        if (GetProperties()[i]->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (GetProperties()[i]->GetSpecificType() != WRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
       }
       break;
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Set:
       {
-        if (GetProperties()[i]->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (GetProperties()[i]->GetSpecificType() != WRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
       }
       break;
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
-        if (GetProperties()[i]->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (GetProperties()[i]->GetSpecificType() != WRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
       }
       break;
-      case ezPropertyCategory::Function:
+      case WPropertyCategory::Function:
         break; // Functions handled below
     }
 
     if (desc.m_Functions.GetCount() != GetFunctions().GetCount())
       return false;
 
-    for (ezUInt32 j = 0; j < GetFunctions().GetCount(); j++)
+    for (WUInt32 j = 0; j < GetFunctions().GetCount(); j++)
     {
-      const ezAbstractFunctionProperty* pProp = GetFunctions()[j];
+      const WAbstractFunctionProperty* pProp = GetFunctions()[j];
       if (desc.m_Functions[j].m_sName != pProp->GetPropertyName())
         return false;
-      if ((desc.m_Functions[j].m_Flags.GetValue() & ~ezPropertyFlags::Phantom) != (pProp->GetFlags().GetValue() & ~ezPropertyFlags::Phantom))
+      if ((desc.m_Functions[j].m_Flags.GetValue() & ~WPropertyFlags::Phantom) != (pProp->GetFlags().GetValue() & ~WPropertyFlags::Phantom))
         return false;
       if (desc.m_Functions[j].m_Type != pProp->GetFunctionType())
         return false;
 
-      if (pProp->GetReturnType() != ezRTTI::FindTypeByName(desc.m_Functions[j].m_ReturnValue.m_sType))
+      if (pProp->GetReturnType() != WRTTI::FindTypeByName(desc.m_Functions[j].m_ReturnValue.m_sType))
         return false;
       if (pProp->GetReturnFlags() != desc.m_Functions[j].m_ReturnValue.m_Flags)
         return false;
       if (desc.m_Functions[j].m_Arguments.GetCount() != pProp->GetArgumentCount())
         return false;
-      for (ezUInt32 a = 0; a < pProp->GetArgumentCount(); a++)
+      for (WUInt32 a = 0; a < pProp->GetArgumentCount(); a++)
       {
-        if (pProp->GetArgumentType(a) != ezRTTI::FindTypeByName(desc.m_Functions[j].m_Arguments[a].m_sType))
+        if (pProp->GetArgumentType(a) != WRTTI::FindTypeByName(desc.m_Functions[j].m_Arguments[a].m_sType))
           return false;
         if (pProp->GetArgumentFlags(a) != desc.m_Functions[j].m_Arguments[a].m_Flags)
           return false;
@@ -247,9 +247,9 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
     if (desc.m_Properties[i].m_Attributes.GetCount() != GetProperties()[i]->GetAttributes().GetCount())
       return false;
 
-    for (ezUInt32 i2 = 0; i2 < desc.m_Properties[i].m_Attributes.GetCount(); i2++)
+    for (WUInt32 i2 = 0; i2 < desc.m_Properties[i].m_Attributes.GetCount(); i2++)
     {
-      if (!ezReflectionUtils::IsEqual(desc.m_Properties[i].m_Attributes[i2], GetProperties()[i]->GetAttributes()[i2]))
+      if (!WReflectionUtils::IsEqual(desc.m_Properties[i].m_Attributes[i2], GetProperties()[i]->GetAttributes()[i2]))
         return false;
     }
   }
@@ -258,7 +258,7 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
     return false;
 
   // TODO: compare attribute values?
-  for (ezUInt32 i = 0; i < GetAttributes().GetCount(); i++)
+  for (WUInt32 i = 0; i < GetAttributes().GetCount(); i++)
   {
     if (desc.m_Attributes[i]->GetDynamicRTTI() != GetAttributes()[i]->GetDynamicRTTI())
       return false;

@@ -3,17 +3,17 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALPipelineLayout : public ezGALObject<ezGALPipelineLayoutCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALPipelineLayout : public WGALObject<WGALPipelineLayoutCreationDescription>
 {
 public:
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 
-  ezGALPipelineLayout(const ezGALPipelineLayoutCreationDescription& Description);
-  virtual ~ezGALPipelineLayout();
+  WGALPipelineLayout(const WGALPipelineLayoutCreationDescription& Description);
+  virtual ~WGALPipelineLayout();
 
 private:
 };

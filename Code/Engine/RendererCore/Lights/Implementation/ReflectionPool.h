@@ -4,50 +4,50 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-class ezGALTextureHandle;
-class ezGALBufferHandle;
-class ezView;
-class ezWorld;
-class ezComponent;
-struct ezRenderWorldExtractionEvent;
-struct ezRenderWorldRenderEvent;
-struct ezMsgExtractRenderData;
-struct ezReflectionProbeDesc;
-class ezReflectionProbeRenderData;
-using ezReflectionProbeId = ezGenericId<24, 8>;
-class ezReflectionProbeComponentBase;
-class ezSkyLightComponent;
+class WGALTextureHandle;
+class WGALBufferHandle;
+class WView;
+class WWorld;
+class WComponent;
+struct WRenderWorldExtractionEvent;
+struct WRenderWorldRenderEvent;
+struct WMsgExtractRenderData;
+struct WReflectionProbeDesc;
+class WReflectionProbeRenderData;
+using WReflectionProbeId = WGenericId<24, 8>;
+class WReflectionProbeComponentBase;
+class WSkyLightComponent;
 
-class EZ_RENDERERCORE_DLL ezReflectionPool
+class W_RENDERERCORE_DLL WReflectionPool
 {
 public:
   // Probes
-  static ezReflectionProbeId RegisterReflectionProbe(const ezWorld* pWorld, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
-  static void DeregisterReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id);
-  static void UpdateReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
-  static void ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& ref_msg, ezReflectionProbeRenderData* pRenderData, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority);
+  static WReflectionProbeId RegisterReflectionProbe(const WWorld* pWorld, const WReflectionProbeDesc& desc, const WReflectionProbeComponentBase* pComponent);
+  static void DeregisterReflectionProbe(const WWorld* pWorld, WReflectionProbeId id);
+  static void UpdateReflectionProbe(const WWorld* pWorld, WReflectionProbeId id, const WReflectionProbeDesc& desc, const WReflectionProbeComponentBase* pComponent);
+  static void ExtractReflectionProbe(const WComponent* pComponent, WMsgExtractRenderData& ref_msg, WReflectionProbeRenderData* pRenderData, const WWorld* pWorld, WReflectionProbeId id, float fPriority);
 
   // SkyLight
-  static ezReflectionProbeId RegisterSkyLight(const ezWorld* pWorld, ezReflectionProbeDesc& ref_desc, const ezSkyLightComponent* pComponent);
-  static void DeregisterSkyLight(const ezWorld* pWorld, ezReflectionProbeId id);
-  static void UpdateSkyLight(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent);
+  static WReflectionProbeId RegisterSkyLight(const WWorld* pWorld, WReflectionProbeDesc& ref_desc, const WSkyLightComponent* pComponent);
+  static void DeregisterSkyLight(const WWorld* pWorld, WReflectionProbeId id);
+  static void UpdateSkyLight(const WWorld* pWorld, WReflectionProbeId id, const WReflectionProbeDesc& desc, const WSkyLightComponent* pComponent);
 
 
-  static void SetConstantSkyIrradiance(const ezWorld* pWorld, const ezAmbientCube<ezColor>& skyIrradiance);
-  static void ResetConstantSkyIrradiance(const ezWorld* pWorld);
+  static void SetConstantSkyIrradiance(const WWorld* pWorld, const WAmbientCube<WColor>& skyIrradiance);
+  static void ResetConstantSkyIrradiance(const WWorld* pWorld);
 
-  static ezUInt32 GetReflectionCubeMapSize();
-  static ezGALTextureHandle GetReflectionSpecularTexture(ezUInt32 uiWorldIndex, ezEnum<ezCameraUsageHint> cameraUsageHint);
-  static ezGALTextureHandle GetSkyIrradianceTexture();
+  static WUInt32 GetReflectionCubeMapSize();
+  static WGALTextureHandle GetReflectionSpecularTexture(WUInt32 uiWorldIndex, WEnum<WCameraUsageHint> cameraUsageHint);
+  static WGALTextureHandle GetSkyIrradianceTexture();
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, ReflectionPool);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, ReflectionPool);
 
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
-  static void OnRenderEvent(const ezRenderWorldRenderEvent& e);
+  static void OnExtractionEvent(const WRenderWorldExtractionEvent& e);
+  static void OnRenderEvent(const WRenderWorldRenderEvent& e);
 
   struct Data;
   static Data* s_pData;

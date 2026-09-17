@@ -10,15 +10,15 @@
 
 #define PREFAB_DEBUG false
 
-ezString ToBinary(const ezUuid& guid)
+WString ToBinary(const WUuid& guid)
 {
-  ezStringBuilder s, sResult;
+  WStringBuilder s, sResult;
 
-  ezUInt8* pBytes = (ezUInt8*)&guid;
+  WUInt8* pBytes = (WUInt8*)&guid;
 
-  for (ezUInt32 i = 0; i < sizeof(ezUuid); ++i)
+  for (WUInt32 i = 0; i < sizeof(WUuid); ++i)
   {
-    s.SetFormat("{0}", ezArgU((ezUInt32)*pBytes, 2, true, 16, true));
+    s.SetFormat("{0}", WArgU((WUInt32)*pBytes, 2, true, 16, true));
     ++pBytes;
 
     sResult.Append(s.GetData());
@@ -27,13 +27,13 @@ ezString ToBinary(const ezUuid& guid)
   return sResult;
 }
 
-void ezPrefabUtils::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGraph)
+void WPrefabUtils::LoadGraph(WAbstractObjectGraph& out_graph, WStringView sGraph)
 {
-  ezPrefabCache::GetSingleton()->LoadGraph(out_graph, ezStringView(sGraph));
+  WPrefabCache::GetSingleton()->LoadGraph(out_graph, WStringView(sGraph));
 }
 
 
-ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& ref_graph)
+WAbstractObjectNode* WPrefabUtils::GetFirstRootNode(WAbstractObjectGraph& ref_graph)
 {
   auto& nodes = ref_graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
@@ -43,16 +43,16 @@ ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& ref
     {
       for (const auto& ObjectTreeProp : pNode->GetProperties())
       {
-        if (ObjectTreeProp.m_sPropertyName == "Children" && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
+        if (ObjectTreeProp.m_sPropertyName == "Children" && ObjectTreeProp.m_Value.IsA<WVariantArray>())
         {
-          const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
+          const WVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<WVariantArray>();
 
-          for (const ezVariant& childGuid : RootChildren)
+          for (const WVariant& childGuid : RootChildren)
           {
-            if (!childGuid.IsA<ezUuid>())
+            if (!childGuid.IsA<WUuid>())
               continue;
 
-            const ezUuid& rootObjectGuid = childGuid.Get<ezUuid>();
+            const WUuid& rootObjectGuid = childGuid.Get<WUuid>();
 
             return ref_graph.GetNode(rootObjectGuid);
           }
@@ -63,7 +63,7 @@ ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& ref
   return nullptr;
 }
 
-void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& out_nodes)
+void WPrefabUtils::GetRootNodes(WAbstractObjectGraph& ref_graph, WDynamicArray<WAbstractObjectNode*>& out_nodes)
 {
   auto& nodes = ref_graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
@@ -73,16 +73,16 @@ void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& ref_graph, ezDynamicArra
     {
       for (const auto& ObjectTreeProp : pNode->GetProperties())
       {
-        if (ObjectTreeProp.m_sPropertyName == "Children" && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
+        if (ObjectTreeProp.m_sPropertyName == "Children" && ObjectTreeProp.m_Value.IsA<WVariantArray>())
         {
-          const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
+          const WVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<WVariantArray>();
 
-          for (const ezVariant& childGuid : RootChildren)
+          for (const WVariant& childGuid : RootChildren)
           {
-            if (!childGuid.IsA<ezUuid>())
+            if (!childGuid.IsA<WUuid>())
               continue;
 
-            const ezUuid& rootObjectGuid = childGuid.Get<ezUuid>();
+            const WUuid& rootObjectGuid = childGuid.Get<WUuid>();
 
             out_nodes.PushBack(ref_graph.GetNode(rootObjectGuid));
           }
@@ -96,10 +96,10 @@ void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& ref_graph, ezDynamicArra
   }
 }
 
-ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData, ezInt32* pDepth)
+WUuid WPrefabUtils::GetPrefabRoot(const WDocumentObject* pObject, const WObjectMetaData<WUuid, WDocumentObjectMetaData>& documentObjectMetaData, WInt32* pDepth)
 {
   auto pMeta = documentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
-  ezUuid source = pMeta->m_CreateFromPrefab;
+  WUuid source = pMeta->m_CreateFromPrefab;
   documentObjectMetaData.EndReadMetaData();
 
   if (source.IsValid())
@@ -113,40 +113,40 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObj
       *pDepth += 1;
     return GetPrefabRoot(pObject->GetParent(), documentObjectMetaData);
   }
-  return ezUuid();
+  return WUuid();
 }
 
 
-ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, ezStringView sProperty, ezVariant index, bool* pValueFound)
+WVariant WPrefabUtils::GetDefaultValue(const WAbstractObjectGraph& graph, const WUuid& objectGuid, WStringView sProperty, WVariant index, bool* pValueFound)
 {
   if (pValueFound)
     *pValueFound = false;
 
-  const ezAbstractObjectNode* pNode = graph.GetNode(objectGuid);
+  const WAbstractObjectNode* pNode = graph.GetNode(objectGuid);
   if (!pNode)
-    return ezVariant();
+    return WVariant();
 
-  const ezAbstractObjectNode::Property* pProp = pNode->FindProperty(sProperty);
+  const WAbstractObjectNode::Property* pProp = pNode->FindProperty(sProperty);
   if (pProp)
   {
-    const ezVariant& value = pProp->m_Value;
+    const WVariant& value = pProp->m_Value;
 
-    if (value.IsA<ezVariantArray>() && index.CanConvertTo<ezUInt32>())
+    if (value.IsA<WVariantArray>() && index.CanConvertTo<WUInt32>())
     {
-      ezUInt32 uiIndex = index.ConvertTo<ezUInt32>();
-      const ezVariantArray& valueArray = value.Get<ezVariantArray>();
+      WUInt32 uiIndex = index.ConvertTo<WUInt32>();
+      const WVariantArray& valueArray = value.Get<WVariantArray>();
       if (uiIndex < valueArray.GetCount())
       {
         if (pValueFound)
           *pValueFound = true;
         return valueArray[uiIndex];
       }
-      return ezVariant();
+      return WVariant();
     }
-    else if (value.IsA<ezVariantDictionary>() && index.CanConvertTo<ezString>())
+    else if (value.IsA<WVariantDictionary>() && index.CanConvertTo<WString>())
     {
-      ezString sKey = index.ConvertTo<ezString>();
-      const ezVariantDictionary& valueDict = value.Get<ezVariantDictionary>();
+      WString sKey = index.ConvertTo<WString>();
+      const WVariantDictionary& valueDict = value.Get<WVariantDictionary>();
       auto it = valueDict.Find(sKey);
       if (it.IsValid())
       {
@@ -154,39 +154,39 @@ ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, con
           *pValueFound = true;
         return it.Value();
       }
-      return ezVariant();
+      return WVariant();
     }
     if (pValueFound)
       *pValueFound = true;
     return value;
   }
 
-  return ezVariant();
+  return WVariant();
 }
 
-void ezPrefabUtils::WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& mergedDiff, ezStringBuilder& out_sText)
+void WPrefabUtils::WriteDiff(const WDeque<WAbstractGraphDiffOperation>& mergedDiff, WStringBuilder& out_sText)
 {
   for (const auto& diff : mergedDiff)
   {
-    ezStringBuilder Data = ToBinary(diff.m_Node);
+    WStringBuilder Data = ToBinary(diff.m_Node);
 
     switch (diff.m_Operation)
     {
-      case ezAbstractGraphDiffOperation::Op::NodeAdded:
+      case WAbstractGraphDiffOperation::Op::NodeAdded:
       {
         out_sText.AppendFormat("<add> - {{0}} ({1})\n", Data, diff.m_sProperty);
       }
       break;
 
-      case ezAbstractGraphDiffOperation::Op::NodeRemoved:
+      case WAbstractGraphDiffOperation::Op::NodeRemoved:
       {
         out_sText.AppendFormat("<del> - {{0}}\n", Data);
       }
       break;
 
-      case ezAbstractGraphDiffOperation::Op::PropertyChanged:
-        if (diff.m_Value.CanConvertTo<ezString>())
-          out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = {2}\n", Data, diff.m_sProperty, diff.m_Value.ConvertTo<ezString>());
+      case WAbstractGraphDiffOperation::Op::PropertyChanged:
+        if (diff.m_Value.CanConvertTo<WString>())
+          out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = {2}\n", Data, diff.m_sProperty, diff.m_Value.ConvertTo<WString>());
         else
           out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = xxx\n", Data, diff.m_sProperty);
         break;
@@ -194,33 +194,33 @@ void ezPrefabUtils::WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& merge
   }
 }
 
-void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstractObjectGraph& leftGraph, const ezAbstractObjectGraph& rightGraph, ezDeque<ezAbstractGraphDiffOperation>& out_mergedDiff)
+void WPrefabUtils::Merge(const WAbstractObjectGraph& baseGraph, const WAbstractObjectGraph& leftGraph, const WAbstractObjectGraph& rightGraph, WDeque<WAbstractGraphDiffOperation>& out_mergedDiff)
 {
   // debug output
   if (PREFAB_DEBUG)
   {
     {
-      ezFileWriter file;
+      WFileWriter file;
       file.Open("C:\\temp\\Prefab - base.txt").IgnoreResult();
-      ezAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
+      WAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, WOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
 
     {
-      ezFileWriter file;
+      WFileWriter file;
       file.Open("C:\\temp\\Prefab - template.txt").IgnoreResult();
-      ezAbstractGraphDdlSerializer::Write(file, &leftGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
+      WAbstractGraphDdlSerializer::Write(file, &leftGraph, nullptr, false, WOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
 
     {
-      ezFileWriter file;
+      WFileWriter file;
       file.Open("C:\\temp\\Prefab - instance.txt").IgnoreResult();
-      ezAbstractGraphDdlSerializer::Write(file, &rightGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
+      WAbstractGraphDdlSerializer::Write(file, &rightGraph, nullptr, false, WOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
   }
 
-  ezDeque<ezAbstractGraphDiffOperation> LeftToBase;
+  WDeque<WAbstractGraphDiffOperation> LeftToBase;
   leftGraph.CreateDiffWithBaseGraph(baseGraph, LeftToBase);
-  ezDeque<ezAbstractGraphDiffOperation> RightToBase;
+  WDeque<WAbstractGraphDiffOperation> RightToBase;
   rightGraph.CreateDiffWithBaseGraph(baseGraph, RightToBase);
 
   baseGraph.MergeDiffs(LeftToBase, RightToBase, out_mergedDiff);
@@ -228,27 +228,27 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
   // debug output
   if (PREFAB_DEBUG)
   {
-    ezFileWriter file;
+    WFileWriter file;
     file.Open("C:\\temp\\Prefab - diff.txt").IgnoreResult();
 
-    ezStringBuilder sDiff;
+    WStringBuilder sDiff;
     sDiff.Append("######## Template To Base #######\n");
-    ezPrefabUtils::WriteDiff(LeftToBase, sDiff);
+    WPrefabUtils::WriteDiff(LeftToBase, sDiff);
     sDiff.Append("\n\n######## Instance To Base #######\n");
-    ezPrefabUtils::WriteDiff(RightToBase, sDiff);
+    WPrefabUtils::WriteDiff(RightToBase, sDiff);
     sDiff.Append("\n\n######## Merged Diff #######\n");
-    ezPrefabUtils::WriteDiff(out_mergedDiff, sDiff);
+    WPrefabUtils::WriteDiff(out_mergedDiff, sDiff);
 
 
     file.WriteBytes(sDiff.GetData(), sDiff.GetElementCount()).IgnoreResult();
   }
 }
 
-void ezPrefabUtils::Merge(ezStringView sBase, ezStringView sLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& prefabSeed, ezStringBuilder& out_sNewGraph)
+void WPrefabUtils::Merge(WStringView sBase, WStringView sLeft, WDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const WUuid& prefabSeed, WStringBuilder& out_sNewGraph)
 {
   // prepare the original prefab as a graph
-  ezAbstractObjectGraph baseGraph;
-  ezPrefabUtils::LoadGraph(baseGraph, sBase);
+  WAbstractObjectGraph baseGraph;
+  WPrefabUtils::LoadGraph(baseGraph, sBase);
   if (auto pHeader = baseGraph.GetNodeByName("Header"))
   {
     baseGraph.RemoveNode(pHeader->GetGuid());
@@ -256,22 +256,22 @@ void ezPrefabUtils::Merge(ezStringView sBase, ezStringView sLeft, ezDocumentObje
 
   {
     // read the new template as a graph
-    ezAbstractObjectGraph leftGraph;
-    ezPrefabUtils::LoadGraph(leftGraph, sLeft);
+    WAbstractObjectGraph leftGraph;
+    WPrefabUtils::LoadGraph(leftGraph, sLeft);
     if (auto pHeader = leftGraph.GetNodeByName("Header"))
     {
       leftGraph.RemoveNode(pHeader->GetGuid());
     }
 
     // prepare the current state as a graph
-    ezAbstractObjectGraph rightGraph;
+    WAbstractObjectGraph rightGraph;
     {
-      ezDocumentObjectConverterWriter writer(&rightGraph, pRight->GetDocumentObjectManager());
+      WDocumentObjectConverterWriter writer(&rightGraph, pRight->GetDocumentObjectManager());
 
-      ezVariantArray children;
+      WVariantArray children;
       if (bRightIsNotPartOfPrefab)
       {
-        for (ezDocumentObject* pChild : pRight->GetChildren())
+        for (WDocumentObject* pChild : pRight->GetChildren())
         {
           writer.AddObjectToGraph(pChild);
           children.PushBack(pChild->GetGuid());
@@ -285,25 +285,25 @@ void ezPrefabUtils::Merge(ezStringView sBase, ezStringView sLeft, ezDocumentObje
 
       rightGraph.ReMapNodeGuids(prefabSeed, true);
       // just take the entire ObjectTree node as is TODO: this may cause a crash if the root object is replaced
-      ezAbstractObjectNode* pRightObjectTree = rightGraph.CopyNodeIntoGraph(leftGraph.GetNodeByName("ObjectTree"));
+      WAbstractObjectNode* pRightObjectTree = rightGraph.CopyNodeIntoGraph(leftGraph.GetNodeByName("ObjectTree"));
       // The root node should always have a property 'children' where all the root objects are attached to. We need to replace that property's value as the prefab instance graph can have less or more objects than the template.
-      ezAbstractObjectNode::Property* pChildrenProp = pRightObjectTree->FindProperty("Children");
+      WAbstractObjectNode::Property* pChildrenProp = pRightObjectTree->FindProperty("Children");
       pChildrenProp->m_Value = children;
     }
 
     // Merge diffs relative to base
-    ezDeque<ezAbstractGraphDiffOperation> mergedDiff;
-    ezPrefabUtils::Merge(baseGraph, leftGraph, rightGraph, mergedDiff);
+    WDeque<WAbstractGraphDiffOperation> mergedDiff;
+    WPrefabUtils::Merge(baseGraph, leftGraph, rightGraph, mergedDiff);
 
 
     {
       // Apply merged diff to base.
       baseGraph.ApplyDiff(mergedDiff);
 
-      ezContiguousMemoryStreamStorage stor;
-      ezMemoryStreamWriter sw(&stor);
+      WContiguousMemoryStreamStorage stor;
+      WMemoryStreamWriter sw(&stor);
 
-      ezAbstractGraphDdlSerializer::Write(sw, &baseGraph, nullptr, true, ezOpenDdlWriter::TypeStringMode::Shortest);
+      WAbstractGraphDdlSerializer::Write(sw, &baseGraph, nullptr, true, WOpenDdlWriter::TypeStringMode::Shortest);
 
       out_sNewGraph.SetSubString_ElementCount((const char*)stor.GetData(), stor.GetStorageSize32());
     }
@@ -311,23 +311,23 @@ void ezPrefabUtils::Merge(ezStringView sBase, ezStringView sLeft, ezDocumentObje
     // debug output
     if (PREFAB_DEBUG)
     {
-      ezFileWriter file;
+      WFileWriter file;
       file.Open("C:\\temp\\Prefab - result.txt").IgnoreResult();
-      ezAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
+      WAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, WOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
   }
 }
 
-ezString ezPrefabUtils::ReadDocumentAsString(ezStringView sFile)
+WString WPrefabUtils::ReadDocumentAsString(WStringView sFile)
 {
-  ezFileReader file;
-  if (file.Open(sFile) == EZ_FAILURE)
+  WFileReader file;
+  if (file.Open(sFile) == W_FAILURE)
   {
-    ezLog::Error("Failed to open document file '{0}'", sFile);
-    return ezString();
+    WLog::Error("Failed to open document file '{0}'", sFile);
+    return WString();
   }
 
-  ezStringBuilder sGraph;
+  WStringBuilder sGraph;
   sGraph.ReadAll(file);
 
   return sGraph;

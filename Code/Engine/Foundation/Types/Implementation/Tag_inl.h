@@ -1,31 +1,31 @@
 #pragma once
 
-ezTag::ezTag()
+WTag::WTag()
 
 
   = default;
 
-bool ezTag::operator==(const ezTag& rhs) const
+bool WTag::operator==(const WTag& rhs) const
 {
   return m_sTagString == rhs.m_sTagString;
 }
 
-bool ezTag::operator!=(const ezTag& rhs) const
+bool WTag::operator!=(const WTag& rhs) const
 {
   return m_sTagString != rhs.m_sTagString;
 }
 
-bool ezTag::operator<(const ezTag& rhs) const
+bool WTag::operator<(const WTag& rhs) const
 {
   return m_sTagString < rhs.m_sTagString;
 }
 
-const ezString& ezTag::GetTagString() const
+const WString& WTag::GetTagString() const
 {
   return m_sTagString.GetString();
 }
 
-bool ezTag::IsValid() const
+bool WTag::IsValid() const
 {
   return m_uiBlockIndex != 0xFFFFFFFEu;
 }

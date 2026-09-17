@@ -4,7 +4,7 @@
 #include <Foundation/Configuration/Startup.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, InputManager)
+W_BEGIN_SUBSYSTEM_DECLARATION(Core, InputManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -16,7 +16,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, InputManager)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezInputManager::DeallocateInternals();
+    WInputManager::DeallocateInternals();
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -27,7 +27,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, InputManager)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-EZ_STATICLINK_FILE(Core, Core_Input_Implementation_Startup);
+W_STATICLINK_FILE(Core, Core_Input_Implementation_Startup);

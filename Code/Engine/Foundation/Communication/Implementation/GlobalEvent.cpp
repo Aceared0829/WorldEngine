@@ -3,18 +3,18 @@
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Logging/Log.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezGlobalEvent);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WGlobalEvent);
 
-ezGlobalEvent::EventMap ezGlobalEvent::s_KnownEvents;
+WGlobalEvent::EventMap WGlobalEvent::s_KnownEvents;
 
-ezGlobalEvent::EventData::EventData()
+WGlobalEvent::EventData::EventData()
 {
   m_uiNumTimesFired = 0;
   m_uiNumEventHandlersOnce = 0;
   m_uiNumEventHandlersRegular = 0;
 }
 
-ezGlobalEvent::ezGlobalEvent(ezStringView sEventName, EZ_GLOBAL_EVENT_HANDLER handler, bool bOnlyOnce)
+WGlobalEvent::WGlobalEvent(WStringView sEventName, W_GLOBAL_EVENT_HANDLER handler, bool bOnlyOnce)
 {
   m_sEventName = sEventName;
   m_bOnlyOnce = bOnlyOnce;
@@ -22,9 +22,9 @@ ezGlobalEvent::ezGlobalEvent(ezStringView sEventName, EZ_GLOBAL_EVENT_HANDLER ha
   m_EventHandler = handler;
 }
 
-void ezGlobalEvent::Broadcast(ezStringView sEventName, ezVariant p1, ezVariant p2, ezVariant p3, ezVariant p4)
+void WGlobalEvent::Broadcast(WStringView sEventName, WVariant p1, WVariant p2, WVariant p3, WVariant p4)
 {
-  ezGlobalEvent* pHandler = ezGlobalEvent::GetFirstInstance();
+  WGlobalEvent* pHandler = WGlobalEvent::GetFirstInstance();
 
   while (pHandler)
   {
@@ -46,7 +46,7 @@ void ezGlobalEvent::Broadcast(ezStringView sEventName, ezVariant p1, ezVariant p
   ed.m_uiNumTimesFired++;
 }
 
-void ezGlobalEvent::UpdateGlobalEventStatistics()
+void WGlobalEvent::UpdateGlobalEventStatistics()
 {
   for (EventMap::Iterator it = s_KnownEvents.GetIterator(); it.IsValid(); ++it)
   {
@@ -54,7 +54,7 @@ void ezGlobalEvent::UpdateGlobalEventStatistics()
     it.Value().m_uiNumEventHandlersOnce = 0;
   }
 
-  ezGlobalEvent* pHandler = ezGlobalEvent::GetFirstInstance();
+  WGlobalEvent* pHandler = WGlobalEvent::GetFirstInstance();
 
   while (pHandler)
   {
@@ -69,17 +69,17 @@ void ezGlobalEvent::UpdateGlobalEventStatistics()
   }
 }
 
-void ezGlobalEvent::PrintGlobalEventStatistics()
+void WGlobalEvent::PrintGlobalEventStatistics()
 {
   UpdateGlobalEventStatistics();
 
-  EZ_LOG_BLOCK("Global Event Statistics");
+  W_LOG_BLOCK("Global Event Statistics");
 
   EventMap::Iterator it = s_KnownEvents.GetIterator();
 
   while (it.IsValid())
   {
-    ezLog::Info("Event: '{0}', Num Handlers Regular / Once: {1} / {2}, Num Times Fired: {3}", it.Key(), it.Value().m_uiNumEventHandlersRegular,
+    WLog::Info("Event: '{0}', Num Handlers Regular / Once: {1} / {2}, Num Times Fired: {3}", it.Key(), it.Value().m_uiNumEventHandlersRegular,
       it.Value().m_uiNumEventHandlersOnce, it.Value().m_uiNumTimesFired);
 
     ++it;

@@ -5,22 +5,22 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezMeshComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshComponentDragDropHandler, 1, WRTTIDefaultAllocator<WMeshComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-float ezMeshComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WMeshComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "Mesh") ? 1.0f : 0.0f;
 }
 
-void ezMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WMeshComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezMeshComponent";
+  constexpr const char* szComponentType = "WMeshComponent";
   constexpr const char* szPropertyName = "Mesh";
 
   if (pInfo->m_sTargetContext == "viewport")
@@ -48,22 +48,22 @@ void ezMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezAnimatedMeshComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimatedMeshComponentDragDropHandler, 1, WRTTIDefaultAllocator<WAnimatedMeshComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-float ezAnimatedMeshComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WAnimatedMeshComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "Animated Mesh") ? 1.0f : 0.0f;
 }
 
-void ezAnimatedMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WAnimatedMeshComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezAnimatedMeshComponent";
+  constexpr const char* szComponentType = "WAnimatedMeshComponent";
   constexpr const char* szPropertyName = "Mesh";
 
   if (pInfo->m_sTargetContext == "viewport")

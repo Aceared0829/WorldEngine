@@ -5,8 +5,8 @@
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAsset.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtOrbitCamViewWidget;
-class ezQtPropertyGridWidget;
+class WQtOrbitCamViewWidget;
+class WQtPropertyGridWidget;
 class QCheckBox;
 class QComboBox;
 class QLabel;
@@ -16,24 +16,24 @@ class QPushButton;
 ///
 /// The window listens to property changes and sends redraw messages to the engine process
 /// to keep the preview in sync with the current asset state.
-class ezQtKrautTreeAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtKrautTreeAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtKrautTreeAssetDocumentWindow(ezAssetDocument* pDocument);
-  ~ezQtKrautTreeAssetDocumentWindow();
+  WQtKrautTreeAssetDocumentWindow(WAssetDocument* pDocument);
+  ~WQtKrautTreeAssetDocumentWindow();
 
-  ezKrautTreeAssetDocument* GetKrautDocument() const
+  WKrautTreeAssetDocument* GetKrautDocument() const
   {
-    return static_cast<ezKrautTreeAssetDocument*>(GetDocument());
+    return static_cast<WKrautTreeAssetDocument*>(GetDocument());
   }
 
 protected:
   virtual void InternalRedraw() override;
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg) override;
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
 
 private Q_SLOTS:
   void onBranchTypeSelected(int index);
@@ -49,23 +49,23 @@ private Q_SLOTS:
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox(ezInt32 iPurpose = 0);
+  void QueryObjectBBox(WInt32 iPurpose = 0);
   void UpdatePreview();
   void RestoreResource();
   void ImportKrautFile();
   void RebuildBranchTypeCombo();
   void RebuildLodCombo();
   void ApplyLodPreset(int iPresetIndex);
-  ezDocumentObject* GetCurrentBranchTypeObject() const;
-  ezDocumentObject* GetCurrentLodObject() const;
-  void CopyObjectToClipboard(const ezDocumentObject* pObject, const char* szMimeType);
-  void PasteObjectFromClipboard(ezDocumentObject* pObject, const char* szMimeType, const char* szTransactionName);
+  WDocumentObject* GetCurrentBranchTypeObject() const;
+  WDocumentObject* GetCurrentLodObject() const;
+  void CopyObjectToClipboard(const WDocumentObject* pObject, const char* szMimeType);
+  void PasteObjectFromClipboard(WDocumentObject* pObject, const char* szMimeType, const char* szTransactionName);
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget = nullptr;
-  ezKrautTreeAssetDocument* m_pAssetDoc = nullptr;
-  ezQtPropertyGridWidget* m_pBranchProps = nullptr;
-  ezQtPropertyGridWidget* m_pLodProps = nullptr;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget = nullptr;
+  WKrautTreeAssetDocument* m_pAssetDoc = nullptr;
+  WQtPropertyGridWidget* m_pBranchProps = nullptr;
+  WQtPropertyGridWidget* m_pLodProps = nullptr;
   QComboBox* m_pBranchTypeCombo = nullptr;
   QComboBox* m_pLodCombo = nullptr;
   QPushButton* m_pAddLodButton = nullptr;

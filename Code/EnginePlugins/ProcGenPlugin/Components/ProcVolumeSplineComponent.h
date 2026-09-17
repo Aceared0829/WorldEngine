@@ -2,20 +2,20 @@
 
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 
-struct ezMsgSplineChanged;
-struct ezMsgExtractRenderData;
-struct ezDebugRendererLine;
-class ezSplineComponent;
+struct WMsgSplineChanged;
+struct WMsgExtractRenderData;
+struct WDebugRendererLine;
+class WSplineComponent;
 
-using ezProcVolumeSplineComponentManager = ezComponentManager<class ezProcVolumeSplineComponent, ezBlockStorageType::Compact>;
+using WProcVolumeSplineComponentManager = WComponentManager<class WProcVolumeSplineComponent, WBlockStorageType::Compact>;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVolumeSplineComponent : public ezProcVolumeComponent
+class W_PROCGENPLUGIN_DLL WProcVolumeSplineComponent : public WProcVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProcVolumeSplineComponent, ezProcVolumeComponent, ezProcVolumeSplineComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WProcVolumeSplineComponent, WProcVolumeComponent, WProcVolumeSplineComponentManager);
 
 public:
-  ezProcVolumeSplineComponent();
-  ~ezProcVolumeSplineComponent();
+  WProcVolumeSplineComponent();
+  ~WProcVolumeSplineComponent();
 
   float GetRadius() const { return m_fRadius; }
   void SetRadius(float fRadius);
@@ -23,21 +23,21 @@ public:
   float GetFalloff() const { return m_fFalloff; }
   void SetFalloff(float fFalloff);
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
-  void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg);
-  void OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
-  void OnMsgExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const;
+  void OnMsgSplineChanged(WMsgSplineChanged& ref_msg);
+  void OnMsgUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const;
+  void OnMsgExtractVolumes(WMsgExtractVolumes& ref_msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& ref_msg) const;
 
 protected:
-  const ezSplineComponent* GetSplineComponent() const;
+  const WSplineComponent* GetSplineComponent() const;
 
   float m_fRadius = 5.0f;
   float m_fFalloff = 0.5f;
 
-  ezUInt32 m_uiLastChangeCounter = 0;
+  WUInt32 m_uiLastChangeCounter = 0;
 
-  mutable ezDynamicArray<ezDebugRendererLine> m_DebugLines;
+  mutable WDynamicArray<WDebugRendererLine> m_DebugLines;
 };

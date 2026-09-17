@@ -6,59 +6,59 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/System/Process.h>
 
-ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
+WResult WEditorProcessCommunicationChannel::StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote, const WRTTI* pFirstAllowedMessageType, WUInt32 uiMemSize)
 {
-  EZ_LOG_BLOCK("ezProcessCommunicationChannel::StartClientProcess");
+  W_LOG_BLOCK("WProcessCommunicationChannel::StartClientProcess");
 
-  EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
-  EZ_ASSERT_DEV(m_pClientProcessGroup == nullptr, "ProcessCommunication object already in use");
+  W_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
+  W_ASSERT_DEV(m_pClientProcessGroup == nullptr, "ProcessCommunication object already in use");
 
   m_pFirstAllowedMessageType = pFirstAllowedMessageType;
 
-  static ezUInt64 uiUniqueHash = 0;
-  ezOsProcessID PID = ezProcess::GetCurrentProcessID();
-  uiUniqueHash = ezHashingUtils::xxHash64(&PID, sizeof(PID), uiUniqueHash);
-  ezTime time = ezTime::Now();
-  uiUniqueHash = ezHashingUtils::xxHash64(&time, sizeof(time), uiUniqueHash);
-  ezStringBuilder sMemName;
-  sMemName.SetFormat("{0}", ezArgU(uiUniqueHash, 16, true, 16, true));
+  static WUInt64 uiUniqueHash = 0;
+  WOsProcessID PID = WProcess::GetCurrentProcessID();
+  uiUniqueHash = WHashingUtils::xxHash64(&PID, sizeof(PID), uiUniqueHash);
+  WTime time = WTime::Now();
+  uiUniqueHash = WHashingUtils::xxHash64(&time, sizeof(time), uiUniqueHash);
+  WStringBuilder sMemName;
+  sMemName.SetFormat("{0}", WArgU(uiUniqueHash, 16, true, 16, true));
   ++uiUniqueHash;
 
-  ezResult res = EZ_SUCCESS;
+  WResult res = W_SUCCESS;
   if (bRemote)
   {
-    res = CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel("172.16.80.3:1050", ezIpcChannel::Mode::Client));
+    res = CreateAndConnectChannel(WIpcChannel::CreateNetworkChannel("172.16.80.3:1050", WIpcChannel::Mode::Client));
   }
   else
   {
-    res = CreateAndConnectChannel(ezIpcChannel::CreatePipeChannel(sMemName, ezIpcChannel::Mode::Server));
+    res = CreateAndConnectChannel(WIpcChannel::CreatePipeChannel(sMemName, WIpcChannel::Mode::Server));
   }
   if (res.Failed())
   {
-    ezLog::Error("IpcChannel: CreateAndConnectChannel failed");
+    WLog::Error("IpcChannel: CreateAndConnectChannel failed");
     CloseConnection();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  for (ezUInt32 i = 0; i < 100; i++)
+  for (WUInt32 i = 0; i < 100; i++)
   {
-    if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting)
+    if (m_pChannel->GetConnectionState() == WIpcChannel::ConnectionState::Connecting)
       break;
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
   }
-  if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
+  if (m_pChannel->GetConnectionState() != WIpcChannel::ConnectionState::Connecting)
   {
-    ezLog::Error("Failed to start IPC server");
+    WLog::Error("Failed to start IPC server");
     CloseConnection();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezStringBuilder sPath = szProcess;
+  WStringBuilder sPath = szProcess;
 
   if (!sPath.IsAbsolutePath())
   {
-    sPath = ezOSFile::GetApplicationDirectory();
+    sPath = WOSFile::GetApplicationDirectory();
     sPath.AppendPath(szProcess);
   }
 
@@ -66,103 +66,103 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
 
   if (!bRemote)
   {
-    ezProcessOptions po;
+    WProcessOptions po;
     po.m_sProcess = sPath;
     po.AddArgument("-IPC");
     po.AddArgument(sMemName);
     po.AddArgument("-PID");
-    po.AddArgument("{}", ezArgU(ezProcess::GetCurrentProcessID(), 1, false));
+    po.AddArgument("{}", WArgU(WProcess::GetCurrentProcessID(), 1, false));
     for (const QString& arg : args)
-      po.AddArgument(ezStringView(arg.toUtf8().constData()));
+      po.AddArgument(WStringView(arg.toUtf8().constData()));
 
-    m_pClientProcessGroup = EZ_DEFAULT_NEW(ezProcessGroup);
+    m_pClientProcessGroup = W_DEFAULT_NEW(WProcessGroup);
     if (m_pClientProcessGroup->Launch(po).Failed())
     {
       CloseConnection();
-      ezLog::Error("Failed to start process '{0}'", sPath);
-      return EZ_FAILURE;
+      WLog::Error("Failed to start process '{0}'", sPath);
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezEditorProcessCommunicationChannel::IsClientAlive() const
+bool WEditorProcessCommunicationChannel::IsClientAlive() const
 {
   if (m_pClientProcessGroup == nullptr)
     return false;
   const auto& processes = m_pClientProcessGroup->GetProcesses();
   if (processes.IsEmpty())
     return false;
-  return processes[0].GetState() == ezProcessState::Running;
+  return processes[0].GetState() == WProcessState::Running;
 }
 
-void ezEditorProcessCommunicationChannel::CloseConnection()
+void WEditorProcessCommunicationChannel::CloseConnection()
 {
   DestroyChannel();
   m_pClientProcessGroup = nullptr;
 }
 
-ezString ezEditorProcessCommunicationChannel::GetStdoutContents()
+WString WEditorProcessCommunicationChannel::GetStdoutContents()
 {
-  return ezString();
+  return WString();
 }
 
-ezOsProcessID ezEditorProcessCommunicationChannel::GetProcessId() const
+WOsProcessID WEditorProcessCommunicationChannel::GetProcessId() const
 {
   if (m_pClientProcessGroup == nullptr)
     return {};
   const auto& processes = m_pClientProcessGroup->GetProcesses();
-  if (!processes.IsEmpty() && processes[0].GetState() == ezProcessState::Running)
+  if (!processes.IsEmpty() && processes[0].GetState() == WProcessState::Running)
     return processes[0].GetProcessID();
   return {};
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* szAddress)
+WResult WEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* szAddress)
 {
-  EZ_LOG_BLOCK("ezEditorProcessRemoteCommunicationChannel::ConnectToServer");
-  EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
+  W_LOG_BLOCK("WEditorProcessRemoteCommunicationChannel::ConnectToServer");
+  W_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
   m_pFirstAllowedMessageType = nullptr;
-  if (CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel(szAddress, ezIpcChannel::Mode::Client)).Failed())
+  if (CreateAndConnectChannel(WIpcChannel::CreateNetworkChannel(szAddress, WIpcChannel::Mode::Client)).Failed())
   {
-    ezLog::Error("IpcChannel: CreateAndConnectChannel failed");
+    WLog::Error("IpcChannel: CreateAndConnectChannel failed");
     CloseConnection();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  for (ezUInt32 i = 0; i < 200; i++)
+  for (WUInt32 i = 0; i < 200; i++)
   {
-    if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
+    if (m_pChannel->GetConnectionState() != WIpcChannel::ConnectionState::Connecting)
       break;
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
   }
 
-  if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connected)
+  if (m_pChannel->GetConnectionState() != WIpcChannel::ConnectionState::Connected)
   {
-    ezLog::Error("Failed to connect to IPC server");
+    WLog::Error("Failed to connect to IPC server");
     CloseConnection();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezEditorProcessRemoteCommunicationChannel::IsConnected() const
+bool WEditorProcessRemoteCommunicationChannel::IsConnected() const
 {
   return m_pChannel->IsConnected();
 }
 
-void ezEditorProcessRemoteCommunicationChannel::CloseConnection()
+void WEditorProcessRemoteCommunicationChannel::CloseConnection()
 {
   DestroyChannel();
 }
 
-void ezEditorProcessRemoteCommunicationChannel::TryConnect()
+void WEditorProcessRemoteCommunicationChannel::TryConnect()
 {
-  if (m_pChannel && m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected)
+  if (m_pChannel && m_pChannel->GetConnectionState() == WIpcChannel::ConnectionState::Disconnected)
   {
     m_pChannel->Connect().IgnoreResult();
   }

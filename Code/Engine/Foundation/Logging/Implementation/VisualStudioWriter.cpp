@@ -2,97 +2,97 @@
 
 #include <Foundation/Logging/VisualStudioWriter.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/Strings/StringConversion.h>
 
-void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
+void WLogWriter::VisualStudio::LogMessageHandler(const WLoggingEventData& eventData)
 {
-  if (eventData.m_EventType == ezLogMsgType::Flush)
+  if (eventData.m_EventType == WLogMsgType::Flush)
     return;
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT) && W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
   if (eventData.m_sTag.IsEqual_NoCase("beep"))
   {
     MessageBeep(0xFFFFFFFF);
   }
 #  endif
 
-  static ezMutex WriterLock; // will only be created if this writer is used at all
-  EZ_LOCK(WriterLock);
+  static WMutex WriterLock; // will only be created if this writer is used at all
+  W_LOCK(WriterLock);
 
-  if (eventData.m_EventType == ezLogMsgType::BeginGroup)
+  if (eventData.m_EventType == WLogMsgType::BeginGroup)
     OutputDebugStringA("\n");
 
-  for (ezUInt32 i = 0; i < eventData.m_uiIndentation; ++i)
+  for (WUInt32 i = 0; i < eventData.m_uiIndentation; ++i)
     OutputDebugStringA(" ");
 
-  ezStringBuilder s;
+  WStringBuilder s;
 
   switch (eventData.m_EventType)
   {
-    case ezLogMsgType::BeginGroup:
+    case WLogMsgType::BeginGroup:
       s.SetFormat("+++++ {} ({}) +++++\n", eventData.m_sText, eventData.m_sTag);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
-    case ezLogMsgType::EndGroup:
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    case WLogMsgType::EndGroup:
+#  if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
       s.SetFormat("----- {} ({} sec) -----\n\n", eventData.m_sText, eventData.m_fSeconds);
 #  else
       s.SetFormat("----- {} (timing info not available) -----\n\n", eventData.m_sText);
 #  endif
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
-    case ezLogMsgType::ErrorMsg:
+    case WLogMsgType::ErrorMsg:
       s.SetFormat("Error: {}\n", eventData.m_sText);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
-    case ezLogMsgType::SeriousWarningMsg:
+    case WLogMsgType::SeriousWarningMsg:
       s.SetFormat("Seriously: {}\n", eventData.m_sText);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
-    case ezLogMsgType::WarningMsg:
+    case WLogMsgType::WarningMsg:
       s.SetFormat("Warning: {}\n", eventData.m_sText);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
-    case ezLogMsgType::SuccessMsg:
+    case WLogMsgType::SuccessMsg:
       s.SetFormat("{}\n", eventData.m_sText);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
-    case ezLogMsgType::InfoMsg:
+    case WLogMsgType::InfoMsg:
       s.SetFormat("{}\n", eventData.m_sText);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
-    case ezLogMsgType::DevMsg:
+    case WLogMsgType::DevMsg:
       s.SetFormat("{}\n", eventData.m_sText);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
-    case ezLogMsgType::DebugMsg:
+    case WLogMsgType::DebugMsg:
       s.SetFormat("{}\n", eventData.m_sText);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
       break;
 
     default:
       s.SetFormat("{}\n", eventData.m_sText);
-      OutputDebugStringW(ezStringWChar(s));
+      OutputDebugStringW(WStringWChar(s));
 
-      ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
+      WLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
       break;
   }
 }
 
 #else
 
-void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
+void WLogWriter::VisualStudio::LogMessageHandler(const WLoggingEventData& eventData)
 {
 }
 

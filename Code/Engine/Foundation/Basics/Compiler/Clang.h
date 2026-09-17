@@ -2,68 +2,68 @@
 
 #if defined(__clang__) && !defined(_MSC_VER)
 
-#  undef EZ_COMPILER_CLANG
-#  define EZ_COMPILER_CLANG EZ_ON
+#  undef W_COMPILER_CLANG
+#  define W_COMPILER_CLANG W_ON
 
-#  define EZ_ALWAYS_INLINE __attribute__((always_inline)) inline
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-#    define EZ_FORCE_INLINE inline
+#  define W_ALWAYS_INLINE __attribute__((always_inline)) inline
+#  if W_ENABLED(W_COMPILE_FOR_DEBUG)
+#    define W_FORCE_INLINE inline
 #  else
-#    define EZ_FORCE_INLINE __attribute__((always_inline)) inline
+#    define W_FORCE_INLINE __attribute__((always_inline)) inline
 #  endif
 
 #  if __has_builtin(__builtin_debugtrap)
-#    define EZ_DEBUG_BREAK     \
+#    define W_DEBUG_BREAK     \
       {                        \
         __builtin_debugtrap(); \
       }
 #  elif __has_builtin(__debugbreak)
-#    define EZ_DEBUG_BREAK \
+#    define W_DEBUG_BREAK \
       {                    \
         __debugbreak();    \
       }
 #  else
 #    include <signal.h>
 #    if defined(SIGTRAP)
-#      define EZ_DEBUG_BREAK \
+#      define W_DEBUG_BREAK \
         {                    \
           raise(SIGTRAP);    \
         }
 #    else
-#      define EZ_DEBUG_BREAK \
+#      define W_DEBUG_BREAK \
         {                    \
           raise(SIGABRT);    \
         }
 #    endif
 #  endif
 
-#  define EZ_SOURCE_FUNCTION __PRETTY_FUNCTION__
-#  define EZ_SOURCE_LINE __LINE__
-#  define EZ_SOURCE_FILE __FILE__
+#  define W_SOURCE_FUNCTION __PRETTY_FUNCTION__
+#  define W_SOURCE_LINE __LINE__
+#  define W_SOURCE_FILE __FILE__
 
 #  ifdef BUILDSYSTEM_BUILDTYPE_Debug
-#    undef EZ_COMPILE_FOR_DEBUG
-#    define EZ_COMPILE_FOR_DEBUG EZ_ON
+#    undef W_COMPILE_FOR_DEBUG
+#    define W_COMPILE_FOR_DEBUG W_ON
 #  endif
 
-#  define EZ_WARNING_PUSH() _Pragma("clang diagnostic push")
-#  define EZ_WARNING_POP() _Pragma("clang diagnostic pop")
-#  define EZ_WARNING_DISABLE_CLANG(_x) _Pragma(EZ_PP_STRINGIFY(clang diagnostic ignored _x))
+#  define W_WARNING_PUSH() _Pragma("clang diagnostic push")
+#  define W_WARNING_POP() _Pragma("clang diagnostic pop")
+#  define W_WARNING_DISABLE_CLANG(_x) _Pragma(W_PP_STRINGIFY(clang diagnostic ignored _x))
 
-#  define EZ_DECL_EXPORT [[gnu::visibility("default")]]
-#  define EZ_DECL_IMPORT [[gnu::visibility("default")]]
-#  define EZ_DECL_EXPORT_FRIEND
-#  define EZ_DECL_IMPORT_FRIEND
+#  define W_DECL_EXPORT [[gnu::visibility("default")]]
+#  define W_DECL_IMPORT [[gnu::visibility("default")]]
+#  define W_DECL_EXPORT_FRIEND
+#  define W_DECL_IMPORT_FRIEND
 
 #elif defined(__clang__)
 
 // Clang in MSVC compatibility mode (clang-cl, or the clang driver targeting *-windows-msvc).
 // Everything else comes from MSVC.h, but clang's warning suppressions still have to work,
 // because the MSVC warning pragmas have no effect on the clang frontend.
-#  define EZ_WARNING_DISABLE_CLANG(_x) _Pragma(EZ_PP_STRINGIFY(clang diagnostic ignored _x))
+#  define W_WARNING_DISABLE_CLANG(_x) _Pragma(W_PP_STRINGIFY(clang diagnostic ignored _x))
 
 #else
 
-#  define EZ_WARNING_DISABLE_CLANG(_x)
+#  define W_WARNING_DISABLE_CLANG(_x)
 
 #endif

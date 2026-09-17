@@ -7,66 +7,66 @@
 #include <RendererCore/Lights/SkyLightComponent.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneViewPerspective, 1)
-  EZ_ENUM_CONSTANTS(ezSceneViewPerspective::Orthogonal_Front, ezSceneViewPerspective::Orthogonal_Right, ezSceneViewPerspective::Orthogonal_Top,
-    ezSceneViewPerspective::Perspective)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSceneViewPerspective, 1)
+  W_ENUM_CONSTANTS(WSceneViewPerspective::Orthogonal_Front, WSceneViewPerspective::Orthogonal_Right, WSceneViewPerspective::Orthogonal_Top,
+    WSceneViewPerspective::Perspective)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineViewLightSettings, 1, ezRTTIDefaultAllocator<ezEngineViewLightSettings>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEngineViewLightSettings, 1, WRTTIDefaultAllocator<WEngineViewLightSettings>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("SkyBox", m_bSkyBox),
-      EZ_MEMBER_PROPERTY("SkyLight", m_bSkyLight),
-      EZ_MEMBER_PROPERTY("SkyLightCubeMap", m_sSkyLightCubeMap),
-      EZ_MEMBER_PROPERTY("SkyLightIntensity", m_fSkyLightIntensity),
-      EZ_MEMBER_PROPERTY("DirectionalLight", m_bDirectionalLight),
-      EZ_MEMBER_PROPERTY("DirectionalLightAngle", m_DirectionalLightAngle),
-      EZ_MEMBER_PROPERTY("DirectionalLightShadows", m_bDirectionalLightShadows),
-      EZ_MEMBER_PROPERTY("DirectionalLightIntensity", m_fDirectionalLightIntensity),
-      EZ_MEMBER_PROPERTY("Fog", m_bFog)
+      W_MEMBER_PROPERTY("SkyBox", m_bSkyBox),
+      W_MEMBER_PROPERTY("SkyLight", m_bSkyLight),
+      W_MEMBER_PROPERTY("SkyLightCubeMap", m_sSkyLightCubeMap),
+      W_MEMBER_PROPERTY("SkyLightIntensity", m_fSkyLightIntensity),
+      W_MEMBER_PROPERTY("DirectionalLight", m_bDirectionalLight),
+      W_MEMBER_PROPERTY("DirectionalLightAngle", m_DirectionalLightAngle),
+      W_MEMBER_PROPERTY("DirectionalLightShadows", m_bDirectionalLightShadows),
+      W_MEMBER_PROPERTY("DirectionalLightIntensity", m_fDirectionalLightIntensity),
+      W_MEMBER_PROPERTY("Fog", m_bFog)
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezEngineViewConfig::ApplyPerspectiveSetting(float fFov, float fNearPlane, float fFarPlane)
+void WEngineViewConfig::ApplyPerspectiveSetting(float fFov, float fNearPlane, float fFarPlane)
 {
   const float fOrthoRange = 1000.0f;
 
   switch (m_Perspective)
   {
-    case ezSceneViewPerspective::Perspective:
+    case WSceneViewPerspective::Perspective:
     {
-      m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, fFov == 0.0f ? 70.0f : fFov, fNearPlane, fFarPlane);
+      m_Camera.SetCameraMode(WCameraMode::PerspectiveFixedFovY, fFov == 0.0f ? 70.0f : fFov, fNearPlane, fFarPlane);
     }
     break;
 
-    case ezSceneViewPerspective::Orthogonal_Front:
+    case WSceneViewPerspective::Orthogonal_Front:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
-      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(-1, 0, 0), ezVec3(0, 0, 1));
+      m_Camera.SetCameraMode(WCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
+      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + WVec3(-1, 0, 0), WVec3(0, 0, 1));
     }
     break;
 
-    case ezSceneViewPerspective::Orthogonal_Right:
+    case WSceneViewPerspective::Orthogonal_Right:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
-      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, -1, 0), ezVec3(0, 0, 1));
+      m_Camera.SetCameraMode(WCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
+      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + WVec3(0, -1, 0), WVec3(0, 0, 1));
     }
     break;
 
-    case ezSceneViewPerspective::Orthogonal_Top:
+    case WSceneViewPerspective::Orthogonal_Top:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
-      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, 0, -1), ezVec3(1, 0, 0));
+      m_Camera.SetCameraMode(WCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
+      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + WVec3(0, 0, -1), WVec3(1, 0, 0));
     }
     break;
   }
 }
 
-ezEngineViewLightSettings::ezEngineViewLightSettings(bool bEnable)
+WEngineViewLightSettings::WEngineViewLightSettings(bool bEnable)
 {
   if (!bEnable)
   {
@@ -77,7 +77,7 @@ ezEngineViewLightSettings::ezEngineViewLightSettings(bool bEnable)
   }
 }
 
-ezEngineViewLightSettings::~ezEngineViewLightSettings()
+WEngineViewLightSettings::~WEngineViewLightSettings()
 {
   if (m_hGameObject.IsInvalidated())
     return;
@@ -85,106 +85,106 @@ ezEngineViewLightSettings::~ezEngineViewLightSettings()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-bool ezEngineViewLightSettings::GetSkyBox() const
+bool WEngineViewLightSettings::GetSkyBox() const
 {
   return m_bSkyBox;
 }
 
-void ezEngineViewLightSettings::SetSkyBox(bool bVal)
+void WEngineViewLightSettings::SetSkyBox(bool bVal)
 {
   m_bSkyBox = bVal;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::SkyBoxChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::SkyBoxChanged);
 }
 
-bool ezEngineViewLightSettings::GetSkyLight() const
+bool WEngineViewLightSettings::GetSkyLight() const
 {
   return m_bSkyLight;
 }
 
-void ezEngineViewLightSettings::SetSkyLight(bool bVal)
+void WEngineViewLightSettings::SetSkyLight(bool bVal)
 {
   m_bSkyLight = bVal;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::SkyLightChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::SkyLightChanged);
 }
 
-const char* ezEngineViewLightSettings::GetSkyLightCubeMap() const
+const char* WEngineViewLightSettings::GetSkyLightCubeMap() const
 {
   return m_sSkyLightCubeMap;
 }
 
-void ezEngineViewLightSettings::SetSkyLightCubeMap(const char* szVal)
+void WEngineViewLightSettings::SetSkyLightCubeMap(const char* szVal)
 {
   m_sSkyLightCubeMap = szVal;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged);
 }
 
-float ezEngineViewLightSettings::GetSkyLightIntensity() const
+float WEngineViewLightSettings::GetSkyLightIntensity() const
 {
   return m_fSkyLightIntensity;
 }
 
-void ezEngineViewLightSettings::SetSkyLightIntensity(float fVal)
+void WEngineViewLightSettings::SetSkyLightIntensity(float fVal)
 {
   m_fSkyLightIntensity = fVal;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged);
 }
 
-bool ezEngineViewLightSettings::GetDirectionalLight() const
+bool WEngineViewLightSettings::GetDirectionalLight() const
 {
   return m_bDirectionalLight;
 }
 
-void ezEngineViewLightSettings::SetDirectionalLight(bool bVal)
+void WEngineViewLightSettings::SetDirectionalLight(bool bVal)
 {
   m_bDirectionalLight = bVal;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::DirectionalLightChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::DirectionalLightChanged);
 }
 
-ezAngle ezEngineViewLightSettings::GetDirectionalLightAngle() const
+WAngle WEngineViewLightSettings::GetDirectionalLightAngle() const
 {
   return m_DirectionalLightAngle;
 }
 
-void ezEngineViewLightSettings::SetDirectionalLightAngle(ezAngle val)
+void WEngineViewLightSettings::SetDirectionalLightAngle(WAngle val)
 {
   m_DirectionalLightAngle = val;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged);
 }
 
-bool ezEngineViewLightSettings::GetDirectionalLightShadows() const
+bool WEngineViewLightSettings::GetDirectionalLightShadows() const
 {
   return m_bDirectionalLightShadows;
 }
 
-void ezEngineViewLightSettings::SetDirectionalLightShadows(bool bVal)
+void WEngineViewLightSettings::SetDirectionalLightShadows(bool bVal)
 {
   m_bDirectionalLightShadows = bVal;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged);
 }
 
-float ezEngineViewLightSettings::GetDirectionalLightIntensity() const
+float WEngineViewLightSettings::GetDirectionalLightIntensity() const
 {
   return m_fDirectionalLightIntensity;
 }
 
-void ezEngineViewLightSettings::SetDirectionalLightIntensity(float fVal)
+void WEngineViewLightSettings::SetDirectionalLightIntensity(float fVal)
 {
   m_fDirectionalLightIntensity = fVal;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged);
 }
 
-bool ezEngineViewLightSettings::GetFog() const
+bool WEngineViewLightSettings::GetFog() const
 {
   return m_bFog;
 }
 
-void ezEngineViewLightSettings::SetFog(bool bVal)
+void WEngineViewLightSettings::SetFog(bool bVal)
 {
   m_bFog = bVal;
-  SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::FogChanged);
+  SetModifiedInternal(WEngineViewLightSettingsEvent::Type::FogChanged);
 }
 
-bool ezEngineViewLightSettings::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
+bool WEngineViewLightSettings::SetupForEngine(WWorld* pWorld, WUInt32 uiNextComponentPickingID)
 {
   m_pWorld = pWorld;
   UpdateForEngine(pWorld);
@@ -194,7 +194,7 @@ bool ezEngineViewLightSettings::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextC
 namespace
 {
   template <typename T>
-  T* SyncComponent(ezWorld* pWorld, ezGameObject* pParent, ezComponentHandle& inout_hHandle, bool bShouldExist)
+  T* SyncComponent(WWorld* pWorld, WGameObject* pParent, WComponentHandle& inout_hHandle, bool bShouldExist)
   {
     if (bShouldExist)
     {
@@ -220,14 +220,14 @@ namespace
     }
   }
 
-  ezGameObject* SyncGameObject(ezWorld* pWorld, ezGameObjectHandle& inout_hHandle, bool bShouldExist)
+  WGameObject* SyncGameObject(WWorld* pWorld, WGameObjectHandle& inout_hHandle, bool bShouldExist)
   {
     if (bShouldExist)
     {
-      ezGameObject* pObj = nullptr;
+      WGameObject* pObj = nullptr;
       if (inout_hHandle.IsInvalidated() || !pWorld->TryGetObject(inout_hHandle, pObj))
       {
-        ezGameObjectDesc obj;
+        WGameObjectDesc obj;
         obj.m_sName.Assign("ViewLightSettings");
         inout_hHandle = pWorld->CreateObject(obj, pObj);
         pObj->MakeDynamic();
@@ -245,42 +245,42 @@ namespace
   }
 } // namespace
 
-void ezEngineViewLightSettings::UpdateForEngine(ezWorld* pWorld)
+void WEngineViewLightSettings::UpdateForEngine(WWorld* pWorld)
 {
-  if (ezGameObject* pParent = SyncGameObject(m_pWorld, m_hSkyBoxObject, m_bSkyBox))
+  if (WGameObject* pParent = SyncGameObject(m_pWorld, m_hSkyBoxObject, m_bSkyBox))
   {
-    pParent->SetTag(ezTagRegistry::GetGlobalRegistry().RegisterTag("SkyLight"));
+    pParent->SetTag(WTagRegistry::GetGlobalRegistry().RegisterTag("SkyLight"));
 
-    if (ezSkyBoxComponent* pSkyBox = SyncComponent<ezSkyBoxComponent>(m_pWorld, pParent, m_hSkyBox, m_bSkyBox))
+    if (WSkyBoxComponent* pSkyBox = SyncComponent<WSkyBoxComponent>(m_pWorld, pParent, m_hSkyBox, m_bSkyBox))
     {
       pSkyBox->SetCubeMapFile(m_sSkyLightCubeMap);
     }
   }
 
   const bool bNeedGameObject = m_bDirectionalLight || m_bSkyLight;
-  if (ezGameObject* pParent = SyncGameObject(m_pWorld, m_hGameObject, bNeedGameObject))
+  if (WGameObject* pParent = SyncGameObject(m_pWorld, m_hGameObject, bNeedGameObject))
   {
-    ezQuat rotY = ezQuat::MakeFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::MakeFromDegree(120.0));
-    ezQuat rotZ = ezQuat::MakeFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), m_DirectionalLightAngle);
+    WQuat rotY = WQuat::MakeFromAxisAndAngle(WVec3(0.0f, 1.0f, 0.0f), WAngle::MakeFromDegree(120.0));
+    WQuat rotZ = WQuat::MakeFromAxisAndAngle(WVec3(0.0f, 0.0f, 1.0f), m_DirectionalLightAngle);
     pParent->SetLocalRotation(rotZ * rotY);
 
-    if (ezDirectionalLightComponent* pDirLight = SyncComponent<ezDirectionalLightComponent>(m_pWorld, pParent, m_hDirLight, m_bDirectionalLight))
+    if (WDirectionalLightComponent* pDirLight = SyncComponent<WDirectionalLightComponent>(m_pWorld, pParent, m_hDirLight, m_bDirectionalLight))
     {
       pDirLight->SetCastShadows(m_bDirectionalLightShadows);
       pDirLight->SetIntensity(m_fDirectionalLightIntensity);
     }
 
-    if (ezSkyLightComponent* pSkyLight = SyncComponent<ezSkyLightComponent>(m_pWorld, pParent, m_hSkyLight, m_bSkyLight))
+    if (WSkyLightComponent* pSkyLight = SyncComponent<WSkyLightComponent>(m_pWorld, pParent, m_hSkyLight, m_bSkyLight))
     {
       pSkyLight->SetDiffuseIntensity(m_fSkyLightIntensity);
       pSkyLight->SetSpecularIntensity(m_fSkyLightIntensity);
-      pSkyLight->SetReflectionProbeMode(ezReflectionProbeMode::Static);
+      pSkyLight->SetReflectionProbeMode(WReflectionProbeMode::Static);
       pSkyLight->SetCubeMapFile(m_sSkyLightCubeMap);
     }
 
-    if (ezFogComponent* pFog = SyncComponent<ezFogComponent>(m_pWorld, pParent, m_hFog, m_bFog))
+    if (WFogComponent* pFog = SyncComponent<WFogComponent>(m_pWorld, pParent, m_hFog, m_bFog))
     {
-      // pFog->SetColor(ezColor(0.1f, 0.1f, 0.1f));
+      // pFog->SetColor(WColor(0.1f, 0.1f, 0.1f));
       pFog->SetDensity(5.0f);
       pFog->SetHeightFalloff(0);
       pFog->SetModulateWithSkyColor(m_bSkyBox);
@@ -289,10 +289,10 @@ void ezEngineViewLightSettings::UpdateForEngine(ezWorld* pWorld)
   }
 }
 
-void ezEngineViewLightSettings::SetModifiedInternal(ezEngineViewLightSettingsEvent::Type type)
+void WEngineViewLightSettings::SetModifiedInternal(WEngineViewLightSettingsEvent::Type type)
 {
   SetModified();
-  ezEngineViewLightSettingsEvent e;
+  WEngineViewLightSettingsEvent e;
   e.m_Type = type;
   m_EngineViewLightSettingsEvents.Broadcast(e);
 }

@@ -36,7 +36,7 @@ SamplerState SceneColorSampler BIND_GROUP(BG_RENDER_PASS);
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-ezPerClusterData GetClusterData(float3 screenPosition)
+WPerClusterData GetClusterData(float3 screenPosition)
 {
   // clustered data lookup
   float linearDepth = screenPosition.z;
@@ -322,12 +322,12 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
   return 1.0f;
 }
 
-float3 SampleLightCookie(ezPerLightData lightData, float3 worldPosition)
+float3 SampleLightCookie(WPerLightData lightData, float3 worldPosition)
 {
   uint cookieParams0 = lightData.cookieParams0;
   uint cookieParams1 = lightData.cookieParams1;
 
-  ezPerDecalAtlasData atlasData = perDecalAtlasDataBuffer[cookieParams0 & 0x7FFF];
+  WPerDecalAtlasData atlasData = perDecalAtlasDataBuffer[cookieParams0 & 0x7FFF];
   if (atlasData.scale != 0)
   {
     float3 forwardDir = -GetLightDirection(lightData);
@@ -359,7 +359,7 @@ float computeDistanceBaseRoughness(float distIntersectionToShadedPoint, float di
   return lerp(newLinearRoughness, linearRoughness, linearRoughness);
 }
 
-float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerClusterData clusterData)
+float3 ComputeReflection(inout WMaterialData matData, float3 viewVector, WPerClusterData clusterData)
 {
   uint firstItemIndex = clusterData.offset;
   uint lastItemIndex = firstItemIndex + GET_PROBE_INDEX(clusterData.counts);
@@ -374,7 +374,7 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
     const uint itemIndex = clusterItemBuffer[i];
     const uint probeIndex = GET_PROBE_INDEX(itemIndex);
 
-    const ezPerReflectionProbeData probeData = perPerReflectionProbeDataBuffer[probeIndex];
+    const WPerReflectionProbeData probeData = perPerReflectionProbeDataBuffer[probeIndex];
     const uint index = GET_REFLECTION_PROBE_INDEX(probeData.Index);
     const bool bIsSphere = (probeData.Index & REFLECTION_PROBE_IS_SPHERE) > 0;
     const bool bIsProjected = (probeData.Index & REFLECTION_PROBE_IS_PROJECTED) > 0;
@@ -510,7 +510,7 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
 }
 
 // Returns unsaturated NdotL
-float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, ezPerLightData lightData, uint type, float3 viewVector,
+float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, WPerLightData lightData, uint type, float3 viewVector,
   out float3 lightShadowVector, out float3 lightDiffuseVector, out float3 lightSpecVector, out float attenuation, out float distanceToLight, inout float roughness, out float specularEnergy)
 {
   float3 lightDir = GetLightDirection(lightData);
@@ -618,7 +618,7 @@ float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, ezPerLightData 
   return NdotL;
 }
 
-void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseColor, float directionality, ezPerLightData lightData, uint type, inout float3 diffuseLight, inout float3 indirectLightModulation)
+void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseColor, float directionality, WPerLightData lightData, uint type, inout float3 diffuseLight, inout float3 indirectLightModulation)
 {
   float distanceToLight = 1.0f;
   float3 lightVector = NormalizeAndGetLength(lightData.position - worldPosition, distanceToLight);
@@ -644,7 +644,7 @@ void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseC
   }
 }
 
-AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool useScreenSpaceTechniques)
+AccumulatedLight CalculateLighting(WMaterialData matData, WPerClusterData clusterData, float3 screenPosition, bool useScreenSpaceTechniques)
 {
   float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
 
@@ -664,7 +664,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
     uint itemIndex = clusterItemBuffer[i];
     uint lightIndex = GET_LIGHT_INDEX(itemIndex);
 
-    ezPerLightData lightData = perLightDataBuffer[lightIndex];
+    WPerLightData lightData = perLightDataBuffer[lightIndex];
     uint type = GetLightType(lightData);
 
     [branch] if (type <= LIGHT_TYPE_DIR)
@@ -756,7 +756,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   return totalLight;
 }
 
-void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uint gameObjectId)
+void ApplyDecals(inout WMaterialData matData, WPerClusterData clusterData, uint gameObjectId)
 {
   uint firstItemIndex = clusterData.offset;
   uint lastItemIndex = firstItemIndex + GET_DECAL_INDEX(clusterData.counts);
@@ -771,7 +771,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
     uint itemIndex = clusterItemBuffer[i];
     uint decalIndex = GET_DECAL_INDEX(itemIndex);
 
-    ezPerDecalData decalData = perDecalDataBuffer[decalIndex];
+    WPerDecalData decalData = perDecalDataBuffer[decalIndex];
     if (decalData.applyOnlyToId != applyOnlyToId)
       continue;
 
@@ -916,7 +916,7 @@ float4 CalculateRefraction(float3 worldPosition, float4 screenPosition, float3 w
   return float4(refractionColor, newOpacity);
 }
 
-void ApplyRefraction(inout ezMaterialData matData, inout AccumulatedLight light)
+void ApplyRefraction(inout WMaterialData matData, inout AccumulatedLight light)
 {
   light.diffuseLight = lerp(matData.refractionColor.rgb, light.diffuseLight, matData.opacity);
   matData.opacity = matData.refractionColor.a;

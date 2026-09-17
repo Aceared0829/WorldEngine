@@ -4,29 +4,29 @@
 #include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-using ezPluginModule = HMODULE;
+using WPluginModule = HMODULE;
 
-bool ezPlugin::PlatformNeedsPluginCopy()
+bool WPlugin::PlatformNeedsPluginCopy()
 {
   return true;
 }
 
-void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber)
+void WPlugin::GetPluginPaths(WStringView sPluginName, WStringBuilder& ref_sOriginalFile, WStringBuilder& ref_sCopiedFile, WUInt8 uiFileCopyNumber)
 {
-  ref_sOriginalFile = ezOSFile::GetApplicationDirectory();
+  ref_sOriginalFile = WOSFile::GetApplicationDirectory();
   ref_sOriginalFile.AppendPath(sPluginName);
   ref_sOriginalFile.Append(".dll");
 
-  ref_sCopiedFile = ezOSFile::GetApplicationDirectory();
+  ref_sCopiedFile = WOSFile::GetApplicationDirectory();
   ref_sCopiedFile.AppendPath(sPluginName);
 
-  if (!ezOSFile::ExistsFile(ref_sOriginalFile))
+  if (!WOSFile::ExistsFile(ref_sOriginalFile))
   {
-    ref_sOriginalFile = ezOSFile::GetCurrentWorkingDirectory();
+    ref_sOriginalFile = WOSFile::GetCurrentWorkingDirectory();
     ref_sOriginalFile.AppendPath(sPluginName);
     ref_sOriginalFile.Append(".dll");
 
-    ref_sCopiedFile = ezOSFile::GetCurrentWorkingDirectory();
+    ref_sCopiedFile = WOSFile::GetCurrentWorkingDirectory();
     ref_sCopiedFile.AppendPath(sPluginName);
   }
 
@@ -36,41 +36,41 @@ void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& ref_sOr
   ref_sCopiedFile.Append(".loaded");
 }
 
-ezResult UnloadPluginModule(ezPluginModule& ref_pModule, ezStringView sPluginFile)
+WResult UnloadPluginModule(WPluginModule& ref_pModule, WStringView sPluginFile)
 {
   // reset last error code
   SetLastError(ERROR_SUCCESS);
 
   if (FreeLibrary(ref_pModule) == FALSE)
   {
-    ezLog::Error("Could not unload plugin '{0}'. Error-Code {1}", sPluginFile, ezArgErrorCode(GetLastError()));
-    return EZ_FAILURE;
+    WLog::Error("Could not unload plugin '{0}'. Error-Code {1}", sPluginFile, WArgErrorCode(GetLastError()));
+    return W_FAILURE;
   }
 
   ref_pModule = nullptr;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& ref_pModule, ezStringView sPluginFile)
+WResult LoadPluginModule(WStringView sFileToLoad, WPluginModule& ref_pModule, WStringView sPluginFile)
 {
   // reset last error code
   SetLastError(ERROR_SUCCESS);
 
-  ref_pModule = LoadLibraryW(ezStringWChar(sFileToLoad).GetData());
+  ref_pModule = LoadLibraryW(WStringWChar(sFileToLoad).GetData());
 
   if (ref_pModule == nullptr)
   {
     const DWORD err = GetLastError();
-    ezLog::Error("Could not load plugin '{0}'. Error-Code {1}", sPluginFile, ezArgErrorCode(err));
+    WLog::Error("Could not load plugin '{0}'. Error-Code {1}", sPluginFile, WArgErrorCode(err));
 
     if (err == 126)
     {
-      ezLog::Error("Please Note: This means that the plugin exists, but a DLL dependency of the plugin is missing. You probably need to copy 3rd "
+      WLog::Error("Please Note: This means that the plugin exists, but a DLL dependency of the plugin is missing. You probably need to copy 3rd "
                    "party DLLs next to the plugin.");
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

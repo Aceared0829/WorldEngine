@@ -16,11 +16,11 @@
 #include <Foundation/Utilities/AssetFileHeader.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptResource, 1, ezRTTIDefaultAllocator<ezAngelScriptResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezAngelScriptResource);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAngelScriptResource, 1, WRTTIDefaultAllocator<WAngelScriptResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WAngelScriptResource);
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(AngelScript, AngelScriptResource)
+W_BEGIN_SUBSYSTEM_DECLARATION(AngelScript, AngelScriptResource)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ResourceManager" 
@@ -28,24 +28,24 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(AngelScript, AngelScriptResource)
 
   ON_CORESYSTEMS_STARTUP 
   {
-    ezResourceManager::RegisterResourceForAssetType("AngelScriptClass", ezGetStaticRTTI<ezAngelScriptResource>());
-    ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezAngelScriptResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezBinAngelScript");
+    WResourceManager::RegisterResourceForAssetType("AngelScriptClass", WGetStaticRTTI<WAngelScriptResource>());
+    WResourceManager::RegisterResourceOverrideType(WGetStaticRTTI<WAngelScriptResource>(), [](const WStringBuilder& sResourceID) -> bool  {
+        return sResourceID.HasExtension(".WBinAngelScript");
       });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::UnregisterResourceOverrideType(ezGetStaticRTTI<ezAngelScriptResource>());
+    WResourceManager::UnregisterResourceOverrideType(WGetStaticRTTI<WAngelScriptResource>());
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezAngelScriptResource::ezAngelScriptResource() = default;
-ezAngelScriptResource::~ezAngelScriptResource() = default;
+WAngelScriptResource::WAngelScriptResource() = default;
+WAngelScriptResource::~WAngelScriptResource() = default;
 
-ezResourceLoadDesc ezAngelScriptResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WAngelScriptResource::UnloadData(Unload WhatToUnload)
 {
   DeleteScriptType();
   DeleteAllScriptCoroutineTypes();
@@ -58,20 +58,20 @@ ezResourceLoadDesc ezAngelScriptResource::UnloadData(Unload WhatToUnload)
     m_pModule = nullptr;
   }
 
-  ezResourceLoadDesc ld;
-  ld.m_State = ezResourceState::Unloaded;
+  WResourceLoadDesc ld;
+  ld.m_State = WResourceState::Unloaded;
   ld.m_uiQualityLevelsDiscardable = 0;
   ld.m_uiQualityLevelsLoadable = 0;
 
   return ld;
 }
 
-ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
+WResourceLoadDesc WAngelScriptResource::UpdateContent(WStreamReader* pStream)
 {
-  ezResourceLoadDesc ld;
+  WResourceLoadDesc ld;
   ld.m_uiQualityLevelsDiscardable = 0;
   ld.m_uiQualityLevelsLoadable = 0;
-  ld.m_State = ezResourceState::LoadedResourceMissing;
+  ld.m_State = WResourceState::LoadedResourceMissing;
 
   if (pStream == nullptr)
   {
@@ -79,27 +79,27 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezString sAbsFilePath;
+  WString sAbsFilePath;
   (*pStream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*pStream).IgnoreResult();
 
-  ezUInt8 uiVersion = 1;
+  WUInt8 uiVersion = 1;
   (*pStream) >> uiVersion;
 
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
 
   if (uiVersion >= 4)
   {
     (*pStream) >> uiCompressionMode;
   }
 
-  ezStreamReader* pDeCompressor = pStream;
+  WStreamReader* pDeCompressor = pStream;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  ezCompressedStreamReaderZstd decompressorZstd;
+  WCompressedStreamReaderZstd decompressorZstd;
 #endif
 
   switch (uiCompressionMode)
@@ -113,24 +113,24 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
       pDeCompressor = &decompressorZstd;
       break;
 #else
-      ezLog::Error("AngelScript is compressed with zstandard, but support for this compressor is not compiled in.");
-      ld.m_State = ezResourceState::LoadedResourceMissing;
+      WLog::Error("AngelScript is compressed with zstandard, but support for this compressor is not compiled in.");
+      ld.m_State = WResourceState::LoadedResourceMissing;
       return res;
 #endif
 
     default:
-      ezLog::Error("AngelScript is compressed with an unknown algorithm.");
-      ld.m_State = ezResourceState::LoadedResourceMissing;
+      WLog::Error("AngelScript is compressed with an unknown algorithm.");
+      ld.m_State = WResourceState::LoadedResourceMissing;
       return ld;
   }
 
-  ezStreamReader& stream = *pDeCompressor;
+  WStreamReader& stream = *pDeCompressor;
   stream >> m_sClassName;
 
-  ezStringBuilder sModuleID;
+  WStringBuilder sModuleID;
   sModuleID.SetFormat("{}-{}", GetResourceID(), GetCurrentResourceChangeCounter());
 
-  auto pAs = ezAngelScriptEngineSingleton::GetSingleton();
+  auto pAs = WAngelScriptEngineSingleton::GetSingleton();
 
   if (uiVersion == 1)
   {
@@ -139,7 +139,7 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
   }
   else
   {
-    ezTempHybridArray<ezUInt8, 1024 * 8> bytecode;
+    WTempHybridArray<WUInt8, 1024 * 8> bytecode;
     stream.ReadArray(bytecode).AssertSuccess();
 
     if (uiVersion >= 3)
@@ -149,7 +149,7 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
     }
     else
     {
-      m_pModule = ezAngelScriptUtils::LoadFromByteCode(pAs->GetEngine(), sModuleID, bytecode);
+      m_pModule = WAngelScriptUtils::LoadFromByteCode(pAs->GetEngine(), sModuleID, bytecode);
     }
   }
 
@@ -160,18 +160,18 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
 
   const asITypeInfo* pClassType = m_pModule->GetTypeInfoByDecl(m_sClassName);
 
-  ezScriptRTTI::FunctionList functions;
-  ezScriptRTTI::MessageHandlerList messageHandlers;
+  WScriptRTTI::FunctionList functions;
+  WScriptRTTI::MessageHandlerList messageHandlers;
 
-  const ezRTTI* pBaseType = ezGetStaticRTTI<ezComponent>();
+  const WRTTI* pBaseType = WGetStaticRTTI<WComponent>();
 
-  ezStringBuilder sFunctionName;
+  WStringBuilder sFunctionName;
 
-  ezTempHybridArray<ezString, 16> funcNames;
+  WTempHybridArray<WString, 16> funcNames;
 
   for (auto pCompFunc : pBaseType->GetFunctions())
   {
-    const ezScriptBaseClassFunctionAttribute* pAttr = pCompFunc->GetAttributeByType<ezScriptBaseClassFunctionAttribute>();
+    const WScriptBaseClassFunctionAttribute* pAttr = pCompFunc->GetAttributeByType<WScriptBaseClassFunctionAttribute>();
     if (pAttr == nullptr)
       continue;
 
@@ -182,7 +182,7 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
 
     if (auto pFunc = pClassType->GetMethodByName(sFunctionName))
     {
-      ezUniquePtr<ezAngelScriptFunctionProperty> pFunctionProperty = EZ_SCRIPT_NEW(ezAngelScriptFunctionProperty, sFunctionName, pFunc);
+      WUniquePtr<WAngelScriptFunctionProperty> pFunctionProperty = W_SCRIPT_NEW(WAngelScriptFunctionProperty, sFunctionName, pFunc);
       functions.PushBack(std::move(pFunctionProperty));
     }
   }
@@ -191,12 +191,12 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
 
   if (functions.IsEmpty() && messageHandlers.IsEmpty())
   {
-    ezLog::Error("AngelScript code doesn't contain any callable function or message handlers.");
-    ezLog::Info("Candidates are:");
+    WLog::Error("AngelScript code doesn't contain any callable function or message handlers.");
+    WLog::Info("Candidates are:");
 
     for (const auto& s : funcNames)
     {
-      ezLog::Info("  {}", s);
+      WLog::Info("  {}", s);
     }
 
     return ld;
@@ -204,47 +204,47 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
 
   CreateScriptType(GetResourceID(), pBaseType, std::move(functions), std::move(messageHandlers));
 
-  ld.m_State = ezResourceState::Loaded;
+  ld.m_State = WResourceState::Loaded;
   return ld;
 }
 
-void ezAngelScriptResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WAngelScriptResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32)sizeof(ezAngelScriptResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = (WUInt32)sizeof(WAngelScriptResource);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezUniquePtr<ezScriptInstance> ezAngelScriptResource::Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const
+WUniquePtr<WScriptInstance> WAngelScriptResource::Instantiate(WReflectedClass& inout_owner, WWorld* pWorld) const
 {
-  return EZ_SCRIPT_NEW(ezAngelScriptInstance, inout_owner, pWorld, m_pModule, m_sClassName);
+  return W_SCRIPT_NEW(WAngelScriptInstance, inout_owner, pWorld, m_pModule, m_sClassName);
 }
 
-void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, ezScriptRTTI::MessageHandlerList& inout_Handlers)
+void WAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, WScriptRTTI::MessageHandlerList& inout_Handlers)
 {
-  auto pAs = ezAngelScriptEngineSingleton::GetSingleton();
+  auto pAs = WAngelScriptEngineSingleton::GetSingleton();
 
-  ezStringBuilder sArgType;
+  WStringBuilder sArgType;
 
-  ezUniquePtr<ezAngelScriptCustomAsMessageHandler> pAsMsgHandler;
+  WUniquePtr<WAngelScriptCustomAsMessageHandler> pAsMsgHandler;
 
-  for (ezUInt32 i = 0; i < pClassType->GetMethodCount(); ++i)
+  for (WUInt32 i = 0; i < pClassType->GetMethodCount(); ++i)
   {
     asIScriptFunction* pFunc = pClassType->GetMethodByIndex(i, false);
 
-    if (!ezStringUtils::StartsWith(pFunc->GetName(), "OnMsg"))
+    if (!WStringUtils::StartsWith(pFunc->GetName(), "OnMsg"))
       continue;
 
     // only allow void functions
     if (pFunc->GetReturnTypeId() != asTYPEID_VOID)
     {
-      ezLog::Error("Malformed message handler '{}': Return type must be 'void'.", pFunc->GetName());
+      WLog::Error("Malformed message handler '{}': Return type must be 'void'.", pFunc->GetName());
       continue;
     }
 
     // that take exactly one argument
     if (pFunc->GetParamCount() != 1)
     {
-      ezLog::Error("Malformed message handler '{}': Must take exactly one argument.", pFunc->GetName());
+      WLog::Error("Malformed message handler '{}': Must take exactly one argument.", pFunc->GetName());
       continue;
     }
 
@@ -253,25 +253,25 @@ void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, e
 
     if (iArgTypeId & asTYPEID_APPOBJECT)
     {
-      const ezRTTI* pArgType = ezAngelScriptUtils::MapToRTTI(iArgTypeId, pAs->GetEngine());
+      const WRTTI* pArgType = WAngelScriptUtils::MapToRTTI(iArgTypeId, pAs->GetEngine());
 
       if (pArgType == nullptr)
       {
-        ezLog::Error("Malformed message handler '{}': Argument has unknown type.", pFunc->GetName());
+        WLog::Error("Malformed message handler '{}': Argument has unknown type.", pFunc->GetName());
         continue;
       }
 
-      // has to be a type derived from ezMessage
-      if (!pArgType->IsDerivedFrom<ezMessage>())
+      // has to be a type derived from WMessage
+      if (!pArgType->IsDerivedFrom<WMessage>())
       {
-        ezLog::Error("Malformed message handler '{}': Argument type has to derive from ezMessage or ezAngelScriptMessage.", pFunc->GetName());
+        WLog::Error("Malformed message handler '{}': Argument type has to derive from WMessage or WAngelScriptMessage.", pFunc->GetName());
         continue;
       }
 
-      ezScriptMessageDesc desc;
+      WScriptMessageDesc desc;
       desc.m_pType = pArgType;
 
-      ezUniquePtr<ezAngelScriptMessageHandler> pFunctionProperty = EZ_SCRIPT_NEW(ezAngelScriptMessageHandler, desc, pFunc);
+      WUniquePtr<WAngelScriptMessageHandler> pFunctionProperty = W_SCRIPT_NEW(WAngelScriptMessageHandler, desc, pFunc);
       inout_Handlers.PushBack(std::move(pFunctionProperty));
     }
 
@@ -279,18 +279,18 @@ void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, e
     {
       if (auto pArgType = pAs->GetEngine()->GetTypeInfoById(iArgTypeId))
       {
-        if (pArgType->GetInterfaceCount() != 1 || !ezStringUtils::IsEqual(pArgType->GetInterface(0)->GetName(), "ezAngelScriptMessage"))
+        if (pArgType->GetInterfaceCount() != 1 || !WStringUtils::IsEqual(pArgType->GetInterface(0)->GetName(), "WAngelScriptMessage"))
         {
-          ezLog::Error("Malformed message handler '{}': Argument type has to derive from ezMessage or ezAngelScriptMessage.", pFunc->GetName());
+          WLog::Error("Malformed message handler '{}': Argument type has to derive from WMessage or WAngelScriptMessage.", pFunc->GetName());
           continue;
         }
 
         if (!pAsMsgHandler)
         {
-          ezScriptMessageDesc desc;
-          desc.m_pType = ezGetStaticRTTI<ezMsgDeliverAngelScriptMsg>();
+          WScriptMessageDesc desc;
+          desc.m_pType = WGetStaticRTTI<WMsgDeliverAngelScriptMsg>();
 
-          pAsMsgHandler = EZ_SCRIPT_NEW(ezAngelScriptCustomAsMessageHandler, desc);
+          pAsMsgHandler = W_SCRIPT_NEW(WAngelScriptCustomAsMessageHandler, desc);
         }
 
         pAsMsgHandler->AddReceiver(pFunc, pArgType->GetName());
@@ -305,4 +305,4 @@ void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, e
 }
 
 
-EZ_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Resources_AngelScriptResource);
+W_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Resources_AngelScriptResource);

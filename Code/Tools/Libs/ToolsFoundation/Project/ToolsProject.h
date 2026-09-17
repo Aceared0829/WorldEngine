@@ -6,10 +6,10 @@
 #include <Foundation/Types/Uuid.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezToolsProject;
-class ezDocument;
+class WToolsProject;
+class WDocument;
 
-struct ezToolsProjectEvent
+struct WToolsProjectEvent
 {
   enum class Type
   {
@@ -24,13 +24,13 @@ struct ezToolsProjectEvent
     SaveAll,              ///< When sent, this shall save all outstanding modifications
   };
 
-  ezToolsProject* m_pProject;
+  WToolsProject* m_pProject;
   Type m_Type;
 };
 
-struct ezToolsProjectRequest
+struct WToolsProjectRequest
 {
-  ezToolsProjectRequest();
+  WToolsProjectRequest();
 
   enum class Type
   {
@@ -43,38 +43,38 @@ struct ezToolsProjectRequest
 
   Type m_Type;
   bool m_bCanClose;                        ///< When the event is sent, interested code can set this to false to prevent closing.
-  ezDynamicArray<ezDocument*> m_Documents; ///< In case of 'CanCloseDocuments', these will be the documents in question.
-  ezInt32
+  WDynamicArray<WDocument*> m_Documents; ///< In case of 'CanCloseDocuments', these will be the documents in question.
+  WInt32
     m_iContainerWindowUniqueIdentifier;    ///< In case of 'SuggestContainerWindow', the ID of the container to be used for the docs in m_Documents.
 
-  ezUuid m_documentGuid;
-  ezStringBuilder m_sAbsDocumentPath;
+  WUuid m_documentGuid;
+  WStringBuilder m_sAbsDocumentPath;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezToolsProject
+class W_TOOLSFOUNDATION_DLL WToolsProject
 {
-  EZ_DECLARE_SINGLETON(ezToolsProject);
+  W_DECLARE_SINGLETON(WToolsProject);
 
 public:
-  static ezEvent<const ezToolsProjectEvent&, ezMutex> s_Events;
-  static ezEvent<ezToolsProjectRequest&> s_Requests;
+  static WEvent<const WToolsProjectEvent&, WMutex> s_Events;
+  static WEvent<WToolsProjectRequest&> s_Requests;
 
 public:
   static bool IsProjectOpen() { return GetSingleton() != nullptr; }
   static bool IsProjectClosing() { return (GetSingleton() != nullptr && GetSingleton()->m_bIsClosing); }
   static void CloseProject();
   static void SaveProjectState();
-  /// Returns true when the project can be closed. Uses ezToolsProjectRequest::Type::CanCloseProject event.
+  /// Returns true when the project can be closed. Uses WToolsProjectRequest::Type::CanCloseProject event.
   static bool CanCloseProject();
-  /// Returns true when the given list of documents can be closed. Uses ezToolsProjectRequest::Type::CanCloseDocuments event.
-  static bool CanCloseDocuments(ezArrayPtr<ezDocument*> documents);
+  /// Returns true when the given list of documents can be closed. Uses WToolsProjectRequest::Type::CanCloseDocuments event.
+  static bool CanCloseDocuments(WArrayPtr<WDocument*> documents);
   /// Returns the unique ID of the container window this document should use for its window. Uses
-  /// ezToolsProjectRequest::Type::SuggestContainerWindow event.
-  static ezInt32 SuggestContainerWindow(ezDocument* pDoc);
+  /// WToolsProjectRequest::Type::SuggestContainerWindow event.
+  static WInt32 SuggestContainerWindow(WDocument* pDoc);
   /// Resolve document GUID into an absolute path.
-  ezStringBuilder GetPathForDocumentGuid(const ezUuid& guid);
-  static ezStatus OpenProject(ezStringView sProjectPath);
-  static ezStatus CreateProject(ezStringView sProjectPath);
+  WStringBuilder GetPathForDocumentGuid(const WUuid& guid);
+  static WStatus OpenProject(WStringView sProjectPath);
+  static WStatus CreateProject(WStringView sProjectPath);
 
   /// Broadcasts the SaveAll event, though otherwise has no direct effect.
   static void BroadcastSaveAll();
@@ -83,42 +83,42 @@ public:
   /// item, forcing the user to reselect and thus update state)
   static void BroadcastConfigChanged();
 
-  /// Returns the path to the 'ezProject' file
-  const ezString& GetProjectFile() const { return m_sProjectPath; }
+  /// Returns the path to the 'WProject' file
+  const WString& GetProjectFile() const { return m_sProjectPath; }
 
   /// Returns the short name of the project (extracted from the path).
   ///
   /// \param bSanitize Whether to replace whitespace and other problematic characters, such that it can be used in code.
-  const ezString GetProjectName(bool bSanitize) const;
+  const WString GetProjectName(bool bSanitize) const;
 
-  /// Returns the path in which the 'ezProject' file is stored
-  ezString GetProjectDirectory() const;
+  /// Returns the path in which the 'WProject' file is stored
+  WString GetProjectDirectory() const;
 
   /// Returns the directory path in which project settings etc. should be stored
-  ezString GetProjectDataFolder() const;
+  WString GetProjectDataFolder() const;
 
-  /// Starts at the  given document and then searches the tree upwards until it finds an ezProject file.
-  static ezString FindProjectDirectoryForDocument(ezStringView sDocumentPath);
+  /// Starts at the  given document and then searches the tree upwards until it finds an WProject file.
+  static WString FindProjectDirectoryForDocument(WStringView sDocumentPath);
 
-  bool IsDocumentInAllowedRoot(ezStringView sDocumentPath, ezString* out_pRelativePath = nullptr) const;
+  bool IsDocumentInAllowedRoot(WStringView sDocumentPath, WString* out_pRelativePath = nullptr) const;
 
-  void AddAllowedDocumentRoot(ezStringView sPath);
+  void AddAllowedDocumentRoot(WStringView sPath);
 
   /// Makes sure the given sub-folder exists inside the project directory
-  void CreateSubFolder(ezStringView sFolder) const;
+  void CreateSubFolder(WStringView sFolder) const;
 
 private:
-  static ezStatus CreateOrOpenProject(ezStringView sProjectPath, bool bCreate);
+  static WStatus CreateOrOpenProject(WStringView sProjectPath, bool bCreate);
 
 private:
-  ezToolsProject(ezStringView sProjectPath);
-  ~ezToolsProject();
+  WToolsProject(WStringView sProjectPath);
+  ~WToolsProject();
 
-  ezStatus Create();
-  ezStatus Open();
+  WStatus Create();
+  WStatus Open();
 
 private:
   bool m_bIsClosing;
-  ezString m_sProjectPath;
-  ezHybridArray<ezString, 4> m_AllowedDocumentRoots;
+  WString m_sProjectPath;
+  WHybridArray<WString, 4> m_AllowedDocumentRoots;
 };

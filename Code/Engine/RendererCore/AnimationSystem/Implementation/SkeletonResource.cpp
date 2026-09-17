@@ -7,102 +7,102 @@
 #include <ozz/base/io/archive.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonResource, 1, ezRTTIDefaultAllocator<ezSkeletonResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkeletonResource, 1, WRTTIDefaultAllocator<WSkeletonResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezSkeletonResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WSkeletonResource);
 // clang-format on
 
-ezSkeletonResource::ezSkeletonResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WSkeletonResource::WSkeletonResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezSkeletonResource::~ezSkeletonResource() = default;
+WSkeletonResource::~WSkeletonResource() = default;
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSkeletonResource, ezSkeletonResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WSkeletonResource, WSkeletonResourceDescriptor)
 {
-  m_pDescriptor = EZ_DEFAULT_NEW(ezSkeletonResourceDescriptor);
+  m_pDescriptor = W_DEFAULT_NEW(WSkeletonResourceDescriptor);
   *m_pDescriptor = std::move(descriptor);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezSkeletonResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WSkeletonResource::UnloadData(Unload WhatToUnload)
 {
   m_pDescriptor.Clear();
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezSkeletonResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WSkeletonResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezSkeletonResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WSkeletonResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  m_pDescriptor = EZ_DEFAULT_NEW(ezSkeletonResourceDescriptor);
+  m_pDescriptor = W_DEFAULT_NEW(WSkeletonResourceDescriptor);
   m_pDescriptor->Deserialize(*Stream).IgnoreResult();
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezSkeletonResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WSkeletonResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezSkeletonResource); // TODO
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WSkeletonResource); // TODO
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezSkeletonResourceDescriptor::ezSkeletonResourceDescriptor() = default;
-ezSkeletonResourceDescriptor::~ezSkeletonResourceDescriptor() = default;
-ezSkeletonResourceDescriptor::ezSkeletonResourceDescriptor(ezSkeletonResourceDescriptor&& rhs)
+WSkeletonResourceDescriptor::WSkeletonResourceDescriptor() = default;
+WSkeletonResourceDescriptor::~WSkeletonResourceDescriptor() = default;
+WSkeletonResourceDescriptor::WSkeletonResourceDescriptor(WSkeletonResourceDescriptor&& rhs)
 {
   *this = std::move(rhs);
 }
 
-void ezSkeletonResourceDescriptor::operator=(ezSkeletonResourceDescriptor&& rhs)
+void WSkeletonResourceDescriptor::operator=(WSkeletonResourceDescriptor&& rhs)
 {
   m_Skeleton = std::move(rhs.m_Skeleton);
   m_Geometry = std::move(rhs.m_Geometry);
 }
 
-ezUInt64 ezSkeletonResourceDescriptor::GetHeapMemoryUsage() const
+WUInt64 WSkeletonResourceDescriptor::GetHeapMemoryUsage() const
 {
   return m_Geometry.GetHeapMemoryUsage() + m_Skeleton.GetHeapMemoryUsage();
 }
 
-ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
+WResult WSkeletonResourceDescriptor::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(8);
 
@@ -110,10 +110,10 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) c
   inout_stream << m_RootTransform;
   inout_stream << m_fMaxImpulse;
 
-  const ezUInt16 uiNumGeom = static_cast<ezUInt16>(m_Geometry.GetCount());
+  const WUInt16 uiNumGeom = static_cast<WUInt16>(m_Geometry.GetCount());
   inout_stream << uiNumGeom;
 
-  for (ezUInt32 i = 0; i < uiNumGeom; ++i)
+  for (WUInt32 i = 0; i < uiNumGeom; ++i)
   {
     const auto& geo = m_Geometry[i];
 
@@ -121,23 +121,23 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) c
     inout_stream << geo.m_Type;
     inout_stream << geo.m_Transform;
 
-    EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(geo.m_VertexPositions));
-    EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(geo.m_TriangleIndices));
+    W_SUCCEED_OR_RETURN(inout_stream.WriteArray(geo.m_VertexPositions));
+    W_SUCCEED_OR_RETURN(inout_stream.WriteArray(geo.m_TriangleIndices));
   }
 
   // version 8
   inout_stream << m_uiLeftFootJoint;
   inout_stream << m_uiRightFootJoint;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
+WResult WSkeletonResourceDescriptor::Deserialize(WStreamReader& inout_stream)
 {
-  const ezTypeVersion version = inout_stream.ReadVersion(8);
+  const WTypeVersion version = inout_stream.ReadVersion(8);
 
   if (version < 6)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_Skeleton.Load(inout_stream);
 
@@ -150,11 +150,11 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 
   m_Geometry.Clear();
 
-  ezUInt16 uiNumGeom = 0;
+  WUInt16 uiNumGeom = 0;
   inout_stream >> uiNumGeom;
   m_Geometry.Reserve(uiNumGeom);
 
-  for (ezUInt32 i = 0; i < uiNumGeom; ++i)
+  for (WUInt32 i = 0; i < uiNumGeom; ++i)
   {
     auto& geo = m_Geometry.ExpandAndGetRef();
 
@@ -164,9 +164,9 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 
     if (version <= 6)
     {
-      ezStringBuilder sName;
-      ezSurfaceResourceHandle hSurface;
-      ezUInt8 uiCollisionLayer;
+      WStringBuilder sName;
+      WSurfaceResourceHandle hSurface;
+      WUInt8 uiCollisionLayer;
 
       inout_stream >> sName;
       inout_stream >> hSurface;
@@ -175,8 +175,8 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 
     if (version >= 7)
     {
-      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(geo.m_VertexPositions));
-      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(geo.m_TriangleIndices));
+      W_SUCCEED_OR_RETURN(inout_stream.ReadArray(geo.m_VertexPositions));
+      W_SUCCEED_OR_RETURN(inout_stream.ReadArray(geo.m_TriangleIndices));
     }
   }
 
@@ -188,11 +188,11 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 
   // make sure the geometry is sorted by bones
   // this allows to make the algorithm for creating the bone geometry more efficient
-  m_Geometry.Sort([](const ezSkeletonResourceGeometry& lhs, const ezSkeletonResourceGeometry& rhs) -> bool
+  m_Geometry.Sort([](const WSkeletonResourceGeometry& lhs, const WSkeletonResourceGeometry& rhs) -> bool
     { return lhs.m_uiAttachedToJoint < rhs.m_uiAttachedToJoint; });
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonResource);

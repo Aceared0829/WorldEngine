@@ -8,21 +8,21 @@
 ///
 /// Provides interpolated movement with configurable easing curves for animation effects.
 /// The object's position is updated each frame until the target is reached or the duration expires.
-class EZ_CORE_DLL ezScriptCoroutine_MoveTo : public ezTypedScriptCoroutine<ezScriptCoroutine_MoveTo, ezGameObjectHandle, ezVec3, ezTime, ezEnum<ezCurveFunction>>
+class W_CORE_DLL WScriptCoroutine_MoveTo : public WTypedScriptCoroutine<WScriptCoroutine_MoveTo, WGameObjectHandle, WVec3, WTime, WEnum<WCurveFunction>>
 {
 public:
   /// Initiates the move operation to the specified target position.
-  void Start(ezGameObjectHandle hObject, const ezVec3& vTargetPos, ezTime duration, ezEnum<ezCurveFunction> easing);
-  virtual Result Update(ezTime deltaTimeSinceLastUpdate) override;
+  void Start(WGameObjectHandle hObject, const WVec3& vTargetPos, WTime duration, WEnum<WCurveFunction> easing);
+  virtual Result Update(WTime deltaTimeSinceLastUpdate) override;
 
 private:
-  ezGameObjectHandle m_hObject;
-  ezVec3 m_vSourcePos;
-  ezVec3 m_vTargetPos;
-  ezEnum<ezCurveFunction> m_Easing;
+  WGameObjectHandle m_hObject;
+  WVec3 m_vSourcePos;
+  WVec3 m_vTargetPos;
+  WEnum<WCurveFunction> m_Easing;
 
-  ezTime m_Duration;
-  ezTime m_TimePassed;
+  WTime m_Duration;
+  WTime m_TimePassed;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutine_MoveTo);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WScriptCoroutine_MoveTo);

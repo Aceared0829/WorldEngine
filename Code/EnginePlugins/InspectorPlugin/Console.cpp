@@ -6,23 +6,23 @@
 
 static void TelemetryMessage(void* pPassThrough)
 {
-  ezTelemetryMessage Msg;
-  ezStringBuilder input;
+  WTelemetryMessage Msg;
+  WStringBuilder input;
 
-  while (ezTelemetry::RetrieveMessage('CMD', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('CMD', Msg) == W_SUCCESS)
   {
     if (Msg.GetMessageID() == 'EXEC' || Msg.GetMessageID() == 'COMP')
     {
       Msg.GetReader() >> input;
 
-      if (ezConsole::GetMainConsole())
+      if (WConsole::GetMainConsole())
       {
-        if (auto pInt = ezConsole::GetMainConsole()->GetCommandInterpreter())
+        if (auto pInt = WConsole::GetMainConsole()->GetCommandInterpreter())
         {
-          ezCommandInterpreterState s;
+          WCommandInterpreterState s;
           s.m_sInput = input;
 
-          ezStringBuilder encoded;
+          WStringBuilder encoded;
 
           if (Msg.GetMessageID() == 'EXEC')
           {
@@ -36,13 +36,13 @@ static void TelemetryMessage(void* pPassThrough)
 
           for (const auto& l : s.m_sOutput)
           {
-            encoded.AppendFormat(";;{}||{}", ezArgI((ezInt32)l.m_Type, 2, true), l.m_sText);
+            encoded.AppendFormat(";;{}||{}", WArgI((WInt32)l.m_Type, 2, true), l.m_sText);
           }
 
-          ezTelemetryMessage msg;
+          WTelemetryMessage msg;
           msg.SetMessageID('CMD', 'RES');
           msg.GetWriter() << encoded;
-          ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+          WTelemetry::Broadcast(WTelemetry::Reliable, msg);
         }
       }
     }
@@ -51,10 +51,10 @@ static void TelemetryMessage(void* pPassThrough)
 
 void AddConsoleEventHandler()
 {
-  ezTelemetry::AcceptMessagesForSystem('CMD', true, TelemetryMessage, nullptr);
+  WTelemetry::AcceptMessagesForSystem('CMD', true, TelemetryMessage, nullptr);
 }
 
 void RemoveConsoleEventHandler()
 {
-  ezTelemetry::AcceptMessagesForSystem('CMD', false);
+  WTelemetry::AcceptMessagesForSystem('CMD', false);
 }

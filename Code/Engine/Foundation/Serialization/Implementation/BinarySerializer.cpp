@@ -3,7 +3,7 @@
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Serialization/GraphVersioning.h>
 
-enum ezBinarySerializerVersion : ezUInt32
+enum WBinarySerializerVersion : WUInt32
 {
   InvalidVersion = 0,
   Version1,
@@ -13,11 +13,11 @@ enum ezBinarySerializerVersion : ezUInt32
   CurrentVersion = ENUM_COUNT - 1 // automatically the highest version number
 };
 
-static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& inout_stream)
+static void WriteGraph(const WAbstractObjectGraph* pGraph, WStreamWriter& inout_stream)
 {
   const auto& Nodes = pGraph->GetAllNodes();
 
-  ezUInt32 uiNodes = Nodes.GetCount();
+  WUInt32 uiNodes = Nodes.GetCount();
   inout_stream << uiNodes;
   for (auto itNode = Nodes.GetIterator(); itNode.IsValid(); ++itNode)
   {
@@ -28,9 +28,9 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& inou
     inout_stream << node.GetNodeName();
 
     const auto& properties = node.GetProperties();
-    ezUInt32 uiProps = properties.GetCount();
+    WUInt32 uiProps = properties.GetCount();
     inout_stream << uiProps;
-    for (const ezAbstractObjectNode::Property& prop : properties)
+    for (const WAbstractObjectNode::Property& prop : properties)
     {
       inout_stream << prop.m_sPropertyName;
       inout_stream << prop.m_Value;
@@ -38,9 +38,9 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& inou
   }
 }
 
-void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& inout_stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph)
+void WAbstractGraphBinarySerializer::Write(WStreamWriter& inout_stream, const WAbstractObjectGraph* pGraph, const WAbstractObjectGraph* pTypesGraph)
 {
-  ezUInt32 uiVersion = ezBinarySerializerVersion::CurrentVersion;
+  WUInt32 uiVersion = WBinarySerializerVersion::CurrentVersion;
   inout_stream << uiVersion;
 
   WriteGraph(pGraph, inout_stream);
@@ -50,27 +50,27 @@ void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& inout_stream, const 
   }
 }
 
-static void ReadGraph(ezStreamReader& inout_stream, ezAbstractObjectGraph* pGraph)
+static void ReadGraph(WStreamReader& inout_stream, WAbstractObjectGraph* pGraph)
 {
-  ezUInt32 uiNodes = 0;
+  WUInt32 uiNodes = 0;
   inout_stream >> uiNodes;
-  for (ezUInt32 uiNodeIdx = 0; uiNodeIdx < uiNodes; uiNodeIdx++)
+  for (WUInt32 uiNodeIdx = 0; uiNodeIdx < uiNodes; uiNodeIdx++)
   {
-    ezUuid guid;
-    ezUInt32 uiTypeVersion;
-    ezStringBuilder sType;
-    ezStringBuilder sNodeName;
+    WUuid guid;
+    WUInt32 uiTypeVersion;
+    WStringBuilder sType;
+    WStringBuilder sNodeName;
     inout_stream >> guid;
     inout_stream >> sType;
     inout_stream >> uiTypeVersion;
     inout_stream >> sNodeName;
-    ezAbstractObjectNode* pNode = pGraph->AddNode(guid, sType, uiTypeVersion, sNodeName);
-    ezUInt32 uiProps = 0;
+    WAbstractObjectNode* pNode = pGraph->AddNode(guid, sType, uiTypeVersion, sNodeName);
+    WUInt32 uiProps = 0;
     inout_stream >> uiProps;
-    for (ezUInt32 propIdx = 0; propIdx < uiProps; ++propIdx)
+    for (WUInt32 propIdx = 0; propIdx < uiProps; ++propIdx)
     {
-      ezStringBuilder sPropName;
-      ezVariant value;
+      WStringBuilder sPropName;
+      WVariant value;
       inout_stream >> sPropName;
       inout_stream >> value;
       pNode->AddProperty(sPropName, value);
@@ -78,15 +78,15 @@ static void ReadGraph(ezStreamReader& inout_stream, ezAbstractObjectGraph* pGrap
   }
 }
 
-void ezAbstractGraphBinarySerializer::Read(
-  ezStreamReader& inout_stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
+void WAbstractGraphBinarySerializer::Read(
+  WStreamReader& inout_stream, WAbstractObjectGraph* pGraph, WAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
 {
-  ezUInt32 uiVersion = 0;
+  WUInt32 uiVersion = 0;
   inout_stream >> uiVersion;
-  if (uiVersion != ezBinarySerializerVersion::CurrentVersion)
+  if (uiVersion != WBinarySerializerVersion::CurrentVersion)
   {
-    EZ_REPORT_FAILURE(
-      "Binary serializer version {0} does not match expected version {1}, re-export file.", uiVersion, ezBinarySerializerVersion::CurrentVersion);
+    W_REPORT_FAILURE(
+      "Binary serializer version {0} does not match expected version {1}, re-export file.", uiVersion, WBinarySerializerVersion::CurrentVersion);
     return;
   }
   ReadGraph(inout_stream, pGraph);
@@ -98,7 +98,7 @@ void ezAbstractGraphBinarySerializer::Read(
   if (bApplyPatches)
   {
     if (pTypesGraph)
-      ezGraphVersioning::GetSingleton()->PatchGraph(pTypesGraph);
-    ezGraphVersioning::GetSingleton()->PatchGraph(pGraph, pTypesGraph);
+      WGraphVersioning::GetSingleton()->PatchGraph(pTypesGraph);
+    WGraphVersioning::GetSingleton()->PatchGraph(pGraph, pTypesGraph);
   }
 }

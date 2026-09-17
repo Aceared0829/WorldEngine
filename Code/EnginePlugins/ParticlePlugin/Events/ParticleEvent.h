@@ -9,15 +9,15 @@
 ///
 /// Particle events are raised during a particle's lifetime (e.g., on death, collision)
 /// and can trigger reactions like spawning effects or prefabs.
-struct EZ_PARTICLEPLUGIN_DLL ezParticleEvent
+struct W_PARTICLEPLUGIN_DLL WParticleEvent
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezTempHashedString m_EventType; ///< The type identifier for this event (e.g., "death", "collision")
-  ezVec3 m_vPosition;             ///< World-space position where the event occurred
-  ezVec3 m_vDirection;            ///< Direction vector associated with the event (e.g., movement direction)
-  ezVec3 m_vNormal;               ///< Surface normal at the event location (relevant for collision events)
+  WTempHashedString m_EventType; ///< The type identifier for this event (e.g., "death", "collision")
+  WVec3 m_vPosition;             ///< World-space position where the event occurred
+  WVec3 m_vDirection;            ///< Direction vector associated with the event (e.g., movement direction)
+  WVec3 m_vNormal;               ///< Surface normal at the event location (relevant for collision events)
 };
 
 /// Queue of particle events to be processed.
-using ezParticleEventQueue = ezArrayPtr<ezParticleEvent>;
+using WParticleEventQueue = WArrayPtr<WParticleEvent>;

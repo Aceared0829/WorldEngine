@@ -12,29 +12,29 @@ RtsSettingsMenuMode::~RtsSettingsMenuMode() = default;
 
 void RtsSettingsMenuMode::OnActivateMode()
 {
-  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+  W_LOCK(m_pMainWorld->GetWriteMarker());
 
-  SetUiActive(m_pMainWorld, ezTempHashedString("app-settings"), true);
+  SetUiActive(m_pMainWorld, WTempHashedString("app-settings"), true);
 
-  ezGameObject* pUIObject = nullptr;
-  if (m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("app-settings"), pUIObject))
+  WGameObject* pUIObject = nullptr;
+  if (m_pMainWorld->TryGetObjectWithGlobalKey(WTempHashedString("app-settings"), pUIObject))
   {
-    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+    WRmlUiCanvas2DComponent* pUiComponent = nullptr;
     if (pUIObject->TryGetComponentOfBaseType(pUiComponent))
     {
       m_hSettingsMenu = pUiComponent->GetHandle();
 
-      ezRmlUiContext* pRmlContext = pUiComponent->GetOrCreateRmlContext();
+      WRmlUiContext* pRmlContext = pUiComponent->GetOrCreateRmlContext();
 
       pRmlContext->RegisterEventHandler("toggle-vsync", [this](Rml::Event& e)
         {
-          ezGameApplication::cvar_AppVSync = e.GetCurrentElement()->HasAttribute("checked");
+          WGameApplication::cvar_AppVSync = e.GetCurrentElement()->HasAttribute("checked");
           //
         });
 
       pRmlContext->RegisterEventHandler("toggle-fps", [this](Rml::Event& e)
         {
-          ezGameApplication::cvar_AppShowFPS = e.GetCurrentElement()->HasAttribute("checked");
+          WGameApplication::cvar_AppShowFPS = e.GetCurrentElement()->HasAttribute("checked");
           //
         });
 
@@ -100,19 +100,19 @@ void RtsSettingsMenuMode::OnActivateMode()
 
 void RtsSettingsMenuMode::OnDeactivateMode()
 {
-  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+  W_LOCK(m_pMainWorld->GetWriteMarker());
 
-  SetUiActive(m_pMainWorld, ezTempHashedString("app-settings"), false);
+  SetUiActive(m_pMainWorld, WTempHashedString("app-settings"), false);
 }
 
 void RtsSettingsMenuMode::OnBeforeWorldUpdate()
 {
-  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+  WRmlUiCanvas2DComponent* pUiComponent = nullptr;
   if (m_pMainWorld->TryGetComponent(m_hSettingsMenu, pUiComponent))
   {
     if (auto pActiveModeElement = pUiComponent->GetRmlContext()->GetDocument(0)->GetElementById("check-vsync"))
     {
-      if (ezGameApplication::cvar_AppVSync)
+      if (WGameApplication::cvar_AppVSync)
       {
         pActiveModeElement->SetAttribute("checked", "");
       }
@@ -124,7 +124,7 @@ void RtsSettingsMenuMode::OnBeforeWorldUpdate()
 
     if (auto pActiveModeElement = pUiComponent->GetRmlContext()->GetDocument(0)->GetElementById("check-fps"))
     {
-      if (ezGameApplication::cvar_AppShowFPS)
+      if (WGameApplication::cvar_AppShowFPS)
       {
         pActiveModeElement->SetAttribute("checked", "");
       }
@@ -136,7 +136,7 @@ void RtsSettingsMenuMode::OnBeforeWorldUpdate()
 
     if (auto pCounterElement = pUiComponent->GetRmlContext()->GetDocument(0)->GetElementById("button-counter"))
     {
-      ezStringBuilder sCounterText;
+      WStringBuilder sCounterText;
       sCounterText.SetFormat("Clicks: {}", m_uiButtonClickCount);
       pCounterElement->SetInnerRML(sCounterText.GetData());
     }
@@ -230,7 +230,7 @@ void RtsSettingsMenuMode::OnBeforeWorldUpdate()
 
 void RtsSettingsMenuMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput)
 {
-  if (ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) == ezKeyState::Pressed)
+  if (WInputManager::GetInputSlotState(WInputSlot_KeyEscape) == WKeyState::Pressed)
   {
     m_pGameState->SwitchToGameMode(m_pGameState->GetPrevGameMode());
   }

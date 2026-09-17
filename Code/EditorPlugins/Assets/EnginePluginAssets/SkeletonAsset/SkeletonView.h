@@ -2,25 +2,25 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezSkeletonContext;
+class WSkeletonContext;
 
-class ezSkeletonViewContext : public ezEngineProcessViewContext
+class WSkeletonViewContext : public WEngineProcessViewContext
 {
 public:
-  ezSkeletonViewContext(ezSkeletonContext* pContext);
-  ~ezSkeletonViewContext();
+  WSkeletonViewContext(WSkeletonContext* pContext);
+  ~WSkeletonViewContext();
 
-  bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
+  bool UpdateThumbnailCamera(const WBoundingBoxSphere& bounds);
 
   virtual void Redraw(bool bRenderEditorGizmos) override;
 
 protected:
-  virtual ezViewHandle CreateView() override;
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual WViewHandle CreateView() override;
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg) override;
 
-  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
+  virtual void HandleViewMessage(const WEditorEngineViewMsg* pMsg) override;
 
-  void PickObjectAt(ezUInt16 x, ezUInt16 y);
+  void PickObjectAt(WUInt16 x, WUInt16 y);
 
-  ezSkeletonContext* m_pContext = nullptr;
+  WSkeletonContext* m_pContext = nullptr;
 };

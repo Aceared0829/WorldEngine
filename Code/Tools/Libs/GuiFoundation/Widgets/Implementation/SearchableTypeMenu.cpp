@@ -6,15 +6,15 @@
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 
-bool ezQtTypeMenu::s_bShowInDevelopmentFeatures = false;
-ezMap<ezString, ezDynamicArray<ezString>>* ezQtSearchableMenuRecentList::s_pStorage = nullptr;
+bool WQtTypeMenu::s_bShowInDevelopmentFeatures = false;
+WMap<WString, WDynamicArray<WString>>* WQtSearchableMenuRecentList::s_pStorage = nullptr;
 
-void ezQtSearchableMenuRecentList::SetStorage(ezMap<ezString, ezDynamicArray<ezString>>* pStorage)
+void WQtSearchableMenuRecentList::SetStorage(WMap<WString, WDynamicArray<WString>>* pStorage)
 {
   s_pStorage = pStorage;
 }
 
-void ezQtSearchableMenuRecentList::UseEntry(ezStringView sListName, ezStringView sEntry)
+void WQtSearchableMenuRecentList::UseEntry(WStringView sListName, WStringView sEntry)
 {
   if (s_pStorage == nullptr || sListName.IsEmpty())
     return;
@@ -22,9 +22,9 @@ void ezQtSearchableMenuRecentList::UseEntry(ezStringView sListName, ezStringView
   // the list is ordered most-recently-used first, which is also the order in which the menu displays it
   auto& list = (*s_pStorage)[sListName];
 
-  const ezUInt32 uiIndex = list.IndexOf(sEntry);
+  const WUInt32 uiIndex = list.IndexOf(sEntry);
 
-  if (uiIndex != ezInvalidIndex && uiIndex != 0)
+  if (uiIndex != WInvalidIndex && uiIndex != 0)
   {
     // already in the list, but not at the front, remove it
     list.RemoveAtAndCopy(uiIndex);
@@ -41,7 +41,7 @@ void ezQtSearchableMenuRecentList::UseEntry(ezStringView sListName, ezStringView
   }
 }
 
-ezArrayPtr<const ezString> ezQtSearchableMenuRecentList::GetList(ezStringView sListName)
+WArrayPtr<const WString> WQtSearchableMenuRecentList::GetList(WStringView sListName)
 {
   if (s_pStorage == nullptr)
     return {};
@@ -56,10 +56,10 @@ ezArrayPtr<const ezString> ezQtSearchableMenuRecentList::GetList(ezStringView sL
 
 struct TypeComparer
 {
-  EZ_FORCE_INLINE bool Less(const ezRTTI* a, const ezRTTI* b) const
+  W_FORCE_INLINE bool Less(const WRTTI* a, const WRTTI* b) const
   {
-    const ezCategoryAttribute* pCatA = a->GetAttributeByType<ezCategoryAttribute>();
-    const ezCategoryAttribute* pCatB = b->GetAttributeByType<ezCategoryAttribute>();
+    const WCategoryAttribute* pCatA = a->GetAttributeByType<WCategoryAttribute>();
+    const WCategoryAttribute* pCatB = b->GetAttributeByType<WCategoryAttribute>();
     if (pCatA != nullptr && pCatB == nullptr)
     {
       return true;
@@ -70,7 +70,7 @@ struct TypeComparer
     }
     else if (pCatA != nullptr && pCatB != nullptr)
     {
-      ezInt32 iRes = ezStringUtils::Compare(pCatA->GetCategory(), pCatB->GetCategory());
+      WInt32 iRes = WStringUtils::Compare(pCatA->GetCategory(), pCatB->GetCategory());
       if (iRes != 0)
       {
         return iRes < 0;
@@ -81,11 +81,11 @@ struct TypeComparer
   }
 };
 
-ezString ezQtTypeMenu::s_sLastMenuSearch;
+WString WQtTypeMenu::s_sLastMenuSearch;
 
-QMenu* ezQtTypeMenu::CreateCategoryMenu(const char* szCategory, ezMap<ezString, QMenu*>& existingMenus)
+QMenu* WQtTypeMenu::CreateCategoryMenu(const char* szCategory, WMap<WString, QMenu*>& existingMenus)
 {
-  if (ezStringUtils::IsNullOrEmpty(szCategory))
+  if (WStringUtils::IsNullOrEmpty(szCategory))
     return m_pMenu;
 
 
@@ -93,7 +93,7 @@ QMenu* ezQtTypeMenu::CreateCategoryMenu(const char* szCategory, ezMap<ezString, 
   if (it.IsValid())
     return it.Value();
 
-  ezStringBuilder sPath = szCategory;
+  WStringBuilder sPath = szCategory;
   sPath.PathParentDirectory();
   sPath.Trim("/");
 
@@ -107,52 +107,52 @@ QMenu* ezQtTypeMenu::CreateCategoryMenu(const char* szCategory, ezMap<ezString, 
   sPath = szCategory;
   sPath = sPath.GetFileName();
 
-  QMenu* pNewMenu = pParentMenu->addMenu(ezMakeQString(ezTranslate(sPath)));
+  QMenu* pNewMenu = pParentMenu->addMenu(WMakeQString(WTranslate(sPath)));
   existingMenus[szCategory] = pNewMenu;
 
   return pNewMenu;
 }
 
-void ezQtTypeMenu::OnMenuAction()
+void WQtTypeMenu::OnMenuAction()
 {
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(sender()->property("type").value<void*>());
+  const WRTTI* pRtti = static_cast<const WRTTI*>(sender()->property("type").value<void*>());
 
   OnMenuAction(pRtti);
 }
 
-void ezQtTypeMenu::OnMenuAction(const ezRTTI* pRtti)
+void WQtTypeMenu::OnMenuAction(const WRTTI* pRtti)
 {
   m_pLastSelectedType = pRtti;
 
-  ezQtSearchableMenuRecentList::UseEntry(m_sActiveRecentList, pRtti->GetTypeName());
+  WQtSearchableMenuRecentList::UseEntry(m_sActiveRecentList, pRtti->GetTypeName());
 
-  Q_EMIT TypeSelected(ezMakeQString(pRtti->GetTypeName()));
+  Q_EMIT TypeSelected(WMakeQString(pRtti->GetTypeName()));
 }
 
-void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerivedTypes, bool bSimpleMenu)
+void WQtTypeMenu::FillMenu(QMenu* pMenu, const WRTTI* pBaseType, bool bDerivedTypes, bool bSimpleMenu)
 {
   m_pMenu = pMenu;
-  m_sActiveRecentList = m_sRecentListName.IsEmpty() ? ezString(pBaseType->GetTypeName()) : m_sRecentListName;
+  m_sActiveRecentList = m_sRecentListName.IsEmpty() ? WString(pBaseType->GetTypeName()) : m_sRecentListName;
 
   m_SupportedTypes.Clear();
   m_SupportedTypes.Insert(pBaseType);
 
   if (bDerivedTypes)
   {
-    ezReflectionUtils::GatherTypesDerivedFromClass(pBaseType, m_SupportedTypes);
+    WReflectionUtils::GatherTypesDerivedFromClass(pBaseType, m_SupportedTypes);
   }
 
   // Make category-sorted array of types and skip all abstract, hidden or in development types
-  ezDynamicArray<const ezRTTI*> supportedTypes;
-  for (const ezRTTI* pRtti : m_SupportedTypes)
+  WDynamicArray<const WRTTI*> supportedTypes;
+  for (const WRTTI* pRtti : m_SupportedTypes)
   {
-    if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+    if (pRtti->GetTypeFlags().IsAnySet(WTypeFlags::Abstract))
       continue;
 
-    if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+    if (pRtti->GetAttributeByType<WHiddenAttribute>() != nullptr)
       continue;
 
-    if (!s_bShowInDevelopmentFeatures && pRtti->GetAttributeByType<ezInDevelopmentAttribute>() != nullptr)
+    if (!s_bShowInDevelopmentFeatures && pRtti->GetAttributeByType<WInDevelopmentAttribute>() != nullptr)
       continue;
 
     supportedTypes.PushBack(pRtti);
@@ -163,21 +163,21 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
   {
     // only show a searchable menu when it makes some sense
     // also deactivating entries to prevent duplicates is currently not supported by the searchable menu
-    m_pSearchableMenu = new ezQtSearchableMenu(m_pMenu);
+    m_pSearchableMenu = new WQtSearchableMenu(m_pMenu);
   }
 
-  ezStringBuilder sIconName;
-  ezStringBuilder sCategory = "";
+  WStringBuilder sIconName;
+  WStringBuilder sCategory = "";
 
-  ezMap<ezString, QMenu*> existingMenus;
+  WMap<WString, QMenu*> existingMenus;
 
   if (m_pSearchableMenu == nullptr)
   {
     // first round: create all sub menus
-    for (const ezRTTI* pRtti : supportedTypes)
+    for (const WRTTI* pRtti : supportedTypes)
     {
       // Determine current menu
-      const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+      const WCategoryAttribute* pCatA = pRtti->GetAttributeByType<WCategoryAttribute>();
 
       if (pCatA)
       {
@@ -190,14 +190,14 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
   {
     // add recently used sub-menu
     {
-      ezStringBuilder sInternalPath, sDisplayName;
+      WStringBuilder sInternalPath, sDisplayName;
 
-      ezInt32 iToAdd = 8;
+      WInt32 iToAdd = 8;
 
-      auto lruList = ezQtSearchableMenuRecentList::GetList(m_sActiveRecentList);
+      auto lruList = WQtSearchableMenuRecentList::GetList(m_sActiveRecentList);
       for (const auto& sTypeName : lruList)
       {
-        const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTypeName);
+        const WRTTI* pRtti = WRTTI::FindTypeByName(sTypeName);
 
         if (pRtti == nullptr)
           continue;
@@ -209,23 +209,23 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
 
         sInternalPath.Set(" *** RECENT ***/", pRtti->GetTypeName());
 
-        sDisplayName = ezTranslate(pRtti->GetTypeName());
+        sDisplayName = WTranslate(pRtti->GetTypeName());
 
-        const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
-        const ezColorAttribute* pColA = pRtti->GetAttributeByType<ezColorAttribute>();
+        const WCategoryAttribute* pCatA = pRtti->GetAttributeByType<WCategoryAttribute>();
+        const WColorAttribute* pColA = pRtti->GetAttributeByType<WColorAttribute>();
 
-        ezColor iconColor = ezColor::MakeZero();
+        WColor iconColor = WColor::MakeZero();
 
         if (pColA)
         {
           iconColor = pColA->GetColor();
         }
-        else if (pCatA && iconColor == ezColor::MakeZero())
+        else if (pCatA && iconColor == WColor::MakeZero())
         {
-          iconColor = ezColorScheme::GetCategoryColor(pCatA->GetCategory(), ezColorScheme::CategoryColorUsage::MenuEntryIcon);
+          iconColor = WColorScheme::GetCategoryColor(pCatA->GetCategory(), WColorScheme::CategoryColorUsage::MenuEntryIcon);
         }
 
-        const QIcon actionIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);
+        const QIcon actionIcon = WQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);
 
         m_pSearchableMenu->AddItem(sDisplayName, sInternalPath, QVariant::fromValue((void*)pRtti), actionIcon);
 
@@ -235,39 +235,39 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
     }
   }
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   // second round: create the actions
-  for (const ezRTTI* pRtti : supportedTypes)
+  for (const WRTTI* pRtti : supportedTypes)
   {
     sIconName.Set(":/TypeIcons/", pRtti->GetTypeName(), ".svg");
 
     // Determine current menu
-    const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
-    const ezInDevelopmentAttribute* pInDev = pRtti->GetAttributeByType<ezInDevelopmentAttribute>();
-    const ezColorAttribute* pColA = pRtti->GetAttributeByType<ezColorAttribute>();
+    const WCategoryAttribute* pCatA = pRtti->GetAttributeByType<WCategoryAttribute>();
+    const WInDevelopmentAttribute* pInDev = pRtti->GetAttributeByType<WInDevelopmentAttribute>();
+    const WColorAttribute* pColA = pRtti->GetAttributeByType<WColorAttribute>();
 
-    ezColor iconColor = ezColor::MakeZero();
+    WColor iconColor = WColor::MakeZero();
 
     if (pColA)
     {
       iconColor = pColA->GetColor();
     }
-    else if (pCatA && iconColor == ezColor::MakeZero())
+    else if (pCatA && iconColor == WColor::MakeZero())
     {
-      iconColor = ezColorScheme::GetCategoryColor(pCatA->GetCategory(), ezColorScheme::CategoryColorUsage::MenuEntryIcon);
+      iconColor = WColorScheme::GetCategoryColor(pCatA->GetCategory(), WColorScheme::CategoryColorUsage::MenuEntryIcon);
     }
 
-    const QIcon actionIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);
+    const QIcon actionIcon = WQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);
 
 
     if (m_pSearchableMenu != nullptr)
     {
-      ezStringBuilder sFullPath;
+      WStringBuilder sFullPath;
       sFullPath = pCatA ? pCatA->GetCategory() : "";
       sFullPath.AppendPath(pRtti->GetTypeName());
 
-      ezStringBuilder sDisplayName = ezTranslate(pRtti->GetTypeName());
+      WStringBuilder sDisplayName = WTranslate(pRtti->GetTypeName());
       if (pInDev)
       {
         sDisplayName.AppendFormat(" [ {} ]", pInDev->GetString());
@@ -279,7 +279,7 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
     {
       QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
 
-      ezStringBuilder fullName = ezTranslate(pRtti->GetTypeName());
+      WStringBuilder fullName = WTranslate(pRtti->GetTypeName());
 
       if (pInDev)
       {
@@ -289,7 +289,7 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
       // Add type action to current menu
       QAction* pAction = new QAction(fullName.GetData(), m_pMenu);
       pAction->setProperty("type", QVariant::fromValue((void*)pRtti));
-      EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
+      W_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
 
       pAction->setIcon(actionIcon);
 
@@ -299,9 +299,9 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
 
   if (m_pSearchableMenu != nullptr)
   {
-    connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
+    connect(m_pSearchableMenu, &WQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
       {
-        const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
+        const WRTTI* pRtti = static_cast<const WRTTI*>(variant.value<void*>());
 
         OnMenuAction(pRtti);
 
@@ -309,13 +309,13 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
         //
       });
 
-    connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
+    connect(m_pSearchableMenu, &WQtSearchableMenu::SearchTextChanged, m_pMenu,
       [this](const QString& sText)
-      { ezQtTypeMenu::s_sLastMenuSearch = sText.toUtf8().data(); });
+      { WQtTypeMenu::s_sLastMenuSearch = sText.toUtf8().data(); });
 
     m_pMenu->addAction(m_pSearchableMenu);
 
     // important to do this last to make sure the search bar gets focus
-    m_pSearchableMenu->Finalize(ezQtTypeMenu::s_sLastMenuSearch.GetData());
+    m_pSearchableMenu->Finalize(WQtTypeMenu::s_sLastMenuSearch.GetData());
   }
 }

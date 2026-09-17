@@ -2,13 +2,13 @@
 ### OpenXR support
 ######################################
 
-set (EZ_BUILD_OPENXR OFF CACHE BOOL "Whether support for OpenXR should be added")
+set (W_BUILD_OPENXR OFF CACHE BOOL "Whether support for OpenXR should be added")
 
 ######################################
-### ez_fetch_openxr()
+### W_fetch_openxr()
 ######################################
 
-macro(ez_fetch_openxr)
+macro(W_fetch_openxr)
 	include(FetchContent)
 
 	# Set RPATH for OpenXR libraries so they can find dependencies in the same directory
@@ -42,17 +42,17 @@ macro(ez_fetch_openxr)
 	set_target_properties(XrApiLayer_core_validation PROPERTIES FOLDER "ThirdParty")
 
 	# Suppress warnings in third-party generated code
-	if(EZ_CMAKE_COMPILER_GCC OR EZ_CMAKE_COMPILER_CLANG)
+	if(W_CMAKE_COMPILER_GCC OR W_CMAKE_COMPILER_CLANG)
 		target_compile_options(XrApiLayer_core_validation PRIVATE -Wno-address)
 	endif()
 
 endmacro()
 
 ######################################
-### ez_link_target_openxr(<target>)
+### W_link_target_openxr(<target>)
 ######################################
 
-function(ez_link_target_openxr TARGET_NAME)
+function(W_link_target_openxr TARGET_NAME)
 
 	target_link_libraries(${TARGET_NAME} PRIVATE openxr_loader)
 	add_dependencies(${TARGET_NAME} XrApiLayer_core_validation)

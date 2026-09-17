@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/System/SystemInformation.h>
 
@@ -27,12 +27,12 @@ bool Is64BitWindows()
 
 /// \endcond
 
-bool ezSystemInformation::IsDebuggerAttached()
+bool WSystemInformation::IsDebuggerAttached()
 {
   return ::IsDebuggerPresent();
 }
 
-void ezSystemInformation::Initialize()
+void WSystemInformation::Initialize()
 {
   if (s_SystemInformation.m_bIsInitialized)
     return;
@@ -56,7 +56,7 @@ void ezSystemInformation::Initialize()
 
   s_SystemInformation.m_uiInstalledMainMemory = memStatus.ullTotalPhys;
   s_SystemInformation.m_bB64BitOS = Is64BitWindows();
-  s_SystemInformation.m_szPlatformName = EZ_PLATFORM_NAME;
+  s_SystemInformation.m_szPlatformName = W_PLATFORM_NAME;
 
 #  if defined BUILDSYSTEM_BUILDTYPE
   s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_BUILDTYPE;
@@ -71,7 +71,7 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_bIsInitialized = true;
 }
 
-ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
+WUInt64 WSystemInformation::GetAvailableMainMemory() const
 {
   MEMORYSTATUSEX statex;
   statex.dwLength = sizeof(statex);
@@ -80,7 +80,7 @@ ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
   return statex.ullAvailPhys;
 }
 
-float ezSystemInformation::GetCPUUtilization() const
+float WSystemInformation::GetCPUUtilization() const
 {
   LARGE_INTEGER kernel, user, idle;
   GetSystemTimes((FILETIME*)&idle, (FILETIME*)&kernel, (FILETIME*)&user);
@@ -97,10 +97,10 @@ float ezSystemInformation::GetCPUUtilization() const
 
   auto util = static_cast<float>(kernelTime + userTime - idleTime) / (kernelTime + userTime);
 
-  return ezMath::Clamp(util, 0.f, 1.f) * 100.f;
+  return WMath::Clamp(util, 0.f, 1.f) * 100.f;
 }
 
-#  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+#  if W_ENABLED(W_PLATFORM_ARCH_X86)
 
 namespace cpu_x86
 {

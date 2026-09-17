@@ -7,23 +7,23 @@
 
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
-namespace ezInternal
+namespace WInternal
 {
-  class DefaultCoordinateSystemProvider : public ezCoordinateSystemProvider
+  class DefaultCoordinateSystemProvider : public WCoordinateSystemProvider
   {
   public:
     DefaultCoordinateSystemProvider()
-      : ezCoordinateSystemProvider(nullptr)
+      : WCoordinateSystemProvider(nullptr)
     {
     }
 
-    virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const override
+    virtual void GetCoordinateSystem(const WVec3& vGlobalPosition, WCoordinateSystem& out_coordinateSystem) const override
     {
-      EZ_IGNORE_UNUSED(vGlobalPosition);
+      W_IGNORE_UNUSED(vGlobalPosition);
 
-      out_coordinateSystem.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
-      out_coordinateSystem.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
-      out_coordinateSystem.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
+      out_coordinateSystem.m_vForwardDir = WVec3(1.0f, 0.0f, 0.0f);
+      out_coordinateSystem.m_vRightDir = WVec3(0.0f, 1.0f, 0.0f);
+      out_coordinateSystem.m_vUpDir = WVec3(0.0f, 0.0f, 1.0f);
     }
   };
 
@@ -31,7 +31,7 @@ namespace ezInternal
 
   void WorldData::UpdateTask::Execute()
   {
-    ezWorldModule::UpdateContext context;
+    WWorldModule::UpdateContext context;
     context.m_uiFirstComponentIndex = m_uiStartIndex;
     context.m_uiComponentCount = m_uiCount;
 
@@ -40,16 +40,16 @@ namespace ezInternal
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  WorldData::WorldData(ezWorldDesc& desc)
+  WorldData::WorldData(WWorldDesc& desc)
     : m_sName(desc.m_sName)
-    , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
+    , m_Allocator(desc.m_sName, WFoundation::GetDefaultAllocator())
     , m_AllocatorWrapper(&m_Allocator)
     , m_BlockAllocator(desc.m_sName, &m_Allocator)
-    , m_LinearAllocator(desc.m_sName, ezFoundation::GetAlignedAllocator())
+    , m_LinearAllocator(desc.m_sName, WFoundation::GetAlignedAllocator())
     , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
     , m_MaxInitializationTimePerFrame(desc.m_MaxComponentInitializationTimePerFrame)
     , m_Clock(desc.m_sName)
-    , m_WriteThreadID((ezThreadID)0)
+    , m_WriteThreadID((WThreadID)0)
     , m_bReportErrorWhenStaticObjectMoves(desc.m_bReportErrorWhenStaticObjectMoves)
     , m_ReadMarker(*this)
     , m_WriteMarker(*this)
@@ -69,16 +69,16 @@ namespace ezInternal
     // insert dummy entry to save some checks
     m_Objects.Insert(nullptr);
 
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    static_assert(sizeof(ezGameObject::TransformationData) == 240);
+#if W_ENABLED(W_GAMEOBJECT_VELOCITY)
+    static_assert(sizeof(WGameObject::TransformationData) == 240);
 #else
-    static_assert(sizeof(ezGameObject::TransformationData) == 192);
+    static_assert(sizeof(WGameObject::TransformationData) == 192);
 #endif
 
-    static_assert(sizeof(ezGameObject) == 128);
-    static_assert(EZ_COMPONENT_TYPE_INDEX_BITS <= sizeof(ezWorldModuleTypeId) * 8);
+    static_assert(sizeof(WGameObject) == 128);
+    static_assert(W_COMPONENT_TYPE_INDEX_BITS <= sizeof(WWorldModuleTypeId) * 8);
 
-    auto pDefaultInitBatch = EZ_NEW(&m_Allocator, InitBatch, &m_Allocator, "Default", true);
+    auto pDefaultInitBatch = W_NEW(&m_Allocator, InitBatch, &m_Allocator, "Default", true);
     pDefaultInitBatch->m_bIsReady = true;
     m_InitBatches.Insert(pDefaultInitBatch);
     m_pDefaultInitBatch = pDefaultInitBatch;
@@ -90,7 +90,7 @@ namespace ezInternal
 
       if (m_pSpatialSystem == nullptr && desc.m_bAutoCreateSpatialSystem)
       {
-        m_pSpatialSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezSpatialSystem_RegularGrid);
+        m_pSpatialSystem = W_NEW(WFoundation::GetAlignedAllocator(), WSpatialSystem_RegularGrid);
       }
     }
 
@@ -100,7 +100,7 @@ namespace ezInternal
 
       if (m_pCoordinateSystemProvider == nullptr)
       {
-        m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
+        m_pCoordinateSystemProvider = W_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
       }
     }
 
@@ -110,7 +110,7 @@ namespace ezInternal
 
       if (m_pTimeStepSmoothing == nullptr)
       {
-        m_pTimeStepSmoothing = EZ_NEW(&m_Allocator, ezDefaultTimeStepSmoothing);
+        m_pTimeStepSmoothing = W_NEW(&m_Allocator, WDefaultTimeStepSmoothing);
       }
 
       m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
@@ -123,25 +123,25 @@ namespace ezInternal
       if (m_pBlackboard == nullptr)
       {
         // Can't use the world allocator here since blackboards use shared ownership and thus might outlive the world. Use the default allocator instead.
-        m_pBlackboard = ezBlackboard::Create(desc.m_sName);
+        m_pBlackboard = WBlackboard::Create(desc.m_sName);
       }
     }
 
     // BEGIN-DOCS-CODE-SNIPPET: resource-management-listen-all
     // Listening to all resource events
-    ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&WorldData::ResourceEventHandler, this));
+    WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WorldData::ResourceEventHandler, this));
     // END-DOCS-CODE-SNIPPET
   }
 
   WorldData::~WorldData()
   {
-    ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&WorldData::ResourceEventHandler, this));
+    WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WorldData::ResourceEventHandler, this));
   }
 
   void WorldData::Clear()
   {
     // allow reading and writing during destruction
-    m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
+    m_WriteThreadID = WThreadUtils::GetCurrentThreadID();
     m_iReadCounter.Increment();
 
     // deactivate all objects and components before destroying them
@@ -151,7 +151,7 @@ namespace ezInternal
     }
 
     // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
-    for (ezWorldModule* pModule : m_Modules)
+    for (WWorldModule* pModule : m_Modules)
     {
       if (pModule != nullptr)
       {
@@ -160,31 +160,31 @@ namespace ezInternal
     }
 
     // now delete all modules
-    for (ezWorldModule* pModule : m_Modules)
+    for (WWorldModule* pModule : m_Modules)
     {
       if (pModule != nullptr)
       {
-        EZ_DELETE(&m_Allocator, pModule);
+        W_DELETE(&m_Allocator, pModule);
       }
     }
     m_Modules.Clear();
 
-    // this deletes the ezGameObject instances
+    // this deletes the WGameObject instances
     m_ObjectStorage.Clear();
 
     // delete all transformation data
-    for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
+    for (WUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
     {
       Hierarchy& hierarchy = m_Hierarchies[uiHierarchyIndex];
 
-      for (ezUInt32 i = hierarchy.m_Data.GetCount(); i-- > 0;)
+      for (WUInt32 i = hierarchy.m_Data.GetCount(); i-- > 0;)
       {
         Hierarchy::DataBlockArray* blocks = hierarchy.m_Data[i];
-        for (ezUInt32 j = blocks->GetCount(); j-- > 0;)
+        for (WUInt32 j = blocks->GetCount(); j-- > 0;)
         {
           m_BlockAllocator.DeallocateBlock((*blocks)[j]);
         }
-        EZ_DELETE(&m_Allocator, blocks);
+        W_DELETE(&m_Allocator, blocks);
       }
 
       hierarchy.m_Data.Clear();
@@ -194,7 +194,7 @@ namespace ezInternal
     m_UpdateTasks.Clear();
 
     // delete queued messages
-    for (ezUInt32 i = 0; i < ezObjectMsgQueueType::COUNT; ++i)
+    for (WUInt32 i = 0; i < WObjectMsgQueueType::COUNT; ++i)
     {
       {
         MessageQueue& queue = m_MessageQueues[i];
@@ -208,7 +208,7 @@ namespace ezInternal
         while (!queue.IsEmpty())
         {
           auto& entry = queue.PeekFront();
-          EZ_DELETE(&m_Allocator, entry.m_pMessage);
+          W_DELETE(&m_Allocator, entry.m_pMessage);
 
           queue.PopFront();
         }
@@ -216,13 +216,13 @@ namespace ezInternal
     }
   }
 
-  ezGameObject::TransformationData* WorldData::CreateTransformationData(bool bDynamic, ezUInt32 uiHierarchyLevel)
+  WGameObject::TransformationData* WorldData::CreateTransformationData(bool bDynamic, WUInt32 uiHierarchyLevel)
   {
     Hierarchy& hierarchy = m_Hierarchies[GetHierarchyType(bDynamic)];
 
     while (uiHierarchyLevel >= hierarchy.m_Data.GetCount())
     {
-      hierarchy.m_Data.PushBack(EZ_NEW(&m_Allocator, Hierarchy::DataBlockArray, &m_Allocator));
+      hierarchy.m_Data.PushBack(W_NEW(&m_Allocator, Hierarchy::DataBlockArray, &m_Allocator));
     }
 
     Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];
@@ -235,24 +235,24 @@ namespace ezInternal
 
     if (pBlock == nullptr || pBlock->IsFull())
     {
-      blocks.PushBack(m_BlockAllocator.AllocateBlock<ezGameObject::TransformationData>());
+      blocks.PushBack(m_BlockAllocator.AllocateBlock<WGameObject::TransformationData>());
       pBlock = &blocks.PeekBack();
     }
 
     return pBlock->ReserveBack();
   }
 
-  void WorldData::DeleteTransformationData(bool bDynamic, ezUInt32 uiHierarchyLevel, ezGameObject::TransformationData* pData)
+  void WorldData::DeleteTransformationData(bool bDynamic, WUInt32 uiHierarchyLevel, WGameObject::TransformationData* pData)
   {
     Hierarchy& hierarchy = m_Hierarchies[GetHierarchyType(bDynamic)];
     Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];
 
     Hierarchy::DataBlock& lastBlock = blocks.PeekBack();
-    const ezGameObject::TransformationData* pLast = lastBlock.PopBack();
+    const WGameObject::TransformationData* pLast = lastBlock.PopBack();
 
     if (pData != pLast)
     {
-      ezMemoryUtils::Copy(pData, pLast, 1);
+      WMemoryUtils::Copy(pData, pLast, 1);
       pData->m_pObject->m_pTransformationData = pData;
 
       // fix parent transform data for children as well
@@ -276,21 +276,21 @@ namespace ezInternal
   {
     struct Helper
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData) { return (*static_cast<VisitorFunc*>(pUserData))(pData->m_pObject); }
+      W_ALWAYS_INLINE static WVisitorExecution::Enum Visit(WGameObject::TransformationData* pData, void* pUserData) { return (*static_cast<VisitorFunc*>(pUserData))(pData->m_pObject); }
     };
 
-    const ezUInt32 uiMaxHierarchyLevel = ezMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(), m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
+    const WUInt32 uiMaxHierarchyLevel = WMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(), m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
 
-    for (ezUInt32 uiHierarchyLevel = 0; uiHierarchyLevel < uiMaxHierarchyLevel; ++uiHierarchyLevel)
+    for (WUInt32 uiHierarchyLevel = 0; uiHierarchyLevel < uiMaxHierarchyLevel; ++uiHierarchyLevel)
     {
-      for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
+      for (WUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
       {
         Hierarchy& hierarchy = m_Hierarchies[uiHierarchyIndex];
         if (uiHierarchyLevel < hierarchy.m_Data.GetCount())
         {
-          ezVisitorExecution::Enum execution = TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[uiHierarchyLevel], &func);
-          EZ_ASSERT_DEV(execution != ezVisitorExecution::Skip, "Skip is not supported when using breadth first traversal");
-          if (execution == ezVisitorExecution::Stop)
+          WVisitorExecution::Enum execution = TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[uiHierarchyLevel], &func);
+          W_ASSERT_DEV(execution != WVisitorExecution::Skip, "Skip is not supported when using breadth first traversal");
+          if (execution == WVisitorExecution::Stop)
             return;
         }
       }
@@ -301,45 +301,45 @@ namespace ezInternal
   {
     struct Helper
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData) { return WorldData::TraverseObjectDepthFirst(pData->m_pObject, *static_cast<VisitorFunc*>(pUserData)); }
+      W_ALWAYS_INLINE static WVisitorExecution::Enum Visit(WGameObject::TransformationData* pData, void* pUserData) { return WorldData::TraverseObjectDepthFirst(pData->m_pObject, *static_cast<VisitorFunc*>(pUserData)); }
     };
 
-    for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
+    for (WUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
     {
       Hierarchy& hierarchy = m_Hierarchies[uiHierarchyIndex];
       if (!hierarchy.m_Data.IsEmpty())
       {
-        if (TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[0], &func) == ezVisitorExecution::Stop)
+        if (TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[0], &func) == WVisitorExecution::Stop)
           return;
       }
     }
   }
 
   // static
-  ezVisitorExecution::Enum WorldData::TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func)
+  WVisitorExecution::Enum WorldData::TraverseObjectDepthFirst(WGameObject* pObject, VisitorFunc& func)
   {
-    ezVisitorExecution::Enum execution = func(pObject);
-    if (execution == ezVisitorExecution::Stop)
-      return ezVisitorExecution::Stop;
+    WVisitorExecution::Enum execution = func(pObject);
+    if (execution == WVisitorExecution::Stop)
+      return WVisitorExecution::Stop;
 
-    if (execution != ezVisitorExecution::Skip) // skip all children
+    if (execution != WVisitorExecution::Skip) // skip all children
     {
       for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
       {
-        if (TraverseObjectDepthFirst(it, func) == ezVisitorExecution::Stop)
-          return ezVisitorExecution::Stop;
+        if (TraverseObjectDepthFirst(it, func) == WVisitorExecution::Stop)
+          return WVisitorExecution::Stop;
       }
     }
 
-    return ezVisitorExecution::Continue;
+    return WVisitorExecution::Continue;
   }
 
   void WorldData::UpdateGlobalTransforms()
   {
     struct UserData
     {
-      ezSpatialSystem* m_pSpatialSystem;
-      ezUInt32 m_uiUpdateCounter;
+      WSpatialSystem* m_pSpatialSystem;
+      WUInt32 m_uiUpdateCounter;
     };
 
     UserData userData;
@@ -348,41 +348,41 @@ namespace ezInternal
 
     struct RootLevel
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
+      W_ALWAYS_INLINE static WVisitorExecution::Enum Visit(WGameObject::TransformationData* pData, void* pUserData0)
       {
         auto pUserData = static_cast<const UserData*>(pUserData0);
         WorldData::UpdateGlobalTransform(pData, pUserData->m_uiUpdateCounter);
-        return ezVisitorExecution::Continue;
+        return WVisitorExecution::Continue;
       }
     };
 
     struct WithParent
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
+      W_ALWAYS_INLINE static WVisitorExecution::Enum Visit(WGameObject::TransformationData* pData, void* pUserData0)
       {
         auto pUserData = static_cast<const UserData*>(pUserData0);
         WorldData::UpdateGlobalTransformWithParent(pData, pUserData->m_uiUpdateCounter);
-        return ezVisitorExecution::Continue;
+        return WVisitorExecution::Continue;
       }
     };
 
     struct RootLevelWithSpatialData
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
+      W_ALWAYS_INLINE static WVisitorExecution::Enum Visit(WGameObject::TransformationData* pData, void* pUserData0)
       {
         auto pUserData = static_cast<UserData*>(pUserData0);
         WorldData::UpdateGlobalTransformAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
-        return ezVisitorExecution::Continue;
+        return WVisitorExecution::Continue;
       }
     };
 
     struct WithParentWithSpatialData
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
+      W_ALWAYS_INLINE static WVisitorExecution::Enum Visit(WGameObject::TransformationData* pData, void* pUserData0)
       {
         auto pUserData = static_cast<UserData*>(pUserData0);
         WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
-        return ezVisitorExecution::Continue;
+        return WVisitorExecution::Continue;
       }
     };
 
@@ -397,7 +397,7 @@ namespace ezInternal
       {
         TraverseHierarchyLevelMultiThreaded<RootLevel>(*dataPtr[0], &userData);
 
-        for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
+        for (WUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
         {
           TraverseHierarchyLevelMultiThreaded<WithParent>(*dataPtr[i], &userData);
         }
@@ -406,7 +406,7 @@ namespace ezInternal
       {
         TraverseHierarchyLevel<RootLevelWithSpatialData>(*dataPtr[0], &userData);
 
-        for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
+        for (WUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
         {
           TraverseHierarchyLevel<WithParentWithSpatialData>(*dataPtr[i], &userData);
         }
@@ -414,16 +414,16 @@ namespace ezInternal
     }
   }
 
-  void WorldData::ResourceEventHandler(const ezResourceEvent& e)
+  void WorldData::ResourceEventHandler(const WResourceEvent& e)
   {
-    if (e.m_Type != ezResourceEvent::Type::ResourceContentUnloading || e.m_pResource->GetReferenceCount() == 0)
+    if (e.m_Type != WResourceEvent::Type::ResourceContentUnloading || e.m_pResource->GetReferenceCount() == 0)
       return;
 
-    ezTypelessResourceHandle hResource(e.m_pResource);
+    WTypelessResourceHandle hResource(e.m_pResource);
     if (m_ReloadFunctions.Contains(hResource))
     {
       m_NeedReload.Insert(hResource);
     }
   }
 
-} // namespace ezInternal
+} // namespace WInternal

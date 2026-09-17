@@ -23,14 +23,14 @@
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
 
-using ezMathTestType = float;
+using WMathTestType = float;
 
-using ezVec2T = ezVec2Template<ezMathTestType>;                     ///< This is only for testing purposes
-using ezVec3T = ezVec3Template<ezMathTestType>;                     ///< This is only for testing purposes
-using ezVec4T = ezVec4Template<ezMathTestType>;                     ///< This is only for testing purposes
-using ezMat3T = ezMat3Template<ezMathTestType>;                     ///< This is only for testing purposes
-using ezMat4T = ezMat4Template<ezMathTestType>;                     ///< This is only for testing purposes
-using ezQuatT = ezQuatTemplate<ezMathTestType>;                     ///< This is only for testing purposes
-using ezPlaneT = ezPlaneTemplate<ezMathTestType>;                   ///< This is only for testing purposes
-using ezBoundingBoxT = ezBoundingBoxTemplate<ezMathTestType>;       ///< This is only for testing purposes
-using ezBoundingSphereT = ezBoundingSphereTemplate<ezMathTestType>; ///< This is only for testing purposes
+using WVec2T = WVec2Template<WMathTestType>;                     ///< This is only for testing purposes
+using WVec3T = WVec3Template<WMathTestType>;                     ///< This is only for testing purposes
+using WVec4T = WVec4Template<WMathTestType>;                     ///< This is only for testing purposes
+using WMat3T = WMat3Template<WMathTestType>;                     ///< This is only for testing purposes
+using WMat4T = WMat4Template<WMathTestType>;                     ///< This is only for testing purposes
+using WQuatT = WQuatTemplate<WMathTestType>;                     ///< This is only for testing purposes
+using WPlaneT = WPlaneTemplate<WMathTestType>;                   ///< This is only for testing purposes
+using WBoundingBoxT = WBoundingBoxTemplate<WMathTestType>;       ///< This is only for testing purposes
+using WBoundingSphereT = WBoundingSphereTemplate<WMathTestType>; ///< This is only for testing purposes

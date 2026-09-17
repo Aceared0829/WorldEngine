@@ -6,122 +6,122 @@
 #include <Foundation/Time/Clock.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInputDeviceMouseKeyboard, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceController, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInputDeviceController, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInputDevice* ezInputDeviceMouseKeyboard::s_pMouseOver = nullptr;
+WInputDevice* WInputDeviceMouseKeyboard::s_pMouseOver = nullptr;
 
-ezInputDeviceController::ezInputDeviceController()
+WInputDeviceController::WInputDeviceController()
 {
-  for (ezInt8 c = 0; c < MaxControllers; ++c)
+  for (WInt8 c = 0; c < MaxControllers; ++c)
   {
     m_bVibrationEnabled[c] = false;
     m_iPhysicalToVirtualControllerMapping[c] = 0; // by default, map all physical controllers to the first virtual controller
     m_RecentPhysicalControllerInput[c].Clear();
 
-    for (ezInt8 m = 0; m < Motor::ENUM_COUNT; ++m)
+    for (WInt8 m = 0; m < Motor::ENUM_COUNT; ++m)
     {
       m_fVibrationStrength[c][m] = 0.0f;
 
-      for (ezUInt8 t = 0; t < MaxVibrationSamples; ++t)
+      for (WUInt8 t = 0; t < MaxVibrationSamples; ++t)
         m_fVibrationTracks[c][m][t] = 0.0f;
     }
   }
 }
 
-void ezInputDeviceController::EnableVibration(ezUInt8 uiVirtual, bool bEnable)
+void WInputDeviceController::EnableVibration(WUInt8 uiVirtual, bool bEnable)
 {
-  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
+  W_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
 
   m_bVibrationEnabled[uiVirtual] = bEnable;
 }
 
-bool ezInputDeviceController::IsVibrationEnabled(ezUInt8 uiVirtual) const
+bool WInputDeviceController::IsVibrationEnabled(WUInt8 uiVirtual) const
 {
-  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
+  W_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
 
   return m_bVibrationEnabled[uiVirtual];
 }
 
-void ezInputDeviceController::SetVibrationStrength(ezUInt8 uiVirtual, Motor::Enum motor, float fValue)
+void WInputDeviceController::SetVibrationStrength(WUInt8 uiVirtual, Motor::Enum motor, float fValue)
 {
-  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
-  EZ_ASSERT_DEV(motor < Motor::ENUM_COUNT, "Invalid Vibration Motor Index.");
+  W_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
+  W_ASSERT_DEV(motor < Motor::ENUM_COUNT, "Invalid Vibration Motor Index.");
 
-  m_fVibrationStrength[uiVirtual][motor] = ezMath::Clamp(fValue, 0.0f, 1.0f);
+  m_fVibrationStrength[uiVirtual][motor] = WMath::Clamp(fValue, 0.0f, 1.0f);
 }
 
-float ezInputDeviceController::GetVibrationStrength(ezUInt8 uiVirtual, Motor::Enum motor)
+float WInputDeviceController::GetVibrationStrength(WUInt8 uiVirtual, Motor::Enum motor)
 {
-  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
-  EZ_ASSERT_DEV(motor < Motor::ENUM_COUNT, "Invalid Vibration Motor Index.");
+  W_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
+  W_ASSERT_DEV(motor < Motor::ENUM_COUNT, "Invalid Vibration Motor Index.");
 
   return m_fVibrationStrength[uiVirtual][motor];
 }
 
-void ezInputDeviceController::SetPhysicalControllerMapping(ezUInt8 uiPhysicalController, ezInt8 iVirtualController)
+void WInputDeviceController::SetPhysicalControllerMapping(WUInt8 uiPhysicalController, WInt8 iVirtualController)
 {
-  EZ_ASSERT_DEV(uiPhysicalController < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysicalController, MaxControllers);
-  EZ_ASSERT_DEV(iVirtualController < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", iVirtualController, MaxControllers);
+  W_ASSERT_DEV(uiPhysicalController < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysicalController, MaxControllers);
+  W_ASSERT_DEV(iVirtualController < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", iVirtualController, MaxControllers);
 
   m_iPhysicalToVirtualControllerMapping[uiPhysicalController] = iVirtualController;
 
   if (iVirtualController < 0)
   {
-    ezLog::Dev("Input from physical controller {} got deactivated", uiPhysicalController);
+    WLog::Dev("Input from physical controller {} got deactivated", uiPhysicalController);
   }
   else
   {
-    ezLog::Dev("Mapped physical controller {} to virtual controller {}", uiPhysicalController, iVirtualController);
+    WLog::Dev("Mapped physical controller {} to virtual controller {}", uiPhysicalController, iVirtualController);
   }
 }
 
-ezInt8 ezInputDeviceController::GetPhysicalControllerMapping(ezUInt8 uiPhysical) const
+WInt8 WInputDeviceController::GetPhysicalControllerMapping(WUInt8 uiPhysical) const
 {
-  EZ_ASSERT_DEV(uiPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysical, MaxControllers);
+  W_ASSERT_DEV(uiPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysical, MaxControllers);
 
   return m_iPhysicalToVirtualControllerMapping[uiPhysical];
 }
 
-ezBitflags<ezPhysicalControllerInput> ezInputDeviceController::GetRecentPhysicalControllerInput(ezUInt8 uiPhysical) const
+WBitflags<WPhysicalControllerInput> WInputDeviceController::GetRecentPhysicalControllerInput(WUInt8 uiPhysical) const
 {
-  EZ_ASSERT_DEV(uiPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysical, MaxControllers);
+  W_ASSERT_DEV(uiPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysical, MaxControllers);
 
   return m_RecentPhysicalControllerInput[uiPhysical];
 }
 
-void ezInputDeviceController::AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum motor, float* pVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor)
+void WInputDeviceController::AddVibrationTrack(WUInt8 uiVirtual, Motor::Enum motor, float* pVibrationTrackValue, WUInt32 uiSamples, float fScalingFactor)
 {
-  uiSamples = ezMath::Min<ezUInt32>(uiSamples, MaxVibrationSamples);
+  uiSamples = WMath::Min<WUInt32>(uiSamples, MaxVibrationSamples);
 
-  for (ezUInt32 s = 0; s < uiSamples; ++s)
+  for (WUInt32 s = 0; s < uiSamples; ++s)
   {
     float& fVal = m_fVibrationTracks[uiVirtual][motor][(m_uiVibrationTrackPos + 1 + s) % MaxVibrationSamples];
 
-    fVal = ezMath::Max(fVal, pVibrationTrackValue[s] * fScalingFactor);
-    fVal = ezMath::Clamp(fVal, 0.0f, 1.0f);
+    fVal = WMath::Max(fVal, pVibrationTrackValue[s] * fScalingFactor);
+    fVal = WMath::Clamp(fVal, 0.0f, 1.0f);
   }
 }
 
-void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
+void WInputDeviceController::UpdateVibration(WTime tTimeDifference)
 {
-  static ezTime tElapsedTime;
+  static WTime tElapsedTime;
   tElapsedTime += tTimeDifference;
 
-  const ezTime tTimePerSample = ezTime::MakeFromSeconds(1.0 / (double)VibrationSamplesPerSecond);
+  const WTime tTimePerSample = WTime::MakeFromSeconds(1.0 / (double)VibrationSamplesPerSecond);
 
   // advance the vibration track sampling
   while (tElapsedTime >= tTimePerSample)
   {
     tElapsedTime -= tTimePerSample;
 
-    for (ezUInt32 c = 0; c < MaxControllers; ++c)
+    for (WUInt32 c = 0; c < MaxControllers; ++c)
     {
-      for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
+      for (WUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
         m_fVibrationTracks[c][m][m_uiVibrationTrackPos] = 0.0f;
     }
 
@@ -132,28 +132,28 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
   float fVibrationToApply[MaxControllers][Motor::ENUM_COUNT];
 
   // Initialize with zero (we might not set all values later)
-  for (ezUInt32 c = 0; c < MaxControllers; ++c)
+  for (WUInt32 c = 0; c < MaxControllers; ++c)
   {
-    for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
+    for (WUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
     {
       fVibrationToApply[c][m] = 0.0f;
     }
   }
 
   // go through all controllers and motors
-  for (ezUInt8 c = 0; c < MaxControllers; ++c)
+  for (WUInt8 c = 0; c < MaxControllers; ++c)
   {
     // ignore if vibration is disabled on this controller
     if (!m_bVibrationEnabled[c])
       continue;
 
-    for (ezUInt8 p = 0; p < MaxControllers; ++p)
+    for (WUInt8 p = 0; p < MaxControllers; ++p)
     {
       if (m_iPhysicalToVirtualControllerMapping[p] == c)
       {
-        for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
+        for (WUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
         {
-          fVibrationToApply[p][m] = ezMath::Max(m_fVibrationStrength[c][m], m_fVibrationTracks[c][m][m_uiVibrationTrackPos]);
+          fVibrationToApply[p][m] = WMath::Max(m_fVibrationStrength[c][m], m_fVibrationTracks[c][m][m_uiVibrationTrackPos]);
         }
       }
     }
@@ -161,47 +161,47 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
 
   // now send the back-end all the information about how to vibrate which physical controller
   // this also always resets vibration to zero for controllers that might have been changed to another virtual controller etc.
-  for (ezUInt8 c = 0; c < MaxControllers; ++c)
+  for (WUInt8 c = 0; c < MaxControllers; ++c)
   {
-    for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
+    for (WUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
     {
       ApplyVibration(c, (Motor::Enum)m, fVibrationToApply[c][m]);
     }
   }
 }
 
-void ezInputDeviceMouseKeyboard::SetShowMouseCursor(bool bShow)
+void WInputDeviceMouseKeyboard::SetShowMouseCursor(bool bShow)
 {
   m_bShowMouseCursorDesired = bShow;
 
   UpdateEffectiveMouseCursorState();
 }
 
-void ezInputDeviceMouseKeyboard::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
+void WInputDeviceMouseKeyboard::SetClipMouseCursor(WMouseCursorClipMode::Enum mode)
 {
   m_ClipModeDesired = mode;
 
   UpdateEffectiveMouseCursorState();
 }
 
-void ezInputDeviceMouseKeyboard::UpdateEffectiveMouseCursorState()
+void WInputDeviceMouseKeyboard::UpdateEffectiveMouseCursorState()
 {
-  const ezMouseCursorOverrideDesc ovr = ezInputManager::GetActiveMouseCursorOverride();
-  const bool bCustomCursorActive = ezInputManager::IsCustomMouseCursorActive();
+  const WMouseCursorOverrideDesc ovr = WInputManager::GetActiveMouseCursorOverride();
+  const bool bCustomCursorActive = WInputManager::IsCustomMouseCursorActive();
 
   // An explicit override wins over the custom cursor, which in turn wins over what the application wants.
   bool bShow;
   switch (ovr.m_OSCursor)
   {
-    case ezMouseCursorOverride::ForceOSCursor:
+    case WMouseCursorOverride::ForceOSCursor:
       bShow = true;
       break;
 
-    case ezMouseCursorOverride::ForceHidden:
+    case WMouseCursorOverride::ForceHidden:
       bShow = false;
       break;
 
-    case ezMouseCursorOverride::None:
+    case WMouseCursorOverride::None:
     default:
       bShow = bCustomCursorActive ? false : m_bShowMouseCursorDesired;
       break;
@@ -213,7 +213,7 @@ void ezInputDeviceMouseKeyboard::UpdateEffectiveMouseCursorState()
     ApplyShowMouseCursor(bShow, bCustomCursorActive);
   }
 
-  const ezMouseCursorClipMode::Enum clipMode = ovr.m_bForceNoClip ? ezMouseCursorClipMode::NoClip : m_ClipModeDesired;
+  const WMouseCursorClipMode::Enum clipMode = ovr.m_bForceNoClip ? WMouseCursorClipMode::NoClip : m_ClipModeDesired;
 
   if (clipMode != m_ClipModeEffective)
   {
@@ -222,12 +222,12 @@ void ezInputDeviceMouseKeyboard::UpdateEffectiveMouseCursorState()
   }
 }
 
-void ezInputDeviceMouseKeyboard::UpdateInputSlotValues()
+void WInputDeviceMouseKeyboard::UpdateInputSlotValues()
 {
-  const char* slots[3] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
-  const char* dlbSlots[3] = {ezInputSlot_MouseDblClick0, ezInputSlot_MouseDblClick1, ezInputSlot_MouseDblClick2};
+  const char* slots[3] = {WInputSlot_MouseButton0, WInputSlot_MouseButton1, WInputSlot_MouseButton2};
+  const char* dlbSlots[3] = {WInputSlot_MouseDblClick0, WInputSlot_MouseDblClick1, WInputSlot_MouseDblClick2};
 
-  const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
+  const WTime tNow = WClock::GetGlobalClock()->GetLastUpdateTime();
 
   for (int i = 0; i < 3; ++i)
   {
@@ -241,7 +241,7 @@ void ezInputDeviceMouseKeyboard::UpdateInputSlotValues()
         if (tNow - m_LastMouseClick[i] <= m_DoubleClickTime)
         {
           m_InputSlotValues[dlbSlots[i]] = 1.0f;
-          m_LastMouseClick[i] = ezTime::MakeZero(); // this prevents triple-clicks from appearing as two double clicks
+          m_LastMouseClick[i] = WTime::MakeZero(); // this prevents triple-clicks from appearing as two double clicks
         }
         else
         {
@@ -254,4 +254,4 @@ void ezInputDeviceMouseKeyboard::UpdateInputSlotValues()
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_Input_DeviceTypes_DeviceTypes);
+W_STATICLINK_FILE(Core, Core_Input_DeviceTypes_DeviceTypes);

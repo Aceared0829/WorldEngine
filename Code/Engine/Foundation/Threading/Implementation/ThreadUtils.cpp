@@ -5,16 +5,16 @@
 #include <Foundation/Time/Time.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadUtils)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadUtils)
 
   // no dependencies
 
   ON_BASESYSTEMS_STARTUP
   {
-    ezThreadUtils::Initialize();
+    WThreadUtils::Initialize();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ThreadUtils);
+W_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ThreadUtils);

@@ -1,38 +1,38 @@
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_PLATFORM_WINDOWS) && W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 #  include <crtdbg.h>
 #endif
 
-#if EZ_ENABLED(EZ_COMPILER_MSVC)
+#if W_ENABLED(W_COMPILER_MSVC)
 void MSVC_OutOfLine_DebugBreak(...)
 {
   __debugbreak();
 }
 #endif
 
-bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg, const char* szTemp)
+bool WDefaultAssertHandler_Platform(const char* szSourceFile, WUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg, const char* szTemp)
 {
-  EZ_IGNORE_UNUSED(szSourceFile);
-  EZ_IGNORE_UNUSED(uiLine);
-  EZ_IGNORE_UNUSED(szFunction);
-  EZ_IGNORE_UNUSED(szExpression);
-  EZ_IGNORE_UNUSED(szAssertMsg);
-  EZ_IGNORE_UNUSED(szTemp);
+  W_IGNORE_UNUSED(szSourceFile);
+  W_IGNORE_UNUSED(uiLine);
+  W_IGNORE_UNUSED(szFunction);
+  W_IGNORE_UNUSED(szExpression);
+  W_IGNORE_UNUSED(szAssertMsg);
+  W_IGNORE_UNUSED(szTemp);
 
   // make sure the cursor is definitely shown, since the user must be able to click buttons
-  ezInt32 iHideCursor = 1;
+  WInt32 iHideCursor = 1;
   while (ShowCursor(true) < 0)
     ++iHideCursor;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG) && defined(_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG) && defined(_DEBUG)
 
-  ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
+  WInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
 
   // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'ignore')
   if (iRes == 0)
   {
     // when the user ignores the assert, restore the cursor show/hide state to the previous count
-    for (ezInt32 i = 0; i < iHideCursor; ++i)
+    for (WInt32 i = 0; i < iHideCursor; ++i)
       ShowCursor(false);
 
     return false;

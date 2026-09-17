@@ -6,15 +6,15 @@
 
 using namespace AE_NS_FOUNDATION;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 5, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WKrautTreeAssetDocument, 5, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezKrautTreeAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
+WKrautTreeAssetDocument::WKrautTreeAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WKrautTreeAssetProperties>(sDocumentPath, WAssetDocEngineConnection::Simple, true)
 {
 }
 
-void ezKrautTreeAssetDocument::SetWindStrength(ezKrautWindStrength::Enum strength)
+void WKrautTreeAssetDocument::SetWindStrength(WKrautWindStrength::Enum strength)
 {
   if (m_WindStrength == strength)
     return;
@@ -22,19 +22,19 @@ void ezKrautTreeAssetDocument::SetWindStrength(ezKrautWindStrength::Enum strengt
   m_WindStrength = strength;
 
   // Send message to engine to update wind
-  ezSimpleDocumentConfigMsgToEngine msg;
+  WSimpleDocumentConfigMsgToEngine msg;
   msg.m_sWhatToDo = "SetWindStrength";
   msg.m_sPayload = "";
-  msg.m_PayloadValue = (ezInt32)strength;
+  msg.m_PayloadValue = (WInt32)strength;
   SendMessageToEngine(&msg);
 
   // Notify actions to update their checked state
-  ezKrautTreeAssetEvent e;
-  e.m_Type = ezKrautTreeAssetEvent::Type::WindStrengthChanged;
+  WKrautTreeAssetEvent e;
+  e.m_Type = WKrautTreeAssetEvent::Type::WindStrengthChanged;
   m_Events.Broadcast(e);
 }
 
-void ezKrautTreeAssetDocument::SetShowFrondsLeaves(bool bShow)
+void WKrautTreeAssetDocument::SetShowFrondsLeaves(bool bShow)
 {
   if (m_bShowFrondsLeaves == bShow)
     return;
@@ -42,92 +42,92 @@ void ezKrautTreeAssetDocument::SetShowFrondsLeaves(bool bShow)
   m_bShowFrondsLeaves = bShow;
 
   // Send message to engine to update component
-  ezSimpleDocumentConfigMsgToEngine msg;
+  WSimpleDocumentConfigMsgToEngine msg;
   msg.m_sWhatToDo = "SetShowFrondsLeaves";
   msg.m_sPayload = "";
-  msg.m_PayloadValue = (ezInt32)bShow;
+  msg.m_PayloadValue = (WInt32)bShow;
   SendMessageToEngine(&msg);
 
   // Notify actions to update their checked state
-  ezKrautTreeAssetEvent e;
-  e.m_Type = ezKrautTreeAssetEvent::Type::FrondsLeavesVisibilityChanged;
+  WKrautTreeAssetEvent e;
+  e.m_Type = WKrautTreeAssetEvent::Type::FrondsLeavesVisibilityChanged;
   m_Events.Broadcast(e);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CopyKrautConfig(Kraut::SpawnNodeDesc& ref_node, const ezKrautAssetBranchType& bt, ezDynamicArray<ezKrautMaterialDescriptor>& ref_materials, ezKrautBranchType branchType);
+void CopyKrautConfig(Kraut::SpawnNodeDesc& ref_node, const WKrautAssetBranchType& bt, WDynamicArray<WKrautMaterialDescriptor>& ref_materials, WKrautBranchType branchType);
 
 class KrautStreamIn : public aeStreamIn
 {
 public:
-  ezStreamReader* m_pStream = nullptr;
+  WStreamReader* m_pStream = nullptr;
 
 private:
   virtual aeUInt32 ReadFromStream(void* pData, aeUInt32 uiSize) override { return (aeUInt32)m_pStream->ReadBytes(pData, uiSize); }
 };
 
-static void GetMaterialLabel(ezStringBuilder& ref_sOut, ezKrautBranchType branchType, ezKrautMaterialType materialType)
+static void GetMaterialLabel(WStringBuilder& ref_sOut, WKrautBranchType branchType, WKrautMaterialType materialType)
 {
   ref_sOut.Clear();
 
   switch (branchType)
   {
-    case ezKrautBranchType::Trunk1:
-    case ezKrautBranchType::Trunk2:
-    case ezKrautBranchType::Trunk3:
-      ref_sOut.SetFormat("Trunk {}", (int)branchType - (int)ezKrautBranchType::Trunk1 + 1);
+    case WKrautBranchType::Trunk1:
+    case WKrautBranchType::Trunk2:
+    case WKrautBranchType::Trunk3:
+      ref_sOut.SetFormat("Trunk {}", (int)branchType - (int)WKrautBranchType::Trunk1 + 1);
       break;
 
-    case ezKrautBranchType::MainBranches1:
-    case ezKrautBranchType::MainBranches2:
-    case ezKrautBranchType::MainBranches3:
-      ref_sOut.SetFormat("Branch {}", (int)branchType - (int)ezKrautBranchType::MainBranches1 + 1);
+    case WKrautBranchType::MainBranches1:
+    case WKrautBranchType::MainBranches2:
+    case WKrautBranchType::MainBranches3:
+      ref_sOut.SetFormat("Branch {}", (int)branchType - (int)WKrautBranchType::MainBranches1 + 1);
       break;
 
-    case ezKrautBranchType::SubBranches1:
-    case ezKrautBranchType::SubBranches2:
-    case ezKrautBranchType::SubBranches3:
-      ref_sOut.SetFormat("Twig {}", (int)branchType - (int)ezKrautBranchType::SubBranches1 + 1);
+    case WKrautBranchType::SubBranches1:
+    case WKrautBranchType::SubBranches2:
+    case WKrautBranchType::SubBranches3:
+      ref_sOut.SetFormat("Twig {}", (int)branchType - (int)WKrautBranchType::SubBranches1 + 1);
       break;
 
-    case ezKrautBranchType::Twigs1:
-    case ezKrautBranchType::Twigs2:
-    case ezKrautBranchType::Twigs3:
-      ref_sOut.SetFormat("Twigy {}", (int)branchType - (int)ezKrautBranchType::Twigs1 + 1);
+    case WKrautBranchType::Twigs1:
+    case WKrautBranchType::Twigs2:
+    case WKrautBranchType::Twigs3:
+      ref_sOut.SetFormat("Twigy {}", (int)branchType - (int)WKrautBranchType::Twigs1 + 1);
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   switch (materialType)
   {
-    case ezKrautMaterialType::Branch:
+    case WKrautMaterialType::Branch:
       ref_sOut.Append(" - Stem");
       break;
-    case ezKrautMaterialType::Frond:
+    case WKrautMaterialType::Frond:
       ref_sOut.Append(" - Frond");
       break;
-    case ezKrautMaterialType::Leaf:
+    case WKrautMaterialType::Leaf:
       ref_sOut.Append(" - Leaf");
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 }
 
 
-ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& ref_stream) const
+WStatus WKrautTreeAssetDocument::WriteKrautAsset(WStreamWriter& ref_stream) const
 {
-  const ezKrautTreeAssetProperties* pProp = GetProperties();
+  const WKrautTreeAssetProperties* pProp = GetProperties();
 
-  ezKrautGeneratorResourceDescriptor desc;
+  WKrautGeneratorResourceDescriptor desc;
   desc.m_uiDefaultDisplaySeed = 0;
   desc.m_GoodRandomSeeds.PushBack(0);
 
   auto& ts = desc.m_TreeStructureDesc;
 
-  const ezKrautAssetBranchType* pBts[12] =
+  const WKrautAssetBranchType* pBts[12] =
     {
       &pProp->m_BT_Trunk1,
       nullptr,
@@ -143,8 +143,8 @@ ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& ref_stream) c
       &pProp->m_BT_Twig3};
 
   {
-    ezInt32 iBaseBranch = -3;
-    for (ezUInt32 n = 0; n < Kraut::BranchType::ENUM_COUNT; ++n)
+    WInt32 iBaseBranch = -3;
+    for (WUInt32 n = 0; n < Kraut::BranchType::ENUM_COUNT; ++n)
     {
       ts.m_BranchTypes[n].m_Type = (Kraut::BranchType::Enum)n;
       ts.m_BranchTypes[n].Reset();
@@ -161,7 +161,7 @@ ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& ref_stream) c
             (ts.m_BranchTypes[iBaseBranch + 2].m_bAllowSubType[n % 3]))
         {
           ts.m_BranchTypes[n].m_bUsed = true;
-          CopyKrautConfig(ts.m_BranchTypes[n], *pBts[n], desc.m_Materials, (ezKrautBranchType)n);
+          CopyKrautConfig(ts.m_BranchTypes[n], *pBts[n], desc.m_Materials, (WKrautBranchType)n);
         }
       }
 
@@ -169,16 +169,16 @@ ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& ref_stream) c
         iBaseBranch += 3;
     }
 
-    const ezKrautAssetLod* pLods[5] = {
+    const WKrautAssetLod* pLods[5] = {
       &pProp->m_Lod0,
       &pProp->m_Lod1,
       &pProp->m_Lod2,
       &pProp->m_Lod3,
       &pProp->m_Lod4};
 
-    for (ezUInt32 n = 0; n < 5; ++n)
+    for (WUInt32 n = 0; n < 5; ++n)
     {
-      const ezKrautAssetLod& lod = *pLods[n];
+      const WKrautAssetLod& lod = *pLods[n];
 
       desc.m_LodDesc[n].m_fTipDetail = lod.m_fTipDetail;
       desc.m_LodDesc[n].m_fCurvatureThreshold = lod.m_fCurvatureThreshold;
@@ -209,34 +209,34 @@ ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& ref_stream) c
 
     if (desc.Serialize(ref_stream).Failed())
     {
-      return ezStatus("Writing KrautGenerator resource descriptor failed.");
+      return WStatus("Writing KrautGenerator resource descriptor failed.");
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WKrautTreeAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
   if (WriteKrautAsset(stream).Failed())
   {
-    return ezStatus("Writing KrautGenerator resource descriptor failed.");
+    return WStatus("Writing KrautGenerator resource descriptor failed.");
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezKrautTreeAssetDocument::SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, const ezKrautGeneratorResourceDescriptor& desc)
+void WKrautTreeAssetDocument::SyncBackAssetProperties(WKrautTreeAssetProperties*& pProp, const WKrautGeneratorResourceDescriptor& desc)
 {
   bool bModified = pProp->m_Materials.GetCount() != desc.m_Materials.GetCount();
 
   pProp->m_Materials.SetCount(desc.m_Materials.GetCount());
 
-  ezStringBuilder newLabel;
+  WStringBuilder newLabel;
 
   // TODO: match up old and new materials by label name
 
-  for (ezUInt32 m = 0; m < pProp->m_Materials.GetCount(); ++m)
+  for (WUInt32 m = 0; m < pProp->m_Materials.GetCount(); ++m)
   {
     auto& mat = pProp->m_Materials[m];
 
@@ -260,58 +260,58 @@ void ezKrautTreeAssetDocument::SyncBackAssetProperties(ezKrautTreeAssetPropertie
   }
 }
 
-ezTransformStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WKrautTreeAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
+  WStatus status = WAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezKrautTreeAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WKrautTreeAssetDocumentGenerator, 1, WRTTIDefaultAllocator<WKrautTreeAssetDocumentGenerator>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
+WKrautTreeAssetDocumentGenerator::WKrautTreeAssetDocumentGenerator()
 {
   AddSupportedFileType("tree");
 }
 
-ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
+WKrautTreeAssetDocumentGenerator::~WKrautTreeAssetDocumentGenerator() = default;
 
-void ezKrautTreeAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+void WKrautTreeAssetDocumentGenerator::GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const
 {
   {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+    WAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = WAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "KrautTreeImport.Tree";
     info.m_sIcon = ":/AssetIcons/Kraut_Tree.svg";
   }
 }
 
-ezStatus ezKrautTreeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+WStatus WKrautTreeAssetDocumentGenerator::Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments)
 {
-  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
+  const WStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
-  auto pApp = ezQtEditorApp::GetSingleton();
+  auto pApp = WQtEditorApp::GetSingleton();
 
-  ezStringBuilder sInputFileRel = sInputFileAbs;
+  WStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  WDocument* pDoc = pApp->CreateDocument(sOutFile, WDocumentFlags::None);
   if (pDoc == nullptr)
-    return ezStatus("Could not create target document");
+    return WStatus("Could not create target document");
 
   out_generatedDocuments.PushBack(pDoc);
 
-  ezKrautTreeAssetDocument* pAssetDoc = ezDynamicCast<ezKrautTreeAssetDocument*>(pDoc);
+  WKrautTreeAssetDocument* pAssetDoc = WDynamicCast<WKrautTreeAssetDocument*>(pDoc);
 
   if (pAssetDoc == nullptr)
-    return ezStatus("Target document is not a valid ezKrautTreeAssetDocument");
+    return WStatus("Target document is not a valid WKrautTreeAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("KrautFile", sInputFileRel.GetView());
 
-  ezLog::Success("Imported Kraut tree: '{}'", sOutFile);
+  WLog::Success("Imported Kraut tree: '{}'", sOutFile);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

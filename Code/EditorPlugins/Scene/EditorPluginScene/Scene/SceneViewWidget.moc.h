@@ -3,12 +3,12 @@
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <Foundation/Basics.h>
 
-class ezQtSceneViewWidget : public ezQtGameObjectViewWidget
+class WQtSceneViewWidget : public WQtGameObjectViewWidget
 {
   Q_OBJECT
 public:
-  ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig);
-  ~ezQtSceneViewWidget();
+  WQtSceneViewWidget(QWidget* pParent, WQtGameObjectDocumentWindow* pOwnerWindow, WEngineViewConfig* pViewConfig);
+  ~WQtSceneViewWidget();
 
   virtual bool IsPickingAgainstSelectionAllowed() const override;
 
@@ -20,7 +20,7 @@ protected:
   virtual void OnOpenContextMenu(QPoint globalPos) override;
 
   bool m_bAllowPickSelectedWhileDragging;
-  ezTime m_LastDragMoveEvent;
+  WTime m_LastDragMoveEvent;
 
   static bool s_bContextMenuInitialized;
 };
