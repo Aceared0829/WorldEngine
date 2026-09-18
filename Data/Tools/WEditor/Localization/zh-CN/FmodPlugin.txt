@@ -1,0 +1,17 @@
+# Asset Types
+
+Sound Bank;FMOD 音频库;;https://ezengine.net/pages/docs/sound/fmod/fmod-soundbank-asset.html
+Sound Event;FMOD 音频事件;;https://ezengine.net/pages/docs/sound/fmod/fmod-soundevent-asset.html
+
+# Component Types
+
+WFmodEventComponent;FMOD 音频事件;;https://ezengine.net/pages/docs/sound/fmod/fmod-event-component.html
+WFmodListenerComponent;FMOD 监听器;;https://ezengine.net/pages/docs/sound/fmod/fmod-listener-component.html
+
+# UI
+
+FMOD.Settings.Project;FMOD 项目设置...
+FMOD.Mute;静音
+FMOD.MasterVolume;音量
+
+# Properties

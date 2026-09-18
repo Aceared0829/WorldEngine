@@ -1,0 +1,98 @@
+# Asset Types
+
+RenderPipeline;渲染管线;;https://ezengine.net/pages/docs/graphics/render-pipeline/render-pipeline-overview.html
+
+# Enums
+
+WGALResourceFormat::RGBAFloat;RGBA 浮点
+WGALResourceFormat::RGBAUInt;RGBA 无符号整数
+WGALResourceFormat::RGBAInt;RGBA 整数
+WGALResourceFormat::RGBFloat;RGB 浮点
+WGALResourceFormat::RGBUInt;RGB 无符号整数
+WGALResourceFormat::RGBInt;RGB 整数
+WGALResourceFormat::B5G6R5UNormalized;B5G6R5 无符号归一化
+WGALResourceFormat::BGRAUByteNormalized;BGRA 无符号字节归一化
+WGALResourceFormat::BGRAUByteNormalizedsRGB;BGRA 无符号字节归一化 sRGB
+WGALResourceFormat::RGBAHalf;RGBA 半精度
+WGALResourceFormat::RGBAUShort;RGBA 无符号短整数
+WGALResourceFormat::RGBAUShortNormalized;RGBA 无符号短整数归一化
+WGALResourceFormat::RGBAShort;RGBA 短整数
+WGALResourceFormat::RGBAShortNormalized;RGBA 短整数归一化
+WGALResourceFormat::RGFloat;RG 浮点
+WGALResourceFormat::RGUInt;RG 无符号整数
+WGALResourceFormat::RGInt;RG 整数
+WGALResourceFormat::RGB10A2UInt;RGB10A2 无符号整数
+WGALResourceFormat::RGB10A2UIntNormalized;RGB10A2 无符号整数归一化
+WGALResourceFormat::RG11B10Float;RG11B10 浮点
+WGALResourceFormat::RGBAUByteNormalized;RGBA 无符号字节归一化
+WGALResourceFormat::RGBAUByteNormalizedsRGB;RGBA 无符号字节归一化 sRGB
+WGALResourceFormat::RGBAUByte;RGBA 无符号字节
+WGALResourceFormat::RGBAByteNormalized;RGBA 字节归一化
+WGALResourceFormat::RGBAByte;RGBA 字节
+WGALResourceFormat::RGHalf;RG 半精度
+WGALResourceFormat::RGUShort;RG 无符号短整数
+WGALResourceFormat::RGUShortNormalized;RG 无符号短整数归一化
+WGALResourceFormat::RGShort;RG 短整数
+WGALResourceFormat::RGShortNormalized;RG 短整数归一化
+WGALResourceFormat::RGUByte;RG 无符号字节
+WGALResourceFormat::RGUByteNormalized;RG 无符号字节归一化
+WGALResourceFormat::RGByte;RG 字节
+WGALResourceFormat::RGByteNormalized;RG 字节归一化
+WGALResourceFormat::DFloat;深度浮点
+WGALResourceFormat::RFloat;R 浮点
+WGALResourceFormat::RUInt;R 无符号整数
+WGALResourceFormat::RInt;R 整数
+WGALResourceFormat::RHalf;R 半精度
+WGALResourceFormat::RUShort;R 无符号短整数
+WGALResourceFormat::RUShortNormalized;R 无符号短整数归一化
+WGALResourceFormat::RShort;R 短整数
+WGALResourceFormat::RShortNormalized;R 短整数归一化
+WGALResourceFormat::RUByte;R 无符号字节
+WGALResourceFormat::RUByteNormalized;R 无符号字节归一化
+WGALResourceFormat::RByte;R 字节
+WGALResourceFormat::RByteNormalized;R 字节归一化
+WGALResourceFormat::AUByteNormalized;A 无符号字节归一化
+WGALResourceFormat::D16;深度 16
+WGALResourceFormat::D24S8;深度 24 模板 8
+WGALResourceFormat::BC1;BC1
+WGALResourceFormat::BC1sRGB;BC1 sRGB
+WGALResourceFormat::BC2;BC2
+WGALResourceFormat::BC2sRGB;BC2 sRGB
+WGALResourceFormat::BC3;BC3
+WGALResourceFormat::BC3sRGB;BC3 sRGB
+WGALResourceFormat::BC4UNormalized;BC4 无符号归一化
+WGALResourceFormat::BC4Normalized;BC4 归一化
+WGALResourceFormat::BC5UNormalized;BC5 无符号归一化
+WGALResourceFormat::BC5Normalized;BC5 归一化
+WGALResourceFormat::BC6UFloat;BC6 无符号浮点
+WGALResourceFormat::BC6Float;BC6 浮点
+WGALResourceFormat::BC7UNormalized;BC7 无符号归一化
+WGALResourceFormat::BC7UNormalizedsRGB;BC7 无符号归一化 sRGB
+
+WGALMSAASampleCount::TwoSamples;2 采样
+WGALMSAASampleCount::FourSamples;4 采样
+WGALMSAASampleCount::EightSamples;8 采样
+
+WLSAODepthCompareFunction::NormalAndSampleDistance;法线与采样距离
+
+WImguiExtractor;ImGUI 提取器
+
+WRequiredTextureType::UNorm;无符号归一化
+WRequiredTextureType::SNorm;有符号归一化
+WRequiredTextureType::SRGB;sRGB
+WRequiredTextureType::UInt;无符号整数
+WRequiredTextureType::SInt;有符号整数
+WRequiredTextureType::Float;浮点
+WRequiredTextureType::Depth;深度
+
+WRequiredTexturePrecision::Bits_5;5 位
+WRequiredTexturePrecision::Bits_8;8 位
+WRequiredTexturePrecision::Bits_10;10 位
+WRequiredTexturePrecision::Bits_16;16 位
+WRequiredTexturePrecision::Bits_24;24 位
+WRequiredTexturePrecision::Bits_32;32 位
+
+WRequiredTextureChannels::Channels_1;1 通道
+WRequiredTextureChannels::Channels_2;2 通道
+WRequiredTextureChannels::Channels_3;3 通道
+WRequiredTextureChannels::Channels_4;4 通道

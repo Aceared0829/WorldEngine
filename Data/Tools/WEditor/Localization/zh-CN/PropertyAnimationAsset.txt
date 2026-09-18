@@ -1,0 +1,7 @@
+# Asset Types
+
+PropertyAnim;属性动画;;https://ezengine.net/pages/docs/animation/property-animation/property-animation-asset.html
+
+# Component Types
+
+# Properties

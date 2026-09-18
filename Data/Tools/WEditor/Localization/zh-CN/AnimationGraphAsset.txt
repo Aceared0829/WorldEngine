@@ -1,0 +1,54 @@
+# Asset Types
+
+Animation Graph;动画图;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-graphs/animation-graph-asset.html
+
+# Component Types
+
+WAnimationControllerComponent;动画控制器;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-graphs/animation-controller-component.html
+
+# Properties
+
+WBoneWeightsAnimNode;骨骼权重
+
+WControllerInputAnimNode;控制器输入
+
+WCompareNumberAnimNode;比较数值
+
+WLogicNotAnimNode;非
+WLogicAndAnimNode;与
+WLogicOrAnimNode;或
+WLogicEventAndAnimNode;事件与
+
+WAnimClip2D;2D 剪辑
+
+WGetBlackboardNumberAnimNode;黑板：获取数值
+WSetBlackboardNumberAnimNode;黑板：设置数值
+WCompareBlackboardNumberAnimNode;黑板：检查数值
+WCheckBlackboardBoolAnimNode;黑板：检查布尔
+WGetBlackboardBoolAnimNode;黑板：获取布尔
+WSetBlackboardBoolAnimNode;黑板：设置布尔
+WOnBlackboardValueChangedAnimNode;黑板：值变化时
+
+WLogInfoAnimNode;记录信息
+WLogErrorAnimNode;记录错误
+
+WSendEventAnimNode;发送事件
+
+WMathExpressionAnimNode;表达式
+
+WLerpPosesAnimNode;姿势插值
+
+WSampleFrameAnimNode;采样帧
+WSampleAnimClipAnimNode; 采样剪辑
+WPoseResultAnimNode; 姿势结果
+WSwitchPoseAnimNode; 切换姿势
+WSampleBlendSpace1DAnimNode;采样混合空间 1D
+WSampleBlendSpace2DAnimNode;采样混合空间 2D
+WSwitchBoneWeightsAnimNode;骨骼权重切换
+WSampleAnimClipSequenceAnimNode;采样剪辑序列
+WRestPoseAnimNode;静止姿势
+
+WBoolToNumberAnimNode;布尔转数值
+WBoolToTriggerAnimNode;布尔转触发器
+
+WRootRotationAnimNode;根旋转

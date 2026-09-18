@@ -13,6 +13,7 @@
 #include <QProcess>
 #include <QScreen>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QUrl>
 
 W_IMPLEMENT_SINGLETON(WQtUiServices);
@@ -502,20 +503,88 @@ WResult WQtUiServices::OpenFileInDefaultProgram(WStringView sPath)
 WResult WQtUiServices::OpenInVisualStudio(WStringView sPath)
 {
   QString sVSExe;
+
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\VSLauncher.exe\\Shell\\Open\\Command", QSettings::NativeFormat);
   QString sVSKey = settings.value(".", "").value<QString>();
 
   if (sVSKey.length() > 5)
   {
-    // Remove shell parameter and normalize QT Compatible path, QFile expects the file separator to be '/' regardless of operating system
     sVSExe = sVSKey.left(sVSKey.length() - 5).replace("\\", "/").replace("\"", "");
+  }
+
+  if (sVSExe.isEmpty() || !QFile::exists(sVSExe))
+  {
+    QStringList vsWhereCandidates;
+    vsWhereCandidates << QStandardPaths::findExecutable("vswhere.exe");
+    vsWhereCandidates << QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles(x86)")) + "/Microsoft Visual Studio/Installer/vswhere.exe";
+    vsWhereCandidates << QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles")) + "/Microsoft Visual Studio/Installer/vswhere.exe";
+
+    for (const QString& vsWhere : vsWhereCandidates)
+    {
+      if (vsWhere.isEmpty() || !QFile::exists(vsWhere))
+        continue;
+
+      QProcess process;
+      process.start(vsWhere, {"-latest", "-products", "*", "-property", "installationPath"}, QIODevice::ReadOnly);
+      if (!process.waitForFinished(3000) || process.exitCode() != 0)
+        continue;
+
+      const QString installPath = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
+      const QString candidate = QDir(installPath).filePath("Common7/IDE/devenv.exe");
+      if (QFile::exists(candidate))
+      {
+        sVSExe = candidate;
+        break;
+      }
+    }
+  }
+
+  if (sVSExe.isEmpty() || !QFile::exists(sVSExe))
+  {
+    sVSExe = QStandardPaths::findExecutable("devenv.exe");
+
+    if (sVSExe.isEmpty())
+    {
+      const QStringList roots = {
+        QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles")),
+        QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles(x86)"))};
+      const QStringList versions = {"18", "2026", "2022", "2019"};
+      const QStringList editions = {"Community", "Professional", "Enterprise", "BuildTools"};
+
+      for (const QString& root : roots)
+      {
+        for (const QString& version : versions)
+        {
+          for (const QString& edition : editions)
+          {
+            const QString candidate = root + "/Microsoft Visual Studio/" + version + "/" + edition + "/Common7/IDE/devenv.exe";
+            if (QFile::exists(candidate))
+            {
+              sVSExe = candidate;
+              break;
+            }
+          }
+          if (!sVSExe.isEmpty())
+            break;
+        }
+        if (!sVSExe.isEmpty())
+          break;
+      }
+    }
+  }
+#endif
+
+  if (sVSExe.isEmpty() || !QFile::exists(sVSExe))
+  {
+    WLog::Error("Could not locate Visual Studio automatically.");
+    return W_FAILURE;
   }
 
   QStringList arguments;
   arguments.push_back(WMakeQString(sPath));
 
-  QProcess proc;
-  if (proc.startDetached(sVSExe, arguments) == false)
+  if (!QProcess::startDetached(sVSExe, arguments))
   {
     return W_FAILURE;
   }

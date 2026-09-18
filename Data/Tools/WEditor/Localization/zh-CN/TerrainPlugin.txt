@@ -1,0 +1,17 @@
+# Component Types
+
+WTerrainBrush2DComponent;地形笔刷 2D;;https://ezengine.net/pages/docs/terrain/terrain-brush-2d-component.html
+WTerrainBrush3DComponent;地形笔刷 3D;;https://ezengine.net/pages/docs/terrain/terrain-brush-3d-component.html
+WTerrainVolumeComponent;地形体积;;https://ezengine.net/pages/docs/terrain/terrain-volume-component.html
+WTerrainPatchComponent;地形图块;;https://ezengine.net/pages/docs/terrain/terrain-patch-component.html
+
+# Enums
+
+WTerrainModifyMode2D::Max;抬升
+WTerrainModifyMode2D::Min;降低
+WTerrainModifyMode2D::Set;设置
+WTerrainModifyMode2D::OnlyPaint2D;仅绘制
+
+WTerrainModifyMode3D::Carve;挖除
+WTerrainModifyMode3D::Add;填充
+WTerrainModifyMode3D::OnlyPaint3D;仅绘制

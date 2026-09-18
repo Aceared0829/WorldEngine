@@ -34,6 +34,11 @@ public:
   bool m_bHighlightUntranslatedUI = false;
   bool m_bAssetBrowserShowItemsInSubFolders = true;
 
+  // Language code of the editor UI, e.g. "en" or "zh-CN". Must match a folder name below
+  // Data/Tools/WEditor/Localization/. The value is applied while the editor starts up, so a
+  // change only takes effect after a restart.
+  WString m_sLanguage = "en";
+
   // Auto-save interval in minutes. 0 = off.
   WUInt32 m_uiAutoSaveMinutes = 5;
 
@@ -60,6 +65,20 @@ public:
   {
     return m_bHighlightUntranslatedUI;
   }
+
+  void SetLanguage(const WString& sLanguage);
+  const WString& GetLanguage() const
+  {
+    return m_sLanguage;
+  }
+
+  /// Returns the language code that the editor UI is currently using. Falls back to "en" when no
+  /// preference is available or the stored value is empty.
+  static const char* GetActiveLanguage();
+
+  /// Name of the folder below Data/Tools/WEditor/Localization/ that holds the translation files
+  /// for the given language, e.g. "en" or "zh-CN". Does not touch the file system.
+  static WString GetLocalizationFolder(const char* szLanguage);
 
   void SetGizmoSize(float f);
   float GetGizmoSize() const { return m_fGizmoSize; }

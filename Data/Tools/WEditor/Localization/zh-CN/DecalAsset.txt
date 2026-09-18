@@ -1,0 +1,24 @@
+# Asset Types
+
+Decal;贴花;;https://ezengine.net/pages/docs/effects/decals/projected-decals.html
+
+# Component Types
+
+WDecalComponent;贴花;;https://ezengine.net/pages/docs/effects/decals/projected-decals.html
+
+# UI
+
+DecalImport.All;贴花
+
+# Properties
+
+WDecalMode::BaseColor;基础颜色
+WDecalMode::BaseColorNormal;基础颜色、法线
+WDecalMode::BaseColorORM;基础颜色、ORM
+WDecalMode::BaseColorNormalORM;基础颜色、法线、ORM
+WDecalMode::BaseColorEmissive;基础颜色、自发光
+
+WDecalAssetProperties::BaseColor;基础颜色纹理
+WDecalAssetProperties::Emissive;自发光纹理
+WDecalAssetProperties::Normal;法线贴图
+WDecalAssetProperties::ORM;ORM 纹理

@@ -1,0 +1,136 @@
+# Asset Types
+
+Texture 2D;纹理 2D;;https://ezengine.net/pages/docs/graphics/textures-overview.html
+Texture Cube;立方体纹理;;https://ezengine.net/pages/docs/graphics/textures-overview.html
+Render Target;渲染目标;;https://ezengine.net/pages/docs/graphics/textures-overview.html
+
+# UI
+
+TextureAsset.LodSlider;Mipmap
+TextureAsset.ChannelMode;要显示的通道
+
+TextureImport.Auto;纹理 2D;根据文件名推测纹理类型并相应地导入。
+TextureImport.Diffuse;漫反射纹理;颜色数据。以 sRGB 存储，因此读取时会进行伽马校正。
+TextureImport.NormalDX;法线贴图 (DX);切线空间法线贴图。
+TextureImport.NormalGL;法线贴图 (GL);切线空间法线贴图。
+TextureImport.HDR;HDR 纹理;高动态范围颜色数据，用于超出 0 到 1 范围的值。
+TextureImport.Linear;线性纹理;非颜色数据，不得进行伽马校正，例如遮罩。
+TextureImport.Occlusion;环境光遮蔽纹理;环境光遮蔽，从红色通道读取。
+TextureImport.Height;高度图纹理;高度图，从红色通道读取。
+TextureImport.Metalness;金属度纹理;金属度，从红色通道读取。
+TextureImport.Roughness;粗糙度纹理;表面粗糙度，从红色通道读取。
+TextureImport.ORM;环境光遮蔽 / 粗糙度 / 金属度;环境光遮蔽、粗糙度和金属度按此顺序打包到红色、绿色和蓝色通道中。
+
+CubemapImport.Skybox;天空盒
+CubemapImport.SkyboxHDR;HDR 天空盒
+CubemapImport.SkyboxAuto;天空盒
+
+# Enums
+
+WTexConvUsage::Hdr;HDR
+WTexConvUsage::NormalMap; 法线贴图 (DX)
+WTexConvUsage::NormalMap_Inverted; 法线贴图 (GL)
+
+WRenderTargetFormat::RGBA8;RGBA8（线性）
+WRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
+WRenderTargetFormat::RGB10;RGB10
+WRenderTargetFormat::RGBA16;RGBA16
+WRenderTargetFormat::R8;R8（归一化）
+WRenderTargetFormat::R16;R16（半精度浮点）
+WRenderTargetFormat::R32;R32（全精度浮点）
+WRenderTargetFormat::RG8;RG8（归一化）
+WRenderTargetFormat::RG16;RG16（半精度浮点）
+WRenderTargetFormat::RG32;RG32（全精度浮点）
+
+WTextureFilterSetting::FixedNearest;固定：最近邻
+WTextureFilterSetting::FixedBilinear;固定：双线性
+WTextureFilterSetting::FixedTrilinear;固定：三线性
+WTextureFilterSetting::FixedAnisotropic2x;固定：各向异性 2x
+WTextureFilterSetting::FixedAnisotropic4x;固定：各向异性 4x
+WTextureFilterSetting::FixedAnisotropic8x;固定：各向异性 8x
+WTextureFilterSetting::FixedAnisotropic16x;固定：各向异性 16x
+
+WTexture2DResolution::Fixed64x64;64 * 64
+WTexture2DResolution::Fixed128x128;128 * 128
+WTexture2DResolution::Fixed256x256;256 * 256
+WTexture2DResolution::Fixed512x512;512 * 512
+WTexture2DResolution::Fixed1024x1024;1024 * 1024
+WTexture2DResolution::Fixed2048x2048;2048 * 2048
+WTexture2DResolution::CVarRtResolution1;CVar 渲染目标分辨率 1
+WTexture2DResolution::CVarRtResolution2;CVar 渲染目标分辨率 2
+
+WTexConvMipmapMode::None;无 Mipmap
+WTexConvMipmapMode::Linear;生成：线性
+WTexConvMipmapMode::Kaiser;生成：Kaiser
+
+WTexConvCompressionMode::None;未压缩
+WTexConvCompressionMode::Medium;中等压缩
+WTexConvCompressionMode::High;强压缩
+
+WImageAddressMode::ClampBorder;钳制到黑色
+
+WTexture2DChannelMappingEnum::R1;红色 - 单输入 (R)
+WTexture2DChannelMappingEnum::R1_ALPHA;红色 - 单输入 (A)
+WTexture2DChannelMappingEnum::RG1;红绿 - 单输入 (RG)
+WTexture2DChannelMappingEnum::R1_G2;RG - 输入1.r, 输入2.r
+WTexture2DChannelMappingEnum::RGB1;RGB - 单输入 (RGB)
+WTexture2DChannelMappingEnum::R1_G2_B3;RGB - 输入1.r, 输入2.r, 输入3.r
+WTexture2DChannelMappingEnum::RGBA1;RGBA - 单输入 (RGBA)
+WTexture2DChannelMappingEnum::RGB1_A2;RGBA - 输入1.rgb, 输入2.r
+WTexture2DChannelMappingEnum::R1_G2_B3_A4;RGBA - 输入1.r, 输入2.r, 输入3.r, 输入4.r
+WTexture2DChannelMappingEnum::RGB1_ABLACK;RGBA - 输入1.rgb, Alpha = 黑色
+WTexture2DChannelMappingEnum::RGBWHITE_A1;RGBA - RGB = 白色, Alpha = 输入1.a
+WTexture2DChannelMappingEnum::RGBWHITE_R1;RGBA - RGB = 白色, Alpha = 输入1.r
+
+WTextureArrayChannelMappingEnum::RGBA;RGBA - 输入.rgba
+WTextureArrayChannelMappingEnum::RGB;RGB - 输入.rgb
+WTextureArrayChannelMappingEnum::RG;红绿 - 输入.rg
+WTextureArrayChannelMappingEnum::R_Red;红色 - 输入.r
+WTextureArrayChannelMappingEnum::R_Green;红色 - 输入.g
+WTextureArrayChannelMappingEnum::R_Blue;红色 - 输入.b
+WTextureArrayChannelMappingEnum::R_Alpha;红色 - 输入.a
+
+WTextureCubeChannelMappingEnum::RGB1;立方体贴图：RGB - 单一输入
+WTextureCubeChannelMappingEnum::RGBA1;立方体贴图：RGBA - 单一输入
+WTextureCubeChannelMappingEnum::RGB1TO6;立方体贴图：RGB - 6 个输入
+WTextureCubeChannelMappingEnum::RGBA1TO6;立方体贴图：RGBA - 6 个输入
+
+# Enums
+
+WTextureChannelMode::RGBA;显示通道：RGB*A
+WTextureChannelMode::RGB;显示通道：RGB
+WTextureChannelMode::Red;显示通道：红色
+WTextureChannelMode::Green;显示通道：绿色
+WTextureChannelMode::Blue;显示通道：蓝色
+WTextureChannelMode::Alpha;显示通道：Alpha
+WTextureChannelMode::CoverageRed;覆盖率预览：红色
+WTextureChannelMode::CoverageAlpha;覆盖率预览：Alpha
+
+WTextureCubeUsageEnum::Unknown;未知
+WTextureCubeUsageEnum::Skybox;天空盒
+WTextureCubeUsageEnum::LookupTable;查找表
+WTextureCubeUsageEnum::SkyboxHDR;天空盒 HDR
+WTextureCubeUsageEnum::Other_sRGB;其他 sRGB
+WTextureCubeUsageEnum::Other_Linear;其他线性
+
+WTextureAssetProperties::MipmapMode;Mipmap
+WTextureAssetProperties::CompressionMode;压缩
+WTextureAssetProperties::TextureFilter;过滤
+WTextureAssetProperties::PremultipliedAlpha;预乘 Alpha
+WTextureAssetProperties::CVarResScale;CVar 分辨率缩放
+WTextureAssetProperties::HdrExposureBias;HDR 曝光偏移
+WTextureAssetProperties::ArrayChannelMapping;通道映射
+
+WTextureCubeAssetProperties::MipmapMode;Mipmap
+WTextureCubeAssetProperties::CompressionMode;压缩
+WTextureCubeAssetProperties::TextureFilter;过滤
+WTextureCubeAssetProperties::ChannelMapping;通道映射
+WTextureCubeAssetProperties::HdrExposureBias;HDR 曝光偏移
+
+# Dynamic UI
+TextureAsset::CM_Left;左 (-X)
+TextureAsset::CM_Right;右 (+X)
+TextureAsset::CM_Top;上 (+Y)
+TextureAsset::CM_Bottom;下 (-Y)
+TextureAsset::CM_Front;前 (+Z)
+TextureAsset::CM_Back;后 (-Z)

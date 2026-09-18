@@ -1,0 +1,11 @@
+# Asset Types
+
+LUT;查找表
+
+# Properties
+
+WLUTAssetProperties::CUBEfile;CUBE 文件
+
+# UI
+
+LUTImport.Cube;查找表

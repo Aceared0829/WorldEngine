@@ -34,6 +34,7 @@ W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorPreferencesUser, 1, WRTTIDefaultAllocator<
     W_MEMBER_PROPERTY("ClearEditorLogsOnPlay", m_bClearEditorLogsOnPlay)->AddAttributes(new WDefaultValueAttribute(true)),
     W_MEMBER_PROPERTY("CombinedEditorAndEngineLogs", m_bCombinedEditorAndEngineLogs)->AddAttributes(new WDefaultValueAttribute(true)),
     W_ACCESSOR_PROPERTY("HighlightUntranslatedUI", GetHighlightUntranslatedUI, SetHighlightUntranslatedUI),
+    W_ACCESSOR_PROPERTY("Language", GetLanguage, SetLanguage),
     W_MEMBER_PROPERTY("AssetBrowserShowItemsInSubFolders", m_bAssetBrowserShowItemsInSubFolders)->AddAttributes(new WDefaultValueAttribute(true), new WHiddenAttribute()),
     W_MEMBER_PROPERTY("AutoSaveMinutes", m_uiAutoSaveMinutes)->AddAttributes(new WDefaultValueAttribute(5), new WClampValueAttribute(0, 24 * 60)),
 
@@ -165,6 +166,34 @@ void WEditorPreferencesUser::SetHighlightUntranslatedUI(bool b)
   m_bHighlightUntranslatedUI = b;
 
   WTranslator::HighlightUntranslated(m_bHighlightUntranslatedUI);
+}
+
+void WEditorPreferencesUser::SetLanguage(const WString& sLanguage)
+{
+  m_sLanguage = sLanguage.IsEmpty() ? WString("en") : sLanguage;
+
+  // The language is only read while the editor starts up, so tell the user that a restart is
+  // required rather than silently doing nothing.
+  WLog::Info("Editor language set to '{0}'. Restart the editor to apply the change.", m_sLanguage);
+}
+
+const char* WEditorPreferencesUser::GetActiveLanguage()
+{
+  if (const WEditorPreferencesUser* pPrefs = WPreferences::QueryPreferences<WEditorPreferencesUser>())
+  {
+    if (!pPrefs->m_sLanguage.IsEmpty())
+      return pPrefs->m_sLanguage;
+  }
+
+  return "en";
+}
+
+WString WEditorPreferencesUser::GetLocalizationFolder(const char* szLanguage)
+{
+  if (WStringUtils::IsNullOrEmpty(szLanguage))
+    szLanguage = "en";
+
+  return szLanguage;
 }
 
 void WEditorPreferencesUser::SetGizmoSize(float f)

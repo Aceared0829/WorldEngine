@@ -1,0 +1,4 @@
+AngelScript;Angel Script;;https://ezengine.net/pages/docs/custom-code/angelscript/as-asset.html
+
+AngelScript.OpenInVSC;在外部代码编辑器中打开
+AngelScript.SyncExposedParams;同步参数列表

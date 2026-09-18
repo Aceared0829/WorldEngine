@@ -1,0 +1,20 @@
+# Asset Types
+
+Animation Clip;动画片段;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-clip-asset.html
+
+# Component Types
+
+# UI
+
+AnimationClipImport_Single;动画片段（单个）
+AnimationClipImport_All;动画片段（全部）
+
+AnimationClip.RootMotionFromFeet;从脚部提取根运动
+
+# Properties
+
+WRootMotionSource::None;无根运动
+WRootMotionSource::Constant;恒定运动
+
+WAdditiveAnimationReference::FirstKeyFrame;第一关键帧
+WAdditiveAnimationReference::LastKeyFrame;最后关键帧

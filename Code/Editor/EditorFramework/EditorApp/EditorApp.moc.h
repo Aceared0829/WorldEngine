@@ -357,6 +357,11 @@ private:
   // *** Localization ***
   WTranslatorFromFiles* m_pTranslatorFromFiles = nullptr;
 
+  // Language code the UI was started with, e.g. "en" or "zh-CN". Resolved once during startup from
+  // WEditorPreferencesUser and kept so that project specific translations can be loaded from the
+  // matching sub folder.
+  WString m_sActiveLanguage;
+
   // *** Dynamic Enum Strings ***
   WSet<WString> m_DynamicEnumStringsToClear;
   void OnDemandDynamicStringEnumLoad(WStringView sEnumName, WDynamicStringEnum& e);

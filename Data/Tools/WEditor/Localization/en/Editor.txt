@@ -1,4 +1,4 @@
-﻿# Editor
+# Editor
 
 Editor.OpenDashboard;Show Dash&board...
 Project.Open;Open Project...
@@ -12,7 +12,7 @@ Editor.Plugins;Editor Pl&ugins...;Opens the editor plugins dialog
 Editor.Shortcuts;Shortcuts...;Opens the shortcut configuration dialog
 Editor.Preferences;Preferences...;Opens the preferences dialog
 Editor.SaveProfiling;Save Editor Profiling Data;Saves profiling information about editor performance to file. See log for details.
-Editor.OpenVsCode;Open in Visual Studio Code
+Editor.OpenVsCode;Open C++ IDE
 Editor.DocsAndCommunity;Docs and Community...
 
 
@@ -304,6 +304,9 @@ WVariantType::ColorGamma;ColorGamma
 WCppProject::CppIDE;C++ IDE
 WCompilerPreferences::CppCompiler;C++ Compiler
 
+
+# Preferences
+Language;Language
 
 # Window Layouts
 WindowLayout;Editor Layout

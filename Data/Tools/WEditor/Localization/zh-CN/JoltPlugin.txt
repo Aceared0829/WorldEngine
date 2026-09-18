@@ -1,0 +1,64 @@
+# Asset Types
+
+Jolt_Colmesh_Convex;Jolt 凸包碰撞网格;;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html
+Jolt_Colmesh_Triangle;Jolt 三角碰撞网格;;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html
+
+# Component Types
+
+WJoltDynamicActorComponent;动态刚体 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-dynamic-actor-component.html
+WJoltStaticActorComponent;静态刚体 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-static-actor-component.html
+WJoltShapeConvexHullComponent;凸包形状 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-convex-shape-component.html
+WJoltShapeBoxComponent;盒体形状 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-box-shape-component.html
+WJoltShapeSphereComponent;球体形状 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-sphere-shape-component.html
+WJoltShapeCylinderComponent;圆柱体形状 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-cylinder-shape-component.html
+WJoltShapeCapsuleComponent;胶囊体形状 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-capsule-shape-component.html
+WJoltTriggerComponent;物理触发器 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-trigger-component.html
+WJoltVisColMeshComponent;碰撞网格可视化 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html
+WJoltSettingsComponent;物理设置 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/jolt-settings-component.html
+WJolt6DOFConstraintComponent;6DOF 约束 (Jolt)
+WJoltDistanceConstraintComponent;距离约束 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-distance-constraint-component.html
+WJoltFixedConstraintComponent;固定约束 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-fixed-constraint-component.html
+WJoltSliderConstraintComponent;滑动约束 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-slider-constraint-component.html
+WJoltHingeConstraintComponent;铰链约束 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-hinge-constraint-component.html
+WJoltPointConstraintComponent;点约束 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-point-constraint-component.html
+WJoltRopeComponent;物理绳索 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-rope-component.html
+WJoltRagdollComponent;布娃娃 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/ragdolls/jolt-ragdoll-component.html
+WJoltConeConstraintComponent;锥形约束 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-cone-constraint-component.html
+WJoltQueryShapeActorComponent;查询形状 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-queryshape-actor-component.html
+WJoltSwingTwistConstraintComponent;摆动扭转约束 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-swing-twist-constraint-component.html
+WJoltHitboxComponent;命中盒 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/ragdolls/jolt-hitbox-component.html
+WJoltCharacterControllerComponent;角色控制器 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
+WJoltDefaultCharacterComponent;默认角色控制器 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
+WJoltGrabObjectComponent;抓取物体 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-grab-object-component.html
+WJoltClothSheetComponent;布料片 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-cloth-sheet-component.html
+WJoltBreakableSlabComponent;可破坏板 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-breakable-slab-component.html
+WJoltGenerateCollisionComponent;生成碰撞网格 (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-generate-collision-component.html
+WJoltWaterVolumeComponent;水体区域;;https://ezengine.net/pages/docs/physics/jolt/special/jolt-water-volume-component.html
+
+
+# UI
+
+Jolt.Settings.Project;Jolt 项目设置...
+
+# Enums
+
+WJoltSurfaceResourceSlot;表面
+
+WJoltSteppingMode::Variable;可变步进
+WJoltSteppingMode::Fixed;固定步进
+WJoltSteppingMode::SemiFixed;半固定步进
+
+WJoltConstraintDriveMode::DriveVelocity;达到速度
+WJoltConstraintDriveMode::DrivePosition;达到位置
+
+WJoltCharacterDebugFlags::VisShape;可视化形状
+WJoltCharacterDebugFlags::VisGroundContact;可视化地面接触
+WJoltCharacterDebugFlags::VisCasts;可视化投射
+WJoltCharacterDebugFlags::PrintState;打印统计
+WJoltCharacterDebugFlags::VisContacts;可视化所有接触
+WJoltCharacterDebugFlags::VisFootCheck;可视化脚部检测
+
+# Collision Meshes from Meshes
+
+Jolt.CreateColliderFromMesh;创建碰撞体...;从该网格资产创建一个 Jolt 碰撞网格资产，并使用相同的导入设置
+Jolt.CreateColliderFromMeshDocument;创建碰撞体...;从该网格资产创建一个 Jolt 碰撞网格资产，并使用相同的导入设置

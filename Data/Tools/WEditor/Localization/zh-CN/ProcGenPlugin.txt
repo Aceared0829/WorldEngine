@@ -1,0 +1,31 @@
+# Asset Types
+
+ProcGen Graph;程序化生成图表;;https://ezengine.net/pages/docs/terrain/procedural/procgen-graph-asset.html
+
+# Component Types
+
+WProcPlacementComponent;程序化摆放;;http://ezengine.net/pages/docs/terrain/procedural/procgen-placement-component.html
+WProcVertexColorComponent;程序化顶点颜色;;http://ezengine.net/pages/docs/terrain/procedural/procgen-vertex-color-component.html
+WProcVolumeSphereComponent;程序化体积球;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-sphere-component.html
+WProcVolumeBoxComponent;程序化体积盒;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-box-component.html
+WProcVolumeImageComponent;程序化体积图像;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-image-component.html
+WProcVolumeSplineComponent;程序化体积样条;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-spline-component.html
+
+# Enums
+
+WProcVertexColorChannelMapping;顶点颜色通道映射
+
+WProcVolumeImageMode::ChannelR;红色通道
+WProcVolumeImageMode::ChannelG;绿色通道
+WProcVolumeImageMode::ChannelB;蓝色通道
+WProcVolumeImageMode::ChannelA;Alpha 通道
+
+# UI
+
+ProcGen.DumpAST;导出 AST
+ProcGen.DumpDisassembly;导出反汇编
+
+# Nodes
+
+WProcGen_ApplyVolumes::ImageVolumeMode;模式
+WProcGen_ApplyVolumes::RefColor;参考颜色

@@ -1,0 +1,15 @@
+# Asset Types
+
+MiniAudioSound;音频;;https://ezengine.net/pages/docs/sound/miniaudio/ma-sound-asset.html
+
+# Component Types
+
+WMiniAudioSoundComponent;MiniAudio 音频
+WMiniAudioListenerComponent;MiniAudio 监听器
+
+# UI
+
+MiniAudio.Mute;静音
+MiniAudio.Volume;音量
+
+# Properties

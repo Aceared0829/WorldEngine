@@ -507,21 +507,27 @@ void WQtEditorApp::StartupEditor(WBitflags<StartupFlags> startupFlags, const cha
     WGlobalLog::AddLogWriter(WLoggingEvent::Handler(&WLogWriter::HTML::LogMessageHandler, &m_LogHTML));
     WGlobalLog::AddLogWriter(WLogWriter::Tracing::LogMessageHandler);
   }
-  WUniquePtr<WTranslatorFromFiles> pTranslatorEn = W_DEFAULT_NEW(WTranslatorFromFiles);
-  m_pTranslatorFromFiles = pTranslatorEn.Borrow();
-
-  // WUniquePtr<WTranslatorFromFiles> pTranslatorDe = W_DEFAULT_NEW(WTranslatorFromFiles);
-
-  pTranslatorEn->AddTranslationFilesFromFolder(":app/Localization/en");
-  // pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
-
-  WTranslationLookup::AddTranslator(W_DEFAULT_NEW(WTranslatorMakeMoreReadable));
-  // WTranslationLookup::AddTranslator(W_DEFAULT_NEW(WTranslatorLogMissing));
-  WTranslationLookup::AddTranslator(std::move(pTranslatorEn));
-  // WTranslationLookup::AddTranslator(std::move(pTranslatorDe));
-
+  // Preferences have to be loaded before the translators are set up, because they store which
+  // language the UI should use. Reordering here is safe: neither LoadEditorPreferences() nor
+  // WCppProject::LoadPreferences() rely on translations being available yet.
   LoadEditorPreferences();
   WCppProject::LoadPreferences();
+
+  {
+    WUniquePtr<WTranslatorFromFiles> pTranslator = W_DEFAULT_NEW(WTranslatorFromFiles);
+    m_pTranslatorFromFiles = pTranslator.Borrow();
+
+    m_sActiveLanguage = WEditorPreferencesUser::GetActiveLanguage();
+
+    const WString sLocalizationFolder = WEditorPreferencesUser::GetLocalizationFolder(m_sActiveLanguage);
+    WStringBuilder sLocalizationPath;
+    sLocalizationPath.SetFormat(":app/Localization/{0}", sLocalizationFolder);
+    pTranslator->AddTranslationFilesFromFolder(sLocalizationPath);
+
+    WTranslationLookup::AddTranslator(W_DEFAULT_NEW(WTranslatorMakeMoreReadable));
+    // WTranslationLookup::AddTranslator(W_DEFAULT_NEW(WTranslatorLogMissing));
+    WTranslationLookup::AddTranslator(std::move(pTranslator));
+  }
 
   WQtUiServices::GetSingleton()->LoadState();
 

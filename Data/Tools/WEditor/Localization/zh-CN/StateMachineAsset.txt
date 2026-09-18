@@ -1,0 +1,33 @@
+# Asset Types
+
+StateMachine;状态机;;https://ezengine.net/pages/docs/custom-code/game-logic/state-machine-asset.html
+
+# Component Types
+
+WStateMachineComponent;状态机;;https://ezengine.net/pages/docs/custom-code/game-logic/state-machine-component.html
+
+# Properties
+
+WComparisonOperator::Equal;==
+WComparisonOperator::NotEqual;!=
+WComparisonOperator::Less;<
+WComparisonOperator::LessEqual;<=
+WComparisonOperator::Greater;>
+WComparisonOperator::GreaterEqual;>=
+
+WStateMachineLogicOperator::And;AND
+WStateMachineLogicOperator::Or;OR
+
+WStateMachineNode;新建状态
+WStateMachineNodeAny;新建任意状态
+
+WStateMachineTransition_Timeout;超时转换
+WStateMachineTransition_Compound;复合转换
+WStateMachineTransition_BlackboardConditions;黑板条件
+WStateMachineTransition_TransitionEvent;转换事件
+
+WStateMachineState_NestedStateMachine;嵌套状态机
+WStateMachineState_Compound;复合状态
+WStateMachineState_SendMsg;发送消息
+WStateMachineState_SwitchObject;切换对象
+WStateMachineState_Script;脚本

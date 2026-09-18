@@ -1,0 +1,33 @@
+# Asset Types
+
+Material;材质;;https://ezengine.net/pages/docs/materials/materials-overview.html
+
+# Enums
+
+WMaterialShaderMode::File;来自文件
+WMaterialShaderMode::Custom;可视化着色器
+WMaterialShaderMode::BaseMaterial;来自基础材质
+
+WMaterialAssetPreview::Ball;球体
+WMaterialAssetPreview::Sphere;球面
+WMaterialAssetPreview::Box;立方体
+WMaterialAssetPreview::Plane;平面
+
+BLEND_MODE::BLEND_MODE_OPAQUE;不透明
+BLEND_MODE::BLEND_MODE_MASKED;遮罩
+BLEND_MODE::BLEND_MODE_DITHERED;抖动
+BLEND_MODE::BLEND_MODE_TRANSPARENT;透明
+BLEND_MODE::BLEND_MODE_ADDITIVE;叠加
+BLEND_MODE::BLEND_MODE_MODULATE;调制
+
+SHADING_MODE::SHADING_MODE_LIT;光照
+SHADING_MODE::SHADING_MODE_FULLBRIGHT;全亮
+
+# UI
+
+VisualShader.CleanGraph;清理可视化着色器图表
+MaterialAsset.Model;预览模型
+CustomAction_CreateShaderFromTemplate;从模板创建着色器...
+AssetFilterTags;资产过滤标签;以分号分隔的标签，用于限定仅在特定上下文中可以选择该材质。组件必须明确请求此标签。
+
+# Properties

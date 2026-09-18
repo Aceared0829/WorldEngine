@@ -1,0 +1,21 @@
+# Asset Types
+
+Skeleton;骨架;;https://ezengine.net/pages/docs/animation/skeletal-animation/skeleton-asset.html
+
+# Component Types
+
+WSkeletonComponent;骨架;;https://ezengine.net/pages/docs/animation/skeletal-animation/skeleton-component.html
+
+# UI
+
+SkeletonImport;骨架
+
+Skeleton.RenderBones;渲染骨骼
+Skeleton.RenderColliders;渲染碰撞体
+Skeleton.RenderJoints;渲染关节
+Skeleton.RenderSwingLimits;渲染摆动限制
+Skeleton.RenderTwistLimits;渲染扭转限制
+Skeleton.RenderPreviewMesh;渲染预览网格
+
+# Properties
+

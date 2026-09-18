@@ -1,0 +1,15 @@
+# Asset Types
+
+RmlUi;Rml UI;;https://ezengine.net/pages/docs/ui/rmlui.html
+
+# Component Types
+
+WRmlUiCanvas2DComponent;RmlUi 画布 2D;;https://ezengine.net/pages/docs/ui/rmlui-canvas2d-component.html
+WRmlUiCanvas3DComponent;RmlUi 画布 3D;;https://ezengine.net/pages/docs/ui/rmlui-canvas3d-component.html
+WRmlUiCanvas3DInteractionExampleComponent;RmlUi 画布 3D 交互示例;;https://ezengine.net/pages/docs/ui/rmlui-canvas3d-component.html
+
+# Properties
+
+# Actions
+
+RmlUi.OpenInVSC;在外部文本编辑器中打开

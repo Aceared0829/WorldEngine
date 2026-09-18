@@ -1,0 +1,52 @@
+# Asset Types
+
+VisualScriptClass;可视化脚本类;;https://ezengine.net/pages/docs/custom-code/visual-script/visual-script-class-asset.html
+
+# UI
+
+# Properties
+
+WVisualScriptDataType::Bool;布尔
+WVisualScriptDataType::Byte;字节
+WVisualScriptDataType::Int;整数
+WVisualScriptDataType::Int64;64 位整数
+WVisualScriptDataType::Float;浮点
+WVisualScriptDataType::Double;双精度
+WVisualScriptDataType::Color;颜色
+WVisualScriptDataType::Vector2;Vector2
+WVisualScriptDataType::Vector3;Vector3
+WVisualScriptDataType::Vector4;Vector4
+WVisualScriptDataType::Quaternion;Quaternion
+WVisualScriptDataType::Transform;Transform
+WVisualScriptDataType::Time;时间
+WVisualScriptDataType::Angle;角度
+WVisualScriptDataType::String;字符串
+WVisualScriptDataType::HashedString;HashedString
+WVisualScriptDataType::GameObject;游戏对象
+WVisualScriptDataType::Component;组件
+WVisualScriptDataType::TypedPointer;TypedPointer
+WVisualScriptDataType::Variant;Variant
+WVisualScriptDataType::Array;数组
+WVisualScriptDataType::Map;映射
+
+WVisualScriptVariableType::Bool;布尔
+WVisualScriptVariableType::Byte;字节
+WVisualScriptVariableType::Int;整数
+WVisualScriptVariableType::Int64;64 位整数
+WVisualScriptVariableType::Float;浮点
+WVisualScriptVariableType::Double;双精度
+WVisualScriptVariableType::Color;颜色
+WVisualScriptVariableType::Vector2;Vector2
+WVisualScriptVariableType::Vector3;Vector3
+WVisualScriptVariableType::Vector4;Vector4
+WVisualScriptVariableType::Quaternion;Quaternion
+WVisualScriptVariableType::Transform;Transform
+WVisualScriptVariableType::Time;时间
+WVisualScriptVariableType::Angle;角度
+WVisualScriptVariableType::String;字符串
+WVisualScriptVariableType::HashedString;HashedString
+WVisualScriptVariableType::GameObject;游戏对象
+WVisualScriptVariableType::Component;组件
+WVisualScriptVariableType::TypedPointer;TypedPointer
+WVisualScriptVariableType::Variant;Variant
+WVisualScriptVariableType::Resource;资源

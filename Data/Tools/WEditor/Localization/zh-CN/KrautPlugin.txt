@@ -1,0 +1,125 @@
+# Asset Types
+
+Kraut Tree;Kraut 树;;https://ezengine.net/pages/docs/terrain/kraut-tree-asset.html
+
+GoodRandomSeeds;优质随机种子
+WKrautBranchTypeMode::Regular;规则
+WKrautBranchTypeMode::Umbrella;伞状
+WKrautBranchTargetDir::Straight;笔直
+WKrautBranchTargetDir::Upwards;向上
+WKrautBranchTargetDir::Degree22;22.5 度
+WKrautBranchTargetDir::Degree45;45 度
+WKrautBranchTargetDir::Degree67;67.5 度
+WKrautBranchTargetDir::Degree90;90 度
+WKrautBranchTargetDir::Degree112;112.5 度
+WKrautBranchTargetDir::Degree135;135 度
+WKrautBranchTargetDir::Degree157;157.5 度
+WKrautBranchTargetDir::Downwards;向下
+WKrautBranchTargetDir2Usage::Off;关闭
+WKrautBranchTargetDir2Usage::Relative;相对
+WKrautBranchTargetDir2Usage::Absolute;绝对
+WKrautLeafOrientation::Upwards;向上
+WKrautLeafOrientation::AlongBranch;沿树枝
+WKrautLeafOrientation::OrthogonalToBranch;垂直于树枝
+WKrautFrondContourMode::Full;完整
+WKrautFrondContourMode::Symetric;对称
+WKrautFrondContourMode::InverseSymetric;反向对称
+
+Kraut.Wind.Menu;风
+Kraut.Wind.Off;无风
+Kraut.Wind.Light;微风
+Kraut.Wind.Moderate;中风
+Kraut.Wind.Strong;暴风
+
+Kraut.ToggleFrondsLeaves;显示叶状枝与树叶
+
+# Properties
+
+GrowSubBranchType1;生长子树枝类型 1
+GrowSubBranchType2;生长子树枝类型 2
+GrowSubBranchType3;生长子树枝类型 3
+
+WKrautAssetBranchType::SegmentLength;树枝分段长度;此类型树枝中每一段的长度（在生成 LOD 之前的完整细节下）。\n\n分段长度影响树木可以生长的细节程度。树枝每段只能改变一次方向，也就是说分段越多，树枝能改变方向的次数就越多。因此对于很短的树枝（如细枝），分段长度应当较短。然而分段数量也会影响生成树木所需的处理时间，以及在进行 LOD 计算之前树木的细节程度。分段较少的树木通常能以更高的帧率进行编辑，生成的网格也可能更小（尽管这取决于 LOD 设置和树木的实际弯曲程度）。一般情况下不建议修改此设置，除非你希望树枝比预定义分段长度所允许的更加弯曲。在这种情况下，请逐步减小分段长度直到满意为止。
+WKrautAssetBranchType::BranchType;树枝类型
+WKrautAssetBranchType::BranchlessPartABS;起点无枝段;从树枝起点算起的绝对距离，在该范围内不生成子树枝。\n\n你也可以使用“使用范围下限”来阻止在特定范围内生成树枝。
+WKrautAssetBranchType::BranchlessPartEndABS;终点无枝段;从树枝末端算起的绝对距离，在该范围内不生成子树枝。\n\n你也可以使用“使用范围上限”来阻止在特定范围内生成树枝。
+WKrautAssetBranchType::LowerBound;使用范围下限;这两个滑块定义树枝可以沿父树枝生成的范围。\n\n默认范围为 0 到 1，表示该树枝类型可以不受限制地在整条父树枝上生成。\n\n但是，如果将“使用范围下限”设为 0.5，则该类型的树枝只能生成在父树枝的后半段。\n\n反之，如果将“使用范围上限”设为 0.5，则表示该类型的树枝只能生成在父树枝的前半段。
+WKrautAssetBranchType::UpperBound;使用范围上限;这两个滑块定义树枝可以沿父树枝生成的范围。\n\n默认范围为 0 到 1，表示该树枝类型可以不受限制地在整条父树枝上生成。\n\n但是，如果将“使用范围下限”设为 0.5，则该类型的树枝只能生成在父树枝的后半段。\n\n反之，如果将“使用范围上限”设为 0.5，则表示该类型的树枝只能生成在父树枝的前半段。
+WKrautAssetBranchType::MinBranchThickness;最小树枝粗细;树枝的粗细介于“最小树枝粗细”和“最大树枝粗细”之间。\n\n如果要在另一根树枝上生成树枝，会在生成位置处计算该父树枝的粗细。\n如果该粗细低于即将生成的树枝的粗细，则不会生成树枝。\n\n这意味着树枝永远不会生成在过细的父树枝上。
+WKrautAssetBranchType::MaxBranchThickness;最大树枝粗细;树枝的粗细介于“最小树枝粗细”和“最大树枝粗细”之间。\n\n如果要在另一根树枝上生成树枝，会在生成位置处计算该父树枝的粗细。\n如果该粗细低于即将生成的树枝的粗细，则不会生成树枝。\n\n这意味着树枝永远不会生成在过细的父树枝上。
+WKrautAssetBranchType::MinBranchesPerNode;每节点最少树枝数;每个树枝节点始终生成的树枝数量（除非有其他因素阻止）。
+WKrautAssetBranchType::MaxBranchesPerNode;每节点最多树枝数;每个树枝节点最多生成的树枝数量。
+WKrautAssetBranchType::NodeSpacingBefore;生成节点前间距;此类型树枝节点之前的空闲空间量。\n这样可以确保从该树枝节点生成的树枝下方有足够的空间，不会与其他树枝相交。
+WKrautAssetBranchType::NodeSpacingAfter;生成节点后间距;此类型树枝节点之后的空闲空间量。\n这样可以确保从该树枝节点生成的树枝上方有足够的空间，不会与其他树枝相交。
+WKrautAssetBranchType::NodeHeight;生成节点高度;树枝会在“树枝节点”范围内生成。节点的高度决定生成的树枝分布的范围大小。\n\n高度为零的树枝节点会在同一位置生成所有树枝。高度为 50 厘米、每节点最少和最多树枝数均为 4 的树枝节点，会大约每 10 厘米生成一根树枝。
+WKrautAssetBranchType::MaxRotationalDeviation;旋转偏差;描述生成的树枝偏离其指定起始方向的程度。\n\n当旋转偏差为零时，所有树枝将均匀分布。例如，生成 4 根树枝的树枝节点，它们之间的夹角为 90 度。树枝的最大可能旋转偏差取决于一个树枝节点中生成的树枝数量。当树枝节点只生成一根树枝时，该树枝最多可偏离 180 度（两个方向）。当一个节点生成 4 根树枝时，每根树枝最多只能偏离 90 度。\n\n滑块始终表示 0 到 180 度的范围。因此，如果一个节点生成了很多树枝，滑块的上部范围将不会产生任何效果。
+WKrautAssetBranchType::BranchAngle;树枝角度;生成树枝时的上下角度（相对于其父树枝）。90 度表示它恰好垂直于父树枝生成。
+WKrautAssetBranchType::MaxBranchAngleDeviation;树枝角度偏差;树枝角度可以偏离的程度（向上和向下两个方向）。
+WKrautAssetBranchType::TargetDirection;第一目标方向;树枝从一开始生长的总体目标方向。\n\n“笔直”表示它将沿着生成时的方向继续生长。
+WKrautAssetBranchType::TargetDirRelative;方向相对于父树枝;如果未勾选此项，目标方向相对于地面。\n即 0 度表示朝天空，180 度表示朝地面。\n90 度表示垂直于地面。\n\n如果勾选此项，目标方向相对于父树枝（如果有）。\n此时 0 度表示它将沿父树枝在生成子树枝位置处的生长方向生长。\n90 度表示它将垂直于父树枝生长，180 度表示它将朝相反方向生长。
+WKrautAssetBranchType::TargetDir2Usage;第二方向模式;第二目标方向的模式：\n\n“关闭”表示不使用它，始终使用“第一目标方向”。\n“相对”表示在树枝的某个比例位置之后，目标方向将切换为第二目标方向。\n“绝对”表示在树枝达到某个绝对长度之后，目标方向将切换为第二目标方向。\n\n使用滑块控制相对或绝对距离。
+WKrautAssetBranchType::TargetDir2Offset;第二方向偏移;控制在树枝上的哪个绝对或相对距离处将目标方向切换为第二目标方向，除非“第二方向模式”设为“关闭”。
+WKrautAssetBranchType::TargetDirection2;第二目标方向;树枝长度达到阈值后生长的总体目标方向。\n“笔直”表示它将沿着生成时的方向继续生长。
+WKrautAssetBranchType::MaxTargetDirDeviation;目标方向偏差;生成树枝时会为其指定一个目标方向，它会始终尝试朝该方向生长（向上、向下等）。\n\n此设置描述树枝最终的目标方向可以偏离该基础目标方向多少度。\n如果设为零，所有树枝都会尝试朝完全相同的方向生长。\n此设置越高，树枝将朝越多不同的方向生长。
+WKrautAssetBranchType::MinBranchLength;最小树枝长度;此类型树枝的最小长度。
+WKrautAssetBranchType::MaxBranchLength;最大树枝长度;此类型树枝的最大长度。
+WKrautAssetBranchType::MaxBranchLengthParentScale;最大树枝长度缩放;此曲线影响该类型树枝沿父树枝方向的长度。\n\n你可以使用此曲线来塑造树冠的形状。例如让顶部的树枝更长、底部的更短。
+WKrautAssetBranchType::TargetDirDeviation;生长方向偏差;树枝可以偏离其目标方向的度数。\n\n如果设为零，树枝将完全笔直地生长。\n\n设置得越高，树枝就越扭曲。\n\n此设置的效果还在很大程度上取决于“每分段方向变化”。
+WKrautAssetBranchType::DirChangePerSegment;每分段方向变化;指定树枝每分段可以向其当前目标方向改变多少度的方向。\n\n如果设为零，树枝将完全笔直（因为它完全无法改变方向）。\n\n数值越高，树枝越快达到其当前目标方向并获得新的目标方向，从而更加扭曲。\n\n此设置的效果很大程度上取决于“生长方向偏差”。
+WKrautAssetBranchType::OnlyGrowUpAndDown;仅上下生长;如果勾选，树枝只会向上和向下生长，绝不会向侧面生长。\n\n这对于要表现大型叶片（如棕榈树叶）的树枝特别有用。\n看起来就像树枝主要受重力影响。
+WKrautAssetBranchType::EnableMesh;启用网格;如果勾选，树枝本身会拥有网格。如果未勾选，则不生成网格。当树枝只由叶状枝组成时，这通常最为有用。
+WKrautAssetBranchType::BranchMaterial;树枝材质;
+WKrautAssetBranchType::BranchContour;粗细;通过“最小树枝粗细”和“最大树枝粗细”可以指定树枝的粗细。\n\n此曲线允许沿树枝额外修改树枝网格的粗细。\n\n沿树枝的确切粗细会影响子树枝可以生成的位置。如果某位置处的树枝对于指定的子树枝类型来说过细，就不会在那里生成树枝。
+WKrautAssetBranchType::Roundness;圆度;指定树枝末端的圆润或尖锐程度。这也会影响树枝的粗细。\n\n如果树枝非常尖锐，整根树枝会沿其长度变得越来越细。\n\n而如果非常圆润，则它不会沿树枝减小粗细，而是在末端完全呈圆形。
+WKrautAssetBranchType::Flares;隆起;隆起可用于模拟树根和树枝上的凸起。它们沿树枝移动，并可选地绕树枝旋转。\n\n此设置定义有多少个隆起会修改树枝。通常使用 4 到 6 个隆起（或不使用）。
+WKrautAssetBranchType::FlareWidth;隆起宽度;此设置描述隆起相对于树枝粗细的宽度。例如宽度为“2”表示隆起可以变得有树枝的两倍粗。
+WKrautAssetBranchType::FlareWidthCurve;隆起宽度曲线;此曲线沿树枝缩放隆起宽度。例如，你可以通过在树干起始处设置非常宽的隆起并在树木起始处之后不久将其收回，来模拟粗壮的树根。
+WKrautAssetBranchType::FlareRotation;隆起旋转;决定隆起沿树枝旋转的程度。
+WKrautAssetBranchType::RotateTexCoords;旋转纹理坐标;如果勾选，纹理坐标将随隆起一起旋转。否则隆起会旋转，但纹理坐标保持不变，就像没有隆起一样。
+WKrautAssetBranchType::EnableFronds;启用叶状枝;如果勾选，将沿树枝生成叶状枝。叶状枝可用于表现单片树叶或整张叶片板。后者可以以尽可能少的多边形为树木添加大量细节，因为所有细节都在纹理中。
+WKrautAssetBranchType::FrondMaterial;叶状枝材质;
+WKrautAssetBranchType::TextureRepeat;纹理重复;指定叶状枝纹理重复的间隔。\n\n这是一个绝对距离值，例如“1.0”表示纹理每一米重复一次。\n“2.0”表示每两米重复一次，因此拉伸得更厉害。\n值为 0.0 表示纹理完全不重复，而是拉伸覆盖整根树枝。
+WKrautAssetBranchType::FrondUpOrientation;向上方向;定义叶状枝的朝向。\n\n向上：叶状枝始终指向向上（如果可能）。\n沿树枝：如果树枝有父树枝，叶状枝将朝向父树枝的生长方向。\n垂直于树枝：与沿树枝相同，只是旋转 90 度。
+WKrautAssetBranchType::FrondOrientationDeviation;旋转偏差;每个叶状枝可以偏离其绕树枝指定旋转的程度。
+WKrautAssetBranchType::NumFronds;叶状枝数量;在树枝周围生成多少个叶状枝。\n\n对于树叶，通常一个叶状枝就足够了。对于其他细节，2 到 3 个叶状枝可能有用。\n对于仙人掌，可能需要 8 个或更多叶状枝来表现尖刺。
+WKrautAssetBranchType::AlignFrondsOnSurface;对齐到表面;
+WKrautAssetBranchType::FrondDetail;叶状枝细节;叶状枝网格细分多少次。\n\n细分越多，可以实现的轮廓就越精细。\n对于简单的树叶，叶状枝细节为 0 即可。对于棕榈树叶则需要更多细节。
+WKrautAssetBranchType::FrondContour;叶状枝轮廓;轮廓描述叶状枝的横截面形状。该曲线允许详细绘制此横截面。
+WKrautAssetBranchType::FrondContourMode;轮廓模式;“完整轮廓”表示轮廓曲线描述完整的横截面。\n“镜像”表示曲线只描述一半轮廓（树枝的一侧），另一侧使用镜像后的形状。\n“镜像反转”与“镜像”类似，但轮廓还会被翻转。
+WKrautAssetBranchType::FrondHeight;轮廓缩放;轮廓的显著程度。\n\n滑块用于设置轮廓的整体缩放，曲线用于沿树枝修改它。两个值相乘，决定树枝上特定位置处的轮廓缩放。
+WKrautAssetBranchType::FrondHeightScale;轮廓缩放曲线;轮廓的显著程度。\n\n滑块用于设置轮廓的整体缩放，曲线用于沿树枝修改它。两个值相乘，决定树枝上特定位置处的轮廓缩放。
+WKrautAssetBranchType::FrondWidth;叶状枝宽度;叶状枝的宽度。\n\n滑块用于设置整体宽度。\n曲线用于指定沿树枝的宽度系数。\n两者相乘，决定树枝上特定位置处的宽度。
+WKrautAssetBranchType::FrondWidthScale;叶状枝宽度曲线;叶状枝的宽度。\n\n滑块用于设置整体宽度。\n曲线用于指定沿树枝的宽度系数。\n两者相乘，决定树枝上特定位置处的宽度。
+WKrautAssetBranchType::FrondVariationColor;叶状枝变化色;变化色是叶状枝可以使用的颜色，用来代替其纹理的漫反射颜色。每个叶状枝都有一个随机值，决定它使用纹理颜色或变化色的程度。因此每个叶状枝看起来都会略有不同。\n\n通过选择白色或黑色，变化色可用于创建更亮或更暗的树叶变体。\n\n通过选择与漫反射纹理大致相同的颜色（例如绿色），可以生成该颜色的细微变化。\n\n通过选择完全不同的颜色（例如在漫反射纹理为绿色时选择红色），可以生成看起来像是即将变色（即秋天）的树木。\n\n变化色并不是用来完全改变树木颜色的。如需这样的变化，请改为修改纹理。
+WKrautAssetBranchType::EnableLeaves;启用树叶;如果启用，将沿树枝放置朝向观察者旋转的公告板。\n\n这些公告板树叶可以创建看起来非常茂密的树木，而无需大量多边形。
+WKrautAssetBranchType::LeafMaterial;树叶材质;
+WKrautAssetBranchType::BillboardLeaves;公告板树叶;
+WKrautAssetBranchType::LeafSize;树叶大小;树叶的大小。\n\n微调框设置整体大小。曲线允许沿树枝缩放该值。
+WKrautAssetBranchType::LeafScale;树叶大小曲线;树叶的大小。\n\n微调框设置整体大小。曲线允许沿树枝缩放该值。
+WKrautAssetBranchType::LeafInterval;间隔长度;放置树叶的间隔。\n\n值为零表示只在树枝末端放置单个公告板。
+WKrautAssetBranchType::LeafVariationColor;树叶变化色;变化色是树叶可以使用的颜色，用来代替其纹理的漫反射颜色。每片树叶都有一个随机值，决定它使用纹理颜色或变化色的程度。因此每片树叶看起来都会略有不同。\n\n通过选择白色或黑色，变化色可用于创建更亮或更暗的树叶变体。\n\n通过选择与漫反射纹理大致相同的颜色（例如绿色），可以生成该颜色的细微变化。\n\n通过选择完全不同的颜色（例如在漫反射纹理为绿色时选择红色），可以生成看起来像是即将变色（即秋天）的树木。\n\n变化色并不是用来完全改变树木颜色的。如需这样的变化，请改为修改纹理。
+
+WKrautTreeAssetProperties::MinAmbientOcclusion;最小环境光遮蔽; AO 值会被限制到该值。\n\n设为 1 可完全禁用树木上的顶点 AO。\n禁用 AO 还能加快树木生成速度。
+WKrautTreeAssetProperties::StaticColliderRadius;静态碰撞体半径;放置在树木位置处的碰撞体对象的半径。
+WKrautTreeAssetProperties::TreeStiffness;树木刚度;树木对风的反应刚度。
+WKrautTreeAssetProperties::Surface;表面;碰撞体对象使用的表面。
+WKrautTreeAssetProperties::DisplayRandomSeed;显示随机种子;用于编辑的随机种子。修改它以找到优质的随机种子。
+WKrautTreeAssetProperties::GoodRandomSeeds;优质随机种子;能够产生优质结果的随机种子列表。添加少量（不要太多）种子以在游戏中产生多样性。
+
+WKrautAssetLod::Mode;表现形式;指定此 LOD 将是\n- 一个完整的网格\n- 由四个四边形组成的替身\n- 由两个四边形组成的替身\n- 一个公告板四边形（始终面向观察者）的替身。
+WKrautAssetLod::TipDetail;末端细节阈值;用于减少表现树枝末端的多边形数量的阈值。\n此值越低，树枝末端就越圆润。
+WKrautAssetLod::CurvatureThreshold;曲率阈值;曲率阈值是减少多边形数量最重要的设置。\n它描述树木骨架应与其完整细节表现接近到什么程度。\n此值越高，骨架可以被简化得越多。\n增大此值会使树木失去圆润度，但也能大幅减少多边形数量。
+WKrautAssetLod::ThicknessThreshold;粗细阈值;粗细阈值在轮廓有变化的树枝上尤为重要。\n\n它描述树枝形状应与其完整细节表现接近到什么程度。\n此值越高，用于表现树枝形状的细节就越少。\n\n此设置对只有简单树枝轮廓的树枝影响很小。\n\n此设置与曲率阈值有时会相互干扰，因为必须同时超过两个阈值才会简化网格。\n因此，如果曲率阈值设得非常低，粗细阈值可能看起来毫无效果，因为由于该限制网格已经不会被简化了。
+WKrautAssetLod::VertexRingDetail;环细节阈值;用于降低树枝网格围绕其骨架的细节的阈值。\n\n此值越低，网格就越平滑。\n此值越高，就越看起来像三角形形状。\n\n此值会大幅影响三角形的总数。
+WKrautAssetLod::AllowBranch;允许树枝网格用于;取消勾选此项可在此 LOD 级别中禁用该类型网格的生成。
+WKrautAssetLod::AllowFrond;允许叶状枝用于;取消勾选此项可在此 LOD 级别中禁用该类型网格的生成。
+WKrautAssetLod::AllowLeaf;允许树叶用于;取消勾选此项可在此 LOD 级别中禁用该类型网格的生成。
+WKrautAssetLod::MaxFrondDetail;最大叶状枝细节;此 LOD 中叶状枝的最大细节值。
+WKrautAssetLod::FrondDetailReduction;叶状枝细节缩减;在此 LOD 中叶状枝细节将被缩减多少，之后会被限制到最大叶状枝细节。
+WKrautAssetLod::LodDistance;LOD 使用距离上限;此值指定在什么距离内使用此 LOD。\n在更近的距离内会使用更详细的 LOD（除非这已经是 LOD 0）。
+WKrautAssetLod::BranchSpikeTipMode;树枝尖刺末端模式;
+
+
+# Components
+
+WKrautTreeComponent;Kraut 树;;https://ezengine.net/pages/docs/terrain/kraut-tree-component.html

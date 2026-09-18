@@ -1,0 +1,11 @@
+# Asset Types
+
+Collection;集合资产;;https://ezengine.net/pages/docs/performance/asset-collections.html
+
+# Component Types
+
+WCollectionComponent;集合;;https://ezengine.net/pages/docs/performance/collection-component.html
+
+# Properties
+
+WCollectionAssetEntry::Name;查找名称

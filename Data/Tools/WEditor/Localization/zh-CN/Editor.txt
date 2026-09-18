@@ -1,0 +1,317 @@
+# Editor
+
+Editor.OpenDashboard;显示仪表&板...
+Project.Open;打开项目...
+Project.Create;新建项目...
+Editor.LaunchFileserve;启动 Fileserve...;启动 WFileServe 应用程序。
+G.Inspector;启动检视器
+Editor.LaunchInspectorPlayer;用于 &WPlayer（端口 1040）;启动 WInspector 并连接到 WPlayer 遥测端口（1040）。
+Editor.LaunchInspectorEditorEngine;用于 &Editor Engine（端口 1050）;启动 WInspector 并连接到编辑器引擎进程的遥测端口（1050）。
+Editor.LaunchTracy;启动 Tracy...;启动 Tracy 性能分析器应用程序。
+Editor.Plugins;编辑器插&件...;打开编辑器插件对话框
+Editor.Shortcuts;快捷键...;打开快捷键配置对话框
+Editor.Preferences;首选项...;打开首选项对话框
+Editor.SaveProfiling;保存编辑器性能分析数据;将编辑器性能分析信息保存到文件。详见日志。
+Editor.OpenVsCode;打开 C++ IDE
+Editor.DocsAndCommunity;文档与社区...
+
+
+# Panels
+
+Panel.AssetBrowser;资产浏览器
+Panel.Log;日志
+Panel.AssetCurator;资产管理器
+Panel.CVar;控制台变量
+Panel.LongOps;后台操作
+Panel.AssetCheck;检查资产
+
+# Property Widget
+CONTAINER_AddEntry;{0}：添加条目
+POINTERWIDGET_Create;创建
+
+# Menus
+
+G.Project;&项目
+G.File;&文件
+G.Edit;编&辑
+G.Panels;面&板
+G.Scene;&场景
+G.Asset;&资产
+G.Tools;&工具
+G.View;&视图
+G.Help;&帮助
+G.Project.Settings;项目设置
+G.Plugins.Settings;插件设置
+
+
+Panels.All;显示面板
+
+# Engine
+
+Engine.ReloadResources;重新加载资源;如果纹理等资源在磁盘上发生更改，则重新加载它们。
+Engine.ReloadEngine;重新加载引擎;关闭并重启引擎进程。可用于重新加载自定义 DLL。
+Engine.Tags;标签...;打开标签配置对话框
+
+# Project
+
+Project.ImportAsset;导入资&产...
+Project.RecentDocuments.Menu;&最近打开
+Project.Close;关闭项目
+G.Project.Cpp;C++ 项目
+Project.SetupCppProject;设置 C++ 插&件...
+Project.OpenCppProject;在 &IDE 中打开
+Project.CompileCppProject;&编译插件
+Project.RegenerateCppSolution;&重新生成 C++ 项目
+Project.ExportProject;&导出项目...
+Project.PluginSelection;插件选择...
+Project.DataDirectories;数据目&录...
+Project.InputConfig;输入配&置...
+Project.WindowConfig;窗&口配置...
+Project.AssetProfiles;资产配置文件...
+Project.ClearAssetCaches;清除资产缓存...
+
+# Document
+
+Document.Create;&新建...
+Document.Open;&打开...
+Document.Save;&保存
+Document.SaveAll;全部保存
+Document.SaveAs;另存为(&A)...
+Document.Close;关闭
+Document.CloseAll;全部关闭
+Document.CloseAllButThis;关闭除此之外的所有文档
+Document.OpenContainingFolder;在资源管理器中打开
+Document.CopyDocumentPath;复制路径;将文档的绝对路径存入剪贴板。
+Document.MoveWindow;移动到容器窗口
+Document.NewWindow;新建容器窗口
+Document.Undo;撤销
+Document.Redo;重做
+
+# Help
+
+Help.CheckForUpdates;检查更新...
+Help.ReportProblem;报告问题...
+Help.AskQuestion;提问...
+
+# Assets
+
+Asset.Transform;转换资产;转换：创建此资产的运行时数据
+Asset.WriteDependencyDGML;写出依赖 DGML...;创建一个 DGML 文件，其中包含此资产传递依赖的所有转换和缩略图依赖项
+Asset.TransformAll;转换所有资产;全部转换：对所有已修改的资产执行资产转换
+Asset.ResaveAll;重新保存所有资产;打开每个文档并保存。用于将所有文档更新到最新版本。
+Asset.CheckFilesystem;检查文件系统;检查磁盘上新增或删除的资产
+Asset.WriteLookupTable;写出查找表
+Asset.Help;打开资产文档;打开此资产类型的在线文档
+Asset.CopyAssetGuid;复制资产 GUID;将资产的 GUID 存入剪贴板。
+Asset.SelectInAssetBrowser;在资产浏览器中选择
+AssetCurator.OpenDocument;打开文档
+AssetCurator.SelectInAssetBrowser;在资产浏览器中选择
+Asset.CameraMode;相机模式
+
+# Prefabs
+
+Prefabs.Menu;预制体
+Prefabs.UpdateAll;更新预制体
+Prefabs.Create;创建预制体...
+Prefabs.Revert;还原预制体
+Prefabs.OpenDocument;编辑预制体...;在单独的窗口中打开预制体模板进行编辑
+Prefabs.Unlink;断开与模板的链接;预制体实例将变为普通对象，与原预制体不再有任何关联
+Prefabs.ConvertToEngine;转换为引擎预制体
+Prefabs.ConvertToEditor;转换为编辑器预制体
+AssetBrowser.AssetMenu;资产;针对所选资产类型的操作
+
+Meshes.CreateLods;创建 LOD...;使用相同的导入设置，在此网格旁创建简化后的 LOD 网格资产
+Meshes.CreateLodsDocument;创建 LOD...;使用相同的导入设置，在此网格旁创建简化后的 LOD 网格资产
+
+Prefabs.CreateFromMesh;创建预制体...;创建一个显示此网格的预制体
+Prefabs.CreateFromMeshDocument;创建预制体...;创建一个显示此网格的预制体
+
+# View
+
+View.RenderMode;渲染模式
+View.RenderPerspective;透视
+View.CameraUsageHint;相机用途提示
+View.RenderPipeline;渲染管线
+View.ActivateRemoteProcess;激活远程进程
+View.LinkDeviceCamera;链接远程进程上的相机
+View.LightMenu;光源设置
+View.SkyBox;启用天空盒
+View.SkyLight;启用天空光
+View.SkyLightCubeMap;选择天空光立方体贴图...
+View.SkyLightIntensity;天空光强度
+View.DirectionalLight;启用平行光
+View.DirLightAngle;平行光角度
+View.DirectionalLightShadows;平行光阴影
+View.DirLightIntensity;平行光强度
+View.Fog;启用雾效
+View.SetAsDefault;设为默认...
+
+WViewRenderMode::None;默认
+WViewRenderMode::TexCoordsUV0;纹理坐标（UV0）
+WViewRenderMode::TexCoordsUV1;纹理坐标（UV1）
+WViewRenderMode::DiffuseColorRange;漫反射颜色范围检查
+WViewRenderMode::Occlusion;环境光遮蔽
+WViewRenderMode::StaticVsDynamic;静态与动态
+
+# Common
+
+Common.Pause;暂停
+Common.Restart;重新开始
+Common.Loop;循环
+Common.Grid;网格
+Common.Visualizers;可视化辅助
+Common.Speed.Menu;速度
+Common.Speed.01;10%
+Common.Speed.025;25%
+Common.Speed.05;50%
+Common.Speed.1;100%
+Common.Speed.15;150%
+Common.Speed.2;200%
+Common.Speed.3;300%
+Common.Speed.4;400%
+Common.Speed.5;500%
+Common.Speed.10;1000%
+
+# Selection
+
+Selection.Copy;复制
+Selection.Paste;粘贴
+Selection.PasteAsChild;粘贴为子对象;将复制的对象粘贴为所选对象的子节点。
+Selection.PasteAtOriginalLocation;粘贴到原始位置;将复制的对象粘贴到其原始位置。
+Selection.Delete;删除
+Selection.ShowInScenegraph;在场景图中显示
+Selection.FocusSingleView;聚焦所选对象
+Selection.FocusAllViews;在所有视口中聚焦所选对象
+Selection.GroupItems;编组
+Selection.HideItems;隐藏所选对象
+Selection.HideUnselectedItems;隐藏未选中对象
+Selection.ShowHidden;显示隐藏对象
+Selection.CreateEmptyChildObject;创建空子对象
+Selection.CreateEmptyObjectAtPosition;在此处创建对象
+Selection.DuplicateSpecial;复制...
+Selection.DeltaTransform;增量变换...
+Selection.Attach;附加到该项
+Selection.Detach;分离
+Selection.CopyReference;复制对象引用
+Selection.SelectParent;选择父对象
+Selection.SetActiveParent;设置活动父对象
+Selection.ClearActiveParent;清除活动父对象
+Selection.UndoSelection;撤销选择更改;还原最近一次对对象选择的更改。
+
+# Profile Configs
+
+WRenderPipelineProfileConfig;渲染管线
+WTextureAssetProfileConfig;纹理资产
+WCoreRenderProfileConfig;渲染选项
+
+# Gizmo
+
+G.Gizmos;编辑模式
+Gizmo.Translation.Snap.Dropdown;位置吸附;位置吸附：拖动操纵器时按住 SHIFT 可禁用吸附。
+Gizmo.Rotation.Snap.Dropdown;旋转吸附;旋转吸附：拖动操纵器时按住 SHIFT 可禁用吸附。
+Gizmo.Scale.Snap.Dropdown;缩放吸附;缩放吸附：拖动操纵器时按住 SHIFT 可禁用吸附。
+Gizmo.Mode.Select;选择
+Gizmo.Mode.Translate;移动
+Gizmo.Mode.Rotate;旋转
+Gizmo.Mode.Scale;缩放
+Gizmo.Mode.DragToPosition;拖动到位置
+Gizmo.Mode.GreyBoxing;灰盒建模
+Gizmo.TransformSpace;在世界空间中变换
+Gizmo.MoveParentOnly;仅变换父对象
+Gizmo.Rotation.Snap.0_Degree;不吸附旋转
+Gizmo.Rotation.Snap.1_Degree;1 度
+Gizmo.Rotation.Snap.5_Degree;5 度
+Gizmo.Rotation.Snap.10_Degree;10 度
+Gizmo.Rotation.Snap.15_Degree;15 度
+Gizmo.Rotation.Snap.30_Degree;30 度
+Gizmo.Rotation.Snap.22_5_Degree;22.5 度
+Gizmo.Rotation.Snap.45_Degree;45 度
+Gizmo.Rotation.Snap.90_Degree;90 度
+Gizmo.Scale.Snap.0;不吸附缩放
+Gizmo.Scale.Snap.4;4
+Gizmo.Scale.Snap.2;2
+Gizmo.Scale.Snap.1;1
+Gizmo.Scale.Snap.0_5;0.5
+Gizmo.Scale.Snap.0_25;0.25
+Gizmo.Scale.Snap.0_125;0.125
+Gizmo.Translate.Snap.Menu;位置吸附
+Gizmo.Translate.Snap.PivotToGrid;将轴心吸附到网格
+Gizmo.Translate.Snap.ObjectsToGrid;将每个对象吸附到网格
+Gizmo.Translate.Snap.0;不吸附位置
+Gizmo.Translate.Snap.10;10m
+Gizmo.Translate.Snap.8;8 米
+Gizmo.Translate.Snap.5;5 米
+Gizmo.Translate.Snap.4;4 米
+Gizmo.Translate.Snap.2;2 米
+Gizmo.Translate.Snap.1;1 米
+Gizmo.Translate.Snap.0_5;50 厘米
+Gizmo.Translate.Snap.0_25;25 厘米
+Gizmo.Translate.Snap.0_2;20 厘米
+Gizmo.Translate.Snap.0_125;12.5 厘米
+Gizmo.Translate.Snap.0_1;10 厘米
+Gizmo.Translate.Snap.0_05;5 厘米
+Gizmo.Translate.Snap.0_01;1 厘米
+Gizmo.SnapSettings;吸附设置
+
+# GameObjectContext
+
+GameObjectContext.PickContextScene;选择上下文场景...
+GameObjectContext.PickContextObject;将对象用作上下文
+GameObjectContext.ClearContextObject;清除上下文对象
+
+WSceneViewPerspective::Orthogonal_Front;正交前视图
+WSceneViewPerspective::Orthogonal_Right;正交右视图
+WSceneViewPerspective::Orthogonal_Top;正交顶视图
+WSceneViewPerspective::Perspective;透视
+
+# VariantType
+
+WVariantType::Bool;布尔
+WVariantType::Int8;Int8
+WVariantType::UInt8;UInt8
+WVariantType::Int16;Int16
+WVariantType::UInt16;UInt16
+WVariantType::Int32;Int32
+WVariantType::UInt32;UInt32
+WVariantType::Int64;Int64
+WVariantType::UInt64;UInt64
+WVariantType::Float;浮点
+WVariantType::Double;双精度
+WVariantType::Color;颜色
+WVariantType::Vector2;Vector2
+WVariantType::Vector3;Vector3
+WVariantType::Vector4;Vector4
+WVariantType::Vector2I;Vector2I
+WVariantType::Vector3I;Vector3I
+WVariantType::Vector4I;Vector4I
+WVariantType::Vector2U;Vector2U
+WVariantType::Vector3U;Vector3U
+WVariantType::Vector4U;Vector4U
+WVariantType::Quaternion;Quaternion
+WVariantType::Matrix3;Matrix3
+WVariantType::Matrix4;Matrix4
+WVariantType::Transform;Transform
+WVariantType::String;字符串
+WVariantType::StringView;StringView
+WVariantType::DataBuffer;DataBuffer
+WVariantType::Time;时间
+WVariantType::Uuid;Uuid
+WVariantType::Angle;角度
+WVariantType::ColorGamma;ColorGamma
+
+# Compiler Preferences
+
+WCppProject::CppIDE;C++ IDE
+WCompilerPreferences::CppCompiler;C++ 编译器
+
+
+# Preferences
+Language;界面语言
+
+# Window Layouts
+WindowLayout;编辑器布局
+Layout.DefaultPinned;默认（固定）
+Layout.DefaultUnpinned;默认（未固定）
+Layout.AbBottom;资产浏览器位于底部
+Layout.SaveLayout;保存布局
+Layout.LoadLayout;加载布局

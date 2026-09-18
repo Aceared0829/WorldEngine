@@ -1,0 +1,35 @@
+# Asset Types
+
+Mesh;网格;;https://ezengine.net/pages/docs/graphics/meshes/mesh-asset.html
+
+# Component Types
+
+# UI
+
+MeshImport;网格
+
+# Enums
+
+WMeshPrimitive::File;来自文件
+
+# Properties
+
+WMaterialResourceSlot;材质槽位
+
+# Dynamic UI
+
+Prim.Sphere.Detail1;球体分段数;球体的分段数量
+Prim.Sphere.Detail2;球体层数;球体的层数
+Prim.Torus.Detail1;分段数;圆环的分段数量
+Prim.Torus.Detail2;环细分;每个分段的多边形数量
+Prim.Torus.Radius1;内半径
+Prim.Torus.Radius2;外半径
+Prim.GeoSphere.Detail;细分次数;球体的细分次数，数值越大细节越多。应在 1 到 3 之间。
+Prim.Cylinder.Detail;细分;圆角的细分程度
+Prim.Cylinder.Radius1;顶部半径
+Prim.Cylinder.Radius2;底部半径
+Prim.Cylinder.Angle;角度;圆柱使用的比例。360 为完整圆柱，180 仅为其一半。
+Prim.Cylinder.Cap1;顶部封盖;是否封盖顶部
+Prim.Cylinder.Cap2;底部封盖;是否封盖底部
+Prim.Rect.Detail1;X 方向细分;沿 X 轴的细分数量
+Prim.Rect.Detail2;Z 方向细分;沿 Z 轴的细分数量

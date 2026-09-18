@@ -1,0 +1,93 @@
+# Asset Types
+
+Particle Effect;粒子效果;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effects-overview.html
+
+# Component Types
+
+WParticleComponent;粒子;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effect-component.html
+WParticleAttractorComponent;粒子吸引器;;https://ezengine.net/pages/docs/effects/particle-effects/particle-attractor-component.html
+
+# UI
+
+PFX.Restart;重新开始
+PFX.AutoRestart;循环
+PFX.Pause;暂停
+PFX.Speed.Menu;模拟速度
+PFX.Speed.01;10%
+PFX.Speed.025;25%
+PFX.Speed.05;50%
+PFX.Speed.1;100%
+PFX.Speed.15;150%
+PFX.Speed.2;200%
+PFX.Speed.3;300%
+PFX.Speed.4;400%
+PFX.Speed.5;500%
+PFX.Speed.10;1000%
+PFX.Render.Visualizers;渲染可视化元素
+
+# Enums
+
+WParticleTypeRenderMode::BlendedForeground;混合（前景）
+WParticleTypeRenderMode::BlendedBackground;混合（背景）
+
+WEffectInvisibleUpdateRate::Max20fps;最高 20 FPS
+WEffectInvisibleUpdateRate::Max10fps;最高 10 FPS
+WEffectInvisibleUpdateRate::Max5fps;最高 5 FPS
+
+WParticleTextureAtlasType::RandomYAnimatedX;随机行，动画列
+WParticleTextureAtlasType::RandomXAnimatedY;随机列，动画行
+
+WParticleBehaviorFactory_ColorGradient;颜色渐变
+WParticleBehaviorFactory_Velocity;速度
+WParticleBehaviorFactory_Gravity;重力
+WParticleBehaviorFactory_Raycast;射线检测
+WParticleBehaviorFactory_FadeOut;淡出
+WParticleBehaviorFactory_PullAlong;跟随拉扯
+WParticleBehaviorFactory_SizeCurve;尺寸曲线
+WParticleBehaviorFactory_Flies;飞虫
+WParticleBehaviorFactory_Bounds;边界：盒体
+WParticleBehaviorFactory_Opacity;不透明度
+WParticleBehaviorFactory_Wind;风
+WParticleBehaviorFactory_Move;移动
+
+WParticleEmitterFactory_Continuous;连续
+WParticleEmitterFactory_OnEvent;事件触发
+WParticleEmitterFactory_Burst;爆发
+WParticleEmitterFactory_Distance;距离
+
+WParticleInitializerFactory_BoxPosition;盒体位置
+WParticleInitializerFactory_CylinderPosition;圆柱位置
+WParticleInitializerFactory_RandomColor;随机颜色
+WParticleInitializerFactory_RandomSize;随机尺寸
+WParticleInitializerFactory_RandomRotationSpeed;旋转速度
+WParticleInitializerFactory_SpherePosition;球体位置
+WParticleInitializerFactory_VelocityCone;速度锥
+
+WParticleEventReactionFactory_Effect;效果反应
+WParticleEventReactionFactory_Prefab;预制体反应
+
+WParticleBehaviorFactory_BoundsSphere;边界：球体
+WParticleBehaviorFactory_Turbulence;湍流
+WParticleBehaviorFactory_Attract;吸引
+WParticleBehaviorFactory_Expression;表达式
+WQuadParticleOrientation::Rotating_OrthoEmitterDir;旋转：正交发射器方向
+WQuadParticleOrientation::Rotating_EmitterDir;旋转：发射器方向
+WQuadParticleOrientation::Fixed_EmitterDir;固定：发射器方向
+WQuadParticleOrientation::Fixed_RandomDir;固定：随机方向
+WQuadParticleOrientation::Fixed_WorldUp;固定：世界上方
+WQuadParticleOrientation::FixedAxis_EmitterDir;轴向：发射器方向
+WQuadParticleOrientation::FixedAxis_ParticleDir;轴向：粒子方向
+
+WParticleTypeTrailFactory;拖尾
+WParticleTypeMeshFactory;网格
+WParticleTypeQuadFactory;四边形
+WParticleTypeLightFactory;光源
+WParticleTypeEffectFactory;效果
+WParticleTypePointFactory;点
+
+# Properties
+
+WParticleEffectDescriptor::PreSimulateDuration;预模拟时长
+WParticleEffectDescriptor::SimulateInLocalSpace;在局部空间模拟
+
+WParticleBehaviorFactory_Bounds::OutOfBoundsMode;越界模式

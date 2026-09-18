@@ -281,7 +281,9 @@ void WQtEditorApp::ProjectEventHandler(const WToolsProjectEvent& r)
       // add project specific translations
       // (these are currently never removed)
       {
-        m_pTranslatorFromFiles->AddTranslationFilesFromFolder(":project/Editor/Localization/en");
+        WStringBuilder sProjectLocalization;
+        sProjectLocalization.SetFormat(":project/Editor/Localization/{0}", WEditorPreferencesUser::GetLocalizationFolder(m_sActiveLanguage));
+        m_pTranslatorFromFiles->AddTranslationFilesFromFolder(sProjectLocalization);
       }
 
       LogMissingComponentDocumentation();

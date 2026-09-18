@@ -1,0 +1,12 @@
+# Asset Types
+
+Substance Package;Substance 包;;https://ezengine.net/pages/docs/graphics/substance-textures.html
+Substance Texture;Substance 纹理;;https://ezengine.net/pages/docs/graphics/substance-textures.html
+
+# UI
+
+SubstancePackageAsset.SelectedOutput;选定输出
+SubstancePackageAsset.LodSlider;Mipmap
+SubstancePackageAsset.ChannelMode;显示通道
+
+# Enums

@@ -76,6 +76,32 @@ WActionDescriptorHandle WProjectActions::s_hOpenCppProject;
 WActionDescriptorHandle WProjectActions::s_hCompileCppProject;
 WActionDescriptorHandle WProjectActions::s_hRegenerateCppSolution;
 
+namespace
+{
+  void OpenConfiguredCppIde()
+  {
+    WCppSettings cpp;
+    cpp.Load().IgnoreResult();
+
+    if (!WCppProject::ExistsProjectCMakeListsTxt())
+    {
+      WQtUiServices::GetSingleton()->MessageBoxInformation("C++ code has not been set up, opening a solution is not possible.");
+      return;
+    }
+
+    if (WCppProject::RunCMakeIfNecessary(cpp).Failed())
+    {
+      WQtUiServices::GetSingleton()->MessageBoxWarning("Generating the C++ solution failed.");
+      return;
+    }
+
+    if (auto status = WCppProject::OpenSolution(cpp); status.Failed())
+    {
+      WQtUiServices::GetSingleton()->MessageBoxWarning(status.GetMessageString().GetView());
+    }
+  }
+}
+
 void WProjectActions::RegisterActions()
 {
   s_hCatProjectGeneral = W_REGISTER_CATEGORY("G.Project.General");
@@ -824,22 +850,8 @@ void WProjectAction::Execute(const WVariant& value)
     break;
 
     case WProjectAction::ButtonType::OpenVsCode:
-    {
-      QStringList args;
-
-      for (const auto& dd : WQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
-      {
-        WStringBuilder path;
-        WFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path).IgnoreResult();
-
-        args.append(QString::fromUtf8(path, path.GetElementCount()));
-      }
-
-      const WStatus res = WQtUiServices::OpenInVsCode(args);
-
-      WQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to open VS Code");
-    }
-    break;
+      OpenConfiguredCppIde();
+      break;
 
     case WProjectAction::ButtonType::AssetProfiles:
     {
@@ -864,30 +876,8 @@ void WProjectAction::Execute(const WVariant& value)
     break;
 
     case WProjectAction::ButtonType::OpenCppProject:
-    {
-      WCppSettings cpp;
-      cpp.Load().IgnoreResult();
-
-      if (WCppProject::ExistsProjectCMakeListsTxt())
-      {
-        if (WCppProject::RunCMakeIfNecessary(cpp).Failed())
-        {
-          WQtUiServices::GetSingleton()->MessageBoxWarning("Generating the C++ solution failed.");
-        }
-        else
-        {
-          if (auto status = WCppProject::OpenSolution(cpp); status.Failed())
-          {
-            WQtUiServices::GetSingleton()->MessageBoxWarning(status.GetMessageString().GetView());
-          }
-        }
-      }
-      else
-      {
-        WQtUiServices::GetSingleton()->MessageBoxInformation("C++ code has not been set up, opening a solution is not possible.");
-      }
-    }
-    break;
+      OpenConfiguredCppIde();
+      break;
 
     case WProjectAction::ButtonType::CompileCppProject:
     {

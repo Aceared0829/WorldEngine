@@ -1,0 +1,17 @@
+# Asset Types
+
+# Component Types
+
+WAiNavMeshPathTestComponent;导航网格寻路测试;;https://ezengine.net/pages/docs/ai/AiPlugin/navmesh-path-test-component.html
+WNavMeshObstacleComponent;导航网格障碍物;;https://ezengine.net/pages/docs/ai/AiPlugin/navmesh-obstacle-component.html
+WAiNavigationComponent;AI 导航;;https://ezengine.net/pages/docs/ai/AiPlugin/navigation-component.html
+WDetourCrowdAgentComponent;Detour 人群代理;;https://ezengine.net/pages/docs/ai/AiPlugin/detour-crowd-agent-component.html
+WAiVoxelGridComponent;AI 体素网格;;https://ezengine.net/pages/docs/ai/AiPlugin/voxel-grid-component.html
+WAiVoxelNavigationComponent;AI 体素导航;;https://ezengine.net/pages/docs/ai/AiPlugin/voxel-navigation-component.html
+WAiVoxelPathTestComponent;AI 体素寻路测试;;https://ezengine.net/pages/docs/ai/AiPlugin/voxel-path-test-component.html
+
+# UI
+
+Ai.Settings.Project;AI 项目设置...
+
+# Enums

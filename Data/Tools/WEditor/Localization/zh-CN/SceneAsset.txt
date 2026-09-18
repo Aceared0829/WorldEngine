@@ -1,0 +1,230 @@
+# Asset Types
+
+Layer;场景层;;https://ezengine.net/pages/docs/scenes/scene-layers.html
+Prefab;预制体;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
+Scene;场景;;https://ezengine.net/pages/docs/scenes/scene-editing.html
+BlackboardTemplate;黑板模板;;https://ezengine.net/pages/docs/misc/blackboard-template-asset.html
+CustomData;自定义数据;;https://ezengine.net/pages/docs/misc/custom-data.html
+
+# Component Types
+
+WAlwaysVisibleComponent;始终可见;;https://ezengine.net/pages/docs/graphics/always-visible-component.html
+WAmbientLightComponent;环境光;;https://ezengine.net/pages/docs/graphics/lighting/ambient-light-component.html
+WAreaDamageComponent;范围伤害;;https://ezengine.net/pages/docs/gameplay/area-damage-component.html
+WBeamComponent;光束;;https://ezengine.net/pages/docs/effects/beam-component.html
+WLocalBlackboardComponent;本地黑板;;https://ezengine.net/pages/docs/misc/local-blackboard-component.html
+WGlobalBlackboardComponent;全局黑板;;https://ezengine.net/pages/docs/misc/global-blackboard-component.html
+WBoxReflectionProbeComponent;盒体反射探针;;https://ezengine.net/pages/docs/graphics/lighting/reflection-probe-components.html
+WCameraComponent;相机;;https://ezengine.net/pages/docs/graphics/camera-component.html
+WClothSheetComponent;布料片;;http://ezengine.net/pages/docs/effects/cloth-sheet-component.html
+WColorAnimationComponent;颜色动画;;https://ezengine.net/pages/docs/animation/property-animation/color-animation-component.html
+WCommentComponent;注释;;https://ezengine.net/pages/docs/misc/components/comment-component.html
+WCustomMeshComponent;自定义网格;;https://ezengine.net/pages/docs/graphics/meshes/custom-mesh-component.html
+WDebugTextComponent;调试文本;;https://ezengine.net/pages/docs/debugging/components/debug-text-component.html
+WDirectionalLightComponent;平行光;;https://ezengine.net/pages/docs/graphics/lighting/directional-light-component.html
+WFakeRopeComponent;简单绳索模拟;;https://ezengine.net/pages/docs/effects/ropes/fake-rope-component.html
+WFogComponent;雾;;https://ezengine.net/pages/docs/effects/fog.html
+WGrabbableItemComponent;可抓取物品;;https://ezengine.net/pages/docs/gameplay/grabbable-item-component.html
+WGreyBoxComponent;灰盒建模;;https://ezengine.net/pages/docs/scenes/greyboxing.html
+WHeightfieldComponent;高度场;;https://ezengine.net/pages/docs/terrain/heightfield-component.html
+WInputComponent;输入;;https://ezengine.net/pages/docs/input/input-component.html
+WInstancedMeshComponent;实例化网格;;https://ezengine.net/pages/docs/graphics/meshes/instanced-mesh-component.html
+WJointAttachmentComponent;关节附着;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-attachment-component.html
+WJointOverrideComponent;关节覆盖;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-override-component.html
+WLensFlareComponent;镜头光晕;;https://ezengine.net/pages/docs/effects/lensflare-component.html
+WLightShaftsComponent;光束效果;;shttps://ezengine.net/pages/docs/graphics/lighting/light-shafts-component.html
+WLineToComponent;绘制连线到对象;;https://ezengine.net/pages/docs/debugging/components/draw-line-component.html
+WMarkerComponent;标记;;https://ezengine.net/pages/docs/gameplay/marker-component.html
+WMeshComponent;网格;;https://ezengine.net/pages/docs/graphics/meshes/mesh-component.html
+WLodMeshComponent;LOD 网格;;https://ezengine.net/pages/docs/graphics/meshes/lod-mesh-component.html
+WMoveToComponent;移动到;;https://ezengine.net/pages/docs/animation/property-animation/move-to-component.html
+WOccluderComponent;遮挡体组件;;https://ezengine.net/pages/docs/graphics/occluder-component.html
+WPlayerStartPointComponent;玩家出生点;;https://ezengine.net/pages/docs/gameplay/player-start-point.html
+WPointLightComponent;点光源;;https://ezengine.net/pages/docs/graphics/lighting/point-light-component.html
+WFillLightComponent;补光;;https://ezengine.net/pages/docs/graphics/lighting/fill-light-component.html
+WPrefabReferenceComponent;预制体;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
+WProjectileComponent;投射物;;https://ezengine.net/pages/docs/gameplay/projectile-component.html
+WPropertyAnimComponent;属性动画;;https://ezengine.net/pages/docs/animation/property-animation/property-animation-component.html
+WRandomPrefabComponent;随机预制体;;https://ezengine.net/pages/docs/prefabs/random-prefab-component.html
+WRaycastComponent;射线检测放置;;https://ezengine.net/pages/docs/gameplay/raycast-placement-component.html
+WRenderTargetActivatorComponent;渲染目标激活器;;https://ezengine.net/pages/docs/graphics/render-to-texture/render-target-activator-component.html
+WRopeRenderComponent;绳索渲染器;;https://ezengine.net/pages/docs/effects/ropes/rope-render-component.html
+WRotorComponent;旋转器;;https://ezengine.net/pages/docs/animation/property-animation/rotor-component.html
+WSensorConeComponent;锥形传感器;;https://ezengine.net/pages/docs/ai/sensor-components.html
+WSensorCylinderComponent;圆柱传感器;;https://ezengine.net/pages/docs/ai/sensor-components.html
+WSensorSphereComponent;球形传感器;;https://ezengine.net/pages/docs/ai/sensor-components.html
+WSimpleAnimationComponent;简单动画;;https://ezengine.net/pages/docs/animation/skeletal-animation/simple-animation-component.html
+WSimpleWindComponent;简单风;;https://ezengine.net/pages/docs/effects/wind/simple-wind-component.html
+WSkeletonPoseComponent;骨骼姿势;;https://ezengine.net/pages/docs/animation/skeletal-animation/skeleton-pose-component.html
+WSkyBoxComponent;天空盒;;https://ezengine.net/pages/docs/effects/sky.html
+WSkyLightComponent;天空光;;https://ezengine.net/pages/docs/graphics/lighting/sky-light-component.html
+WSliderComponent;滑块;;https://ezengine.net/pages/docs/animation/property-animation/slider-component.html
+WSpawnComponent;生成;;https://ezengine.net/pages/docs/gameplay/spawn-component.html
+WSpawnBoxComponent;生成盒;;https://ezengine.net/pages/docs/gameplay/spawnbox-component.html
+WSphereReflectionProbeComponent;球形反射探针;;https://ezengine.net/pages/docs/graphics/lighting/reflection-probe-components.html
+WSpotLightComponent;聚光灯;;https://ezengine.net/pages/docs/graphics/lighting/spot-light-component.html
+WSpriteComponent;精灵;;https://ezengine.net/pages/docs/graphics/sprite-component.html
+WTimedDeathComponent;定时销毁;;https://ezengine.net/pages/docs/gameplay/timed-death-component.html
+WWindVolumeConeComponent;锥形风体积;;https://ezengine.net/pages/docs/effects/wind/wind-volume-components.html
+WWindVolumeCylinderComponent;圆柱风体积;;https://ezengine.net/pages/docs/effects/wind/wind-volume-components.html
+WWindVolumeSphereComponent;球形风体积;;https://ezengine.net/pages/docs/effects/wind/wind-volume-components.html
+WBakedProbesComponent;烘焙探针
+WBakedProbesVolumeComponent;烘焙探针体积
+WScriptComponent;脚本组件;;https://ezengine.net/pages/docs/custom-code/visual-script/script-component.html
+WSplineComponent;样条;;https://ezengine.net/pages/docs/animation/paths/spline-component.html
+WSplineNodeComponent;样条节点;;https://ezengine.net/pages/docs/animation/paths/spline-node-component.html
+WPowerConnectorComponent;电力连接器;;https://ezengine.net/pages/docs/gameplay/power-connector-component.html
+WTriggerDelayModifierComponent;触发器延迟修改器;;https://ezengine.net/pages/docs/custom-code/game-logic/trigger-delay-modifier-component.html
+WCommentComponent;注释;;https://ezengine.net/pages/docs/misc/components/comment-component.html
+WForwardEventsToGameStateComponent;转发事件到游戏状态;;https://ezengine.net/pages/docs/custom-code/game-logic/forward-events-to-game-state-component.html
+WResetTransformComponent;重置变换;;https://ezengine.net/pages/docs/animation/property-animation/reset-transform-component.html
+WVolumeBoxComponent;盒体体积;;https://ezengine.net/pages/docs/effects/post-processing/volume-components.html
+WVolumeSphereComponent;球形体积;;https://ezengine.net/pages/docs/effects/post-processing/volume-components.html
+WPostProcessingComponent;后期处理;;https://ezengine.net/pages/docs/effects/post-processing/post-processing-component.html
+WTwoBoneIKComponent;双骨骼 IK;;https://ezengine.net/pages/docs/animation/skeletal-animation/ik/two-bone-ik-component.html
+WAimIKComponent;瞄准 IK;;https://ezengine.net/pages/docs/animation/skeletal-animation/ik/aim-ik-component.html
+WCreatureCrawlComponent;生物爬行;;https://ezengine.net/pages/docs/gameplay/creature-crawl-component.html
+WLodComponent;LOD 组件;;https://ezengine.net/pages/docs/graphics/lod-component.html
+WSceneTransitionComponent;场景切换;;https://ezengine.net/pages/docs/gameplay/scene-transition-component.html
+WSplineMeshComponent;样条网格;;https://ezengine.net/pages/docs/animation/paths/spline-mesh-component.html
+WFollowSplineComponent;沿样条移动;;https://ezengine.net/pages/docs/animation/paths/follow-path-component.html
+WVolumeSamplerComponent;体积采样器;;https://ezengine.net/pages/docs/gameplay/volume-sampler-component.html
+
+# Properties
+
+EditorShortcut;编辑器快捷键;按 ALT+数字 跳转到此相机。
+Scene.CreateThumbnail;创建场景缩略图
+Scene.GameMode.PlayFromHere;从此处开始播放
+Scene.Camera.Create.0;创建关卡相机 0;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.1;创建关卡相机 1;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.2;创建关卡相机 2;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.3;创建关卡相机 3;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.4;创建关卡相机 4;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.5;创建关卡相机 5;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.6;创建关卡相机 6;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.7;创建关卡相机 7;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.8;创建关卡相机 8;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.Create.9;创建关卡相机 9;在当前编辑器相机位置创建一个相机节点并配置其快捷键
+Scene.Camera.JumpTo.0;跳转到关卡相机 0;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.1;跳转到关卡相机 1;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.2;跳转到关卡相机 2;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.3;跳转到关卡相机 3;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.4;跳转到关卡相机 4;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.5;跳转到关卡相机 5;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.6;跳转到关卡相机 6;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.7;跳转到关卡相机 7;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.8;跳转到关卡相机 8;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.JumpTo.9;跳转到关卡相机 9;将编辑器相机移动到关卡文件中保存的相机位置
+Scene.Camera.MoveCameraHere;将相机移动到这里;将相机移动到鼠标指向的位置附近。
+Scene.Camera.Restore.0;转到收藏位置 0;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.1;转到收藏位置 1;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.2;转到收藏位置 2;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.3;转到收藏位置 3;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.4;转到收藏位置 4;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.5;转到收藏位置 5;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.6;转到收藏位置 6;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.7;转到收藏位置 7;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.8;转到收藏位置 8;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.Restore.9;转到收藏位置 9;将编辑器相机移动到先前保存的收藏位置
+Scene.Camera.SnapCameraToObject;将相机对齐到对象;将相机移动到所选对象的确切位置。
+Scene.Camera.SnapObjectToCamera;将对象对齐到相机;将对象移动到相机的当前位置。
+Scene.Camera.Speed;相机速度;相机速度：按 CTRL+鼠标滚轮 更改
+Scene.Camera.Store.0;保存收藏位置 0;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.1;保存收藏位置 1;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.2;保存收藏位置 2;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.3;保存收藏位置 3;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.4;保存收藏位置 4;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.5;保存收藏位置 5;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.6;保存收藏位置 6;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.7;保存收藏位置 7;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.8;保存收藏位置 8;将当前位置保存为收藏的用户位置
+Scene.Camera.Store.9;保存收藏位置 9;将当前位置保存为收藏的用户位置
+Scene.ExportAndRun;导出并运行...
+Scene.ExportSceneToOBJ;将场景几何体导出为 OBJ...
+Scene.FavoriteCams.Menu;收藏相机
+Scene.GameMode.Play;播放游戏
+Scene.GameMode.Simulate;模拟世界
+Scene.GameMode.Stop;重置世界
+Scene.GameMode.Pause;暂停游戏 / 单步游戏;暂停正在运行的模拟。暂停后再次按下可逐帧单步执行。
+Scene.KeepSimulationChanges;保留模拟更改;仅在模拟期间可用。将所选对象的位置同步回编辑器。
+Scene.Render.AddAmbient;添加环境光
+Scene.Render.Grid;显示网格
+Scene.Render.SelectionOverlay;可视化选择
+Scene.Render.ShapeIcons;渲染形状图标
+Scene.Render.Visualizers;渲染可视化器
+Scene.Simulation.Speed.01;10%
+Scene.Simulation.Speed.025;25%
+Scene.Simulation.Speed.05;50%
+Scene.Simulation.Speed.1;100%
+Scene.Simulation.Speed.10;1000%
+Scene.Simulation.Speed.15;150%
+Scene.Simulation.Speed.2;200%
+Scene.Simulation.Speed.3;300%
+Scene.Simulation.Speed.4;400%
+Scene.Simulation.Speed.5;500%
+Scene.Simulation.Speed.Menu;模拟速度
+Scene.Utils.Menu;实用工具
+Scene.View.Span;生成视图
+Scene.View.Toggle;切换视图
+Scene.Render.PickTransparent;选择透明对象
+
+Layer.CreateLayer;创建层...
+Layer.DeleteLayer;删除层
+Layer.SaveLayer;保存层
+Layer.SaveActiveLayer;保存活动层
+Layer.LayerLoaded;层已加载
+Layer.LayerVisible;层可见
+Layer.SwitchOnSelection;自动将层切换为选择对象所在层;自动切换到所选对象所在的层。禁用时只能选择活动层中的对象，以防止意外编辑其他层。
+
+WLogicOperator::Equal;=
+WLogicOperator::Unequal;<>
+WLogicOperator::Less;<
+WLogicOperator::LessEqual;<=
+WLogicOperator::Greater;>
+WLogicOperator::GreaterEqual;>=
+
+WExposedSceneProperty;公开属性
+
+WCameraMode::PerspectiveFixedFovX;透视 固定 X
+WCameraMode::PerspectiveFixedFovY;透视 固定 Y
+WCameraMode::OrthoFixedWidth;正交 固定宽度
+WCameraMode::OrthoFixedHeight;正交 固定高度
+
+WCameraUsageHint::RenderTarget;渲染到纹理
+
+WInputMessageGranularity::PressOnly;仅按键按下
+WInputMessageGranularity::PressAndRelease;按键按下和释放
+WInputMessageGranularity::PressReleaseAndDown;按键按下、释放和持续
+WInputMessageGranularity::PressReleaseDownAndUp;全部，包括按键抬起
+
+WClothSheetFlags::FixedCornerTopLeft;角：左上
+WClothSheetFlags::FixedCornerTopRight;角：右上
+WClothSheetFlags::FixedCornerBottomRight;角：右下
+WClothSheetFlags::FixedCornerBottomLeft;角：左下
+WClothSheetFlags::FixedEdgeTop;边：上
+WClothSheetFlags::FixedEdgeRight;边：右
+WClothSheetFlags::FixedEdgeBottom;边：下
+WClothSheetFlags::FixedEdgeLeft;边：左
+WClothSheetFlags::FixedEdgeLeft;边：左
+
+WUpdateRate::EveryFrame;每帧
+WUpdateRate::Max30fps;最高 30 FPS
+WUpdateRate::Max20fps;最高 20 FPS
+WUpdateRate::Max10fps;最高 10 FPS
+WUpdateRate::Max5fps;最高 5 FPS
+WUpdateRate::Max2fps;最高 2 FPS
+WUpdateRate::Max1fps;最高 1 FPS
+WUpdateRate::Never;从不
+
+WOnComponentFinishedAction::None;无
+WOnComponentFinishedAction::DeleteComponent;删除组件
+WOnComponentFinishedAction::DeleteGameObject;删除游戏对象
+
+WOnComponentFinishedAction2::None;无
+WOnComponentFinishedAction2::DeleteComponent;删除组件
+WOnComponentFinishedAction2::DeleteGameObject;删除游戏对象
+WOnComponentFinishedAction2::Restart;重新开始
+
+WRootMotionMode::SendMoveCharacterMsg;发送 MoveCharacterMsg
+
+Prefab.NameLabel;代理对象;当此项设置为 '<Prefab-Root>' 时，该节点表示预制体在场景中实例化到的游戏对象。此时无法编辑其名称、变换等，但可以附加其他组件。

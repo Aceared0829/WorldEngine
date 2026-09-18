@@ -20,3 +20,6 @@ Code/Engine/ezBuildInfo.h
 as.predefined
 
 WDefaultAssertHandlerOutput*
+
+# Local architecture notes
+/ezEngine_项目精解与架构速成.html
